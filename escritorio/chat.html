@@ -128,7 +128,7 @@ button{font:inherit;cursor:pointer}
       <div><b>Ana · GM Cred</b><span>Como o cliente vê a conversa · as etiquetas coloridas só aparecem para você</span></div>
     </div>
     <div class="msgs" id="msgs" aria-live="polite">
-      <div class="vazio" id="vazio"><b>Comece a conversa</b>Escreva como se fosse um cliente. Em cada setor o cliente é sorteado para um dos 3 agentes (A, B ou C) e fica com ele.<br><br>Para testar a jornada inteira, use o CPF de demonstração <code>111.444.777-35</code>. Ele simula um cliente com margem e não cria nada na V8.</div>
+      <div class="vazio" id="vazio"><b>Comece a conversa</b>Escreva como se fosse um cliente. Em cada setor o cliente é sorteado para um dos 3 agentes (A, B ou C) e fica com ele.<br><br>Para testar a jornada inteira, use o CPF de demonstração <code>111.444.777-35</code>. Ele simula um cliente com margem e não cria nada na V8.<br><br>Com um <b>CPF real com saldo</b>, a consulta, a simulação e a <b>proposta são reais na V8</b> (com dados de contato e cadastro de teste). Cancele a proposta no fim do teste.</div>
       <div class="digitando" id="digitando" aria-label="digitando"><span></span><span></span><span></span></div>
     </div>
     <div class="atalhos" id="atalhos"></div>
@@ -150,6 +150,7 @@ button{font:inherit;cursor:pointer}
           <button type="button" id="bAssinou" onclick="evento('assinou')" disabled>✍️ Simular assinatura<small>Cliente assinou</small></button>
           <button type="button" id="bPagou" onclick="evento('pagou')" disabled>💸 Simular pagamento<small>Dinheiro caiu</small></button>
         </div>
+        <button type="button" id="bCancelar" class="perigo" onclick="cancelarProposta()" hidden>⛔ Cancelar proposta na V8<small>Cancela de verdade a proposta criada no teste</small></button>
         <button type="button" onclick="novoCliente()">🔄 Novo cliente<small>Começa do zero, com novo sorteio de agentes</small></button>
         <button type="button" class="perigo" onclick="limparTestes()">🗑️ Apagar clientes de teste<small>Remove do painel todos os clientes criados aqui</small></button>
       </div>
@@ -244,13 +245,29 @@ function bastidores(){
     '<span class="setor"><i style="background:' + s.cor + '"></i>' + esc(s.nome) + '</span><span class="status">' + esc(STATUS[info.status] || info.status || '') + (info.operacao ? ' · contrato ' + esc(OPERACAO[info.operacao] || info.operacao) : '') + '</span>' +
     (ag.nome ? '<div class="agente"><div class="av" style="background:' + s.cor + '">' + esc(ag.nome[0]) + '</div><div><b>' + esc(ag.nome) + '</b><span class="ver">Versão ' + esc(ag.versao) + '</span><p>' + esc(ag.abordagem || '') + '</p></div></div>' : '') +
     (passos ? '<div class="jornada" aria-label="Jornada do cliente">' + passos + '</div>' : '') +
+    (info.operacao_real && !['canceled','refunded','paid'].includes(info.operacao) ? '<div class="aviso-h">⚠️ Esta proposta é <b>real</b> na V8 (com dados de teste). Use “Cancelar proposta na V8” quando terminar o teste. A situação dela é verificada na V8 a cada 2 minutos.</div>' : '') +
     (info.aguardando === 'humano' ? '<div class="aviso-h">🙋 Um atendente humano foi chamado. Os agentes não respondem até ele devolver a conversa no Escritório.</div>' : '');
   atualizarBotoes();
 }
 function atualizarBotoes(){
   const temProposta = info && (info.status === 'link_env' || info.operacao);
-  $('bAssinou').disabled = !(temProposta && (!info.operacao || info.operacao === 'formalization'));
-  $('bPagou').disabled = !(temProposta && info.operacao && info.operacao !== 'paid');
+  const real = !!(info && info.operacao_real);
+  $('bAssinou').disabled = real || !(temProposta && (!info.operacao || info.operacao === 'formalization'));
+  $('bPagou').disabled = real || !(temProposta && info.operacao && info.operacao !== 'paid');
+  $('bCancelar').hidden = !(real && !['canceled','refunded','paid'].includes(info.operacao));
+}
+async function cancelarProposta(){
+  if (!token) { pedirLogin(); return; }
+  if (!confirm('Cancelar de verdade esta proposta na V8?')) return;
+  $('bCancelar').disabled = true;
+  try {
+    const r = await fetch(BASE + '/gmcred/chat/evento', { method:'POST', body:new URLSearchParams({k:token, telefone:tel, evento:'cancelar'}) });
+    if (r.status === 401) { semSessao(); return; }
+    const j = await r.json().catch(() => ({}));
+    hist.push({de:'sis', texto: j.ok ? 'Proposta cancelada na V8.' : ('Não cancelou: ' + (j.texto || 'erro')), em:Date.now()}); bolha(hist[hist.length-1]); salvar();
+    await buscarNovas();
+  } catch (e) { alert('Não foi possível cancelar agora.'); }
+  finally { $('bCancelar').disabled = false; }
 }
 function placar(lista){
   if (!lista || !lista.length) return;
@@ -268,7 +285,7 @@ function placar(lista){
 }
 function aplicarLead(j){
   if (!j) return;
-  info = { lead_id: j.id, setor: j.setor, status: j.status, aguardando: j.aguardando, operacao: j.operacao, agente: j.agente || {}, jornada: j.jornada || [] };
+  info = { lead_id: j.id, setor: j.setor, status: j.status, aguardando: j.aguardando, operacao: j.operacao, operacao_real: !!j.operacao_real, agente: j.agente || {}, jornada: j.jornada || [] };
 }
 
 async function enviar(texto){
