@@ -376,7 +376,7 @@ function demoTick(){
     agentes:D.agentes.map(a=>({...a})),leads,eventos:D.eventos,numeros:D.numeros.map(n=>({...n,leads_ativos:leads.filter(l=>l.numero_id===n.id).length})),funil:[],
     resumo:{entraram_hoje:D.entraram,em_andamento:leads.length,fecharam_hoje:D.fechados,comissao_hoje:D.comissao,parados:leads.filter(l=>l.parado).length},
     financeiro:Object.keys(ETAPAS).map((k,i)=>{const cs=D.contratos.filter(c=>c.etapa===k);return{etapa:k,ordem:i+1,contratos:cs.length,valor_liberado:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao:Math.round(cs.reduce((a,c)=>a+c.comissao,0)*100)/100};}),
-    meta:(()=>{const h=new Date().toDateString(),cs=D.contratos.filter(c=>new Date(c.criado_em).toDateString()===h);return{meta_contratos:2,meta_valor:5000,meta_valor_contrato:2500,contratos_hoje:cs.length,valor_hoje:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao_hoje:cs.reduce((a,c)=>a+c.comissao,0)};})(),
+    meta:(()=>{const h=new Date().toDateString(),cs=D.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&new Date(c.dt_pagamento).toDateString()===h);return{meta_contratos:2,meta_valor:5000,meta_valor_contrato:2500,contratos_hoje:cs.length,valor_hoje:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao_hoje:cs.reduce((a,c)=>a+c.comissao,0)};})(),
     contratos:D.contratos.slice(0,200)};
 }
 
@@ -458,7 +458,7 @@ function renderFin(){
       <div class="big">${brlFull(f.comissao)}</div><div class="sub">comissão · <b>${f.contratos}</b> contrato${Number(f.contratos)===1?'':'s'} · ${brl(f.valor_liberado)} liberado</div></div>`;}).join('');
   el.innerHTML=`<div class="fcard" style="--c:${bateu?'#16a36a':'#2f6fed'}" onclick="abrirPainel('meta')" role="button" tabindex="0">
       <h4>🎯 Meta do dia${bateu?'<span class="selo" style="background:#e3f7ee;color:#0f7a4f">BATIDA</span>':''}</h4>
-      <div class="meta-linha"><span>Contratos</span><b>${M.contratos_hoje||0} de ${M.meta_contratos||2}</b></div><div class="meta-barra"><i style="width:${pc}%"></i></div>
+      <div class="meta-linha"><span>Contratos pagos</span><b>${M.contratos_hoje||0} de ${M.meta_contratos||2}</b></div><div class="meta-barra"><i style="width:${pc}%"></i></div>
       <div class="meta-linha"><span>Valor liberado</span><b>${brlFull(M.valor_hoje)} de ${brlFull(M.meta_valor)}</b></div><div class="meta-barra"><i style="width:${pv}%"></i></div>
     </div>${cards}`;
 }
@@ -539,11 +539,11 @@ function renderPainel(){
     T.innerHTML=`<span style="color:${e.cor}">●</span> ${e.nome}`;S.textContent=e.desc+'.';
     C.innerHTML=`<div class="g-kpis"><div><b style="color:${e.cor}">${brlFull(f.comissao)}</b><span>Comissão</span></div><div><b>${f.contratos}</b><span>Contratos</span></div><div><b>${brlFull(f.valor_liberado)}</b><span>Valor liberado</span></div><div><b>${f.contratos?brlFull(f.comissao/f.contratos):'—'}</b><span>Comissão média</span></div></div>
       <div class="g-sec">Contratos · ${lista.length}</div>${lista.length?lista.map(itemContrato).join(''):'<div class="vazio">Nenhum contrato nesta etapa.</div>'}`;return;}
-  if(painelAberto==='meta'){const M=estado.meta||{};T.textContent='🎯 Meta do dia';S.textContent='Mínimo de '+(M.meta_contratos||2)+' contratos por dia, de '+brlFull(M.meta_valor_contrato||2500)+' liberados cada ('+brlFull(M.meta_valor||5000)+' no dia). Contam os contratos digitados hoje que não foram cancelados.';
-    const hoje=new Date().toDateString(),lista=estado.contratos.filter(c=>new Date(c.criado_em).toDateString()===hoje);
+  if(painelAberto==='meta'){const M=estado.meta||{};T.textContent='🎯 Meta do dia';S.innerHTML='Mínimo de '+(M.meta_contratos||2)+' contratos por dia, de '+brlFull(M.meta_valor_contrato||2500)+' liberados cada ('+brlFull(M.meta_valor||5000)+' no dia). Contam só os contratos <b>pagos hoje</b> (dinheiro na conta do cliente).';
+    const hoje=new Date().toDateString(),lista=estado.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&new Date(c.dt_pagamento).toDateString()===hoje);
     const falta=Math.max(0,(M.meta_contratos||2)-(M.contratos_hoje||0)),faltaV=Math.max(0,(M.meta_valor||5000)-(M.valor_hoje||0));
-    C.innerHTML=`<div class="g-kpis"><div><b>${M.contratos_hoje||0}/${M.meta_contratos||2}</b><span>Contratos hoje</span></div><div><b>${brlFull(M.valor_hoje)}</b><span>Liberado hoje</span></div><div><b>${falta}</b><span>Faltam contratos</span></div><div><b>${brlFull(faltaV)}</b><span>Faltam liberar</span></div></div>
-      <div class="g-sec">Contratos digitados hoje · ${lista.length}</div>${lista.length?lista.map(itemContrato).join(''):'<div class="vazio">Nenhum contrato digitado hoje ainda.</div>'}`;return;}
+    C.innerHTML=`<div class="g-kpis"><div><b>${M.contratos_hoje||0}/${M.meta_contratos||2}</b><span>Pagos hoje</span></div><div><b>${brlFull(M.valor_hoje)}</b><span>Liberado (pagos)</span></div><div><b>${falta}</b><span>Faltam contratos</span></div><div><b>${brlFull(faltaV)}</b><span>Faltam liberar</span></div></div>
+      <div class="g-sec">Contratos pagos hoje · ${lista.length}</div>${lista.length?lista.map(itemContrato).join(''):'<div class="vazio">Nenhum contrato pago hoje ainda.</div>'}`;return;}
   if(painelAberto==='numeros'){T.textContent='Números de atendimento';S.textContent='Portas de entrada do WhatsApp. Todos os agentes atendem em todos os números, e o cliente sempre continua no número por onde entrou.';
     C.innerHTML=estado.numeros.length?estado.numeros.map(n=>{const cor={conectado:'var(--verde)',desconectado:'var(--vermelho)',bloqueado:'var(--vermelho)'}[n.status_conexao]||'var(--tx3)';
       return `<div class="item"><div class="av" style="display:grid;place-items:center;font-size:17px">📱</div><div class="t"><b>${esc(n.apelido||n.telefone||'Número '+n.id)}</b><span>${esc(n.telefone||'')}</span></div><div class="d"><b style="color:${cor}">${esc(n.status_conexao||'—')}</b><span>${n.leads_ativos||0} clientes</span></div></div>`;}).join('')

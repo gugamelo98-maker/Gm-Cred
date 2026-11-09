@@ -17,7 +17,7 @@ on conflict (banco, com_seguro, parcelas) do update set percentual=excluded.perc
 
 create table if not exists credito.metas (chave text primary key, valor numeric not null, descricao text);
 insert into credito.metas values
- ('contratos_dia', 2, 'Mínimo de contratos digitados por dia'),
+ ('contratos_dia', 2, 'Mínimo de contratos pagos por dia'),
  ('valor_contrato', 2500, 'Valor liberado ao cliente por contrato (R$)'),
  ('valor_dia', 5000, 'Valor liberado total por dia (R$)')
 on conflict (chave) do update set valor=excluded.valor, descricao=excluded.descricao;
@@ -90,10 +90,10 @@ create or replace view credito.v_comissao_etapas as
  cross join d left join credito.contratos c on c.etapa=e.etapa
  group by e.etapa, e.ordem order by e.ordem;
 
--- meta: contratos digitados hoje (não cancelados)
+-- meta: só contratos PAGOS hoje
 create or replace view credito.v_meta_hoje as
  with d as (select (date_trunc('day', now() at time zone 'America/Sao_Paulo') at time zone 'America/Sao_Paulo') as hoje),
- c as (select * from credito.contratos, d where criado_em >= d.hoje and etapa <> 'cancelado')
+ c as (select * from credito.contratos, d where etapa = 'pago' and dt_pagamento >= d.hoje)
  select (select valor from credito.metas where chave='contratos_dia')::int as meta_contratos,
    (select valor from credito.metas where chave='valor_dia') as meta_valor,
    (select valor from credito.metas where chave='valor_contrato') as meta_valor_contrato,
