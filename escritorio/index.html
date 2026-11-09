@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Escritório CLT &amp; FGTS</title>
+<title>Escritório CLT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -246,13 +246,36 @@ button{font:inherit;cursor:pointer}
 .taxas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}
 .taxas div{border:1px solid var(--linha);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--tx2)}.taxas b{display:block;font-size:16px;color:var(--tx)}
 @media (max-width:720px){.sim{margin-left:12px;margin-right:12px}}
+/* vendas por dia */
+.vendas{margin:14px 20px 0;display:grid;gap:12px}
+.vd-topo{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.vd-topo h4{margin:0}
+.seg{display:flex;background:#f1f4f8;border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--tx2)}
+.seg button.on{background:#fff;color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.vd-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tx2);margin:10px 0 4px}
+.vd-leg span{display:inline-flex;align-items:center;gap:6px}
+.vd-leg i{display:inline-block;width:12px;height:12px;border-radius:3px}
+.vd-chart{position:relative;width:100%}
+.vd-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.vd-tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--linha);border-radius:10px;padding:8px 10px;font-size:12px;box-shadow:var(--sombra);min-width:170px;display:none;z-index:5}
+.vd-tip b{display:block;font-size:12.5px;margin-bottom:4px}.vd-tip div{display:flex;justify-content:space-between;gap:12px;color:var(--tx2)}.vd-tip div span:last-child{color:var(--tx);font-weight:600}
+.vd-vazio{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--tx3);pointer-events:none}
+.vd-tab summary{cursor:pointer;font-size:12.5px;color:var(--azul);font-weight:600;margin-top:8px}
+.vd-tab table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.vd-tab th,.vd-tab td{text-align:right;padding:5px 6px;border-bottom:1px solid #f0f3f7}.vd-tab th:first-child,.vd-tab td:first-child{text-align:left}
+.vd-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.cres{background:#fff;border-radius:14px;box-shadow:var(--sombra);padding:12px 14px}
+.cres h5{font-size:11.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em}
+.cres .num{font-size:20px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.cres .lin{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-top:4px}
+.up{color:#0f7a4f;font-weight:700}.down{color:#b42318;font-weight:700}.flat{color:var(--tx3);font-weight:700}
+@media (max-width:720px){.vendas{margin-left:12px;margin-right:12px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="marca"><div class="logo">GM</div><div><h1>Escritório CLT &amp; FGTS</h1><p>Empresa virtual · agentes de IA</p></div></div>
+  <div class="marca"><div class="logo">GM</div><div><h1>Escritório CLT</h1><p>Empresa virtual · agentes de IA</p></div></div>
   <div class="kpis">
     <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
     <div class="kpi"><b id="kEnt">0</b><span>Entraram hoje</span></div>
@@ -268,7 +291,7 @@ button{font:inherit;cursor:pointer}
 <div class="aviso" id="aviso"></div>
 <nav class="nav" aria-label="Telas do painel">
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
-  <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📊</span>Funil</button>
+  <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📊</span>Resultados</button>
   <button class="nv" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
 </nav>
 
@@ -287,6 +310,16 @@ button{font:inherit;cursor:pointer}
 
 <div class="view" id="v-funil" hidden>
 <section class="fin" id="fin" aria-label="Meta e comissões"></section>
+<section class="vendas" aria-label="Vendas por dia">
+  <div class="fbox">
+    <div class="vd-topo"><h4>📈 Vendas por dia · últimos 30 dias e projeção do mês</h4>
+      <div class="seg" role="tablist" aria-label="Medida do gráfico"><button class="on" data-m="liberado" onclick="vdMedida('liberado')">Liberado</button><button data-m="pagos" onclick="vdMedida('pagos')">Contratos pagos</button><button data-m="comissao" onclick="vdMedida('comissao')">Comissão</button></div></div>
+    <div class="vd-leg" id="vdLeg"></div>
+    <div class="vd-chart" id="vdChart"></div>
+    <details class="vd-tab"><summary>Ver como tabela</summary><div id="vdTabela"></div></details>
+  </div>
+  <div class="vd-cards" id="vdCres"></div>
+</section>
 <section class="funil" id="funilSec" aria-label="Funil e perdas"></section>
 </div>
 
@@ -320,7 +353,8 @@ button{font:inherit;cursor:pointer}
 const QS=new URLSearchParams(location.search);
 const ENDPOINT=QS.get('api')||'https://rarelookingorca-n8n.cloudfy.live/webhook/escritorio/estado';
 const BASE=ENDPOINT.replace(/\/escritorio\/estado.*$/,'');
-let chave=lsGet('escritorio_chave')||'';
+lsSet('escritorio_chave','');
+let chave=lsGet('escritorio_token')||'';   // token de sessão (a chave mestra não fica salva)
 let ultimaAtualizacao=0;
 const POLL_MS=60000;   // dados reais: consulta o n8n 1x por minuto
 const DEMO_MS=3000;    // modo demonstração: não usa o n8n, pode ser rápido
@@ -460,10 +494,10 @@ function mesaSvg(s,ligado){
 // ═════════════ MODO DEMO (dados fictícios no mesmo formato da API) ═════════════
 const DEMO_SETORES=[
  {id:'recepcao',nome:'Recepção',descricao:'Recebe o cliente, entende o interesse e pede o CPF',cor:'#f26b4d',ordem:1,sla_minutos:30},
- {id:'simulacao',nome:'Simulação',descricao:'Consulta V8 Digital e Hub Crédito e monta a melhor oferta',cor:'#e0a100',ordem:2,sla_minutos:15},
- {id:'vendas',nome:'Vendas',descricao:'Apresenta a oferta, contorna objeções e decide CLT ou FGTS',cor:'#2f8fd8',ordem:3,sla_minutos:120},
- {id:'formalizacao',nome:'Formalização',descricao:'Envia o link de assinatura e cobra quem não assinou',cor:'#16a36a',ordem:4,sla_minutos:1440},
- {id:'posvenda',nome:'Pós-venda',descricao:'Confirma liberação, oferece FGTS (upsell) e pede indicação',cor:'#8a5cd6',ordem:5,sla_minutos:4320},
+ {id:'simulacao',nome:'Simulação',descricao:'Consulta a margem na V8 e monta a melhor oferta',cor:'#e0a100',ordem:2,sla_minutos:30},
+ {id:'vendas',nome:'Vendas',descricao:'Apresenta a oferta, ajusta prazo e parcela e contorna objeções',cor:'#2f8fd8',ordem:3,sla_minutos:120},
+ {id:'formalizacao',nome:'Formalização',descricao:'Coleta os dados, digita a proposta na V8 e cobra a assinatura',cor:'#16a36a',ordem:4,sla_minutos:1440},
+ {id:'posvenda',nome:'Pós-venda',descricao:'Acompanha o pagamento, resolve pendências e pede indicação',cor:'#8a5cd6',ordem:5,sla_minutos:4320},
  {id:'gerente',nome:'Gerente',descricao:'Supervisiona todos os setores e resgata clientes parados',cor:'#6b7787',ordem:6,sla_minutos:null}];
 const DEMO_AG=[['Ana','recepcao','Recepcionista'],['Bruno','simulacao','Analista de crédito'],['Carla','vendas','Consultora de vendas'],['Diego','formalizacao','Especialista em contratos'],['Elisa','posvenda','Relacionamento'],['Fernando','gerente','Gerente geral']];
 const DEMO_NOMES=['João Silva','Maria Santos','Pedro Oliveira','Carla Costa','Roberto Lima','Juliana Ferreira','Marcelo Souza','Patricia Alves','Fernando Rocha','Beatriz Mendes','André Cardoso','Camila Ribeiro','Rodrigo Nunes','Larissa Pinto','Leandro Castro','Amanda Correia','Fabio Dias','Renata Barbosa'];
@@ -488,6 +522,10 @@ function setNome(id){const s=DEMO_SETORES.find(x=>x.id===id);return s?s.nome:id;
 function parado(l){const s=(estado.setores.length?estado.setores:DEMO_SETORES).find(x=>x.id===l.setor_id);return !!(s&&s.sla_minutos&&minDesde(l.entrou_setor_em)>s.sla_minutos);}
 function demoLead(st,min){const prod=Math.random()<.65?'clt':'fgts';const valor=prod==='clt'?rnd(9000,28000):rnd(3000,11000);
   return{id:++demoSeq,nome:DEMO_NOMES[demoSeq%DEMO_NOMES.length],telefone:'55489'+rnd(10000000,99999999),setor_id:FLUXO[st][0],status:FLUXO[st][1],etapa:st,produto:prod,banco:Math.random()<.5?'v8digital':'hubcredito',valor,comissao:Math.round(valor*.03),numero_id:rnd(1,2),aguardando:Math.random()<.5?'cliente':'agente',entrou_setor_em:new Date(Date.now()-min*60000).toISOString(),ultima_interacao:new Date(Date.now()-min*30000).toISOString()};}
+function demoVendas(){let seed=7;const rnd2=()=>(seed=(seed*16807)%2147483647)/2147483647;const out=[],h=new Date();
+  for(let i=61;i>=0;i--){const d=new Date(h.getFullYear(),h.getMonth(),h.getDate()-i),fds=d.getDay()===0||d.getDay()===6,tr=1+(61-i)/61*.8,cli=Math.round((fds?6:16)*tr+rnd2()*6),pg=Math.max(0,Math.round(cli*.17+(rnd2()-.5)*2)),lib=pg*Math.round(3200+rnd2()*1800);
+    out.push({dia:dataISO(d),clientes:cli,digitados:Math.round(cli*.25),pagos:pg,liberado:lib,comissao:Math.round(lib*.068)});}
+  return out;}
 function demoInit(){demoState={setores:DEMO_SETORES,agentes:DEMO_AG.map((a,i)=>({id:i+1,nome:a[0],setor_id:a[1],papel:a[2],status:'livre',avatar:{},fechados:0,em_andamento:0,receita_total:0})),leads:[],eventos:[],numeros:[{id:1,apelido:'Atendimento 1',telefone:'(48) 9xxxx-0001',status_conexao:'conectado'},{id:2,apelido:'Atendimento 2',telefone:'(48) 9xxxx-0002',status_conexao:'conectado'}],fechados:0,comissao:0,entraram:0,contratos:[]};
   for(let i=0;i<11;i++){demoState.leads.push(demoLead(rnd(0,FLUXO.length-1),rnd(1,200)));demoState.entraram++;}
   demoState.leads[0].aguardando='humano';
@@ -526,6 +564,7 @@ function demoTick(){
       ...leads.filter(l=>l.parado&&l.aguardando!=='humano'&&minDesde(l.entrou_setor_em)>=2*((DEMO_SETORES.find(s=>s.id===l.setor_id)||{}).sla_minutos||1e9)).slice(0,3).map(l=>({chave:'travado-'+l.id,tipo:'travado',prioridade:2,titulo:'Cliente travado há '+minDesde(l.entrou_setor_em)+' min',detalhe:'Setor: '+setNome(l.setor_id),lead_id:l.id,cliente:l.nome,desde:l.entrou_setor_em}))],
     funil:(()=>{const e=D.entraram+60;return{entraram:e,enviaram_cpf:Math.round(e*.78),com_margem:Math.round(e*.52),receberam_proposta:Math.round(e*.41),assinaram:Math.round(e*.24),pagos:Math.round(e*.17),perdidos:Math.round(e*.35),
       motivos_perda:[{motivo:'Sem margem disponível',total:Math.round(e*.12)},{motivo:'Parou de responder',total:Math.round(e*.1)},{motivo:'Sem vínculo CLT ativo',total:Math.round(e*.07)},{motivo:'Achou a parcela alta',total:Math.round(e*.04)},{motivo:'Não quis informar dados',total:Math.round(e*.02)}]};})(),
+    vendas:(()=>{const v=(D.vendasBase=D.vendasBase||demoVendas()).map(x=>({...x}));const pg=D.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&new Date(c.dt_pagamento).toDateString()===new Date().toDateString());const t=v[v.length-1];t.pagos=pg.length;t.liberado=pg.reduce((a,c)=>a+c.valor_liberado,0);t.comissao=pg.reduce((a,c)=>a+c.comissao,0);t.clientes=D.entraram;return v;})(),
     simulacao:(()=>{const e=D.entraram+60,cs=D.contratos,av=f=>cs.length?cs.reduce((a,c)=>a+f(c),0)/cs.length:0,pg=cs.filter(c=>c.etapa==='pago'),hj=new Date();
       return{dias_janela:30,clientes:e,contratos:cs.length+8,pagos:Math.round(e*.17),formalizados_ou_pagos:Math.round(e*.17)+3,valor_medio:Math.round(av(c=>c.valor_liberado)),pct_seguro:av(c=>c.com_seguro?1:0),parcelas_media:Math.round(av(c=>c.parcelas)),comissao_media:Math.round(av(c=>c.comissao)*100)/100,
         pago_mes_valor:pg.reduce((a,c)=>a+c.valor_liberado,0)+38000,pago_mes_comissao:pg.reduce((a,c)=>a+c.comissao,0)+3100,dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};})(),
@@ -537,7 +576,7 @@ async function atualizar(){
   if(demo){if(!demoState)demoInit();aplicarEstado(demoTick());ultimaAtualizacao=Date.now();setConn();return;}
   if(!chave){conectado=false;ultimoErro='sem chave';pedirChave();setConn();return;}
   try{const r=await fetch(ENDPOINT+(ENDPOINT.includes('?')?'&':'?')+'k='+encodeURIComponent(chave),{cache:'no-store'});
-    if(r.status===401){chave='';lsSet('escritorio_chave','');conectado=false;ultimoErro='chave inválida';pedirChave('Chave inválida ou desativada.');setConn();return;}
+    if(r.status===401){chave='';lsSet('escritorio_token','');conectado=false;ultimoErro='chave inválida';pedirChave('Chave inválida ou desativada.');setConn();return;}
     if(!r.ok)throw new Error('HTTP '+r.status);aplicarEstado(await r.json());conectado=true;ultimoErro=null;ultimaAtualizacao=Date.now();}
   catch(e){conectado=false;ultimoErro=e.message;}
   setConn();
@@ -552,8 +591,13 @@ function setConn(){
   else a.style.display='none';
 }
 function pedirChave(msg){if(demo)return;const L=document.getElementById('login');document.getElementById('chaveErr').textContent=msg||'';L.classList.add('on');setTimeout(()=>{try{document.getElementById('chaveIn').focus();}catch(e){}},50);}
-function entrar(){const v=document.getElementById('chaveIn').value.trim();if(!v){document.getElementById('chaveErr').textContent='Digite a chave.';return;}
-  chave=v;lsSet('escritorio_chave',v);document.getElementById('login').classList.remove('on');document.getElementById('chaveIn').value='';if(demo){demo=false;lsSet('escritorio_demo','0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();}atualizar();agendar();}
+async function entrar(){const v=document.getElementById('chaveIn').value.trim(),err=document.getElementById('chaveErr');if(!v){err.textContent='Digite a chave.';return;}
+  err.textContent='Entrando…';
+  try{const r=await fetch(BASE+'/escritorio/login',{method:'POST',body:new URLSearchParams({k:v})});const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.token){err.textContent=r.status===401?'Chave inválida.':'Não foi possível entrar (HTTP '+r.status+').';return;}
+    chave=j.token;lsSet('escritorio_token',chave);err.textContent='';
+  }catch(e){err.textContent='Sem conexão com o servidor.';return;}
+  document.getElementById('login').classList.remove('on');document.getElementById('chaveIn').value='';if(demo){demo=false;lsSet('escritorio_demo','0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();}atualizar();agendar();}
 function verDemo(){document.getElementById('login').classList.remove('on');if(!demo)toggleDemo();}
 setInterval(()=>{const u=document.getElementById('upd');if(!ultimaAtualizacao){u.textContent='';return;}const s=Math.round((Date.now()-ultimaAtualizacao)/1000);u.textContent='Atualizado há '+(s<60?s+'s':Math.floor(s/60)+' min');},5000);
 function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',demo?'1':'0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();atualizar();}
@@ -561,12 +605,12 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[]};
   const R=estado.resumo;
   kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
   kRec.textContent=brl((estado.financeiro.find(f=>f.etapa==='pago')||{}).comissao);
   kPrev.textContent=brl(estado.financeiro.filter(f=>f.etapa!=='pago').reduce((a,f)=>a+Number(f.comissao||0),0));
-  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();kPar.textContent=R.parados??0;
+  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
   const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
@@ -607,7 +651,7 @@ function atualizarSalas(){
     else bal.classList.remove('on');
     const leads=ger?estado.leads.filter(l=>l.parado):estado.leads.filter(l=>l.setor_id===s.id);
     const esp=leads.filter(l=>l.aguardando==='cliente').length;
-    rod.innerHTML=ger?`<span>Fecharam hoje: <b>${estado.resumo.fecharam_hoje||0}</b></span><span>Comissão: <b>${brl(estado.resumo.comissao_hoje)}</b></span>`
+    rod.innerHTML=ger?`<span>Pagos hoje: <b>${(estado.meta&&estado.meta.contratos_hoje)||0}</b></span><span>Comissão dos pagos: <b>${brl(estado.meta&&estado.meta.comissao_hoje)}</b></span>`
       :`<span>Prazo: ${s.sla_minutos?tempo(s.sla_minutos):'—'}</span><span>⏳ esperando cliente: ${esp}</span><span>🤖 com o agente: ${leads.length-esp}</span>`;
   });
 }
@@ -630,6 +674,81 @@ function renderFunil(){const el=document.getElementById('funilSec');const F=(est
 function renderSaude(){const S=estado.saude||{};
   document.getElementById('saude').innerHTML=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>{x=x||{};const c=x.ok===true?'ok':x.ok===false?'erro':'neutro';
     return `<span class="sd ${c}" title="${esc(n+': '+(x.detalhe||'sem dados'))}"><i></i><span>${n}</span></span>`;}).join('');}
+
+// ═════════════ VENDAS POR DIA (gráfico, crescimento e projeção) ═════════════
+let vdM=lsGet('escritorio_vd')||'liberado';
+const VD={liberado:{nome:'Liberado',fmt:v=>brlFull(v),eixo:v=>v>=1000?'R$'+Math.round(v/1000)+'k':'R$'+Math.round(v)},pagos:{nome:'Contratos pagos',fmt:v=>(Math.round(v*10)/10).toString().replace('.',','),eixo:v=>String(Math.round(v*10)/10).replace('.',',')},comissao:{nome:'Comissão',fmt:v=>brlFull(v),eixo:v=>v>=1000?'R$'+(v/1000).toFixed(1).replace('.',',')+'k':'R$'+Math.round(v)}};
+function vdMedida(m){vdM=m;lsSet('escritorio_vd',m);document.querySelectorAll('.seg button').forEach(b=>{b.classList.toggle('on',b.dataset.m===m);b.setAttribute('aria-selected',b.dataset.m===m);});renderVendas();}
+function dataISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function diaDe(s){const [y,m,d]=String(s).slice(0,10).split('-').map(Number);return new Date(y,m-1,d);}
+function fmtDia(s){const d=diaDe(s);return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');}
+const DSEM=['dom','seg','ter','qua','qui','sex','sáb'];
+function variacao(a,b){if(!b&&!a)return'<span class="flat">— sem dados</span>';if(!b)return'<span class="up">▲ novo</span>';const v=(a-b)/b*100;const c=Math.abs(v)<.5?'flat':v>0?'up':'down';return`<span class="${c}">${v>0?'▲':v<0?'▼':'•'} ${Math.abs(v).toFixed(0)}%</span>`;}
+function serieVendas(){
+  const V=(estado.vendas||[]).map(x=>({...x,clientes:+x.clientes||0,digitados:+x.digitados||0,pagos:+x.pagos||0,liberado:+x.liberado||0,comissao:+x.comissao||0}));
+  if(!V.length)return null;
+  const hoje=V[V.length-1].dia.slice(0,10),dHoje=diaDe(hoje);
+  const ult=V.slice(-30),prev7=V.slice(-8,-1);   // 7 dias completos antes de hoje
+  const media={};['liberado','pagos','comissao','clientes'].forEach(k=>media[k]=prev7.reduce((a,x)=>a+x[k],0)/Math.max(1,prev7.length));
+  const fimMes=new Date(dHoje.getFullYear(),dHoje.getMonth()+1,0),futuros=[];
+  for(let d=new Date(dHoje.getFullYear(),dHoje.getMonth(),dHoje.getDate()+1);d<=fimMes;d.setDate(d.getDate()+1))futuros.push({dia:dataISO(d),proj:true,liberado:media.liberado,pagos:media.pagos,comissao:media.comissao});
+  return{V,ult,futuros,hoje,dHoje,media};
+}
+function renderVendas(){
+  const box=document.getElementById('vdChart');if(!box)return;
+  if(typeof telaAtual!=='undefined'&&telaAtual!=='funil'){return;}
+  const S=serieVendas(),m=vdM,info=VD[m],meta=Number((estado.meta&&estado.meta.meta_valor)||7000);
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  document.getElementById('vdLeg').innerHTML=`<span><i style="background:#2a78d6"></i>Realizado</span><span><i style="background:repeating-linear-gradient(135deg,#2a78d6 0 2px,#e8f0fb 2px 5px);border:1px solid #2a78d6"></i>Projeção (média dos últimos 7 dias)</span><span><i style="height:3px;border-radius:2px;background:#eb6834"></i>Média de 7 dias</span>${m==='liberado'?'<span><i style="height:0;border-top:2px dashed #52514e;border-radius:0"></i>Meta diária</span>':''}`;
+  if(!S){box.innerHTML='<div class="vazio">Sem dados de vendas.</div>';return;}
+  const pts=[...S.ult,...S.futuros],n=pts.length;
+  // média móvel de 7 dias sobre a série real
+  const mm=S.ult.map((x,i)=>{const j=S.V.length-S.ult.length+i,w=S.V.slice(Math.max(0,j-6),j+1);return w.reduce((a,y)=>a+y[m],0)/w.length;});
+  const W=Math.max(320,box.clientWidth||900),H=Math.round(Math.min(320,Math.max(220,W*.32))),pl=52,pr=12,pt=14,pb=30,iw=W-pl-pr,ih=H-pt-pb;
+  let max=Math.max(...pts.map(x=>x[m]),...mm,m==='liberado'?meta:0);if(!(max>0))max=m==='liberado'?meta:(m==='pagos'?3:300);max*=1.12;
+  const y=v=>pt+ih-(v/max)*ih,bw=iw/n,gap=Math.max(1,Math.min(4,bw*.25)),barW=Math.max(1.5,bw-gap);
+  const ticks=4,grid=[...Array(ticks+1)].map((_,i)=>max/ticks*i);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${info.nome} por dia nos últimos 30 dias com projeção até o fim do mês"><defs><pattern id="hach" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(135)"><rect width="5" height="5" fill="#e8f0fb"/><rect width="2" height="5" fill="#2a78d6"/></pattern></defs>`;
+  grid.forEach(g=>{svg+=`<line x1="${pl}" x2="${W-pr}" y1="${y(g)}" y2="${y(g)}" stroke="#e8edf3" stroke-width="1"/><text x="${pl-8}" y="${y(g)+4}" text-anchor="end" font-size="10.5" fill="#8a96a5">${info.eixo(g)}</text>`;});
+  pts.forEach((x,i)=>{const v=x[m],h=Math.max(0,ih-(y(v)-pt)),bx=pl+i*bw+gap/2,r=Math.min(4,barW/2,h);
+    if(v>0){const top=y(v);svg+=x.proj
+      ?`<path d="M${bx},${pt+ih} V${top+r} q0,-${r} ${r},-${r} H${bx+barW-r} q${r},0 ${r},${r} V${pt+ih} Z" fill="url(#hach)" stroke="#2a78d6" stroke-width="1"/>`
+      :`<path d="M${bx},${pt+ih} V${top+r} q0,-${r} ${r},-${r} H${bx+barW-r} q${r},0 ${r},${r} V${pt+ih} Z" fill="#2a78d6"/>`;}
+    const passo=Math.max(1,Math.ceil(n*46/iw)),iH=S.ult.length-1;
+    if(i===iH)svg+=`<text x="${bx+barW/2}" y="${H-4}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1d2733">hoje</text>`;
+    else if((i-iH)%passo===0)svg+=`<text x="${bx+barW/2}" y="${H-4}" text-anchor="middle" font-size="10.5" fill="#8a96a5">${fmtDia(x.dia)}</text>`;});
+  svg+=`<line x1="${pl}" x2="${W-pr}" y1="${pt+ih}" y2="${pt+ih}" stroke="#cfd8e3"/>`;
+  if(m==='liberado')svg+=`<line x1="${pl}" x2="${W-pr}" y1="${y(meta)}" y2="${y(meta)}" stroke="#52514e" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${W-pr}" y="${y(meta)-6}" text-anchor="end" font-size="11" font-weight="700" fill="#52514e" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Meta ${brl(meta)}/dia</text>`;
+  const lp=mm.map((v,i)=>`${i?'L':'M'}${(pl+i*bw+bw/2).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  svg+=`<path d="${lp}" fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const iHoje=S.ult.length-1;svg+=`<line id="vdCross" x1="0" x2="0" y1="${pt}" y2="${pt+ih}" stroke="#8a96a5" stroke-width="1" visibility="hidden"/>`;
+  svg+=`<rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="transparent" id="vdHit"/></svg><div class="vd-tip" id="vdTip"></div>`;
+  const vazio=S.ult.every(x=>!x[m]);
+  box.innerHTML=svg+(vazio?'<div class="vd-vazio">Ainda não há vendas registradas: o gráfico enche conforme os contratos forem pagos.</div>':'');
+  const hit=document.getElementById('vdHit'),tip=document.getElementById('vdTip'),cr=document.getElementById('vdCross');
+  const mover=ev=>{const rc=box.querySelector('svg').getBoundingClientRect(),sx=(ev.touches?ev.touches[0].clientX:ev.clientX)-rc.left,esc=W/rc.width,xv=sx*esc,i=Math.max(0,Math.min(n-1,Math.floor((xv-pl)/bw)));const x=pts[i],cx=pl+i*bw+bw/2;
+    cr.setAttribute('x1',cx);cr.setAttribute('x2',cx);cr.setAttribute('visibility','visible');
+    const d=diaDe(x.dia);tip.innerHTML=x.proj?`<b>${DSEM[d.getDay()]} ${fmtDia(x.dia)} · projeção</b><div><span>${info.nome}</span><span>${info.fmt(x[m])}</span></div><div><span>Base</span><span>média dos últimos 7 dias</span></div>`
+      :`<b>${DSEM[d.getDay()]} ${fmtDia(x.dia)}${x.dia.slice(0,10)===S.hoje?' · hoje':''}</b><div><span>Liberado</span><span>${brlFull(x.liberado)}</span></div><div><span>Contratos pagos</span><span>${x.pagos}</span></div><div><span>Comissão</span><span>${brlFull(x.comissao)}</span></div><div><span>Clientes que entraram</span><span>${x.clientes}</span></div><div><span>Propostas digitadas</span><span>${x.digitados}</span></div>${i<mm.length?`<div><span>Média 7 dias</span><span>${info.fmt(mm[i])}</span></div>`:''}`;
+    tip.style.display='block';const tw=tip.offsetWidth;let left=cx/esc+12;if(left+tw>rc.width)left=cx/esc-tw-12;tip.style.left=Math.max(0,left)+'px';tip.style.top='8px';};
+  hit.addEventListener('mousemove',mover);hit.addEventListener('touchstart',mover,{passive:true});hit.addEventListener('touchmove',mover,{passive:true});
+  hit.addEventListener('mouseleave',()=>{tip.style.display='none';cr.setAttribute('visibility','hidden');});
+  document.getElementById('vdTabela').innerHTML=`<table><thead><tr><th>Dia</th><th>Clientes</th><th>Digitados</th><th>Pagos</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>${S.ult.slice().reverse().map(x=>`<tr><td>${DSEM[diaDe(x.dia).getDay()]} ${fmtDia(x.dia)}</td><td>${x.clientes}</td><td>${x.digitados}</td><td>${x.pagos}</td><td>${brlFull(x.liberado)}</td><td>${brlFull(x.comissao)}</td></tr>`).join('')}</tbody></table>`;
+  renderCrescimento(S,meta);
+}
+function renderCrescimento(S,meta){
+  const V=S.V,soma=(arr,k)=>arr.reduce((a,x)=>a+x[k],0);
+  const sem=V.slice(-7),semAnt=V.slice(-14,-7);
+  const d=S.dHoje,diaN=d.getDate(),mesAtual=V.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===d.getMonth()&&t.getFullYear()===d.getFullYear();});
+  const pm=new Date(d.getFullYear(),d.getMonth()-1,1),mesAnt=V.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===pm.getMonth()&&t.getFullYear()===pm.getFullYear()&&t.getDate()<=diaN;});
+  const card=(t,k,f)=>`<div class="cres"><h5>${t}</h5><div class="num">${f(soma(sem,k))}</div><div class="lin"><span>vs semana anterior</span>${variacao(soma(sem,k),soma(semAnt,k))}</div><div class="lin"><span>mês até hoje (${f(soma(mesAtual,k))})</span>${variacao(soma(mesAtual,k),soma(mesAnt,k))}</div></div>`;
+  const realMes=soma(mesAtual,'liberado'),projMes=realMes+soma(S.futuros,'liberado'),projCom=soma(mesAtual,'comissao')+soma(S.futuros,'comissao');
+  const melhor=mesAtual.reduce((a,x)=>x.liberado>(a?a.liberado:-1)?x:a,null),bateram=mesAtual.filter(x=>x.liberado>=meta).length;
+  const diasMes=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),metaMes=meta*diasMes;
+  document.getElementById('vdCres').innerHTML=card('Clientes que entraram · 7 dias','clientes',v=>String(v))+card('Contratos pagos · 7 dias','pagos',v=>String(v))+card('Liberado · 7 dias','liberado',v=>brl(v))+card('Comissão · 7 dias','comissao',v=>brl(v))
+   +`<div class="cres"><h5>Projeção de fechamento do mês</h5><div class="num">${brl(projMes)}</div><div class="lin"><span>liberado · ${projMes>=metaMes?'<span class="up">bate</span>':'<span class="down">abaixo</span>'} a meta do mês (${brl(metaMes)})</span></div><div class="lin"><span>comissão projetada</span><b>${brl(projCom)}</b></div></div>`
+   +`<div class="cres"><h5>Destaques do mês</h5><div class="num">${bateram} de ${diaN}</div><div class="lin"><span>dias que bateram a meta</span></div><div class="lin"><span>melhor dia</span><b>${melhor&&melhor.liberado>0?fmtDia(melhor.dia)+' · '+brl(melhor.liberado):'—'}</b></div><div class="lin"><span>média por dia no mês</span><b>${brl(realMes/Math.max(1,diaN))}</b></div></div>`;
+}
 
 // ═════════════ SIMULAÇÃO ═════════════
 const PARCELAS=[3,4,5,6,7,8,9,10,11,12,18,24,36,38,46,48];
@@ -793,7 +912,7 @@ function posicionarClientes(){
   for(const [id,el] of cliEls){if(!vivos.has(id)){el.style.opacity='0';setTimeout(()=>el.remove(),500);cliEls.delete(id);}}
 }
 function festa(leadId){const el=cliEls.get(leadId);if(el){el.classList.remove('festa');void el.offsetWidth;el.classList.add('festa');}}
-window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(posicionarClientes,120);});
+window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(()=>{posicionarClientes();renderVendas();},120);});
 
 // tooltip do cliente
 const tip=document.getElementById('tip');
@@ -844,7 +963,7 @@ function renderPainel(){
   const ger=s.id==='gerente';const ag=estado.agentes.find(a=>a.setor_id===s.id);
   const leads=ger?estado.leads.filter(l=>l.parado):estado.leads.filter(l=>l.setor_id===s.id);
   T.innerHTML=`<span style="color:${s.cor}">●</span> ${esc(s.nome)}`;S.textContent=s.descricao+(s.sla_minutos?' · Prazo do setor: '+tempo(s.sla_minutos)+'.':'');
-  const k=ger?[[estado.resumo.em_andamento||0,'Clientes na empresa'],[estado.resumo.parados||0,'Parados além do prazo'],[estado.resumo.fecharam_hoje||0,'Fecharam hoje'],[brl(estado.resumo.comissao_hoje),'Comissão hoje']]
+  const k=ger?[[estado.resumo.em_andamento||0,'Clientes na empresa'],[estado.resumo.parados||0,'Parados além do prazo'],[(estado.meta&&estado.meta.contratos_hoje)||0,'Pagos hoje'],[brl(estado.meta&&estado.meta.comissao_hoje),'Comissão dos pagos hoje']]
     :[[s.leads_ativos,'Clientes aqui'],[s.leads_parados,'Parados'],[leads.filter(l=>l.aguardando==='cliente').length,'Esperando o cliente'],[ag?(AG_LABEL[ag.status]||ag.status):'—','Agente']];
   C.innerHTML=`<div class="g-kpis">${k.map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>
     ${ag?`<div class="g-sec">Agente do setor</div><div class="item"><div class="av">${avatarAgente(ag)}</div><div class="t"><b>${esc(ag.nome)}</b><span>${esc(ag.papel||'')}</span></div><div class="d"><b>${ag.fechados||0}</b><span>fechados</span></div></div>`:''}
@@ -862,7 +981,7 @@ let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='funil')setTimeout(renderVendas,30);}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
