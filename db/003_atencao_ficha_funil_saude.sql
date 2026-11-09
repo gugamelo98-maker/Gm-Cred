@@ -133,3 +133,35 @@ begin
   end if;
   return json_build_object('ok',false,'erro','acao_desconhecida');
 end $$;
+
+-- 9. ABA SIMULAÇÃO: dados para previsão (taxas, valores médios, mês corrente) — painel chama estado_painel_v2
+create or replace function credito.simulacao_dados() returns json language sql stable as $$
+ with sp as (select (now() at time zone 'America/Sao_Paulo') as agora),
+ mes as (select (date_trunc('month', agora) at time zone 'America/Sao_Paulo') as ini, agora from sp),
+ l30 as (select * from credito.leads where criado_em >= now() - interval '30 days'),
+ c30 as (select * from credito.contratos where criado_em >= now() - interval '30 days' and coalesce(etapa,'') <> 'cancelado')
+ select json_build_object(
+  'dias_janela', coalesce((select greatest(1, least(30, ceil(extract(epoch from now() - min(criado_em))/86400.0)))::int from l30), 0),
+  'clientes', (select count(*) from l30),
+  'contratos', (select count(*) from c30),
+  'pagos', (select count(*) from c30 where etapa='pago'),
+  'formalizados_ou_pagos', (select count(*) from c30 where etapa in ('formalizado','pago')),
+  'valor_medio', (select round(avg(valor_liberado),2) from c30 where valor_liberado is not null),
+  'pct_seguro', (select round(avg(case when com_seguro then 1.0 else 0 end),4) from c30 where com_seguro is not null),
+  'parcelas_media', (select round(avg(parcelas)) from c30 where parcelas is not null),
+  'comissao_media', (select round(avg(comissao),2) from c30 where comissao is not null),
+  'pago_mes_valor', (select coalesce(sum(valor_liberado),0) from credito.contratos, mes where etapa='pago' and dt_pagamento >= mes.ini),
+  'pago_mes_comissao', (select coalesce(sum(comissao),0) from credito.contratos, mes where etapa='pago' and dt_pagamento >= mes.ini),
+  'dias_mes', (select extract(day from (date_trunc('month', agora) + interval '1 month - 1 day'))::int from sp),
+  'dia_atual', (select extract(day from agora)::int from sp),
+  'meta_dia', (select valor from credito.metas where chave='valor_dia')
+ )
+$$;
+
+create or replace function credito.estado_painel_v2(k text) returns json language plpgsql as $$
+declare e json;
+begin
+  e := credito.estado_painel(k);
+  if e is null then return null; end if;
+  return (e::jsonb || jsonb_build_object('simulacao', credito.simulacao_dados()::jsonb))::json;
+end $$;

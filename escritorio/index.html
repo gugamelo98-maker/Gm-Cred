@@ -226,6 +226,26 @@ button{font:inherit;cursor:pointer}
   .nv .badge{position:static}
   .top{position:relative}
 }
+/* simulação */
+.sim{margin:14px 20px 0}
+.simtx{font-size:13px;color:var(--tx2);line-height:1.5;margin:-4px 0 6px}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px 22px;margin:14px 0 10px}
+.campo label{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--tx2);margin-bottom:4px}
+.campo label b{color:var(--tx);font-variant-numeric:tabular-nums}
+.campo input[type=range]{width:100%;accent-color:var(--azul)}
+.campo select{width:100%;border:1px solid var(--linha);border-radius:8px;padding:7px;font:inherit;font-size:13px;background:#fff}
+.sim-bts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.sim-bts .bt{padding:8px 12px;font-size:12.5px}
+.sim-bts .bt:disabled{opacity:.45;cursor:not-allowed}
+.sim-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.sc{background:#f6f8fb;border-radius:12px;padding:12px 14px}
+.sc span{display:block;font-size:11.5px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.sc b{display:block;font-size:21px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.sc small{display:block;font-size:12px;color:var(--tx2);margin-top:2px;line-height:1.4}
+.sc.ok{background:#e9f8f0}.sc.ok b{color:#0f7a4f}.sc.ruim{background:#fdeeee}.sc.ruim b{color:#b42318}
+.coleta{display:grid;gap:10px;margin-top:6px}
+.taxas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}
+.taxas div{border:1px solid var(--linha);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--tx2)}.taxas b{display:block;font-size:16px;color:var(--tx)}
+@media (max-width:720px){.sim{margin-left:12px;margin-right:12px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -249,6 +269,7 @@ button{font:inherit;cursor:pointer}
 <nav class="nav" aria-label="Telas do painel">
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📊</span>Funil</button>
+  <button class="nv" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
 </nav>
 
 <div class="view" id="v-escritorio">
@@ -267,6 +288,19 @@ button{font:inherit;cursor:pointer}
 <div class="view" id="v-funil" hidden>
 <section class="fin" id="fin" aria-label="Meta e comissões"></section>
 <section class="funil" id="funilSec" aria-label="Funil e perdas"></section>
+</div>
+
+<div class="view" id="v-simulacao" hidden>
+<section class="sim" id="simPrev" aria-label="Previsão com dados reais"></section>
+<section class="sim" aria-label="Simulador e se">
+  <div class="fbox">
+    <h4>🧪 Simulador "e se…"</h4>
+    <p class="simtx">Mexa nos números e veja o resultado na hora. Serve para planejar: quantos clientes você precisa, onde vale melhorar a conversão e quanto isso rende de comissão. <span id="simOrigem"></span></p>
+    <div class="sim-grid" id="simCampos"></div>
+    <div class="sim-bts"><button class="bt pri" id="btReais" onclick="simUsarReais()">📈 Usar meus números reais</button><button class="bt" onclick="simExemplo()">↺ Valores de exemplo</button></div>
+    <div class="sim-cards" id="simRes"></div>
+  </div>
+</section>
 </div>
 
 <div class="ticker" onclick="abrirPainel('feed')"><span class="ao"><i></i>AO VIVO</span><span class="tx" id="tickerTxt">Aguardando acontecimentos…</span><span class="bt">ver tudo</span></div>
@@ -492,6 +526,9 @@ function demoTick(){
       ...leads.filter(l=>l.parado&&l.aguardando!=='humano'&&minDesde(l.entrou_setor_em)>=2*((DEMO_SETORES.find(s=>s.id===l.setor_id)||{}).sla_minutos||1e9)).slice(0,3).map(l=>({chave:'travado-'+l.id,tipo:'travado',prioridade:2,titulo:'Cliente travado há '+minDesde(l.entrou_setor_em)+' min',detalhe:'Setor: '+setNome(l.setor_id),lead_id:l.id,cliente:l.nome,desde:l.entrou_setor_em}))],
     funil:(()=>{const e=D.entraram+60;return{entraram:e,enviaram_cpf:Math.round(e*.78),com_margem:Math.round(e*.52),receberam_proposta:Math.round(e*.41),assinaram:Math.round(e*.24),pagos:Math.round(e*.17),perdidos:Math.round(e*.35),
       motivos_perda:[{motivo:'Sem margem disponível',total:Math.round(e*.12)},{motivo:'Parou de responder',total:Math.round(e*.1)},{motivo:'Sem vínculo CLT ativo',total:Math.round(e*.07)},{motivo:'Achou a parcela alta',total:Math.round(e*.04)},{motivo:'Não quis informar dados',total:Math.round(e*.02)}]};})(),
+    simulacao:(()=>{const e=D.entraram+60,cs=D.contratos,av=f=>cs.length?cs.reduce((a,c)=>a+f(c),0)/cs.length:0,pg=cs.filter(c=>c.etapa==='pago'),hj=new Date();
+      return{dias_janela:30,clientes:e,contratos:cs.length+8,pagos:Math.round(e*.17),formalizados_ou_pagos:Math.round(e*.17)+3,valor_medio:Math.round(av(c=>c.valor_liberado)),pct_seguro:av(c=>c.com_seguro?1:0),parcelas_media:Math.round(av(c=>c.parcelas)),comissao_media:Math.round(av(c=>c.comissao)*100)/100,
+        pago_mes_valor:pg.reduce((a,c)=>a+c.valor_liberado,0)+38000,pago_mes_comissao:pg.reduce((a,c)=>a+c.comissao,0)+3100,dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};})(),
     saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}};
 }
 
@@ -524,12 +561,12 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{}};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null};
   const R=estado.resumo;
   kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
   kRec.textContent=brl((estado.financeiro.find(f=>f.etapa==='pago')||{}).comissao);
   kPrev.textContent=brl(estado.financeiro.filter(f=>f.etapa!=='pago').reduce((a,f)=>a+Number(f.comissao||0),0));
-  renderFin();renderAtencao();renderFunil();renderSaude();kPar.textContent=R.parados??0;
+  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
   const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
@@ -593,6 +630,78 @@ function renderFunil(){const el=document.getElementById('funilSec');const F=(est
 function renderSaude(){const S=estado.saude||{};
   document.getElementById('saude').innerHTML=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>{x=x||{};const c=x.ok===true?'ok':x.ok===false?'erro':'neutro';
     return `<span class="sd ${c}" title="${esc(n+': '+(x.detalhe||'sem dados'))}"><i></i><span>${n}</span></span>`;}).join('');}
+
+// ═════════════ SIMULAÇÃO ═════════════
+const PARCELAS=[3,4,5,6,7,8,9,10,11,12,18,24,36,38,46,48];
+const SIM_EXEMPLO={cli:20,cpf:60,mar:50,pro:70,ass:60,pag:90,val:2500,seg:50,parc:46,dias:22};
+const SIM_CAMPOS=[['cli','Clientes novos por dia',1,300,1,''],['cpf','Mandam o CPF',0,100,1,'%'],['mar','Têm margem (dos que mandaram CPF)',0,100,1,'%'],['pro','Recebem proposta (dos com margem)',0,100,1,'%'],['ass','Assinam (dos que receberam proposta)',0,100,1,'%'],['pag','São pagos (dos que assinaram)',0,100,1,'%'],['val','Valor médio liberado',300,25000,100,'R$'],['seg','Vendidos com seguro',0,100,5,'%'],['dias','Dias de operação no mês',1,31,1,'']];
+let simVals=(()=>{try{const v=JSON.parse(lsGet('escritorio_sim')||'null');return v&&typeof v==='object'?{...SIM_EXEMPLO,...v}:{...SIM_EXEMPLO};}catch(e){return{...SIM_EXEMPLO};}})();
+let simOrigem=lsGet('escritorio_sim_origem')||'exemplo',simMontado=false;
+function pctTabela(seg,p){if(seg)return p>=46?9.5:p>=24?7:p===18?4.5:p===12?4.01:3.01;return p>=24?3.01:p>=12?2.01:1.01;}
+function wilson(k,n){if(!n)return[0,0];const z=1.96,q=k/n,d=1+z*z/n,c=q+z*z/(2*n),m=z*Math.sqrt(q*(1-q)/n+z*z/(4*n*n));return[Math.max(0,(c-m)/d),Math.min(1,(c+m)/d)];}
+function div(a,b){a=Number(a||0);b=Number(b||0);return b>0?a/b:0;}
+function pct(x){return (Math.round(x*1000)/10).toString().replace('.',',')+'%';}
+function dadosReais(){const F=(estado.funil&&!Array.isArray(estado.funil))?estado.funil:{},S=estado.simulacao||{};
+  return{F,S,suficiente:Number(F.entraram||0)>=50&&Number(S.pagos||0)>=5,temAlgo:Number(F.entraram||0)>0&&Number(S.pagos||0)>0,
+    taxas:{cpf:div(F.enviaram_cpf,F.entraram),mar:div(F.com_margem,F.enviaram_cpf),pro:div(F.receberam_proposta,F.com_margem),ass:div(F.assinaram,F.receberam_proposta),pag:div(F.pagos,F.assinaram)}};}
+function renderSimulacao(){
+  const {F,S,suficiente,temAlgo,taxas}=dadosReais();const el=document.getElementById('simPrev');
+  const metaDia=Number(S.meta_dia||(estado.meta&&estado.meta.meta_valor)||7000);
+  if(!suficiente){
+    const nc=Math.min(50,Number(F.entraram||0)),np=Math.min(5,Number(S.pagos||0));
+    el.innerHTML=`<div class="fbox"><h4>🔮 Previsão com os seus números reais</h4>
+      <p class="simtx">A previsão usa as taxas reais dos últimos 30 dias. Para não enganar com poucos dados, ela começa a aparecer depois de <b>50 clientes atendidos</b> e <b>5 contratos pagos</b>. Enquanto isso, use o simulador abaixo.</p>
+      <div class="coleta"><div class="meta-linha"><span>Clientes atendidos</span><b>${nc} de 50</b></div><div class="meta-barra"><i style="width:${nc*2}%"></i></div>
+      <div class="meta-linha"><span>Contratos pagos</span><b>${np} de 5</b></div><div class="meta-barra"><i style="width:${np*20}%"></i></div></div></div>`;
+  }else{
+    const p=div(F.pagos,F.entraram),[lo,hi]=wilson(Number(F.pagos),Number(F.entraram));
+    const cliDia=div(F.entraram,S.dias_janela||30),valMed=Number(S.valor_medio||0),comMed=Number(S.comissao_media||0);
+    const rest=Math.max(0,Number(S.dias_mes||30)-Number(S.dia_atual||1));
+    const proj=q=>Number(S.pago_mes_valor||0)+rest*cliDia*q*valMed, projC=q=>Number(S.pago_mes_comissao||0)+rest*cliDia*q*comMed;
+    const probStatus={disparado:div(F.pagos,F.entraram),respondeu:div(F.pagos,F.entraram),cpf_ok:div(F.pagos,F.enviaram_cpf),simulado:div(F.pagos,F.com_margem),proposta:div(F.pagos,F.receberam_proposta),negociando:div(F.pagos,F.receberam_proposta)};
+    const comLead=estado.leads.reduce((a,l)=>a+(probStatus[l.status]!=null?probStatus[l.status]*comMed:0),0);
+    const pAg=div(S.pagos,S.contratos),pFo=div(S.pagos,S.formalizados_ou_pagos);
+    const comCt=estado.contratos.reduce((a,c)=>a+(c.etapa==='aguardando_formalizacao'?pAg:c.etapa==='formalizado'?pFo:0)*Number(c.comissao||comMed),0);
+    const ritmo=cliDia*p*valMed,nec=p*valMed>0?Math.ceil(metaDia/(p*valMed)):0,bate=ritmo>=metaDia;
+    el.innerHTML=`<div class="fbox"><h4>🔮 Previsão com os seus números reais · últimos ${S.dias_janela||30} dias</h4>
+      <div class="sim-cards">
+        <div class="sc"><span>Comissão esperada dos clientes em andamento</span><b>${brlFull(comLead+comCt)}</b><small>${estado.leads.length} clientes e ${estado.contratos.filter(c=>c.etapa!=='pago').length} contratos abertos, pesados pela chance de cada etapa virar pago</small></div>
+        <div class="sc"><span>Comissão projetada no mês</span><b>${brl(projC(lo))} – ${brl(projC(hi))}</b><small>mais provável ${brlFull(projC(p))} · já recebido ${brlFull(S.pago_mes_comissao)}</small></div>
+        <div class="sc"><span>Liberado projetado no mês</span><b>${brl(proj(lo))} – ${brl(proj(hi))}</b><small>mais provável ${brlFull(proj(p))}</small></div>
+        <div class="sc ${bate?'ok':'ruim'}"><span>Ritmo diário vs meta</span><b>${brlFull(ritmo)}</b><small>${bate?'✅ acima':'❌ abaixo'} da meta de ${brlFull(metaDia)} por dia</small></div>
+        <div class="sc"><span>Clientes por dia para bater a meta</span><b>${nec||'—'}</b><small>hoje entram ${cliDia.toFixed(1).replace('.',',')} por dia · ${pct(p)} viram contrato pago</small></div>
+      </div>
+      <div class="taxas"><div>Mandam o CPF<b>${pct(taxas.cpf)}</b></div><div>Têm margem<b>${pct(taxas.mar)}</b></div><div>Recebem proposta<b>${pct(taxas.pro)}</b></div><div>Assinam<b>${pct(taxas.ass)}</b></div><div>São pagos<b>${pct(taxas.pag)}</b></div><div>Valor médio liberado<b>${brl(valMed)}</b></div></div></div>`;
+  }
+  const bt=document.getElementById('btReais');bt.disabled=!temAlgo;bt.title=temAlgo?(suficiente?'':'Ainda há poucos dados: os números podem variar bastante'):'Ainda não há dados reais suficientes';
+  if(!simMontado){montarSim();syncSim();}calcSim();
+}
+function montarSim(){simMontado=true;const g=document.getElementById('simCampos');
+  g.innerHTML=SIM_CAMPOS.map(([k,n,mi,ma,st,u])=>`<div class="campo"><label for="s_${k}">${n}<b id="v_${k}"></b></label><input type="range" id="s_${k}" min="${mi}" max="${ma}" step="${st}" value="${simVals[k]}" oninput="simVals['${k}']=Number(this.value);simOrigem='ajustado';calcSim()"></div>`).join('')
+   +`<div class="campo"><label for="s_parc">Prazo mais vendido</label><select id="s_parc" onchange="simVals.parc=Number(this.value);simOrigem='ajustado';calcSim()">${PARCELAS.map(x=>`<option value="${x}">${x} parcelas</option>`).join('')}</select></div>`;}
+function syncSim(){SIM_CAMPOS.forEach(([k])=>{const i=document.getElementById('s_'+k);if(i&&Number(i.value)!==simVals[k])i.value=simVals[k];});const sp=document.getElementById('s_parc');if(sp)sp.value=String(simVals.parc);}
+function calcSim(){const v=simVals;
+  SIM_CAMPOS.forEach(([k,,,,,u])=>{const e=document.getElementById('v_'+k);if(e)e.textContent=u==='R$'?brlFull(v[k]):v[k]+(u||'');});
+  const taxa=v.cpf/100*v.mar/100*v.pro/100*v.ass/100*v.pag/100,pagosDia=v.cli*taxa,libDia=pagosDia*v.val;
+  const pctC=(v.seg/100)*pctTabela(true,v.parc)+(1-v.seg/100)*pctTabela(false,v.parc),comCt=v.val*pctC/100;
+  const metaDia=Number((estado.simulacao&&estado.simulacao.meta_dia)||(estado.meta&&estado.meta.meta_valor)||7000);
+  const nec=taxa*v.val>0?Math.ceil(metaDia/(taxa*v.val)):0,bate=libDia>=metaDia;
+  document.getElementById('simOrigem').textContent=simOrigem==='reais'?'(Usando os seus números reais.)':simOrigem==='exemplo'?'(Valores de exemplo: ajuste para a sua realidade.)':'';
+  document.getElementById('simRes').innerHTML=`
+    <div class="sc"><span>De cada 100 clientes</span><b>${(taxa*100).toFixed(1).replace('.',',')}</b><small>viram contrato pago</small></div>
+    <div class="sc"><span>Contratos pagos</span><b>${pagosDia.toFixed(1).replace('.',',')} / dia</b><small>${Math.round(pagosDia*v.dias)} no mês</small></div>
+    <div class="sc ${bate?'ok':'ruim'}"><span>Liberado por dia</span><b>${brlFull(libDia)}</b><small>${bate?'✅ bate':'❌ não bate'} a meta de ${brlFull(metaDia)}</small></div>
+    <div class="sc"><span>Comissão por contrato</span><b>${brlFull(comCt)}</b><small>${pctC.toFixed(2).replace('.',',')}% em média (${v.seg}% com seguro, ${v.parc}x)</small></div>
+    <div class="sc ok"><span>Comissão no mês</span><b>${brlFull(comCt*pagosDia*v.dias)}</b><small>${brlFull(libDia*v.dias)} liberados em ${v.dias} dias</small></div>
+    <div class="sc"><span>Para bater a meta</span><b>${nec||'—'} clientes/dia</b><small>com essas taxas e esse valor médio</small></div>`;
+  lsSet('escritorio_sim',JSON.stringify(simVals));lsSet('escritorio_sim_origem',simOrigem);}
+function simExemplo(){simVals={...SIM_EXEMPLO};simOrigem='exemplo';syncSim();calcSim();}
+function simUsarReais(){const {F,S,taxas,suficiente}=dadosReais();if(!(Number(F.entraram||0)>0))return;
+  const r=x=>Math.max(0,Math.min(100,Math.round(x*100)));
+  const parc=PARCELAS.reduce((a,b)=>Math.abs(b-Number(S.parcelas_media||46))<Math.abs(a-Number(S.parcelas_media||46))?b:a,46);
+  simVals={...simVals,cli:Math.max(1,Math.round(div(F.entraram,S.dias_janela||30))),cpf:r(taxas.cpf),mar:r(taxas.mar),pro:r(taxas.pro),ass:r(taxas.ass),pag:r(taxas.pag),
+    val:Math.max(300,Math.round(Number(S.valor_medio||simVals.val)/100)*100),seg:Math.round(Number(S.pct_seguro!=null?S.pct_seguro:simVals.seg/100)*20)*5,parc};
+  simOrigem='reais';syncSim();calcSim();if(!suficiente)document.getElementById('simOrigem').textContent='(Números reais, mas ainda com poucos dados: podem variar bastante.)';}
 
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
@@ -748,9 +857,10 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-let telaAtual=(location.hash==='#tela-funil')?'funil':((location.hash==='#tela-escritorio')?'escritorio':(lsGet('escritorio_tela')||'escritorio'));
-function irPara(v){telaAtual=v==='funil'?'funil':'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
-  document.getElementById('v-escritorio').hidden=telaAtual!=='escritorio';document.getElementById('v-funil').hidden=telaAtual!=='funil';
+const TELAS=['escritorio','funil','simulacao'];
+let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
+function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
+  TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
   window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);}
 irPara(telaAtual);
