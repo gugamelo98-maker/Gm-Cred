@@ -17,9 +17,7 @@ on conflict (banco, com_seguro, parcelas) do update set percentual=excluded.perc
 
 create table if not exists credito.metas (chave text primary key, valor numeric not null, descricao text);
 insert into credito.metas values
- ('contratos_dia', 2, 'Mínimo de contratos pagos por dia'),
- ('valor_contrato', 2500, 'Valor liberado ao cliente por contrato (R$)'),
- ('valor_dia', 7000, 'Valor liberado total por dia (R$)')
+ ('valor_dia', 7000, 'Valor liberado em contratos PAGOS por dia (R$)')
 on conflict (chave) do update set valor=excluded.valor, descricao=excluded.descricao;
 
 alter table credito.leads add column if not exists consult_id text;
@@ -94,9 +92,9 @@ create or replace view credito.v_comissao_etapas as
 create or replace view credito.v_meta_hoje as
  with d as (select (date_trunc('day', now() at time zone 'America/Sao_Paulo') at time zone 'America/Sao_Paulo') as hoje),
  c as (select * from credito.contratos, d where etapa = 'pago' and dt_pagamento >= d.hoje)
- select (select valor from credito.metas where chave='contratos_dia')::int as meta_contratos,
+ select null::int as meta_contratos,
    (select valor from credito.metas where chave='valor_dia') as meta_valor,
-   (select valor from credito.metas where chave='valor_contrato') as meta_valor_contrato,
+   null::numeric as meta_valor_contrato,
    (select count(*) from c)::int as contratos_hoje,
    (select coalesce(sum(valor_liberado),0) from c) as valor_hoje,
    (select coalesce(sum(comissao),0) from c) as comissao_hoje;
