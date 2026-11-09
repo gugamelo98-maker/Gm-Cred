@@ -19,7 +19,7 @@ create table if not exists credito.metas (chave text primary key, valor numeric 
 insert into credito.metas values
  ('contratos_dia', 2, 'Mínimo de contratos pagos por dia'),
  ('valor_contrato', 2500, 'Valor liberado ao cliente por contrato (R$)'),
- ('valor_dia', 5000, 'Valor liberado total por dia (R$)')
+ ('valor_dia', 7000, 'Valor liberado total por dia (R$)')
 on conflict (chave) do update set valor=excluded.valor, descricao=excluded.descricao;
 
 alter table credito.leads add column if not exists consult_id text;
