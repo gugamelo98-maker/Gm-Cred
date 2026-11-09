@@ -124,6 +124,20 @@ button{font:inherit;cursor:pointer}
 .ev time{color:var(--tx3);font-size:12px;width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}
 .ev i{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
 .abas{display:flex;gap:6px;margin:0 20px;flex-wrap:wrap}
+/* ── financeiro ── */
+.fin{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:12px;margin:14px 20px 0}
+.fcard{background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:14px 16px;cursor:pointer;border-top:4px solid var(--c);transition:transform .2s}
+.fcard:hover{transform:translateY(-2px)}
+.fcard h4{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.fcard .big{font-size:24px;font-weight:800;margin-top:6px;font-variant-numeric:tabular-nums;color:var(--c)}
+.fcard .sub{font-size:12.5px;color:var(--tx2);margin-top:3px}
+.fcard .sub b{color:var(--tx)}
+.meta-barra{height:9px;background:#eef2f6;border-radius:999px;overflow:hidden;margin-top:8px}
+.meta-barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2f6fed,#16a36a);transition:width .6s}
+.meta-linha{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-top:9px}
+.meta-linha b{color:var(--tx)}
+.selo{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:auto}
+@media (max-width:1100px){.fin{grid-template-columns:1fr 1fr}}
 .aba{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600;color:var(--tx2)}
 
 .tip{position:fixed;z-index:70;pointer-events:none;background:#fff;border:1px solid var(--linha);border-radius:12px;padding:10px 12px;font-size:12px;box-shadow:var(--sombra);min-width:190px;display:none}
@@ -140,7 +154,8 @@ button{font:inherit;cursor:pointer}
   .conn{margin-left:auto}
   .escritorio{margin:12px;padding:12px}
   .salas{grid-template-columns:1fr;gap:14px}
-  .aviso,.abas{margin-left:12px;margin-right:12px}
+  .aviso,.abas,.fin{margin-left:12px;margin-right:12px}
+  .fin{grid-template-columns:1fr 1fr;gap:10px}.fin .fcard:first-child{grid-column:1/-1}.fcard .big{font-size:20px}
   .ticker{padding:0 14px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -154,12 +169,13 @@ button{font:inherit;cursor:pointer}
     <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
     <div class="kpi"><b id="kEnt">0</b><span>Entraram</span></div>
     <div class="kpi"><b id="kFec" style="color:var(--verde)">0</b><span>Fecharam</span></div>
-    <div class="kpi"><b id="kCom">R$0</b><span>Comissão</span></div>
+    <div class="kpi"><b id="kCom" style="color:#8a5cd6">R$0</b><span>Comissão</span></div>
     <div class="kpi"><b id="kPar" style="color:var(--vermelho)">0</b><span>Parados</span></div>
   </div>
   <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração"><i></i><span>...</span></button>
 </header>
 <div class="aviso" id="aviso"></div>
+<section class="fin" id="fin" aria-label="Comissões e meta"></section>
 
 <main class="escritorio" id="escritorio">
   <div class="salas" id="salas"></div>
@@ -200,7 +216,8 @@ const VISUAL={
 const CENA={recepcao:{janela:true,planta:true},simulacao:{quadro:'graf'},vendas:{janela:true,quadro:'meta'},formalizacao:{arquivo:true,planta:true},posvenda:{janela:true,planta:true},gerente:{janela:true,quadro:'graf',arquivo:true}};
 
 // ═════════════ UTIL ═════════════
-let estado={setores:[],agentes:[],leads:[],eventos:[],resumo:{},numeros:[],funil:[]};
+let estado={setores:[],agentes:[],leads:[],eventos:[],resumo:{},numeros:[],funil:[],financeiro:[],meta:null,contratos:[]};
+const ETAPAS={aguardando_formalizacao:{nome:'Aguardando formalização',cor:'#e0a100',icone:'✍️',desc:'Proposta digitada, esperando o cliente assinar'},formalizado:{nome:'Formalizado',cor:'#2f6fed',icone:'📄',desc:'Cliente assinou; em análise ou processando o pagamento'},pago:{nome:'Pago',cor:'#16a36a',icone:'✅',desc:'Dinheiro liberado na conta do cliente (mês atual)'}};
 let conectado=false,ultimoErro=null;
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function brl(v){v=Number(v)||0;return v>=1000?'R$'+(v/1000).toFixed(v>=10000?0:1).replace('.',',')+'k':'R$'+Math.round(v);}
@@ -331,8 +348,12 @@ function setNome(id){const s=DEMO_SETORES.find(x=>x.id===id);return s?s.nome:id;
 function parado(l){const s=(estado.setores.length?estado.setores:DEMO_SETORES).find(x=>x.id===l.setor_id);return !!(s&&s.sla_minutos&&minDesde(l.entrou_setor_em)>s.sla_minutos);}
 function demoLead(st,min){const prod=Math.random()<.65?'clt':'fgts';const valor=prod==='clt'?rnd(9000,28000):rnd(3000,11000);
   return{id:++demoSeq,nome:DEMO_NOMES[demoSeq%DEMO_NOMES.length],telefone:'55489'+rnd(10000000,99999999),setor_id:FLUXO[st][0],status:FLUXO[st][1],etapa:st,produto:prod,banco:Math.random()<.5?'v8digital':'hubcredito',valor,comissao:Math.round(valor*.03),numero_id:rnd(1,2),aguardando:Math.random()<.5?'cliente':'agente',entrou_setor_em:new Date(Date.now()-min*60000).toISOString(),ultima_interacao:new Date(Date.now()-min*30000).toISOString()};}
-function demoInit(){demoState={setores:DEMO_SETORES,agentes:DEMO_AG.map((a,i)=>({id:i+1,nome:a[0],setor_id:a[1],papel:a[2],status:'livre',avatar:{},fechados:0,em_andamento:0,receita_total:0})),leads:[],eventos:[],numeros:[{id:1,apelido:'Atendimento 1',telefone:'(48) 9xxxx-0001',status_conexao:'conectado'},{id:2,apelido:'Atendimento 2',telefone:'(48) 9xxxx-0002',status_conexao:'conectado'}],fechados:0,comissao:0,entraram:0};
-  for(let i=0;i<11;i++){demoState.leads.push(demoLead(rnd(0,FLUXO.length-1),rnd(1,200)));demoState.entraram++;}}
+function demoInit(){demoState={setores:DEMO_SETORES,agentes:DEMO_AG.map((a,i)=>({id:i+1,nome:a[0],setor_id:a[1],papel:a[2],status:'livre',avatar:{},fechados:0,em_andamento:0,receita_total:0})),leads:[],eventos:[],numeros:[{id:1,apelido:'Atendimento 1',telefone:'(48) 9xxxx-0001',status_conexao:'conectado'},{id:2,apelido:'Atendimento 2',telefone:'(48) 9xxxx-0002',status_conexao:'conectado'}],fechados:0,comissao:0,entraram:0,contratos:[]};
+  for(let i=0;i<11;i++){demoState.leads.push(demoLead(rnd(0,FLUXO.length-1),rnd(1,200)));demoState.entraram++;}
+  for(let i=0;i<5;i++){const c=demoContrato({id:900+i,nome:DEMO_NOMES[(i*5)%DEMO_NOMES.length]});c.etapa=['aguardando_formalizacao','formalizado','pago','pago','formalizado'][i];if(c.etapa==='pago')c.dt_pagamento=new Date().toISOString();c.criado_em=new Date(Date.now()-(i+1)*86400000).toISOString();demoState.contratos.push(c);}}
+function pctComissao(seg,p){if(seg)return p>=46?9.5:p>=24?7:p===18?4.5:p===12?4.01:3.01;return p>=24?3.01:p>=12?2.01:1.01;}
+function demoContrato(l){const p=[24,36,46,48,48,18][rnd(0,5)],seg=Math.random()<.7,v=rnd(1500,6000),pct=pctComissao(seg,p);
+  return{id:'c'+l.id+'_'+Date.now(),lead_id:l.id,nome:l.nome,etapa:'aguardando_formalizacao',parcelas:p,com_seguro:seg,valor_liberado:v,valor_parcela:Math.round(v*(seg?1.6:1.4)/p*100)/100,percentual:pct,comissao:Math.round(v*pct)/100,criado_em:new Date().toISOString()};}
 function demoEvento(l,tipo,desc,de,para){demoState.eventos.unshift({id:Date.now()+Math.random(),lead_id:l.id,tipo,descricao:desc,setor_origem:de,setor_destino:para,criado_em:new Date().toISOString()});demoState.eventos=demoState.eventos.slice(0,40);}
 function demoTick(){
   const D=demoState;
@@ -344,13 +365,19 @@ function demoTick(){
     const de=l.setor_id;l.etapa++;l.setor_id=FLUXO[l.etapa][0];l.status=FLUXO[l.etapa][1];l.ultima_interacao=new Date().toISOString();l.aguardando=Math.random()<.5?'cliente':'agente';
     if(de!==l.setor_id){l.entrou_setor_em=new Date().toISOString();demoEvento(l,'mudou_setor',l.nome+' foi de '+setNome(de)+' para '+setNome(l.setor_id),de,l.setor_id);}
     else demoEvento(l,'status',l.nome+': '+STATUS_LABEL[l.status],l.setor_id,l.setor_id);
+    if(l.status==='link_env'&&!D.contratos.some(c=>c.lead_id===l.id)){const c=demoContrato(l);D.contratos.unshift(c);demoEvento(l,'contrato_aguardando_formalizacao',l.nome+': proposta digitada, '+brlFull(c.valor_liberado)+' · comissão '+brlFull(c.comissao),l.setor_id,l.setor_id);}
+    if(l.status==='assinou'){const c=D.contratos.find(c=>c.lead_id===l.id);if(c)c.etapa='formalizado';}
     if(l.status==='assinou'){D.fechados++;D.comissao+=l.comissao;const ag=D.agentes.find(a=>a.setor_id==='formalizacao');ag.fechados++;ag.receita_total+=l.comissao;demoEvento(l,'fechou',l.nome+' assinou o contrato! ('+brlFull(l.valor)+')',l.setor_id,l.setor_id);}
   }
+  D.contratos.filter(c=>c.etapa==='formalizado').forEach(c=>{if(Math.random()<.12){c.etapa='pago';c.dt_pagamento=new Date().toISOString();demoEvento({id:c.lead_id},'contrato_pago',c.nome+': contrato pago! '+brlFull(c.valor_liberado)+' liberado · comissão '+brlFull(c.comissao),'posvenda','posvenda');}});
   D.agentes.forEach(a=>{const n=D.leads.filter(l=>l.setor_id===a.setor_id).length;a.status=a.setor_id==='gerente'?(D.leads.some(parado)?'trabalhando':'livre'):(n>0&&Math.random()<.8?'trabalhando':'livre');a.em_andamento=n;});
   const leads=D.leads.map(l=>({...l,parado:parado(l)}));
   return{setores:D.setores.map(s=>({...s,leads_ativos:leads.filter(l=>l.setor_id===s.id).length,leads_parados:leads.filter(l=>l.setor_id===s.id&&l.parado).length,agentes:1,agentes_trabalhando:D.agentes.filter(a=>a.setor_id===s.id&&a.status==='trabalhando').length})),
     agentes:D.agentes.map(a=>({...a})),leads,eventos:D.eventos,numeros:D.numeros.map(n=>({...n,leads_ativos:leads.filter(l=>l.numero_id===n.id).length})),funil:[],
-    resumo:{entraram_hoje:D.entraram,em_andamento:leads.length,fecharam_hoje:D.fechados,comissao_hoje:D.comissao,parados:leads.filter(l=>l.parado).length}};
+    resumo:{entraram_hoje:D.entraram,em_andamento:leads.length,fecharam_hoje:D.fechados,comissao_hoje:D.comissao,parados:leads.filter(l=>l.parado).length},
+    financeiro:Object.keys(ETAPAS).map((k,i)=>{const cs=D.contratos.filter(c=>c.etapa===k);return{etapa:k,ordem:i+1,contratos:cs.length,valor_liberado:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao:Math.round(cs.reduce((a,c)=>a+c.comissao,0)*100)/100};}),
+    meta:(()=>{const h=new Date().toDateString(),cs=D.contratos.filter(c=>new Date(c.criado_em).toDateString()===h);return{meta_contratos:2,meta_valor:5000,meta_valor_contrato:2500,contratos_hoje:cs.length,valor_hoje:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao_hoje:cs.reduce((a,c)=>a+c.comissao,0)};})(),
+    contratos:D.contratos.slice(0,200)};
 }
 
 // ═════════════ BUSCA DE DADOS ═════════════
@@ -373,9 +400,9 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[]};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[]};
   const R=estado.resumo;
-  kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kFec.textContent=R.fecharam_hoje??0;kCom.textContent=brl(R.comissao_hoje);kPar.textContent=R.parados??0;
+  kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kFec.textContent=R.fecharam_hoje??0;kCom.textContent=brl(estado.financeiro.reduce((a,f)=>a+Number(f.comissao||0),0));renderFin();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
   const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
@@ -420,6 +447,25 @@ function atualizarSalas(){
       :`<span>Prazo: ${s.sla_minutos?tempo(s.sla_minutos):'—'}</span><span>⏳ esperando cliente: ${esp}</span><span>🤖 com o agente: ${leads.length-esp}</span>`;
   });
 }
+
+// ═════════════ COMISSÃO E META ═════════════
+function renderFin(){
+  const el=document.getElementById('fin');const M=estado.meta||{meta_contratos:2,meta_valor:5000,contratos_hoje:0,valor_hoje:0,comissao_hoje:0};
+  const pc=Math.min(100,Math.round((M.contratos_hoje||0)/(M.meta_contratos||2)*100)),pv=Math.min(100,Math.round((M.valor_hoje||0)/(M.meta_valor||5000)*100));
+  const bateu=(M.contratos_hoje||0)>=(M.meta_contratos||2)&&(M.valor_hoje||0)>=(M.meta_valor||5000);
+  const cards=Object.entries(ETAPAS).map(([k,e])=>{const f=estado.financeiro.find(x=>x.etapa===k)||{contratos:0,valor_liberado:0,comissao:0};
+    return `<div class="fcard" style="--c:${e.cor}" onclick="abrirPainel('etapa:${k}')" role="button" tabindex="0"><h4>${e.icone} ${e.nome}${k==='pago'?'<span class="selo" style="background:#e3f7ee;color:#0f7a4f">mês</span>':''}</h4>
+      <div class="big">${brlFull(f.comissao)}</div><div class="sub">comissão · <b>${f.contratos}</b> contrato${Number(f.contratos)===1?'':'s'} · ${brl(f.valor_liberado)} liberado</div></div>`;}).join('');
+  el.innerHTML=`<div class="fcard" style="--c:${bateu?'#16a36a':'#2f6fed'}" onclick="abrirPainel('meta')" role="button" tabindex="0">
+      <h4>🎯 Meta do dia${bateu?'<span class="selo" style="background:#e3f7ee;color:#0f7a4f">BATIDA</span>':''}</h4>
+      <div class="meta-linha"><span>Contratos</span><b>${M.contratos_hoje||0} de ${M.meta_contratos||2}</b></div><div class="meta-barra"><i style="width:${pc}%"></i></div>
+      <div class="meta-linha"><span>Valor liberado</span><b>${brlFull(M.valor_hoje)} de ${brlFull(M.meta_valor)}</b></div><div class="meta-barra"><i style="width:${pv}%"></i></div>
+    </div>${cards}`;
+}
+function itemContrato(c){const e=ETAPAS[c.etapa]||{cor:'#999'};
+  return `<div class="item"><div class="av" style="display:grid;place-items:center;font-size:16px;background:${e.cor}22">${(ETAPAS[c.etapa]||{}).icone||'📄'}</div>
+    <div class="t"><b>${esc(c.nome||'Cliente')}</b><span>${c.parcelas||'?'}x de ${brlFull(c.valor_parcela)} · ${c.com_seguro?'com seguro':'sem seguro'} · ${c.percentual!=null?String(c.percentual).replace('.',',')+'%':'—'}</span></div>
+    <div class="d"><b style="color:${e.cor}">${brlFull(c.comissao)}</b><span>${brlFull(c.valor_liberado)} liberado</span></div></div>`;}
 
 // clientes: cada um é um bonequinho posicionado na "zona do chão" da sala do seu setor
 const cliEls=new Map();
@@ -488,6 +534,16 @@ function renderPainel(){
   if(painelAberto==='feed'){T.textContent='Feed ao vivo';S.textContent='Tudo o que está acontecendo na empresa, do mais recente para o mais antigo.';
     C.innerHTML=estado.eventos.length?estado.eventos.map(e=>{const s=setorById(e.setor_destino||e.setor_origem);const cor=e.tipo==='fechou'?'var(--verde)':e.tipo==='perdeu'?'var(--vermelho)':(s?s.cor:'#999');
       return `<div class="ev"><time>${hora(e.criado_em)}</time><i style="background:${cor}"></i><span>${esc(e.descricao)}</span></div>`;}).join(''):'<div class="vazio">Nenhum acontecimento ainda. Quando um cliente entrar, aparece aqui.</div>';return;}
+  if(painelAberto&&painelAberto.startsWith('etapa:')){const k=painelAberto.slice(6),e=ETAPAS[k];const f=estado.financeiro.find(x=>x.etapa===k)||{contratos:0,valor_liberado:0,comissao:0};
+    const lista=estado.contratos.filter(c=>c.etapa===k);
+    T.innerHTML=`<span style="color:${e.cor}">●</span> ${e.nome}`;S.textContent=e.desc+'.';
+    C.innerHTML=`<div class="g-kpis"><div><b style="color:${e.cor}">${brlFull(f.comissao)}</b><span>Comissão</span></div><div><b>${f.contratos}</b><span>Contratos</span></div><div><b>${brlFull(f.valor_liberado)}</b><span>Valor liberado</span></div><div><b>${f.contratos?brlFull(f.comissao/f.contratos):'—'}</b><span>Comissão média</span></div></div>
+      <div class="g-sec">Contratos · ${lista.length}</div>${lista.length?lista.map(itemContrato).join(''):'<div class="vazio">Nenhum contrato nesta etapa.</div>'}`;return;}
+  if(painelAberto==='meta'){const M=estado.meta||{};T.textContent='🎯 Meta do dia';S.textContent='Mínimo de '+(M.meta_contratos||2)+' contratos por dia, de '+brlFull(M.meta_valor_contrato||2500)+' liberados cada ('+brlFull(M.meta_valor||5000)+' no dia). Contam os contratos digitados hoje que não foram cancelados.';
+    const hoje=new Date().toDateString(),lista=estado.contratos.filter(c=>new Date(c.criado_em).toDateString()===hoje);
+    const falta=Math.max(0,(M.meta_contratos||2)-(M.contratos_hoje||0)),faltaV=Math.max(0,(M.meta_valor||5000)-(M.valor_hoje||0));
+    C.innerHTML=`<div class="g-kpis"><div><b>${M.contratos_hoje||0}/${M.meta_contratos||2}</b><span>Contratos hoje</span></div><div><b>${brlFull(M.valor_hoje)}</b><span>Liberado hoje</span></div><div><b>${falta}</b><span>Faltam contratos</span></div><div><b>${brlFull(faltaV)}</b><span>Faltam liberar</span></div></div>
+      <div class="g-sec">Contratos digitados hoje · ${lista.length}</div>${lista.length?lista.map(itemContrato).join(''):'<div class="vazio">Nenhum contrato digitado hoje ainda.</div>'}`;return;}
   if(painelAberto==='numeros'){T.textContent='Números de atendimento';S.textContent='Portas de entrada do WhatsApp. Todos os agentes atendem em todos os números, e o cliente sempre continua no número por onde entrou.';
     C.innerHTML=estado.numeros.length?estado.numeros.map(n=>{const cor={conectado:'var(--verde)',desconectado:'var(--vermelho)',bloqueado:'var(--vermelho)'}[n.status_conexao]||'var(--tx3)';
       return `<div class="item"><div class="av" style="display:grid;place-items:center;font-size:17px">📱</div><div class="t"><b>${esc(n.apelido||n.telefone||'Número '+n.id)}</b><span>${esc(n.telefone||'')}</span></div><div class="d"><b style="color:${cor}">${esc(n.status_conexao||'—')}</b><span>${n.leads_ativos||0} clientes</span></div></div>`;}).join('')
