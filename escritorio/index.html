@@ -158,6 +158,57 @@ button{font:inherit;cursor:pointer}
   .fin{grid-template-columns:1fr 1fr;gap:10px}.fin .fcard:first-child{grid-column:1/-1}.fcard .big{font-size:20px}
   .ticker{padding:0 14px}
 }
+/* status do sistema e atualização */
+.saude{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.sd{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--tx2);background:#f4f7fa;border:1px solid var(--linha);border-radius:999px;padding:5px 9px;cursor:help}
+.sd i{width:8px;height:8px;border-radius:50%;background:#b8c1cc}
+.sd.ok i{background:var(--verde)}.sd.erro i{background:var(--vermelho);box-shadow:0 0 0 3px rgba(229,72,77,.2)}
+.upd{font-size:11px;color:var(--tx3);white-space:nowrap}
+/* precisa da sua atenção */
+.atencao{margin:14px 20px 0;background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:12px 14px}
+.at-topo{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:800}
+.at-topo .n{background:var(--vermelho);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px}
+.at-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;margin-top:10px}
+.at-item{display:flex;gap:10px;align-items:flex-start;border:1px solid #f1d5d5;background:#fff8f8;border-radius:12px;padding:10px 12px}
+.at-item.p2{border-color:#f1e4c4;background:#fffcf3}
+.at-item .ic{font-size:18px;line-height:1.1}
+.at-item .tx{flex:1;min-width:0}.at-item .tx b{display:block;font-size:13px}.at-item .tx span{font-size:12px;color:var(--tx2)}
+.at-item .bts{display:flex;flex-direction:column;gap:4px}
+.bt{border:1px solid var(--linha);background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap}
+.bt.pri{background:var(--azul);border-color:var(--azul);color:#fff}
+.at-ok{font-size:13px;color:#0f7a4f;font-weight:600}
+/* funil */
+.funil{margin:14px 20px 0;display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.fbox{background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:14px 16px}
+.fbox h4{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.fl{display:grid;grid-template-columns:150px 1fr 80px;gap:10px;align-items:center;margin-bottom:7px;font-size:12.5px}
+.fl .bar{height:20px;background:#eef2f6;border-radius:6px;overflow:hidden}
+.fl .bar i{display:block;height:100%;background:linear-gradient(90deg,#2f6fed,#16a3a0);border-radius:6px;transition:width .6s}
+.fl .v{text-align:right;font-weight:700}.fl .v small{display:block;font-weight:500;color:var(--tx3);font-size:11px}
+.mot{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 0;border-bottom:1px solid #f0f3f7}
+/* ficha do cliente */
+.chat{display:flex;flex-direction:column;gap:6px;background:#f3f6fa;border-radius:12px;padding:10px;max-height:380px;overflow-y:auto}
+.msg{max-width:82%;padding:7px 10px;border-radius:12px;font-size:13px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.in{align-self:flex-start;background:#fff;border:1px solid var(--linha)}
+.msg.out{align-self:flex-end;background:#dcf3e6}
+.msg time{display:block;font-size:10.5px;color:var(--tx3);margin-top:3px}
+.linha{border-left:2px solid var(--linha);margin-left:6px;padding-left:12px}
+.linha div{position:relative;font-size:12.5px;padding:4px 0;color:var(--tx2)}
+.linha div:before{content:'';position:absolute;left:-17px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--azul)}
+.ficha-acoes{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap;align-items:center}
+.ficha-acoes .bt{padding:9px 14px;font-size:13px}
+.dados{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:12px;margin-bottom:6px}
+.dados span{color:var(--tx3)}.dados b{display:block;color:var(--tx);font-weight:600;font-size:13px}
+/* chave de acesso */
+.login{position:fixed;inset:0;z-index:90;background:rgba(20,30,45,.45);display:none;place-items:center;padding:16px}
+.login.on{display:grid}
+.login-box{background:#fff;border-radius:18px;padding:22px;width:min(380px,100%);box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.login-box h3{font-size:18px}.login-box p{font-size:13px;color:var(--tx2);margin:6px 0 14px;line-height:1.45}
+.login-box input{width:100%;border:1px solid var(--linha);border-radius:10px;padding:11px 12px;font:inherit;font-size:14px}
+.login-box .err{color:var(--vermelho);font-size:12.5px;margin-top:8px;min-height:16px}
+.login-box .bts2{display:flex;gap:8px;margin-top:10px}.login-box .bts2 .bt{flex:1;padding:10px;font-size:13.5px}
+@media (max-width:1100px){.funil{grid-template-columns:1fr}}
+@media (max-width:720px){.kpis{display:grid!important;grid-template-columns:repeat(3,1fr)}.kpi span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}.atencao,.funil{margin-left:12px;margin-right:12px}.fl{grid-template-columns:110px 1fr 64px}.sd span{display:none}.upd{display:none}.at-lista{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -167,15 +218,20 @@ button{font:inherit;cursor:pointer}
   <div class="marca"><div class="logo">GM</div><div><h1>Escritório CLT &amp; FGTS</h1><p>Empresa virtual · agentes de IA</p></div></div>
   <div class="kpis">
     <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
-    <div class="kpi"><b id="kEnt">0</b><span>Entraram</span></div>
-    <div class="kpi"><b id="kFec" style="color:var(--verde)">0</b><span>Fecharam</span></div>
-    <div class="kpi"><b id="kCom" style="color:#8a5cd6">R$0</b><span>Comissão</span></div>
+    <div class="kpi"><b id="kEnt">0</b><span>Entraram hoje</span></div>
+    <div class="kpi"><b id="kPag" style="color:var(--verde)">0</b><span>Pagos hoje</span></div>
+    <div class="kpi" title="Comissão dos contratos pagos no mês"><b id="kRec" style="color:var(--verde)">R$0</b><span>Recebida (mês)</span></div>
+    <div class="kpi" title="Comissão dos contratos aguardando formalização e formalizados (ainda não pagos)"><b id="kPrev" style="color:#8a5cd6">R$0</b><span>Prevista</span></div>
     <div class="kpi"><b id="kPar" style="color:var(--vermelho)">0</b><span>Parados</span></div>
   </div>
+  <div class="saude" id="saude" aria-label="Status do sistema"></div>
+  <span class="upd" id="upd"></span>
   <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração"><i></i><span>...</span></button>
 </header>
 <div class="aviso" id="aviso"></div>
+<section class="atencao" id="atencao" aria-label="Precisa da sua atenção"></section>
 <section class="fin" id="fin" aria-label="Comissões e meta"></section>
+<section class="funil" id="funilSec" aria-label="Funil e perdas"></section>
 
 <main class="escritorio" id="escritorio">
   <div class="salas" id="salas"></div>
@@ -191,11 +247,21 @@ button{font:inherit;cursor:pointer}
 <div class="veu" id="veu" onclick="fecharPainel()"></div>
 <aside class="gaveta" id="gaveta" aria-hidden="true"><div class="g-topo"><div><h3 id="gTit"></h3><p id="gSub"></p></div><button onclick="fecharPainel()" aria-label="Fechar">✕</button></div><div class="g-corpo" id="gCorpo"></div></aside>
 <div class="tip" id="tip"></div>
+<div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="loginTit"><div class="login-box">
+  <h3 id="loginTit">🔒 Chave de acesso</h3>
+  <p>Os dados reais do escritório (clientes, conversas e comissões) são protegidos. Digite a chave de acesso para entrar.</p>
+  <input id="chaveIn" type="password" placeholder="gm-…" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()">
+  <div class="err" id="chaveErr"></div>
+  <div class="bts2"><button class="bt" onclick="verDemo()">Ver demonstração</button><button class="bt pri" onclick="entrar()">Entrar</button></div>
+</div></div>
 
 <script>
 // ═════════════ CONFIG ═════════════
 const QS=new URLSearchParams(location.search);
 const ENDPOINT=QS.get('api')||'https://rarelookingorca-n8n.cloudfy.live/webhook/escritorio/estado';
+const BASE=ENDPOINT.replace(/\/escritorio\/estado.*$/,'');
+let chave=lsGet('escritorio_chave')||'';
+let ultimaAtualizacao=0;
 const POLL_MS=60000;   // dados reais: consulta o n8n 1x por minuto
 const DEMO_MS=3000;    // modo demonstração: não usa o n8n, pode ser rápido
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
@@ -344,12 +410,29 @@ const DEMO_NOMES=['João Silva','Maria Santos','Pedro Oliveira','Carla Costa','R
 const FLUXO=[['recepcao','respondeu'],['recepcao','cpf_ok'],['simulacao','simulado'],['vendas','proposta'],['vendas','negociando'],['formalizacao','fechou'],['formalizacao','link_env'],['posvenda','assinou']];
 let demoState=null,demoSeq=0;
 function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function demoFicha(id){const D=demoState;const l=D.leads.find(x=>x.id===id)||{id,nome:'Cliente',setor_id:'posvenda',status:'assinou'};const t0=Date.now()-50*60000;let k=0;const m=(dir,txt,set)=>({direcao:dir,conteudo:txt,setor_id:set,criado_em:new Date(t0+(k++)*3*60000).toISOString()});
+  const p=primeiro(l.nome),conv=[m('entrada','Oi, quero simular meu crédito CLT'),m('saida','Olá, '+p+'! Sou a Ana 😊 Me passa seu CPF para eu verificar as condições?','recepcao'),m('entrada','123.456.789-00')];
+  const et=FLUXO.findIndex(f=>f[1]===l.status);
+  if(et>=2)conv.push(m('saida','Pronto, '+p+'! Você tem margem de R$ 412,00. Consigo liberar até '+brlFull(l.valor)+' em 46x. Quer seguir?','simulacao'));
+  if(et>=3)conv.push(m('entrada','Quanto fica a parcela em 36x?'),m('saida','Em 36x a parcela fica R$ 389,90 e você recebe '+brlFull((l.valor||0)*.9)+'.','vendas'));
+  if(et>=5)conv.push(m('entrada','Pode ser em 46x mesmo'),m('saida','Perfeito! Para gerar o contrato preciso de: CEP, nome da mãe, RG e chave PIX no seu CPF.','formalizacao'));
+  if(et>=6)conv.push(m('saida','Contrato gerado ✅ Assine por aqui: https://formalizacao.v8sistema.com/...','formalizacao'));
+  if(l.aguardando==='humano')conv.push(m('entrada','Quero falar com uma pessoa, por favor'));
+  return{lead:{...l,cpf:'123.***.***-00',numero:'Atendimento '+(l.numero_id||1),criado_em:new Date(t0).toISOString()},conversa:conv,
+    eventos:(()=>{const ev=D.eventos.filter(e=>e.lead_id===id).slice().reverse();return ev.length?ev:[{descricao:l.nome+' entrou na Recepção',criado_em:new Date(t0).toISOString()},...(et>=2?[{descricao:l.nome+' foi de Recepção para Simulação',criado_em:new Date(t0+9*60000).toISOString()}]:[]),...(et>=3?[{descricao:l.nome+' foi de Simulação para Vendas',criado_em:new Date(t0+12*60000).toISOString()}]:[]),...(et>=5?[{descricao:l.nome+' foi de Vendas para Formalização',criado_em:new Date(t0+21*60000).toISOString()}]:[])];})(),contratos:D.contratos.filter(c=>c.lead_id===id),simulacoes:[],alertas:[]};}
+function demoAcao(tipo,leadId,alertaId){const D=demoState;
+  if(tipo==='resolver')D.alertas=D.alertas.filter(a=>a.id!==alertaId);
+  else{const l=D.leads.find(x=>x.id===leadId);if(l){l.aguardando=tipo==='assumir'?'humano':'agente';demoEvento(l,tipo==='assumir'?'humano_assumiu':'humano_devolveu',l.nome+(tipo==='assumir'?': atendimento assumido por um humano (agente pausado)':': atendimento devolvido ao agente'),l.setor_id,l.setor_id);}}
+  aplicarEstado(demoTick());if(painelAberto&&painelAberto.startsWith('cliente:'))carregarFicha(Number(painelAberto.slice(8)));}
 function setNome(id){const s=DEMO_SETORES.find(x=>x.id===id);return s?s.nome:id;}
 function parado(l){const s=(estado.setores.length?estado.setores:DEMO_SETORES).find(x=>x.id===l.setor_id);return !!(s&&s.sla_minutos&&minDesde(l.entrou_setor_em)>s.sla_minutos);}
 function demoLead(st,min){const prod=Math.random()<.65?'clt':'fgts';const valor=prod==='clt'?rnd(9000,28000):rnd(3000,11000);
   return{id:++demoSeq,nome:DEMO_NOMES[demoSeq%DEMO_NOMES.length],telefone:'55489'+rnd(10000000,99999999),setor_id:FLUXO[st][0],status:FLUXO[st][1],etapa:st,produto:prod,banco:Math.random()<.5?'v8digital':'hubcredito',valor,comissao:Math.round(valor*.03),numero_id:rnd(1,2),aguardando:Math.random()<.5?'cliente':'agente',entrou_setor_em:new Date(Date.now()-min*60000).toISOString(),ultima_interacao:new Date(Date.now()-min*30000).toISOString()};}
 function demoInit(){demoState={setores:DEMO_SETORES,agentes:DEMO_AG.map((a,i)=>({id:i+1,nome:a[0],setor_id:a[1],papel:a[2],status:'livre',avatar:{},fechados:0,em_andamento:0,receita_total:0})),leads:[],eventos:[],numeros:[{id:1,apelido:'Atendimento 1',telefone:'(48) 9xxxx-0001',status_conexao:'conectado'},{id:2,apelido:'Atendimento 2',telefone:'(48) 9xxxx-0002',status_conexao:'conectado'}],fechados:0,comissao:0,entraram:0,contratos:[]};
   for(let i=0;i<11;i++){demoState.leads.push(demoLead(rnd(0,FLUXO.length-1),rnd(1,200)));demoState.entraram++;}
+  demoState.leads[0].aguardando='humano';
+  demoState.alertas=[{id:1,tipo:'pendencia',prioridade:1,titulo:'Pendência de PIX na proposta',detalhe:'Chave PIX recusada pela V8: pedir nova chave',lead_id:demoState.leads[1].id,criado_em:new Date(Date.now()-35*60000).toISOString()},
+    {id:2,tipo:'cancelamento',prioridade:1,titulo:'Cliente pediu cancelamento',detalhe:'Tentar reverter antes de cancelar na V8',lead_id:demoState.leads[2].id,criado_em:new Date(Date.now()-12*60000).toISOString()}];
   for(let i=0;i<5;i++){const c=demoContrato({id:900+i,nome:DEMO_NOMES[(i*5)%DEMO_NOMES.length]});c.etapa=['aguardando_formalizacao','formalizado','pago','pago','formalizado'][i];if(c.etapa==='pago')c.dt_pagamento=new Date().toISOString();c.criado_em=new Date(Date.now()-(i+1)*86400000).toISOString();demoState.contratos.push(c);}}
 function pctComissao(seg,p){if(seg)return p>=46?9.5:p>=24?7:p===18?4.5:p===12?4.01:3.01;return p>=24?3.01:p>=12?2.01:1.01;}
 function demoContrato(l){const p=[24,36,46,48,48,18][rnd(0,5)],seg=Math.random()<.7,v=rnd(1500,6000),pct=pctComissao(seg,p);
@@ -359,7 +442,7 @@ function demoTick(){
   const D=demoState;
   if(Math.random()<.35){const l=demoLead(0,0);D.leads.push(l);D.entraram++;demoEvento(l,'entrou',l.nome+' entrou na Recepção',null,'recepcao');}
   for(let k=0;k<rnd(1,2);k++){
-    const l=D.leads[rnd(0,D.leads.length-1)];if(!l)break;
+    const l=D.leads[rnd(0,D.leads.length-1)];if(!l)break;if(l.aguardando==='humano')continue;
     if(Math.random()<.06&&l.etapa<4){D.leads=D.leads.filter(x=>x!==l);demoEvento(l,'perdeu',l.nome+' desistiu na etapa "'+STATUS_LABEL[l.status]+'"',l.setor_id,l.setor_id);continue;}
     if(l.etapa>=FLUXO.length-1){if(Math.random()<.3){D.leads=D.leads.filter(x=>x!==l);demoEvento(l,'status',l.nome+' concluiu o pós-venda',l.setor_id,null);}continue;}
     const de=l.setor_id;l.etapa++;l.setor_id=FLUXO[l.etapa][0];l.status=FLUXO[l.etapa][1];l.ultima_interacao=new Date().toISOString();l.aguardando=Math.random()<.5?'cliente':'agente';
@@ -377,38 +460,56 @@ function demoTick(){
     resumo:{entraram_hoje:D.entraram,em_andamento:leads.length,fecharam_hoje:D.fechados,comissao_hoje:D.comissao,parados:leads.filter(l=>l.parado).length},
     financeiro:Object.keys(ETAPAS).map((k,i)=>{const cs=D.contratos.filter(c=>c.etapa===k);return{etapa:k,ordem:i+1,contratos:cs.length,valor_liberado:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao:Math.round(cs.reduce((a,c)=>a+c.comissao,0)*100)/100};}),
     meta:(()=>{const h=new Date().toDateString(),cs=D.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&new Date(c.dt_pagamento).toDateString()===h);return{meta_valor:7000,contratos_hoje:cs.length,valor_hoje:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao_hoje:cs.reduce((a,c)=>a+c.comissao,0)};})(),
-    contratos:D.contratos.slice(0,200)};
+    contratos:D.contratos.slice(0,200),
+    atencao:[...leads.filter(l=>l.aguardando==='humano').map(l=>({chave:'humano-'+l.id,tipo:'humano',prioridade:1,titulo:'Cliente aguardando atendimento humano',detalhe:'Setor: '+setNome(l.setor_id),lead_id:l.id,cliente:l.nome,desde:l.ultima_interacao})),
+      ...D.alertas.map(a=>({chave:'alerta-'+a.id,tipo:a.tipo,prioridade:a.prioridade,titulo:a.titulo,detalhe:a.detalhe,lead_id:D.leads.some(x=>x.id===a.lead_id)?a.lead_id:null,alerta_id:a.id,cliente:(D.leads.find(x=>x.id===a.lead_id)||{}).nome,desde:a.criado_em})),
+      ...leads.filter(l=>l.parado&&l.aguardando!=='humano'&&minDesde(l.entrou_setor_em)>=2*((DEMO_SETORES.find(s=>s.id===l.setor_id)||{}).sla_minutos||1e9)).slice(0,3).map(l=>({chave:'travado-'+l.id,tipo:'travado',prioridade:2,titulo:'Cliente travado há '+minDesde(l.entrou_setor_em)+' min',detalhe:'Setor: '+setNome(l.setor_id),lead_id:l.id,cliente:l.nome,desde:l.entrou_setor_em}))],
+    funil:(()=>{const e=D.entraram+60;return{entraram:e,enviaram_cpf:Math.round(e*.78),com_margem:Math.round(e*.52),receberam_proposta:Math.round(e*.41),assinaram:Math.round(e*.24),pagos:Math.round(e*.17),perdidos:Math.round(e*.35),
+      motivos_perda:[{motivo:'Sem margem disponível',total:Math.round(e*.12)},{motivo:'Parou de responder',total:Math.round(e*.1)},{motivo:'Sem vínculo CLT ativo',total:Math.round(e*.07)},{motivo:'Achou a parcela alta',total:Math.round(e*.04)},{motivo:'Não quis informar dados',total:Math.round(e*.02)}]};})(),
+    saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}};
 }
 
 // ═════════════ BUSCA DE DADOS ═════════════
 async function atualizar(){
-  if(demo){if(!demoState)demoInit();aplicarEstado(demoTick());setConn();return;}
-  try{const r=await fetch(ENDPOINT,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);aplicarEstado(await r.json());conectado=true;ultimoErro=null;}
+  if(demo){if(!demoState)demoInit();aplicarEstado(demoTick());ultimaAtualizacao=Date.now();setConn();return;}
+  if(!chave){conectado=false;ultimoErro='sem chave';pedirChave();setConn();return;}
+  try{const r=await fetch(ENDPOINT+(ENDPOINT.includes('?')?'&':'?')+'k='+encodeURIComponent(chave),{cache:'no-store'});
+    if(r.status===401){chave='';lsSet('escritorio_chave','');conectado=false;ultimoErro='chave inválida';pedirChave('Chave inválida ou desativada.');setConn();return;}
+    if(!r.ok)throw new Error('HTTP '+r.status);aplicarEstado(await r.json());conectado=true;ultimoErro=null;ultimaAtualizacao=Date.now();}
   catch(e){conectado=false;ultimoErro=e.message;}
   setConn();
 }
 function setConn(){
   const b=document.getElementById('connBtn'),a=document.getElementById('aviso');
   if(demo){b.className='conn demo';b.lastChild.textContent='Demonstração';a.style.display='block';a.innerHTML='<b>Modo demonstração</b>: clientes e números fictícios. Toque em “Demonstração” no topo para voltar aos dados reais.';return;}
+  if(!chave){b.className='conn off';b.lastChild.textContent='Bloqueado';a.style.display='block';a.innerHTML='🔒 Digite a <b>chave de acesso</b> para ver os dados reais, ou toque em “Bloqueado” para ver a demonstração.';return;}
   b.className='conn '+(conectado?'on':'off');b.lastChild.textContent=conectado?'Ao vivo':'Offline';
   if(!conectado){a.style.display='block';a.innerHTML='Sem conexão com o servidor ('+esc(ultimoErro||'…')+'). Tentando de novo em 1 minuto.';}
   else if(!estado.leads.length){a.style.display='block';a.innerHTML='Escritório aberto e equipe a postos, mas <b>sem clientes no momento</b>. Eles aparecem aqui assim que os agentes começarem a atender.';}
   else a.style.display='none';
 }
+function pedirChave(msg){if(demo)return;const L=document.getElementById('login');document.getElementById('chaveErr').textContent=msg||'';L.classList.add('on');setTimeout(()=>{try{document.getElementById('chaveIn').focus();}catch(e){}},50);}
+function entrar(){const v=document.getElementById('chaveIn').value.trim();if(!v){document.getElementById('chaveErr').textContent='Digite a chave.';return;}
+  chave=v;lsSet('escritorio_chave',v);document.getElementById('login').classList.remove('on');document.getElementById('chaveIn').value='';if(demo){demo=false;lsSet('escritorio_demo','0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();}atualizar();agendar();}
+function verDemo(){document.getElementById('login').classList.remove('on');if(!demo)toggleDemo();}
+setInterval(()=>{const u=document.getElementById('upd');if(!ultimaAtualizacao){u.textContent='';return;}const s=Math.round((Date.now()-ultimaAtualizacao)/1000);u.textContent='Atualizado há '+(s<60?s+'s':Math.floor(s/60)+' min');},5000);
 function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',demo?'1':'0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();atualizar();}
 
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[]};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{}};
   const R=estado.resumo;
-  kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kFec.textContent=R.fecharam_hoje??0;kCom.textContent=brl(estado.financeiro.reduce((a,f)=>a+Number(f.comissao||0),0));renderFin();kPar.textContent=R.parados??0;
+  kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
+  kRec.textContent=brl((estado.financeiro.find(f=>f.etapa==='pago')||{}).comissao);
+  kPrev.textContent=brl(estado.financeiro.filter(f=>f.etapa!=='pago').reduce((a,f)=>a+Number(f.comissao||0),0));
+  renderFin();renderAtencao();renderFunil();renderSaude();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
   const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
   if(key!==estruturaKey){montarSalas();estruturaKey=key;}
   atualizarSalas();posicionarClientes();
-  if(painelAberto)renderPainel();
+  if(painelAberto&&!painelAberto.startsWith('cliente:'))renderPainel();
 }
 function montarSalas(){
   salas.innerHTML=estado.setores.map(s=>{
@@ -448,6 +549,59 @@ function atualizarSalas(){
   });
 }
 
+// ═════════════ ATENÇÃO, FUNIL E SAÚDE ═════════════
+const AT_ICON={humano:'🙋',pedido_humano:'🙋',pendencia:'🧾',numero:'📵',travado:'⏳',cancelamento:'🚫',v8_erro:'⚠️'};
+function renderAtencao(){const el=document.getElementById('atencao');const L=estado.atencao||[];
+  if(!L.length){el.innerHTML='<div class="at-ok">✅ Tudo em ordem: nada precisa de você agora.</div>';return;}
+  el.innerHTML=`<div class="at-topo">🔔 Precisa da sua atenção <span class="n">${L.length}</span></div><div class="at-lista">${L.slice(0,9).map(a=>`<div class="at-item ${a.prioridade>1?'p2':''}"><div class="ic">${AT_ICON[a.tipo]||'🔔'}</div>
+    <div class="tx"><b>${esc(a.titulo)}</b><span>${a.cliente?esc(a.cliente)+' · ':''}${esc(a.detalhe||'')}${a.desde?' · há '+tempo(minDesde(a.desde)):''}</span></div>
+    <div class="bts">${a.lead_id?`<button class="bt pri" onclick="abrirPainel('cliente:${a.lead_id}')">Ver cliente</button>`:''}${a.alerta_id?`<button class="bt" onclick="acao('resolver',null,${a.alerta_id})">Resolver</button>`:''}${a.tipo==='numero'?`<button class="bt" onclick="abrirPainel('numeros')">Ver números</button>`:''}</div></div>`).join('')}</div>${L.length>9?`<div style="font-size:12px;color:var(--tx2);margin-top:8px">+ ${L.length-9} itens</div>`:''}`;}
+function renderFunil(){const el=document.getElementById('funilSec');const F=(estado.funil&&!Array.isArray(estado.funil))?estado.funil:{};const base=Number(F.entraram||0);
+  const et=[['Entraram',F.entraram],['Enviaram CPF',F.enviaram_cpf],['Com margem',F.com_margem],['Receberam proposta',F.receberam_proposta],['Assinaram',F.assinaram],['Pagos',F.pagos]];
+  const rows=et.map(([n,v],i)=>{v=Number(v||0);const pct=base?Math.round(v/base*100):0;const ant=i?Number(et[i-1][1]||0):0;
+    return `<div class="fl" title="${i&&ant?Math.round(v/ant*100)+'% de quem chegou na etapa anterior':''}"><span>${n}</span><div class="bar"><i style="width:${base?Math.max(v?2:0,pct):0}%"></i></div><div class="v">${v}<small>${i?pct+'% do total':'100%'}</small></div></div>`;}).join('');
+  const M=F.motivos_perda||[];
+  el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
+    <div class="fbox"><h4>❌ Onde perdemos clientes · ${F.perdidos||0}</h4>${M.length?M.map(m=>`<div class="mot"><span>${esc(m.motivo)}</span><b>${m.total}</b></div>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}</div>`;}
+function renderSaude(){const S=estado.saude||{};
+  document.getElementById('saude').innerHTML=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>{x=x||{};const c=x.ok===true?'ok':x.ok===false?'erro':'neutro';
+    return `<span class="sd ${c}" title="${esc(n+': '+(x.detalhe||'sem dados'))}"><i></i><span>${n}</span></span>`;}).join('');}
+
+// ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
+async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
+  try{let f;
+    if(demo)f=demoFicha(id);
+    else{const r=await fetch(BASE+'/escritorio/cliente?k='+encodeURIComponent(chave)+'&id='+encodeURIComponent(id),{cache:'no-store'});
+      if(r.status===401){fecharPainel();pedirChave('Chave inválida ou desativada.');return;}
+      if(!r.ok)throw new Error('HTTP '+r.status);f=await r.json();}
+    if(painelAberto!=='cliente:'+id)return;renderFicha(f);
+  }catch(e){gCorpo.innerHTML='<div class="vazio">Não foi possível carregar a ficha ('+esc(e.message)+').</div>';}}
+function renderFicha(f){const l=f&&f.lead;if(!l){gTit.textContent='Cliente não encontrado';gCorpo.innerHTML='';return;}
+  const s=setorById(l.setor_id),humano=l.aguardando==='humano',conv=f.conversa||[],evs=f.eventos||[],cts=f.contratos||[];
+  gTit.textContent=l.nome||('Cliente #'+l.id);
+  gSub.innerHTML=`${s?'<span style="color:'+s.cor+'">●</span> '+esc(s.nome)+' · ':''}${STATUS_LABEL[l.status]||esc(l.status||'')}${l.numero?' · 📱 '+esc(l.numero):''}`;
+  gCorpo.innerHTML=`<div class="ficha-acoes">${humano
+      ?`<button class="bt" onclick="acao('devolver',${l.id})">🤖 Devolver ao agente</button><span style="font-size:12.5px;color:var(--vermelho);font-weight:600">Agente pausado: você está atendendo</span>`
+      :`<button class="bt pri" onclick="acao('assumir',${l.id})">🙋 Assumir atendimento</button><span style="font-size:12px;color:var(--tx3)">O agente para de responder este cliente</span>`}</div>
+    <div class="dados"><div><span>Telefone</span><b>${esc(l.telefone||'—')}</b></div><div><span>CPF</span><b>${esc(l.cpf||'—')}</b></div>
+      <div><span>Produto</span><b>${esc((l.produto||'—').toUpperCase())}</b></div><div><span>Valor</span><b>${brlFull(l.valor)}</b></div>
+      <div><span>Entrou em</span><b>${l.criado_em?new Date(l.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—'}</b></div><div><span>No setor há</span><b>${tempo(minDesde(l.entrou_setor_em))}</b></div>
+      ${l.motivo_parada?`<div style="grid-column:1/-1"><span>Motivo da perda</span><b>${esc(l.motivo_parada)}</b></div>`:''}</div>
+    ${cts.length?`<div class="g-sec">Contratos</div>${cts.map(c=>itemContrato({...c,nome:l.nome})).join('')}`:''}
+    <div class="g-sec">Conversa no WhatsApp · ${conv.length}</div>
+    ${conv.length?`<div class="chat" id="chatBox">${conv.map(m=>{const st=m.setor_id&&setorById(m.setor_id);return `<div class="msg ${m.direcao==='entrada'?'in':'out'}">${esc(m.conteudo)}<time>${hora(m.criado_em)}${m.direcao!=='entrada'&&st?' · '+esc(st.nome):''}</time></div>`;}).join('')}</div>`:'<div class="vazio">Nenhuma mensagem registrada ainda.</div>'}
+    <div class="g-sec">Linha do tempo</div>
+    ${evs.length?`<div class="linha">${evs.map(e=>`<div><b style="color:var(--tx)">${new Date(e.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</b> · ${esc(e.descricao)}</div>`).join('')}</div>`:'<div class="vazio">Sem eventos.</div>'}`;
+  const cb=document.getElementById('chatBox');if(cb)cb.scrollTop=cb.scrollHeight;}
+async function acao(tipo,leadId,alertaId){
+  if(demo){demoAcao(tipo,leadId,alertaId);return;}
+  try{const r=await fetch(BASE+'/escritorio/acao',{method:'POST',body:new URLSearchParams({k:chave,tipo,lead_id:leadId||'',alerta_id:alertaId||''})});
+    const j=await r.json().catch(()=>({}));
+    if(r.status===401){pedirChave('Chave inválida ou desativada.');return;}
+    if(!j.ok){alert('Não foi possível concluir a ação ('+(j.erro||('HTTP '+r.status))+').');return;}
+    await atualizar();if(painelAberto&&painelAberto.startsWith('cliente:'))carregarFicha(Number(painelAberto.slice(8)));
+  }catch(e){alert('Erro de conexão: '+e.message);}}
+
 // ═════════════ COMISSÃO E META ═════════════
 function renderFin(){
   const el=document.getElementById('fin');const M=estado.meta||{meta_valor:7000,valor_hoje:0,contratos_hoje:0};
@@ -483,7 +637,8 @@ function posicionarClientes(){
       vivos.add(l.id);
       let el=cliEls.get(l.id),novo=false;
       if(!el){el=document.createElement('div');el.className='cli';el.dataset.id=l.id;camada.appendChild(el);cliEls.set(l.id,el);novo=true;
-        el.addEventListener('click',e=>{e.stopPropagation();mostrarTip(Number(el.dataset.id),e.clientX,e.clientY);});}
+        el.addEventListener('click',e=>{e.stopPropagation();abrirPainel('cliente:'+el.dataset.id);});
+        el.addEventListener('mouseenter',e=>mostrarTip(Number(el.dataset.id),e.clientX,e.clientY));el.addEventListener('mouseleave',()=>{tip.style.display='none';});}
       const sig=(l.parado?1:0)+'';if(el.dataset.sig!==sig){el.innerHTML=pessoaEmPe(l.id,l.parado)+(l.parado?'<span class="exc">!</span>':'');el.dataset.sig=sig;}
       const vis=i<max;
       const lado=i%2===0?-1:1,pos=Math.floor(i/2)+1;
@@ -522,11 +677,11 @@ document.addEventListener('click',()=>{tip.style.display='none';});
 
 // ═════════════ GAVETA (detalhes) ═════════════
 let painelAberto=null;
-function abrirPainel(id){painelAberto=id;renderPainel();veu.classList.add('on');gaveta.classList.add('on');gaveta.setAttribute('aria-hidden','false');}
+function abrirPainel(id){painelAberto=id;tip.style.display='none';if(String(id).startsWith('cliente:'))carregarFicha(Number(String(id).slice(8)));else renderPainel();veu.classList.add('on');gaveta.classList.add('on');gaveta.setAttribute('aria-hidden','false');}
 function fecharPainel(){painelAberto=null;veu.classList.remove('on');gaveta.classList.remove('on');gaveta.setAttribute('aria-hidden','true');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharPainel();});
 function itemLead(l){const s=setorById(l.setor_id);const m=minDesde(l.entrou_setor_em);
-  return `<div class="item ${l.parado?'parado':''}"><div class="av">${pessoaEmPe(l.id,l.parado).replace('viewBox="0 0 30 74"','viewBox="4 0 22 24"')}</div>
+  return `<div class="item ${l.parado?'parado':''}" style="cursor:pointer" role="button" tabindex="0" onclick="abrirPainel('cliente:${l.id}')"><div class="av">${pessoaEmPe(l.id,l.parado).replace('viewBox="0 0 30 74"','viewBox="4 0 22 24"')}</div>
     <div class="t"><b>${esc(l.nome||l.telefone||'Cliente #'+l.id)}</b><span>${STATUS_LABEL[l.status]||esc(l.status)} · ${l.produto?esc(l.produto.toUpperCase()):'—'}${s&&painelAberto==='gerente'?' · <span style="color:'+s.cor+'">'+esc(s.nome)+'</span>':''}</span></div>
     <div class="d"><b>${l.valor?brl(l.valor):'—'}</b><span style="color:${l.parado?'var(--vermelho)':''}">${l.parado?'⚠ ':''}${tempo(m)}</span></div></div>`;}
 function renderPainel(){
