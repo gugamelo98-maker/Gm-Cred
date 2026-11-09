@@ -180,7 +180,8 @@ button{font:inherit;cursor:pointer}
 // ═════════════ CONFIG ═════════════
 const QS=new URLSearchParams(location.search);
 const ENDPOINT=QS.get('api')||'https://rarelookingorca-n8n.cloudfy.live/webhook/escritorio/estado';
-const POLL_MS=5000;
+const POLL_MS=60000;   // dados reais: consulta o n8n 1x por minuto
+const DEMO_MS=3000;    // modo demonstração: não usa o n8n, pode ser rápido
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 let demo=QS.get('demo')==='1'||(QS.get('demo')!=='0'&&lsGet('escritorio_demo')==='1');
@@ -363,11 +364,11 @@ function setConn(){
   const b=document.getElementById('connBtn'),a=document.getElementById('aviso');
   if(demo){b.className='conn demo';b.lastChild.textContent='Demonstração';a.style.display='block';a.innerHTML='<b>Modo demonstração</b>: clientes e números fictícios. Toque em “Demonstração” no topo para voltar aos dados reais.';return;}
   b.className='conn '+(conectado?'on':'off');b.lastChild.textContent=conectado?'Ao vivo':'Offline';
-  if(!conectado){a.style.display='block';a.innerHTML='Sem conexão com o servidor ('+esc(ultimoErro||'…')+'). Tentando de novo a cada 5 segundos.';}
+  if(!conectado){a.style.display='block';a.innerHTML='Sem conexão com o servidor ('+esc(ultimoErro||'…')+'). Tentando de novo em 1 minuto.';}
   else if(!estado.leads.length){a.style.display='block';a.innerHTML='Escritório aberto e equipe a postos, mas <b>sem clientes no momento</b>. Eles aparecem aqui assim que os agentes começarem a atender.';}
   else a.style.display='none';
 }
-function toggleDemo(){demo=!demo;lsSet('escritorio_demo',demo?'1':'0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();atualizar();}
+function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',demo?'1':'0');demoState=null;estruturaKey='';document.getElementById('clientes').innerHTML='';cliEls.clear();atualizar();}
 
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
@@ -504,7 +505,11 @@ function renderPainel(){
 }
 
 // ═════════════ INÍCIO ═════════════
-atualizar();setInterval(atualizar,POLL_MS);
+// consulta 1x por minuto; pausa quando a aba está escondida e atualiza na hora quando ela volta
+let timer=null;
+function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
+atualizar();agendar();
 </script>
 </body>
 </html>
