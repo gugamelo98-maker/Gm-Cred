@@ -28,3 +28,19 @@ update credito.setores set prompt = $t$ETAPA: FORMALIZAÇÃO. A oferta já foi e
 -- 3. simular assinatura/pagamento também na proposta real do chat de teste (muda só no nosso sistema)
 alter table credito.leads add column if not exists evento_simulado boolean not null default false;
 -- evento_teste marca evento_simulado; fila_acompanhamento ignora essas propostas; Ações trata como demonstração no status
+
+-- 4. segurança: "apagar clientes de teste" não apaga quem tem proposta real aberta na V8
+create or replace function credito.limpar_testes() returns int language plpgsql as $$
+declare n int;
+begin
+  create temp table _apagar on commit drop as
+    select id from credito.leads where teste
+       and not (operation_id is not null and operation_id not like 'demo-%' and coalesce(status_operacao, '') not in ('canceled', 'refunded', 'paid'));
+  update credito.agentes set lead_atual_id = null where lead_atual_id in (select id from _apagar);
+  delete from credito.conversas where lead_id in (select id from _apagar);
+  delete from credito.simulacoes where lead_id in (select id from _apagar);
+  delete from credito.contratos where lead_id in (select id from _apagar);
+  delete from credito.leads where id in (select id from _apagar);
+  get diagnostics n = row_count;
+  return n;
+end $$;
