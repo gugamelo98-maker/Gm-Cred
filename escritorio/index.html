@@ -1265,6 +1265,10 @@ function cpLer(txt){const L=String(txt||'').split(/\r?\n/).map(l=>l.trim()).filt
       else if(!mar&&/^R?\$?\s*\d{1,6}([.,]\d{2})?$/.test(v)&&d.length<=8)mar=v;
       else if(!nome&&/[a-zà-ú]{2}/i.test(v))nome=v;});
     if(!tel&&cpf&&String(cpf).replace(/\D/g,'').length===11&&!cpCpfOk(cpf)){tel=cpf;cpf='';}
+    if(!tel){   // linha "Nome 48999998888" (separada só por espaço): procura o telefone dentro do texto
+      const resto=l.replace(/\d{3}\.\d{3}\.\d{3}-\d{2}/,x=>{if(!cpf)cpf=x;return ' ';});
+      const f=resto.match(/(?:\+?55[\s-]?)?\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}/);
+      if(f){tel=f[0];{const n=resto.replace(f[0],' ').replace(/[\t;,]+/g,' ').replace(/R?\$?\s*\d+([.,]\d+)?/g,' ').replace(/\s+/g,' ').trim();nome=/[a-zà-ú]{2}/i.test(n)?n:'';}}}
     const m=String(mar).replace(/[^\d,.]/g,'');
     if(String(tel).replace(/\D/g,'').length>=10)out.push({nome,telefone:tel,cpf,margem:m.includes(',')?m.replace(/\./g,'').replace(',','.'):m});}
   return out;}
