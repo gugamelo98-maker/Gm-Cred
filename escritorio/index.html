@@ -307,6 +307,38 @@ button{font:inherit;cursor:pointer}
   .at-item{flex-wrap:wrap}.at-item .bts{width:100%;justify-content:flex-end}
   .top{gap:8px}
 }
+/* ── clientes (CRM) e hoje ── */
+.crm{margin:14px 20px 0}
+.crm-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.crm-topo h4{margin:0}
+.crm-filtros{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.crm-filtros input{width:100%;max-width:420px;border:1px solid var(--linha);border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--tx2)}
+.chip b{color:var(--tx);margin-left:2px}.chip.on{background:var(--azul);border-color:var(--azul);color:#fff}.chip.on b{color:#fff}
+.crm-tab{border:1px solid #edf1f5;border-radius:12px;overflow:hidden}
+.crm-l{display:grid;grid-template-columns:1.6fr 1.1fr 1.1fr 1.9fr 1fr 1fr;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid #f0f3f7;font-size:13px;cursor:pointer}
+.crm-l:hover{background:#f7f9fc}
+.crm-h{background:#f6f8fb;border-top:0;font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;cursor:default}.crm-h:hover{background:#f6f8fb}
+.crm-l .c-nome{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crm-l .c-tel,.crm-l .c-cpf,.crm-l .c-of,.crm-l .c-ult{color:var(--tx2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sit{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:7px;line-height:1.3}
+.hj-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.hj-kpis div{background:#f6f8fb;border-radius:12px;padding:10px 12px}.hj-kpis b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.hj-kpis span{font-size:11px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.hj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button.mot{width:100%;border:0;border-bottom:1px solid #f0f3f7;background:none;text-align:left;cursor:pointer;color:var(--tx)}
+button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
+@media (max-width:1100px){.hj-grid{grid-template-columns:1fr}.hj-kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){
+  .crm{margin-left:12px;margin-right:12px}
+  .crm-h{display:none}
+  .crm-l{grid-template-columns:1fr auto;grid-template-areas:"n s" "t c" "o u";gap:3px 10px;padding:10px}
+  .c-nome{grid-area:n}.c-sit{grid-area:s;text-align:right}.c-tel{grid-area:t}.c-cpf{grid-area:c;text-align:right}.c-of{grid-area:o}.c-ult{grid-area:u;text-align:right}
+  .hj-kpis{grid-template-columns:repeat(2,1fr)}
+  .nav{overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}
+  .nv{flex:0 0 auto;min-width:62px;padding:6px 6px}
+}
+@media (min-width:721px){.nav{padding-top:76px;gap:2px;overflow-y:auto}.nv{padding:8px 4px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -326,7 +358,10 @@ button{font:inherit;cursor:pointer}
 <div class="aviso" id="aviso"></div>
 <nav class="nav" aria-label="Telas do painel">
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
-  <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📊</span>Resultados</button>
+  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">🎯</span>Hoje</button>
+  <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
+  <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
   <button class="nv" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
   <a class="nv" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">💬</span>Chat teste</a>
 </nav>
@@ -344,8 +379,23 @@ button{font:inherit;cursor:pointer}
 </div>
 </div>
 
-<div class="view" id="v-funil" hidden>
-<section class="metas" id="fin" aria-label="Meta e comissões"></section>
+<div class="view" id="v-clientes" hidden>
+<section class="crm" aria-label="Cadastro de clientes">
+  <div class="fbox">
+    <div class="crm-topo"><h4>👥 Clientes · todos que já entraram no escritório</h4><button class="bt" onclick="crmCsv()">⬇ Baixar planilha</button></div>
+    <div class="crm-filtros"><input id="crmBusca" type="search" placeholder="Buscar por nome, telefone ou CPF" oninput="crmF.busca=this.value;crmF.motivo='';renderCrm()" aria-label="Buscar cliente"><div class="chips" id="crmChips"></div></div>
+    <div id="crmLista"></div>
+  </div>
+</section>
+</div>
+
+<div class="view" id="v-hoje" hidden>
+<section class="metas" id="fin" aria-label="Resultado do dia"></section>
+<section class="metas" id="hojeListas" aria-label="Clientes e contratos de hoje"></section>
+</div>
+
+<div class="view" id="v-mes" hidden>
+<section class="metas" id="mesBox" aria-label="Meta do mês"></section>
 <section class="vendas" aria-label="Vendas por dia">
   <div class="fbox">
     <div class="vd-topo"><h4>📈 Vendas por dia</h4>
@@ -356,6 +406,9 @@ button{font:inherit;cursor:pointer}
     <details class="vd-tab"><summary>Ver como tabela</summary><div id="vdTabela"></div></details>
   </div>
 </section>
+</div>
+
+<div class="view" id="v-funil" hidden>
 <section class="funil" id="funilSec" aria-label="Funil e perdas"></section>
 </div>
 
@@ -607,6 +660,13 @@ function demoTick(){
         pago_mes_valor:pg.reduce((a,c)=>a+c.valor_liberado,0)+38000,pago_mes_comissao:pg.reduce((a,c)=>a+c.comissao,0)+3100,dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};})(),
     saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}});
 }
+let demoHist=null;
+function demoCrm(o){const cpf=()=>String(rnd(10000000000,99999999999)),SIT_ATIVO={respondeu:['Conversando · sem CPF',1],cpf_ok:['Mandou o CPF · consultando',2],simulado:['Recebeu as ofertas',3],proposta:['Recebeu as ofertas',3],negociando:['Recebeu as ofertas',3],fechou:['Escolheu a oferta · falta PIX',4],link_env:['Proposta enviada · falta assinar',4],assinou:['Assinou · aguardando pagamento',5]};
+  if(!demoHist){demoHist=[];const H=[['Pago','pago',6,null],['Pago','pago',6,null],['Pago','pago',6,null],['Sem margem','perdido',2,'Sem margem disponível'],['Sem margem','perdido',2,'Sem margem disponível'],['Desistiu','perdido',1,'Sem vínculo CLT ativo'],['Desistiu depois das ofertas','perdido',3,'Achou a parcela alta'],['Desistiu','perdido',2,'Não quis informar dados'],['Parou de responder · viu as ofertas','parado',3,'Parou de responder'],['Parou de responder · mandou o CPF','parado',2,'Parou de responder'],['Proposta cancelada','perdido',5,null]];
+    for(let i=0;i<48;i++){const h=H[i%H.length],dias=rnd(0,29),ent=new Date(Date.now()-dias*86400000-rnd(1,600)*60000);const v=rnd(3000,9000);
+      demoHist.push({id:5000+i,nome:DEMO_NOMES[(i*7+3)%DEMO_NOMES.length].split(' ')[0]+' '+['Moura','Teixeira','Ramos','Freitas','Lopes','Vieira','Araújo','Gomes'][i%8],telefone:'55489'+rnd(10000000,99999999),cpf:cpf(),situacao:h[0],grupo:h[1],etapa:h[2],motivo:h[3],margem:h[2]>=3?rnd(250,900):null,oferta:h[2]>=4?{valor:v,prazo:46,parcela:Math.round(v/16)}:null,entrou:ent.toISOString(),ultima:new Date(ent.getTime()+rnd(5,300)*60000).toISOString(),teste:false});}}
+  const at=o.leads.map(l=>{const k=l.aguardando==='humano'?['Com atendente humano',3]:(SIT_ATIVO[l.status]||['Conversando · sem CPF',1]);return{id:l.id,nome:l.nome,telefone:l.telefone,cpf:k[1]>=2?(l._cpf=l._cpf||cpf()):null,situacao:k[0],grupo:'andamento',etapa:k[1],motivo:null,margem:k[1]>=3?412:null,oferta:k[1]>=4?{valor:l.valor,prazo:46,parcela:Math.round(l.valor/16)}:null,entrou:new Date(Date.now()-rnd(5,300)*60000).toISOString(),ultima:l.ultima_interacao,teste:false};});
+  return at.concat(demoHist).sort((a,b)=>new Date(b.ultima)-new Date(a.ultima));}
 // demonstração coerente: funil, simulação e comissão do mês saem da mesma série de vendas do gráfico
 function demoCoerente(o){const v=o.vendas,u30=v.slice(-30),hj=new Date(),soma=(a,k)=>a.reduce((s,x)=>s+x[k],0);
   const mes=v.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===hj.getMonth()&&t.getFullYear()===hj.getFullYear();});
@@ -615,6 +675,7 @@ function demoCoerente(o){const v=o.vendas,u30=v.slice(-30),hj=new Date(),soma=(a
     motivos_perda:[['Sem margem disponível',.12],['Parou de responder',.1],['Sem vínculo CLT ativo',.07],['Achou a parcela alta',.04],['Não quis informar dados',.02]].map(([m,f])=>({motivo:m,total:Math.round(e*f)}))};
   o.simulacao={...o.simulacao,dias_janela:30,clientes:e,pagos:pg,valor_medio:pg?Math.round(lib/pg):0,comissao_media:pg?Math.round(com/pg*100)/100:0,pct_seguro:.7,parcelas_media:46,
     pago_mes_valor:soma(mes,'liberado'),pago_mes_comissao:soma(mes,'comissao')};
+  o.crm=demoCrm(o);
   const fp=o.financeiro.find(f=>f.etapa==='pago');if(fp){fp.contratos=soma(mes,'pagos');fp.valor_liberado=soma(mes,'liberado');fp.comissao=Math.round(soma(mes,'comissao')*100)/100;}
   return o;}
 
@@ -652,10 +713,10 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[]};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],crm:j.crm||[]};
   const R=estado.resumo;
   kAnd.textContent=R.em_andamento??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
-  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();kPar.textContent=R.parados??0;
+  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();renderCrm();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
   const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
@@ -719,7 +780,7 @@ function renderFunil(){const el=document.getElementById('funilSec');const F=(est
     return `<div class="fl" title="${i&&ant?Math.round(v/ant*100)+'% de quem chegou na etapa anterior':''}"><span>${n}</span><div class="bar"><i style="width:${base?Math.max(v?2:0,pct):0}%"></i></div><div class="v">${v}<small>${i?pct+'% do total':'100%'}</small></div></div>`;}).join('');
   const M=F.motivos_perda||[];
   el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
-    <div class="fbox"><h4>❌ Onde perdemos clientes · ${F.perdidos||0}</h4>${M.length?M.map(m=>`<div class="mot"><span>${esc(m.motivo)}</span><b>${m.total}</b></div>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}</div>`;}
+    <div class="fbox"><h4>❌ Onde perdemos clientes · ${F.perdidos||0}</h4>${M.length?M.map(m=>`<button class="mot" onclick="verMotivo(this.dataset.m)" data-m="${esc(m.motivo)}" title="Ver esses clientes"><span>${esc(m.motivo)}</span><b>${m.total} ›</b></button>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}</div>`;}
 function renderSaude(){const S=estado.saude||{};
   const it=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>[n,x||{}]);
   const erro=it.filter(([,x])=>x.ok===false),ok=it.every(([,x])=>x.ok===true);
@@ -747,7 +808,7 @@ function serieVendas(){
 }
 function renderVendas(){
   const box=document.getElementById('vdChart');if(!box)return;
-  if(typeof telaAtual!=='undefined'&&telaAtual!=='funil'){return;}
+  if(typeof telaAtual!=='undefined'&&telaAtual!=='mes'){return;}
   const S=serieVendas(),m=vdM,info=VD[m],meta=Number((estado.meta&&estado.meta.meta_valor)||7000);
   document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
   document.getElementById('vdLeg').innerHTML=`<span><i style="background:#2a78d6"></i>Realizado</span><span><i style="background:repeating-linear-gradient(135deg,#2a78d6 0 2px,#e8f0fb 2px 5px);border:1px solid #2a78d6"></i>Projeção (média dos últimos 7 dias)</span><span><i style="height:3px;border-radius:2px;background:#eb6834"></i>Média de 7 dias</span>${m==='liberado'?'<span><i style="height:0;border-top:2px dashed #52514e;border-radius:0"></i>Meta diária</span>':''}`;
@@ -887,24 +948,74 @@ async function acao(tipo,leadId,alertaId){
   }catch(e){alert('Erro de conexão: '+e.message);}}
 
 // ═════════════ COMISSÃO E META ═════════════
-function renderFin(){
-  const el=document.getElementById('fin');const M=estado.meta||{};
-  const meta=metaDia(),feito=Number(M.valor_hoje||0),pv=Math.min(100,Math.round(feito/meta*100)),bateu=feito>=meta;
-  const P=projecaoMes(),pm=Math.min(100,Math.round(P.realLib/P.metaMes*100)),pp=Math.min(100,Math.round(P.projLib/P.metaMes*100));
-  const f=k=>estado.financeiro.find(x=>x.etapa===k)||{contratos:0,valor_liberado:0,comissao:0};
+function renderFin(){renderHoje();renderMes();}
+function linhaComissao(){const f=k=>estado.financeiro.find(x=>x.etapa===k)||{contratos:0,valor_liberado:0,comissao:0};
   const lnk=(k,txt)=>{const x=f(k),e=ETAPAS[k];return `<button class="lnk" onclick="abrirPainel('etapa:${k}')" title="${esc(e.desc)}">${e.icone} ${txt} <b>${brlFull(x.comissao)}</b> (${x.contratos})</button>`;};
-  el.innerHTML=`<div class="fbox"><div class="mt-grid">
+  return `<div class="mt-com"><span>Comissão:</span>${lnk('aguardando_formalizacao','aguardando assinatura')}${lnk('formalizado','formalizada')}${lnk('pago','recebida no mês')}</div>`;}
+function hojeISO(){return dataISO(new Date());}
+function renderHoje(){
+  const el=document.getElementById('fin');if(!el)return;const M=estado.meta||{},R=estado.resumo||{};
+  const meta=metaDia(),feito=Number(M.valor_hoje||0),pv=Math.min(100,Math.round(feito/meta*100)),bateu=feito>=meta;
+  const crmHoje=(estado.crm||[]).filter(c=>c.entrou&&dataISO(new Date(c.entrou))===hojeISO());
+  const cpfHoje=crmHoje.filter(c=>c.etapa>=2).length,ofHoje=crmHoje.filter(c=>c.etapa>=3).length;
+  el.innerHTML=`<div class="fbox">
       <div class="mt" onclick="abrirPainel('meta')" role="button" tabindex="0">
-        <div class="mt-top"><span>🎯 Hoje${bateu?' · <span style="color:#0f7a4f">meta batida</span>':''}</span><b style="color:${bateu?'#16a36a':'var(--tx)'}">${brlFull(feito)}</b></div>
+        <div class="mt-top"><span>🎯 Meta do dia${bateu?' · <span style="color:#0f7a4f">batida</span>':''}</span><b style="color:${bateu?'#16a36a':'var(--tx)'}">${brlFull(feito)}</b></div>
         <div class="meta-barra"><i style="width:${pv}%"></i></div>
-        <div class="meta-linha"><span>${M.contratos_hoje||0} contrato${Number(M.contratos_hoje)===1?'':'s'} pago${Number(M.contratos_hoje)===1?'':'s'} hoje</span><b>${pv}% da meta de ${brl(meta)}</b></div></div>
-      <div class="mt" title="Projeção: o que já foi liberado no mês + a média dos últimos 7 dias nos dias que faltam">
-        <div class="mt-top"><span>📅 Mês</span><b>${brlFull(P.realLib)}</b></div>
-        <div class="meta-barra"><i style="width:${pm}%"></i>${P.projLib>P.realLib?`<s style="left:0;width:${pp}%"></s>`:''}</div>
-        <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`no ritmo atual fecha em <b>${brl(P.projLib)}</b>`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div>
-    </div>
-    <div class="mt-com"><span>Comissão:</span>${lnk('aguardando_formalizacao','aguardando assinatura')}${lnk('formalizado','formalizada')}${lnk('pago','recebida no mês')}</div></div>`;
+        <div class="meta-linha"><span>liberado em contratos pagos hoje</span><b>${pv}% da meta de ${brl(meta)}${bateu?'':' · faltam '+brl(meta-feito)}</b></div></div>
+      <div class="hj-kpis">
+        <div><b>${(estado.crm||[]).length?crmHoje.length:(R.entraram_hoje||0)}</b><span>Entraram hoje</span></div>
+        <div><b>${cpfHoje}</b><span>Mandaram CPF</span></div>
+        <div><b>${ofHoje}</b><span>Receberam ofertas</span></div>
+        <div><b style="color:var(--verde)">${M.contratos_hoje||0}</b><span>Pagos hoje</span></div>
+        <div><b style="color:var(--verde)">${brlFull(M.comissao_hoje)}</b><span>Comissão hoje</span></div>
+      </div>
+      ${linhaComissao()}</div>`;
+  const lst=document.getElementById('hojeListas');
+  const pagos=estado.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&dataISO(new Date(c.dt_pagamento))===hojeISO());
+  lst.innerHTML=`<div class="hj-grid">
+    <div class="fbox"><h4>✅ Pagos hoje · ${pagos.length}</h4>${pagos.length?pagos.map(itemContrato).join(''):'<div class="vazio">Nenhum contrato pago hoje ainda.</div>'}</div>
+    <div class="fbox"><h4>👥 Clientes que entraram hoje · ${crmHoje.length}</h4>${crmHoje.length?crmHoje.slice(0,30).map(crmItem).join('')+(crmHoje.length>30?`<button class="lnk-a" onclick="irPara('clientes')">ver todos em Clientes →</button>`:''):'<div class="vazio">Ninguém entrou hoje ainda.</div>'}</div></div>`;
 }
+function renderMes(){
+  const el=document.getElementById('mesBox');if(!el)return;
+  const P=projecaoMes(),pm=Math.min(100,Math.round(P.realLib/P.metaMes*100)),pp=Math.min(100,Math.round(P.projLib/P.metaMes*100));
+  el.innerHTML=`<div class="fbox"><div class="mt" title="Projeção: o que já foi liberado no mês + a média dos últimos 7 dias nos dias que faltam">
+        <div class="mt-top"><span>📅 Meta do mês</span><b>${brlFull(P.realLib)}</b></div>
+        <div class="meta-barra"><i style="width:${pm}%"></i>${P.projLib>P.realLib?`<s style="left:0;width:${pp}%"></s>`:''}</div>
+        <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`${P.realPag} contratos pagos · no ritmo atual fecha em <b>${brl(P.projLib)}</b> (${brl(P.projCom)} de comissão)`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div></div>`;
+}
+// ═════════════ CLIENTES (cadastro / CRM) ═════════════
+const CRM_GRUPOS=[['todos','Todos'],['andamento','Em andamento'],['parado','Parou de responder'],['pago','Pagos'],['perdido','Perdidos']];
+const CRM_COR={andamento:['#eaf1ff','#1f55c4'],parado:['#fff4dc','#8a6200'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318']};
+let crmF={grupo:'todos',busca:'',motivo:''};
+function fmtCpf(c){c=String(c||'').replace(/\D/g,'');return c.length===11?c.slice(0,3)+'.'+c.slice(3,6)+'.'+c.slice(6,9)+'-'+c.slice(9):(c||'—');}
+function fmtTel(t){t=String(t||'');const d=t.replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');if(/^\d{10,11}$/.test(d))return '('+d.slice(0,2)+') '+d.slice(2,-4)+'-'+d.slice(-4);return t||'—';}
+function quando(iso){if(!iso)return'—';const d=new Date(iso),h=new Date();return dataISO(d)===dataISO(h)?'hoje '+hora(iso):d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function pillSit(c){const k=CRM_COR[c.grupo]||['#eef1f5','#5b6878'];return `<span class="sit" style="background:${k[0]};color:${k[1]}">${esc(c.situacao)}</span>`;}
+function crmItem(c){return `<div class="item" role="button" tabindex="0" style="cursor:pointer" onclick="abrirPainel('cliente:${c.id}')"><div class="t"><b>${esc(c.nome||fmtTel(c.telefone))}${c.teste?' <span class="pill" style="background:#eef1f5;color:#5b6878">teste</span>':''}</b><span>${fmtTel(c.telefone)} · entrou ${quando(c.entrou)}</span></div><div class="d">${pillSit(c)}</div></div>`;}
+function crmFiltrados(){const b=crmF.busca.trim().toLowerCase(),bd=b.replace(/\D/g,'');
+  return (estado.crm||[]).filter(c=>(crmF.grupo==='todos'||c.grupo===crmF.grupo)&&(!crmF.motivo||(c.motivo||'Sem motivo informado')===crmF.motivo)
+    &&(!b||String(c.nome||'').toLowerCase().includes(b)||(bd.length>=3&&(String(c.telefone||'').replace(/\D/g,'').includes(bd)||String(c.cpf||'').includes(bd)))));}
+function crmGrupo(g){crmF.grupo=g;crmF.motivo='';renderCrm();}
+function renderCrm(){const el=document.getElementById('crmLista');if(!el)return;const T=estado.crm||[];
+  const n=g=>g==='todos'?T.length:T.filter(c=>c.grupo===g).length;
+  document.getElementById('crmChips').innerHTML=CRM_GRUPOS.map(([g,t])=>`<button class="chip ${crmF.grupo===g&&!crmF.motivo?'on':''}" onclick="crmGrupo('${g}')">${t} <b>${n(g)}</b></button>`).join('')+(crmF.motivo?`<button class="chip on" onclick="crmF.motivo='';renderCrm()">Motivo: ${esc(crmF.motivo)} ✕</button>`:'');
+  const L=crmFiltrados();
+  if(!T.length){el.innerHTML='<div class="vazio">Nenhum cliente ainda. Todo cliente que entrar no escritório fica guardado aqui, com nome, número, CPF e onde parou.</div>';return;}
+  if(!L.length){el.innerHTML='<div class="vazio">Nenhum cliente com esse filtro.</div>';return;}
+  const off=(e)=>e.stopPropagation();
+  el.innerHTML=`<div class="crm-tab"><div class="crm-l crm-h"><span>Cliente</span><span>Telefone</span><span>CPF</span><span>Situação</span><span>Oferta</span><span>Última conversa</span></div>
+    ${L.slice(0,300).map(c=>`<div class="crm-l" role="button" tabindex="0" onclick="abrirPainel('cliente:${c.id}')" onkeydown="if(event.key==='Enter')abrirPainel('cliente:${c.id}')">
+      <span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b>${c.teste?' <span class="pill" style="background:#eef1f5;color:#5b6878">teste</span>':''}</span>
+      <span class="c-tel">${fmtTel(c.telefone)}</span><span class="c-cpf">${fmtCpf(c.cpf)}</span><span class="c-sit">${pillSit(c)}</span>
+      <span class="c-of">${c.oferta?brl(c.oferta.valor)+' em '+c.oferta.prazo+'x':c.margem?'margem '+brl(c.margem):'—'}</span><span class="c-ult">${quando(c.ultima)}</span></div>`).join('')}</div>
+    ${L.length>300?`<div class="vazio" style="margin-top:8px">Mostrando 300 de ${L.length}. Use a busca ou baixe a planilha para ver todos.</div>`:''}`;}
+function crmCsv(){const L=crmFiltrados(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const linhas=[['Nome','Telefone','CPF','Situação','Motivo','Margem','Valor da oferta','Prazo','Parcela','Entrou em','Última conversa','Teste']].concat(L.map(c=>[c.nome,fmtTel(c.telefone),fmtCpf(c.cpf),c.situacao,c.motivo,c.margem,c.oferta&&c.oferta.valor,c.oferta&&c.oferta.prazo,c.oferta&&c.oferta.parcela,c.entrou&&new Date(c.entrou).toLocaleString('pt-BR'),c.ultima&&new Date(c.ultima).toLocaleString('pt-BR'),c.teste?'sim':'']));
+  const blob=new Blob(['﻿'+linhas.map(r=>r.map(q).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='clientes-gmcred-'+hojeISO()+'.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+function verMotivo(m){crmF={grupo:'todos',busca:'',motivo:m};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
 function itemContrato(c){const e=ETAPAS[c.etapa]||{cor:'#999'};
   return `<div class="item"><div class="av" style="display:grid;place-items:center;font-size:16px;background:${e.cor}22">${(ETAPAS[c.etapa]||{}).icone||'📄'}</div>
     <div class="t"><b>${esc(c.nome||'Cliente')}</b><span>${c.parcelas||'?'}x de ${brlFull(c.valor_parcela)} · ${c.com_seguro?'com seguro':'sem seguro'} · ${c.percentual!=null?String(c.percentual).replace('.',',')+'%':'—'}</span></div>
@@ -1012,12 +1123,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','funil','simulacao'];
+const TELAS=['escritorio','clientes','hoje','mes','funil','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='funil')setTimeout(renderVendas,30);}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
