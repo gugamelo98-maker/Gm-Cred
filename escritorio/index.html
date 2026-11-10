@@ -1375,15 +1375,15 @@ function renderMes(){
         <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`${P.realPag} contratos pagos · no ritmo atual fecha em <b>${brl(P.projLib)}</b> (${brl(P.projCom)} de comissão)`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div>${linhaComissao()}</div>`;
 }
 // ═════════════ CLIENTES (cadastro / CRM) ═════════════
-const CRM_GRUPOS=[['todos','Todos'],['andamento','Em atendimento'],['perdido','Finalizados'],['sem_margem','Sem margem'],['pago','Pagos']];
-const CRM_COR={andamento:['#eaf1ff','#1f55c4'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318'],sem_margem:['#eef1f5','#5b6878']};
+const CRM_GRUPOS=[['todos','Todos'],['andamento','Em atendimento'],['com_margem','Com margem'],['perdido','Finalizados'],['sem_margem','Sem margem'],['pago','Pagos']];
+const CRM_COR={andamento:['#eaf1ff','#1f55c4'],com_margem:['#fff4dc','#a15c00'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318'],sem_margem:['#eef1f5','#5b6878']};
 let crmF={grupo:'todos',busca:'',motivo:'',cat:''};
 function catPerda(c){if(c.etiqueta)return c.etiqueta;const t=c.situacao||'';return t.startsWith('Sumiu')?'Parou de responder':t.startsWith('Desistiu')?'Desistiu':t;}
 function verCat(cat){crmF={grupo:'perdido',busca:'',motivo:'',cat};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
 function fmtCpf(c){c=String(c||'').replace(/\D/g,'');return c.length===11?c.slice(0,3)+'.'+c.slice(3,6)+'.'+c.slice(6,9)+'-'+c.slice(9):(c||'—');}
 function fmtTel(t){t=String(t||'');const d=t.replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');if(/^\d{10,11}$/.test(d))return '('+d.slice(0,2)+') '+d.slice(2,-4)+'-'+d.slice(-4);return t||'—';}
 function quando(iso){if(!iso)return'—';const d=new Date(iso),h=new Date();return dataISO(d)===dataISO(h)?'hoje '+hora(iso):d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-function pillSit(c){const k=CRM_COR[c.grupo]||['#eef1f5','#5b6878'];const t=c.grupo==='perdido'&&c.etiqueta?'Finalizado · '+c.etiqueta:c.situacao;return `<span class="sit" style="background:${k[0]};color:${k[1]}">${esc(t)}</span>`;}
+function pillSit(c){const k=CRM_COR[c.grupo]||['#eef1f5','#5b6878'];const t=c.grupo==='com_margem'&&c.etiqueta?c.etiqueta:c.grupo==='perdido'&&c.etiqueta?'Finalizado · '+c.etiqueta:c.situacao;return `<span class="sit" style="background:${k[0]};color:${k[1]}">${esc(t)}</span>`;}
 function crmItem(c){return `<div class="item" role="button" tabindex="0" style="cursor:pointer" onclick="abrirPainel('cliente:${c.id}')"><div class="t"><b>${esc(c.nome||fmtTel(c.telefone))}${c.teste?' <span class="pill" style="background:#eef1f5;color:#5b6878">teste</span>':''}</b><span>${fmtTel(c.telefone)} · entrou ${quando(c.entrou)}</span></div><div class="d">${pillSit(c)}</div></div>`;}
 function crmFiltrados(){const b=crmF.busca.trim().toLowerCase(),bd=b.replace(/\D/g,'');
   return (estado.crm||[]).filter(c=>(crmF.grupo==='todos'||c.grupo===crmF.grupo)&&(!crmF.cat||catPerda(c)===crmF.cat)&&(!crmF.motivo||(c.motivo||'Sem motivo informado')===crmF.motivo)
