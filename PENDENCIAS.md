@@ -1,6 +1,6 @@
 # Pendências
 
-- [ ] **Zerar o escritório virtual** antes de começar com clientes de verdade (pedido do dono, 2026-11-10).
+- [x] **Zerar o escritório virtual** — feito em 2026-11-10 (só havia testes). Rodar de novo antes dos números de WhatsApp, se houver novos testes.
       Script pronto: `db/zerar_escritorio.sql` (cancela-se antes, na V8, qualquer proposta real aberta).
 - [ ] Números de WhatsApp.
 - [ ] 3 avatares por sala + placar no Escritório.
