@@ -196,7 +196,7 @@ let tel = lsGet('chat_teste_tel') || novoTel();
 let hist = []; try { hist = JSON.parse(lsGet('chat_teste_hist_' + tel) || '[]'); } catch(e) { hist = []; }
 let info = null; try { info = JSON.parse(lsGet('chat_teste_info_' + tel) || 'null'); } catch(e) {}
 let ultimoId = hist.reduce((m, x) => Math.max(m, x.id || 0), 0);
-let enviando = false, timerPoll = null;
+let enviando = 0, timerPoll = null;   // nº de mensagens aguardando resposta (o cliente pode mandar várias seguidas)
 
 function novoTel(){ const t = 'teste-' + Date.now().toString(36) + Math.random().toString(36).slice(2,5); lsSet('chat_teste_tel', t); return t; }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -291,24 +291,25 @@ function aplicarLead(j){
 
 async function enviar(texto){
   texto = String(texto || '').trim();
-  if (!texto || enviando) return;
+  if (!texto) return;
   if (!token) { pedirLogin(); return; }
-  enviando = true; $('btn').disabled = true;
+  const enviadoEm = new Date().toISOString();   // hora em que o cliente enviou (ordena as mensagens em sequência)
+  enviando++;
   hist.push({de:'cli', texto, em:Date.now()}); salvar(); $('vazio').style.display = 'none'; bolha(hist[hist.length-1]);
   $('txt').value = ''; ajustar();
   $('digitando').classList.add('on'); $('msgs').scrollTop = $('msgs').scrollHeight;
   try {
-    const r = await fetch(BASE + '/gmcred/chat', { method:'POST', body:new URLSearchParams({k:token, telefone:tel, mensagem:texto}) });
+    const r = await fetch(BASE + '/gmcred/chat', { method:'POST', body:new URLSearchParams({k:token, telefone:tel, mensagem:texto, enviado_em:enviadoEm}) });
     const j = await r.json().catch(() => ({}));
     if (r.status === 401) { semSessao(); return; }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     estado('ok', 'Conectado');
+    if (j.agrupada) return;   // juntada com as próximas mensagens: a resposta vem na última
     aplicarLead(j);
     if (j.humano) { hist.push({de:'sis', texto:'Um atendente humano está com esta conversa. O agente não responde.', em:Date.now()}); bolha(hist[hist.length-1]); }
     const lista = (j.mensagens || []).filter(m => !m.id || m.id > ultimoId);
     for (let i = 0; i < lista.length; i++) {
       if (i) { $('digitando').classList.add('on'); await new Promise(res => setTimeout(res, 650)); }
-      $('digitando').classList.remove('on');
       if (addAgente([lista[i]])) bolha(hist[hist.length-1]);
     }
     salvar(); bastidores(); buscarNovas();
@@ -316,12 +317,12 @@ async function enviar(texto){
     hist.push({de:'sis', texto:'Não consegui falar com o servidor (' + e.message + '). Tente de novo.', em:Date.now()}); bolha(hist[hist.length-1]);
     estado('erro', 'Erro de conexão');
   } finally {
-    $('digitando').classList.remove('on'); enviando = false; $('btn').disabled = false; $('txt').focus();
+    enviando = Math.max(0, enviando - 1); if (!enviando) $('digitando').classList.remove('on'); $('txt').focus();
   }
 }
 
 async function buscarNovas(){
-  if (!token || enviando) return;
+  if (!token) return;
   try {
     const r = await fetch(BASE + '/gmcred/chat/novas', { method:'POST', body:new URLSearchParams({k:token, telefone:tel, depois:String(ultimoId)}) });
     if (r.status === 401) { semSessao(); return; }
