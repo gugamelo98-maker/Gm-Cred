@@ -1088,13 +1088,14 @@ function renderAgentes(){
       ${b?`<div class="tc-win ${cls}" onclick="abrirPainel('agente:${b.a.id}')" title="Ver detalhes"><span class="lt">${esc(b.a.versao)}</span><div class="nm"><b>${esc(b.a.nome)}</b><small>${esc(b.a.abordagem||'')}</small></div><span class="sel">${x.ok?'🏆 melhor':'⏳ testando'}</span></div>`:'<div class="vazio">Sem dados ainda.</div>'}
       <div class="tc-v">${x.st.map(({a,s})=>`<span class="vn" onclick="abrirPainel('agente:${a.id}')"><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</span><span class="br"><i class="${b&&b.a.id===a.id?'win':''}" style="width:${s.tSeg||0}%"></i></span><span class="pv" title="${s.n} clientes">${pcT(s.tSeg)}</span>`).join('')}</div>
       <div class="tc-ft">% que ${esc(SETOR_PASSO[x.set])}${x.ok?'':' · menos de '+MIN_AMOSTRA+' clientes por versão'}</div></div>`;}).join('');
-  // ranking de times reais (Recepção → Simulação → Vendas)
+  // ranking de times reais (Recepção → Simulação → Vendas): ordenado por QUANTOS assinaram (desempate: pagos)
   const T3=['recepcao','simulacao','vendas'],grp={};
-  J.filter(j=>j.g!=='sem_margem'&&j.a&&T3.every(x=>j.a[x])).forEach(j=>{const k=T3.map(x=>{const ag=A.find(a=>a.id===j.a[x][0]);return ag?ag.versao:'·';}).join('');(grp[k]=grp[k]||{n:0,as:0});grp[k].n++;if(assinou(j))grp[k].as++;});
-  const top=Object.entries(grp).filter(([,v])=>v.n>=3).map(([k,v])=>({k,...v,t:pc(v.as,v.n)})).sort((a,b)=>b.t-a.t||b.n-a.n);
+  J.filter(j=>j.g!=='sem_margem'&&j.a&&T3.every(x=>j.a[x])).forEach(j=>{const k=T3.map(x=>{const ag=A.find(a=>a.id===j.a[x][0]);return ag?ag.versao:'·';}).join('');const g=(grp[k]=grp[k]||{n:0,as:0,pg:0});g.n++;if(assinou(j))g.as++;if(j.g==='pago')g.pg++;});
+  const top=Object.entries(grp).map(([k,v])=>({k,...v})).sort((a,b)=>b.as-a.as||b.pg-a.pg||a.n-b.n);
   const nomeT=k=>k.split('').map((v,i)=>{const ag=A.find(a=>a.setor===T3[i]&&a.versao===v);return ag?`<span class="vtag">${v}</span>${esc(ag.nome)}`:'—';}).join(' → ');
-  const linha=(x,pos)=>`<div class="rk"><span class="pos">${pos}</span><span class="cam">${nomeT(x.k)}</span><span class="tx">${x.t}% <small>assinaram (${x.as} de ${x.n})</small></span></div>`;
-  cmb.innerHTML=`<div class="fbox"><h4>🧭 Times que mais assinaram · Recepção → Simulação → Vendas</h4>${top.length?top.slice(0,3).map((x,i)=>linha(x,['🥇','🥈','🥉'][i])).join('')+(top.length>3?linha(top[top.length-1],'👎'):''):'<div class="vazio">Ainda não há clientes suficientes que chegaram até Vendas.</div>'}</div>`;
+  const linha=(x,pos)=>`<div class="rk"><span class="pos">${pos}</span><span class="cam">${nomeT(x.k)}</span><span class="tx">${x.as} <small>${x.as===1?'assinou':'assinaram'}</small> · ${x.pg} <small>${x.pg===1?'pago':'pagos'}</small></span></div>`;
+  cmb.innerHTML=`<div class="fbox"><h4>🧭 Times que mais assinaram · Recepção → Simulação → Vendas</h4>${top.length?top.slice(0,3).map((x,i)=>linha(x,['🥇','🥈','🥉'][i])).join('')+(top.length>3?linha(top[top.length-1],'👎'):''):'<div class="vazio">Ainda não há clientes que chegaram até Vendas.</div>'}
+    <div class="ag-nota">Ordenado pela quantidade de contratos assinados no período (empate: quem tem mais pagos).</div></div>`;
 }
 function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPainel();return;}const s=statsAg(a,agJ());
   gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(verTeste&&!demo?' (com testes)':'');
