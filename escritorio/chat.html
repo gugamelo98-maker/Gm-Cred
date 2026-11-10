@@ -57,6 +57,9 @@ button{font:inherit;cursor:pointer}
 .enviar textarea:focus{border-color:var(--azul)}
 .enviar button{border:0;background:var(--azul);color:#fff;border-radius:14px;padding:0 18px;font-weight:700}
 .enviar button:disabled{opacity:.5;cursor:default}
+.enviar .mic{background:#eef2f6;color:var(--tx);padding:0 14px;font-size:17px;min-width:48px}
+.enviar .mic.gravando{background:#e5484d;color:#fff;font-size:13px;font-variant-numeric:tabular-nums;animation:pulsaMic 1.2s infinite}
+@keyframes pulsaMic{50%{box-shadow:0 0 0 6px rgba(229,72,77,.18)}}
 
 .lado{display:flex;flex-direction:column;gap:14px;overflow-y:auto;padding-bottom:4px}
 .card{background:var(--card);border-radius:18px;box-shadow:var(--sombra);padding:16px 18px}
@@ -134,6 +137,7 @@ button{font:inherit;cursor:pointer}
     <div class="atalhos" id="atalhos"></div>
     <form class="enviar" id="form">
       <textarea id="txt" placeholder="Escreva como o cliente…" rows="1" aria-label="Mensagem"></textarea>
+      <button id="mic" class="mic" type="button" title="Gravar áudio (como o cliente no WhatsApp)" aria-label="Gravar áudio">🎤</button>
       <button id="btn" type="submit">Enviar</button>
     </form>
   </section>
@@ -214,10 +218,11 @@ function bolha(m){
     d.innerHTML = '<span class="tag">' + esc(s.nome) + ' · ' + esc(m.agente || '') + ' ' + esc(m.versao || '') +
       (MODOS[m.modo] ? '<span class="auto">· ' + MODOS[m.modo] + '</span>' : '') + '</span><br>' + formatar(m.texto) + '<small>' + hora(m.em) + '</small>';
   } else if (m.de === 'cli') {
-    d.innerHTML = esc(m.texto) + '<small>' + hora(m.em) + '</small>';
+    d.innerHTML = esc(m.texto).replace(/\n/g, '<br>') + '<small>' + hora(m.em) + '</small>';
   } else d.textContent = m.texto;
   $('msgs').insertBefore(d, $('digitando'));
   $('msgs').scrollTop = $('msgs').scrollHeight;
+  return d;
 }
 function render(){
   $('msgs').querySelectorAll('.b').forEach(e => e.remove());
@@ -289,21 +294,27 @@ function aplicarLead(j){
   info = { lead_id: j.id, setor: j.setor, status: j.status, aguardando: j.aguardando, operacao: j.operacao, operacao_real: !!j.operacao_real, agente: j.agente || {}, jornada: j.jornada || [] };
 }
 
-async function enviar(texto){
+async function enviar(texto, audio){
   texto = String(texto || '').trim();
+  if (audio) texto = '🎤 Áudio (' + audio.dur + ')';
   if (!texto) return;
   if (!token) { pedirLogin(); return; }
   const enviadoEm = new Date().toISOString();   // hora em que o cliente enviou (ordena as mensagens em sequência)
   enviando++;
-  hist.push({de:'cli', texto, em:Date.now()}); salvar(); $('vazio').style.display = 'none'; bolha(hist[hist.length-1]);
+  const itemCli = {de:'cli', texto, em:Date.now()}; hist.push(itemCli); salvar(); $('vazio').style.display = 'none'; const elCli = bolha(itemCli);
   $('txt').value = ''; ajustar();
   $('digitando').classList.add('on'); $('msgs').scrollTop = $('msgs').scrollHeight;
   try {
-    const r = await fetch(BASE + '/gmcred/chat', { method:'POST', body:new URLSearchParams({k:token, telefone:tel, mensagem:texto, enviado_em:enviadoEm}) });
+    const r = await fetch(BASE + '/gmcred/chat', { method:'POST', body:new URLSearchParams(audio ? {k:token, telefone:tel, mensagem:'', audio:audio.b64, audio_mime:audio.mime, enviado_em:enviadoEm} : {k:token, telefone:tel, mensagem:texto, enviado_em:enviadoEm}) });
     const j = await r.json().catch(() => ({}));
     if (r.status === 401) { semSessao(); return; }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     estado('ok', 'Conectado');
+    if (audio && j.ouvido) {   // mostra o que a IA entendeu do áudio
+      const ouvido = String(j.ouvido).replace(/^🎤\s*/, '');
+      itemCli.texto = texto + '\n“' + ouvido + '”'; salvar();
+      elCli.innerHTML = esc(itemCli.texto).replace(/\n/g, '<br>') + '<small>' + hora(itemCli.em) + '</small>';
+    }
     if (j.agrupada) return;   // juntada com as próximas mensagens: a resposta vem na última
     aplicarLead(j);
     if (j.humano) { hist.push({de:'sis', texto:'Um atendente humano está com esta conversa. O agente não responde.', em:Date.now()}); bolha(hist[hist.length-1]); }
@@ -384,6 +395,34 @@ function ajustar(){ const t = $('txt'); t.style.height = '44px'; t.style.height 
 $('txt').addEventListener('input', ajustar);
 $('txt').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar($('txt').value); } });
 $('form').addEventListener('submit', e => { e.preventDefault(); enviar($('txt').value); });
+// gravar áudio: toque para começar, toque de novo para enviar (até 2 minutos)
+let gravador = null, pedacos = [], inicioGrav = 0, timerGrav = null;
+function fmtDur(ms){ const t = Math.round(ms/1000); return Math.floor(t/60) + ':' + String(t%60).padStart(2,'0'); }
+async function alternarGravacao(){
+  const b = $('mic');
+  if (gravador && gravador.state === 'recording') { gravador.stop(); return; }
+  if (!token) { pedirLogin(); return; }
+  if (!navigator.mediaDevices || !window.MediaRecorder) { alert('Este navegador não grava áudio.'); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch (e) { alert('Não consegui acessar o microfone. Libere o microfone para este site e tente de novo.'); return; }
+  const tipos = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4', 'audio/webm'];
+  const mime = tipos.find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+  gravador = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); pedacos = [];
+  gravador.ondataavailable = e => { if (e.data && e.data.size) pedacos.push(e.data); };
+  gravador.onstop = async () => {
+    clearInterval(timerGrav); stream.getTracks().forEach(t => t.stop());
+    b.classList.remove('gravando'); b.textContent = '🎤';
+    const dur = Date.now() - inicioGrav;
+    if (dur < 700 || !pedacos.length) return;   // toque sem querer
+    const blob = new Blob(pedacos, { type: gravador.mimeType || mime || 'audio/webm' });
+    const b64 = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.readAsDataURL(blob); });
+    enviar('', { b64, mime: blob.type, dur: fmtDur(dur) });
+  };
+  gravador.start(); inicioGrav = Date.now(); b.classList.add('gravando'); b.textContent = '■ 0:00';
+  timerGrav = setInterval(() => { const d = Date.now() - inicioGrav; b.textContent = '■ ' + fmtDur(d); if (d > 120000) gravador.stop(); }, 250);
+}
+$('mic').addEventListener('click', alternarGravacao);
 ATALHOS.forEach(a => { const b = document.createElement('button'); b.type = 'button'; b.textContent = a; b.onclick = () => enviar(a); $('atalhos').appendChild(b); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) buscarNovas(); });
 
