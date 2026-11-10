@@ -269,6 +269,44 @@ button{font:inherit;cursor:pointer}
 .cres .lin{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-top:4px}
 .up{color:#0f7a4f;font-weight:700}.down{color:#b42318;font-weight:700}.flat{color:var(--tx3);font-weight:700}
 @media (max-width:720px){.vendas{margin-left:12px;margin-right:12px}}
+/* ── v2: menos coisa na tela ── */
+.metas{margin:14px 20px 0}
+.mt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px}
+.mt{cursor:pointer;border-radius:12px;padding:4px;margin:-4px}
+.mt:hover{background:#f7f9fc}
+.mt-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.mt-top span{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em}
+.mt-top b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.meta-barra{position:relative}
+.meta-barra s{position:absolute;top:0;bottom:0;border-right:2px dashed #2f6fed;opacity:.55}
+.mt-com{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;padding-top:12px;border-top:1px solid #eef2f6;font-size:12.5px;color:var(--tx2)}
+.mt-com .lnk{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:4px 10px;font-size:12.5px;color:var(--tx2)}
+.mt-com .lnk b{color:var(--tx);font-variant-numeric:tabular-nums}
+.vd-resumo{font-size:13px;color:var(--tx2);margin-top:10px;line-height:1.55}
+.vd-resumo b{color:var(--tx)}
+.at-topo .lnk,.lnk-a{margin-left:auto;border:0;background:none;color:var(--azul);font-size:12.5px;font-weight:700}
+.at-lista{display:flex;flex-direction:column;gap:6px}
+.at-item{align-items:center;padding:8px 10px}
+.at-item .tx{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.at-item .tx b{display:inline;font-size:13px}
+.at-item .bts{flex-direction:row}
+.at-ok{display:flex;align-items:center;gap:8px}
+.atencao.ok{padding:10px 14px}
+.sim-av{margin:-2px 0 14px}.sim-av summary{cursor:pointer;font-size:12.5px;color:var(--azul);font-weight:600}
+.sim-av .sim-grid{margin-top:10px}
+.sim-cards{margin-bottom:14px}
+.sc.vazio-sc{grid-column:1/-1;background:transparent;border:1px dashed var(--linha)}
+@media (max-width:720px){
+  .metas{margin-left:12px;margin-right:12px}
+  .mt-grid{grid-template-columns:1fr}
+  .mt-top b{font-size:20px}
+  .nav{gap:2px;padding:4px}
+  .nv{flex-direction:column;gap:2px;padding:6px 2px;font-size:11px;min-width:0}
+  .nv .ico{font-size:18px}
+  .nv .badge{position:absolute;top:2px;right:calc(50% - 22px)}
+  .at-item{flex-wrap:wrap}.at-item .bts{width:100%;justify-content:flex-end}
+  .top{gap:8px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -278,10 +316,7 @@ button{font:inherit;cursor:pointer}
   <div class="marca"><div class="logo">GM</div><div><h1>Escritório CLT</h1><p>Empresa virtual · agentes de IA</p></div></div>
   <div class="kpis">
     <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
-    <div class="kpi"><b id="kEnt">0</b><span>Entraram hoje</span></div>
     <div class="kpi"><b id="kPag" style="color:var(--verde)">0</b><span>Pagos hoje</span></div>
-    <div class="kpi" title="Comissão dos contratos pagos no mês"><b id="kRec" style="color:var(--verde)">R$0</b><span>Recebida (mês)</span></div>
-    <div class="kpi" title="Comissão dos contratos aguardando formalização e formalizados (ainda não pagos)"><b id="kPrev" style="color:#8a5cd6">R$0</b><span>Prevista</span></div>
     <div class="kpi"><b id="kPar" style="color:var(--vermelho)">0</b><span>Parados</span></div>
   </div>
   <div class="saude" id="saude" aria-label="Status do sistema"></div>
@@ -310,16 +345,16 @@ button{font:inherit;cursor:pointer}
 </div>
 
 <div class="view" id="v-funil" hidden>
-<section class="fin" id="fin" aria-label="Meta e comissões"></section>
+<section class="metas" id="fin" aria-label="Meta e comissões"></section>
 <section class="vendas" aria-label="Vendas por dia">
   <div class="fbox">
-    <div class="vd-topo"><h4>📈 Vendas por dia · últimos 30 dias e projeção do mês</h4>
+    <div class="vd-topo"><h4>📈 Vendas por dia</h4>
       <div class="seg" role="tablist" aria-label="Medida do gráfico"><button class="on" data-m="liberado" onclick="vdMedida('liberado')">Liberado</button><button data-m="pagos" onclick="vdMedida('pagos')">Contratos pagos</button><button data-m="comissao" onclick="vdMedida('comissao')">Comissão</button></div></div>
     <div class="vd-leg" id="vdLeg"></div>
     <div class="vd-chart" id="vdChart"></div>
+    <p class="vd-resumo" id="vdResumo"></p>
     <details class="vd-tab"><summary>Ver como tabela</summary><div id="vdTabela"></div></details>
   </div>
-  <div class="vd-cards" id="vdCres"></div>
 </section>
 <section class="funil" id="funilSec" aria-label="Funil e perdas"></section>
 </div>
@@ -329,10 +364,11 @@ button{font:inherit;cursor:pointer}
 <section class="sim" aria-label="Simulador e se">
   <div class="fbox">
     <h4>🧪 Simulador "e se…"</h4>
-    <p class="simtx">Mexa nos números e veja o resultado na hora. Serve para planejar: quantos clientes você precisa, onde vale melhorar a conversão e quanto isso rende de comissão. <span id="simOrigem"></span></p>
+    <p class="simtx">Mexa nos números e veja quanto rende no mês. <span id="simOrigem"></span></p>
     <div class="sim-grid" id="simCampos"></div>
-    <div class="sim-bts"><button class="bt pri" id="btReais" onclick="simUsarReais()">📈 Usar meus números reais</button><button class="bt" onclick="simExemplo()">↺ Valores de exemplo</button></div>
+    <details class="sim-av"><summary>Ajustes avançados</summary><div class="sim-grid" id="simAv"></div></details>
     <div class="sim-cards" id="simRes"></div>
+    <div class="sim-bts"><button class="bt" id="btReais" onclick="simUsarReais()">↺ Voltar aos meus números</button><button class="bt" onclick="simExemplo()">Valores de exemplo</button></div>
   </div>
 </section>
 </div>
@@ -554,7 +590,7 @@ function demoTick(){
   D.contratos.filter(c=>c.etapa==='formalizado').forEach(c=>{if(Math.random()<.12){c.etapa='pago';c.dt_pagamento=new Date().toISOString();demoEvento({id:c.lead_id},'contrato_pago',c.nome+': contrato pago! '+brlFull(c.valor_liberado)+' liberado · comissão '+brlFull(c.comissao),'posvenda','posvenda');}});
   D.agentes.forEach(a=>{const n=D.leads.filter(l=>l.setor_id===a.setor_id).length;a.status=a.setor_id==='gerente'?(D.leads.some(parado)?'trabalhando':'livre'):(n>0&&Math.random()<.8?'trabalhando':'livre');a.em_andamento=n;});
   const leads=D.leads.map(l=>({...l,parado:parado(l)}));
-  return{setores:D.setores.map(s=>({...s,leads_ativos:leads.filter(l=>l.setor_id===s.id).length,leads_parados:leads.filter(l=>l.setor_id===s.id&&l.parado).length,agentes:1,agentes_trabalhando:D.agentes.filter(a=>a.setor_id===s.id&&a.status==='trabalhando').length})),
+  return demoCoerente({setores:D.setores.map(s=>({...s,leads_ativos:leads.filter(l=>l.setor_id===s.id).length,leads_parados:leads.filter(l=>l.setor_id===s.id&&l.parado).length,agentes:1,agentes_trabalhando:D.agentes.filter(a=>a.setor_id===s.id&&a.status==='trabalhando').length})),
     agentes:D.agentes.map(a=>({...a})),leads,eventos:D.eventos,numeros:D.numeros.map(n=>({...n,leads_ativos:leads.filter(l=>l.numero_id===n.id).length})),funil:[],
     resumo:{entraram_hoje:D.entraram,em_andamento:leads.length,fecharam_hoje:D.fechados,comissao_hoje:D.comissao,parados:leads.filter(l=>l.parado).length},
     financeiro:Object.keys(ETAPAS).map((k,i)=>{const cs=D.contratos.filter(c=>c.etapa===k);return{etapa:k,ordem:i+1,contratos:cs.length,valor_liberado:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao:Math.round(cs.reduce((a,c)=>a+c.comissao,0)*100)/100};}),
@@ -569,8 +605,18 @@ function demoTick(){
     simulacao:(()=>{const e=D.entraram+60,cs=D.contratos,av=f=>cs.length?cs.reduce((a,c)=>a+f(c),0)/cs.length:0,pg=cs.filter(c=>c.etapa==='pago'),hj=new Date();
       return{dias_janela:30,clientes:e,contratos:cs.length+8,pagos:Math.round(e*.17),formalizados_ou_pagos:Math.round(e*.17)+3,valor_medio:Math.round(av(c=>c.valor_liberado)),pct_seguro:av(c=>c.com_seguro?1:0),parcelas_media:Math.round(av(c=>c.parcelas)),comissao_media:Math.round(av(c=>c.comissao)*100)/100,
         pago_mes_valor:pg.reduce((a,c)=>a+c.valor_liberado,0)+38000,pago_mes_comissao:pg.reduce((a,c)=>a+c.comissao,0)+3100,dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};})(),
-    saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}};
+    saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}});
 }
+// demonstração coerente: funil, simulação e comissão do mês saem da mesma série de vendas do gráfico
+function demoCoerente(o){const v=o.vendas,u30=v.slice(-30),hj=new Date(),soma=(a,k)=>a.reduce((s,x)=>s+x[k],0);
+  const mes=v.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===hj.getMonth()&&t.getFullYear()===hj.getFullYear();});
+  const e=soma(u30,'clientes'),pg=soma(u30,'pagos'),lib=soma(u30,'liberado'),com=soma(u30,'comissao');
+  o.funil={...o.funil,entraram:e,enviaram_cpf:Math.round(e*.78),com_margem:Math.round(e*.52),receberam_proposta:Math.round(e*.41),assinaram:Math.round(pg/.85),pagos:pg,perdidos:Math.round(e*.35),
+    motivos_perda:[['Sem margem disponível',.12],['Parou de responder',.1],['Sem vínculo CLT ativo',.07],['Achou a parcela alta',.04],['Não quis informar dados',.02]].map(([m,f])=>({motivo:m,total:Math.round(e*f)}))};
+  o.simulacao={...o.simulacao,dias_janela:30,clientes:e,pagos:pg,valor_medio:pg?Math.round(lib/pg):0,comissao_media:pg?Math.round(com/pg*100)/100:0,pct_seguro:.7,parcelas_media:46,
+    pago_mes_valor:soma(mes,'liberado'),pago_mes_comissao:soma(mes,'comissao')};
+  const fp=o.financeiro.find(f=>f.etapa==='pago');if(fp){fp.contratos=soma(mes,'pagos');fp.valor_liberado=soma(mes,'liberado');fp.comissao=Math.round(soma(mes,'comissao')*100)/100;}
+  return o;}
 
 // ═════════════ BUSCA DE DADOS ═════════════
 async function atualizar(){
@@ -608,9 +654,7 @@ let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
   estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[]};
   const R=estado.resumo;
-  kAnd.textContent=R.em_andamento??0;kEnt.textContent=R.entraram_hoje??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
-  kRec.textContent=brl((estado.financeiro.find(f=>f.etapa==='pago')||{}).comissao);
-  kPrev.textContent=brl(estado.financeiro.filter(f=>f.etapa!=='pago').reduce((a,f)=>a+Number(f.comissao||0),0));
+  kAnd.textContent=R.em_andamento??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
   renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
@@ -659,12 +703,16 @@ function atualizarSalas(){
 
 // ═════════════ ATENÇÃO, FUNIL E SAÚDE ═════════════
 const AT_ICON={humano:'🙋',pedido_humano:'🙋',pendencia:'🧾',numero:'📵',travado:'⏳',cancelamento:'🚫',v8_erro:'⚠️'};
-function renderAtencao(){const el=document.getElementById('atencao');const L=estado.atencao||[];
-  const nb=document.getElementById('navBadge');nb.hidden=!L.length;nb.textContent=L.length;
-  if(!L.length){el.innerHTML='<div class="at-ok">✅ Tudo em ordem: nada precisa de você agora.</div>';return;}
-  el.innerHTML=`<div class="at-topo">🔔 Precisa da sua atenção <span class="n">${L.length}</span></div><div class="at-lista">${L.slice(0,9).map(a=>`<div class="at-item ${a.prioridade>1?'p2':''}"><div class="ic">${AT_ICON[a.tipo]||'🔔'}</div>
+function atencaoOrdenada(){return (estado.atencao||[]).slice().sort((a,b)=>(a.prioridade||9)-(b.prioridade||9));}
+function atItem(a){return `<div class="at-item ${a.prioridade>1?'p2':''}"><div class="ic">${AT_ICON[a.tipo]||'🔔'}</div>
     <div class="tx"><b>${esc(a.titulo)}</b><span>${a.cliente?esc(a.cliente)+' · ':''}${esc(a.detalhe||'')}${a.desde?' · há '+tempo(minDesde(a.desde)):''}</span></div>
-    <div class="bts">${a.lead_id?`<button class="bt pri" onclick="abrirPainel('cliente:${a.lead_id}')">Ver cliente</button>`:''}${a.alerta_id?`<button class="bt" onclick="acao('resolver',null,${a.alerta_id})">Resolver</button>`:''}${a.tipo==='numero'?`<button class="bt" onclick="abrirPainel('numeros')">Ver números</button>`:''}</div></div>`).join('')}</div>${L.length>9?`<div style="font-size:12px;color:var(--tx2);margin-top:8px">+ ${L.length-9} itens</div>`:''}`;}
+    <div class="bts">${a.lead_id?`<button class="bt pri" onclick="abrirPainel('cliente:${a.lead_id}')">Ver cliente</button>`:''}${a.alerta_id?`<button class="bt" onclick="acao('resolver',null,${a.alerta_id})">Resolver</button>`:''}${a.tipo==='numero'?`<button class="bt" onclick="abrirPainel('numeros')">Ver números</button>`:''}</div></div>`;}
+function renderAtencao(){const el=document.getElementById('atencao');const L=atencaoOrdenada();
+  const nb=document.getElementById('navBadge');nb.hidden=!L.length;nb.textContent=L.length;
+  el.classList.toggle('ok',!L.length);
+  if(!L.length){el.innerHTML='<div class="at-ok">✅ Tudo em ordem: nada precisa de você agora.</div>';return;}
+  el.innerHTML=`<div class="at-topo">🔔 Precisa da sua atenção <span class="n">${L.length}</span>${L.length>3?`<button class="lnk" onclick="abrirPainel('atencao')">ver todos →</button>`:''}</div>
+    <div class="at-lista" style="margin-top:10px">${L.slice(0,3).map(atItem).join('')}</div>`;}
 function renderFunil(){const el=document.getElementById('funilSec');const F=(estado.funil&&!Array.isArray(estado.funil))?estado.funil:{};const base=Number(F.entraram||0);
   const et=[['Entraram',F.entraram],['Enviaram CPF',F.enviaram_cpf],['Com margem',F.com_margem],['Receberam proposta',F.receberam_proposta],['Assinaram',F.assinaram],['Pagos',F.pagos]];
   const rows=et.map(([n,v],i)=>{v=Number(v||0);const pct=base?Math.round(v/base*100):0;const ant=i?Number(et[i-1][1]||0):0;
@@ -673,8 +721,10 @@ function renderFunil(){const el=document.getElementById('funilSec');const F=(est
   el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
     <div class="fbox"><h4>❌ Onde perdemos clientes · ${F.perdidos||0}</h4>${M.length?M.map(m=>`<div class="mot"><span>${esc(m.motivo)}</span><b>${m.total}</b></div>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}</div>`;}
 function renderSaude(){const S=estado.saude||{};
-  document.getElementById('saude').innerHTML=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>{x=x||{};const c=x.ok===true?'ok':x.ok===false?'erro':'neutro';
-    return `<span class="sd ${c}" title="${esc(n+': '+(x.detalhe||'sem dados'))}"><i></i><span>${n}</span></span>`;}).join('');}
+  const it=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>[n,x||{}]);
+  const erro=it.filter(([,x])=>x.ok===false),ok=it.every(([,x])=>x.ok===true);
+  const tit=it.map(([n,x])=>(x.ok===true?'✅ ':x.ok===false?'❌ ':'• ')+n+': '+(x.detalhe||'sem dados')).join('\n');
+  document.getElementById('saude').innerHTML=`<span class="sd ${erro.length?'erro':ok?'ok':'neutro'}" title="${esc(tit)}" aria-label="${esc(tit)}"><i></i><span>${erro.length?esc(erro.map(e=>e[0]).join(', '))+' com problema':ok?'Sistema ok':'Sistema'}</span></span>`;}
 
 // ═════════════ VENDAS POR DIA (gráfico, crescimento e projeção) ═════════════
 let vdM=lsGet('escritorio_vd')||'liberado';
@@ -735,93 +785,71 @@ function renderVendas(){
   hit.addEventListener('mousemove',mover);hit.addEventListener('touchstart',mover,{passive:true});hit.addEventListener('touchmove',mover,{passive:true});
   hit.addEventListener('mouseleave',()=>{tip.style.display='none';cr.setAttribute('visibility','hidden');});
   document.getElementById('vdTabela').innerHTML=`<table><thead><tr><th>Dia</th><th>Clientes</th><th>Digitados</th><th>Pagos</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>${S.ult.slice().reverse().map(x=>`<tr><td>${DSEM[diaDe(x.dia).getDay()]} ${fmtDia(x.dia)}</td><td>${x.clientes}</td><td>${x.digitados}</td><td>${x.pagos}</td><td>${brlFull(x.liberado)}</td><td>${brlFull(x.comissao)}</td></tr>`).join('')}</tbody></table>`;
-  renderCrescimento(S,meta);
+  renderCrescimento(S);
 }
-function renderCrescimento(S,meta){
-  const V=S.V,soma=(arr,k)=>arr.reduce((a,x)=>a+x[k],0);
-  const sem=V.slice(-7),semAnt=V.slice(-14,-7);
-  const d=S.dHoje,diaN=d.getDate(),mesAtual=V.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===d.getMonth()&&t.getFullYear()===d.getFullYear();});
-  const pm=new Date(d.getFullYear(),d.getMonth()-1,1),mesAnt=V.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===pm.getMonth()&&t.getFullYear()===pm.getFullYear()&&t.getDate()<=diaN;});
-  const card=(t,k,f)=>`<div class="cres"><h5>${t}</h5><div class="num">${f(soma(sem,k))}</div><div class="lin"><span>vs semana anterior</span>${variacao(soma(sem,k),soma(semAnt,k))}</div><div class="lin"><span>mês até hoje (${f(soma(mesAtual,k))})</span>${variacao(soma(mesAtual,k),soma(mesAnt,k))}</div></div>`;
-  const realMes=soma(mesAtual,'liberado'),projMes=realMes+soma(S.futuros,'liberado'),projCom=soma(mesAtual,'comissao')+soma(S.futuros,'comissao');
-  const melhor=mesAtual.reduce((a,x)=>x.liberado>(a?a.liberado:-1)?x:a,null),bateram=mesAtual.filter(x=>x.liberado>=meta).length;
-  const diasMes=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),metaMes=meta*diasMes;
-  document.getElementById('vdCres').innerHTML=card('Clientes que entraram · 7 dias','clientes',v=>String(v))+card('Contratos pagos · 7 dias','pagos',v=>String(v))+card('Liberado · 7 dias','liberado',v=>brl(v))+card('Comissão · 7 dias','comissao',v=>brl(v))
-   +`<div class="cres"><h5>Projeção de fechamento do mês</h5><div class="num">${brl(projMes)}</div><div class="lin"><span>liberado · ${projMes>=metaMes?'<span class="up">bate</span>':'<span class="down">abaixo</span>'} a meta do mês (${brl(metaMes)})</span></div><div class="lin"><span>comissão projetada</span><b>${brl(projCom)}</b></div></div>`
-   +`<div class="cres"><h5>Destaques do mês</h5><div class="num">${bateram} de ${diaN}</div><div class="lin"><span>dias que bateram a meta</span></div><div class="lin"><span>melhor dia</span><b>${melhor&&melhor.liberado>0?fmtDia(melhor.dia)+' · '+brl(melhor.liberado):'—'}</b></div><div class="lin"><span>média por dia no mês</span><b>${brl(realMes/Math.max(1,diaN))}</b></div></div>`;
+function metaDia(){return Number((estado.meta&&estado.meta.meta_valor)||(estado.simulacao&&estado.simulacao.meta_dia)||7000);}
+// projeção do mês: UMA conta só, usada em Resultados e em Simulação (realizado + média dos últimos 7 dias nos dias que faltam)
+function projecaoMes(){const S=serieVendas();const hj=new Date();
+  const d=S?S.dHoje:hj,diasMes=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),metaMes=metaDia()*diasMes;
+  if(!S)return{realLib:0,realCom:0,realPag:0,projLib:0,projCom:0,metaMes,diasMes,diaN:d.getDate(),vazio:true};
+  const soma=(a,k)=>a.reduce((s,x)=>s+(x[k]||0),0),mes=S.V.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===d.getMonth()&&t.getFullYear()===d.getFullYear();});
+  const realLib=soma(mes,'liberado');
+  return{realLib,realCom:soma(mes,'comissao'),realPag:soma(mes,'pagos'),projLib:realLib+soma(S.futuros,'liberado'),projCom:soma(mes,'comissao')+soma(S.futuros,'comissao'),metaMes,diasMes,diaN:d.getDate(),vazio:!realLib&&!soma(S.futuros,'liberado')};}
+function renderCrescimento(S){
+  const V=S.V,soma=(arr,k)=>arr.reduce((a,x)=>a+x[k],0),sem=V.slice(-7),semAnt=V.slice(-14,-7);
+  const el=document.getElementById('vdResumo');
+  if(!soma(sem,'clientes')&&!soma(sem,'pagos')){el.innerHTML='Últimos 7 dias: ainda sem movimento.';return;}
+  el.innerHTML=`<b>Últimos 7 dias:</b> ${soma(sem,'clientes')} clientes · ${soma(sem,'pagos')} contratos pagos · <b>${brl(soma(sem,'liberado'))}</b> liberados · ${brl(soma(sem,'comissao'))} de comissão${soma(semAnt,'liberado')?` <span style="white-space:nowrap">(liberado ${variacao(soma(sem,'liberado'),soma(semAnt,'liberado'))} vs semana anterior)</span>`:''}`;
 }
 
 // ═════════════ SIMULAÇÃO ═════════════
-const PARCELAS=[3,4,5,6,7,8,9,10,11,12,18,24,36,38,46,48];
-const SIM_EXEMPLO={cli:20,cpf:60,mar:50,pro:70,ass:60,pag:90,val:2500,seg:50,parc:46,dias:22};
-const SIM_CAMPOS=[['cli','Clientes novos por dia',1,300,1,''],['cpf','Mandam o CPF',0,100,1,'%'],['mar','Têm margem (dos que mandaram CPF)',0,100,1,'%'],['pro','Recebem proposta (dos com margem)',0,100,1,'%'],['ass','Assinam (dos que receberam proposta)',0,100,1,'%'],['pag','São pagos (dos que assinaram)',0,100,1,'%'],['val','Valor médio liberado',300,25000,100,'R$'],['seg','Vendidos com seguro',0,100,5,'%'],['dias','Dias de operação no mês',1,31,1,'']];
+const SIM_EXEMPLO={cli:20,conv:11,val:2500,seg:50,parc:46,dias:22};
+const SIM_CAMPOS=[['cli','Clientes novos por dia',1,300,1,''],['conv','Viram contrato pago',0.5,40,0.5,'%'],['val','Valor médio liberado',300,25000,100,'R$'],['seg','Vendidos com seguro',0,100,5,'%']];
+const SIM_AV=[['dias','Dias de operação no mês',1,31,1,'']];
 let simVals=(()=>{try{const v=JSON.parse(lsGet('escritorio_sim')||'null');return v&&typeof v==='object'?{...SIM_EXEMPLO,...v}:{...SIM_EXEMPLO};}catch(e){return{...SIM_EXEMPLO};}})();
-let simOrigem=lsGet('escritorio_sim_origem')||'exemplo',simMontado=false;
+let simOrigem=lsGet('escritorio_sim_origem')||'exemplo',simMontado=false,simAuto=false;
 function pctTabela(seg,p){if(seg)return p>=46?9.5:p>=24?7:p===18?4.5:p===12?4.01:3.01;return p>=24?3.01:p>=12?2.01:1.01;}
-function wilson(k,n){if(!n)return[0,0];const z=1.96,q=k/n,d=1+z*z/n,c=q+z*z/(2*n),m=z*Math.sqrt(q*(1-q)/n+z*z/(4*n*n));return[Math.max(0,(c-m)/d),Math.min(1,(c+m)/d)];}
 function div(a,b){a=Number(a||0);b=Number(b||0);return b>0?a/b:0;}
-function pct(x){return (Math.round(x*1000)/10).toString().replace('.',',')+'%';}
 function dadosReais(){const F=(estado.funil&&!Array.isArray(estado.funil))?estado.funil:{},S=estado.simulacao||{};
-  return{F,S,suficiente:Number(F.entraram||0)>=50&&Number(S.pagos||0)>=5,temAlgo:Number(F.entraram||0)>0&&Number(S.pagos||0)>0,
-    taxas:{cpf:div(F.enviaram_cpf,F.entraram),mar:div(F.com_margem,F.enviaram_cpf),pro:div(F.receberam_proposta,F.com_margem),ass:div(F.assinaram,F.receberam_proposta),pag:div(F.pagos,F.assinaram)}};}
+  return{F,S,temAlgo:Number(F.entraram||0)>0&&Number(F.pagos||S.pagos||0)>0,poucos:Number(F.entraram||0)<50||Number(F.pagos||S.pagos||0)<5};}
 function renderSimulacao(){
-  const {F,S,suficiente,temAlgo,taxas}=dadosReais();const el=document.getElementById('simPrev');
-  const metaDia=Number(S.meta_dia||(estado.meta&&estado.meta.meta_valor)||7000);
-  if(!suficiente){
-    const nc=Math.min(50,Number(F.entraram||0)),np=Math.min(5,Number(S.pagos||0));
-    el.innerHTML=`<div class="fbox"><h4>🔮 Previsão com os seus números reais</h4>
-      <p class="simtx">A previsão usa as taxas reais dos últimos 30 dias. Para não enganar com poucos dados, ela começa a aparecer depois de <b>50 clientes atendidos</b> e <b>5 contratos pagos</b>. Enquanto isso, use o simulador abaixo.</p>
-      <div class="coleta"><div class="meta-linha"><span>Clientes atendidos</span><b>${nc} de 50</b></div><div class="meta-barra"><i style="width:${nc*2}%"></i></div>
-      <div class="meta-linha"><span>Contratos pagos</span><b>${np} de 5</b></div><div class="meta-barra"><i style="width:${np*20}%"></i></div></div></div>`;
-  }else{
-    const p=div(F.pagos,F.entraram),[lo,hi]=wilson(Number(F.pagos),Number(F.entraram));
-    const cliDia=div(F.entraram,S.dias_janela||30),valMed=Number(S.valor_medio||0),comMed=Number(S.comissao_media||0);
-    const rest=Math.max(0,Number(S.dias_mes||30)-Number(S.dia_atual||1));
-    const proj=q=>Number(S.pago_mes_valor||0)+rest*cliDia*q*valMed, projC=q=>Number(S.pago_mes_comissao||0)+rest*cliDia*q*comMed;
-    const probStatus={disparado:div(F.pagos,F.entraram),respondeu:div(F.pagos,F.entraram),cpf_ok:div(F.pagos,F.enviaram_cpf),simulado:div(F.pagos,F.com_margem),proposta:div(F.pagos,F.receberam_proposta),negociando:div(F.pagos,F.receberam_proposta)};
-    const comLead=estado.leads.reduce((a,l)=>a+(probStatus[l.status]!=null?probStatus[l.status]*comMed:0),0);
-    const pAg=div(S.pagos,S.contratos),pFo=div(S.pagos,S.formalizados_ou_pagos);
-    const comCt=estado.contratos.reduce((a,c)=>a+(c.etapa==='aguardando_formalizacao'?pAg:c.etapa==='formalizado'?pFo:0)*Number(c.comissao||comMed),0);
-    const ritmo=cliDia*p*valMed,nec=p*valMed>0?Math.ceil(metaDia/(p*valMed)):0,bate=ritmo>=metaDia;
-    el.innerHTML=`<div class="fbox"><h4>🔮 Previsão com os seus números reais · últimos ${S.dias_janela||30} dias</h4>
-      <div class="sim-cards">
-        <div class="sc"><span>Comissão esperada dos clientes em andamento</span><b>${brlFull(comLead+comCt)}</b><small>${estado.leads.length} clientes e ${estado.contratos.filter(c=>c.etapa!=='pago').length} contratos abertos, pesados pela chance de cada etapa virar pago</small></div>
-        <div class="sc"><span>Comissão projetada no mês</span><b>${brl(projC(lo))} – ${brl(projC(hi))}</b><small>mais provável ${brlFull(projC(p))} · já recebido ${brlFull(S.pago_mes_comissao)}</small></div>
-        <div class="sc"><span>Liberado projetado no mês</span><b>${brl(proj(lo))} – ${brl(proj(hi))}</b><small>mais provável ${brlFull(proj(p))}</small></div>
-        <div class="sc ${bate?'ok':'ruim'}"><span>Ritmo diário vs meta</span><b>${brlFull(ritmo)}</b><small>${bate?'✅ acima':'❌ abaixo'} da meta de ${brlFull(metaDia)} por dia</small></div>
-        <div class="sc"><span>Clientes por dia para bater a meta</span><b>${nec||'—'}</b><small>hoje entram ${cliDia.toFixed(1).replace('.',',')} por dia · ${pct(p)} viram contrato pago</small></div>
-      </div>
-      <div class="taxas"><div>Mandam o CPF<b>${pct(taxas.cpf)}</b></div><div>Têm margem<b>${pct(taxas.mar)}</b></div><div>Recebem proposta<b>${pct(taxas.pro)}</b></div><div>Assinam<b>${pct(taxas.ass)}</b></div><div>São pagos<b>${pct(taxas.pag)}</b></div><div>Valor médio liberado<b>${brl(valMed)}</b></div></div></div>`;
-  }
-  const bt=document.getElementById('btReais');bt.disabled=!temAlgo;bt.title=temAlgo?(suficiente?'':'Ainda há poucos dados: os números podem variar bastante'):'Ainda não há dados reais suficientes';
-  if(!simMontado){montarSim();syncSim();}calcSim();
+  const {temAlgo}=dadosReais(),el=document.getElementById('simPrev'),P=projecaoMes(),bate=P.projLib>=P.metaMes;
+  el.innerHTML=`<div class="fbox"><h4>🔮 Projeção do mês</h4>${P.vazio
+    ?`<div class="vazio">Ainda sem vendas este mês. A projeção aparece com os primeiros contratos pagos. Enquanto isso, use o simulador abaixo.</div>`
+    :`<div class="sim-cards">
+      <div class="sc"><span>Liberado até hoje</span><b>${brlFull(P.realLib)}</b><small>${P.realPag} contratos pagos em ${P.diaN} dias</small></div>
+      <div class="sc ${bate?'ok':'ruim'}"><span>Fecha o mês em</span><b>${brlFull(P.projLib)}</b><small>${bate?'✅ bate a':'❌ abaixo da'} meta do mês (${brl(P.metaMes)}), no ritmo dos últimos 7 dias</small></div>
+      <div class="sc"><span>Comissão no mês</span><b>${brlFull(P.projCom)}</b><small>projetada · ${brlFull(P.realCom)} já recebida</small></div></div>`}</div>`;
+  const bt=document.getElementById('btReais');bt.hidden=!temAlgo;
+  if(!simMontado){montarSim();syncSim();}
+  if(temAlgo&&!simAuto&&simOrigem!=='ajustado'){simAuto=true;simUsarReais();return;}
+  calcSim();
 }
-function montarSim(){simMontado=true;const g=document.getElementById('simCampos');
-  g.innerHTML=SIM_CAMPOS.map(([k,n,mi,ma,st,u])=>`<div class="campo"><label for="s_${k}">${n}<b id="v_${k}"></b></label><input type="range" id="s_${k}" min="${mi}" max="${ma}" step="${st}" value="${simVals[k]}" oninput="simVals['${k}']=Number(this.value);simOrigem='ajustado';calcSim()"></div>`).join('')
-   +`<div class="campo"><label for="s_parc">Prazo mais vendido</label><select id="s_parc" onchange="simVals.parc=Number(this.value);simOrigem='ajustado';calcSim()">${PARCELAS.map(x=>`<option value="${x}">${x} parcelas</option>`).join('')}</select></div>`;}
-function syncSim(){SIM_CAMPOS.forEach(([k])=>{const i=document.getElementById('s_'+k);if(i&&Number(i.value)!==simVals[k])i.value=simVals[k];});const sp=document.getElementById('s_parc');if(sp)sp.value=String(simVals.parc);}
+function campoSim([k,n,mi,ma,st]){return `<div class="campo"><label for="s_${k}">${n}<b id="v_${k}"></b></label><input type="range" id="s_${k}" min="${mi}" max="${ma}" step="${st}" value="${simVals[k]}" oninput="simVals['${k}']=Number(this.value);simOrigem='ajustado';calcSim()"></div>`;}
+function montarSim(){simMontado=true;
+  document.getElementById('simCampos').innerHTML=SIM_CAMPOS.map(campoSim).join('');
+  document.getElementById('simAv').innerHTML=SIM_AV.map(campoSim).join('')
+   +`<div class="campo"><label for="s_parc">Prazo mais vendido</label><select id="s_parc" onchange="simVals.parc=Number(this.value);simOrigem='ajustado';calcSim()">${[6,8,10,12,18,24,36,38,46].map(x=>`<option value="${x}">${x} parcelas</option>`).join('')}</select></div>`;}
+function syncSim(){[...SIM_CAMPOS,...SIM_AV].forEach(([k])=>{const i=document.getElementById('s_'+k);if(i&&Number(i.value)!==simVals[k])i.value=simVals[k];});const sp=document.getElementById('s_parc');if(sp)sp.value=String(simVals.parc);}
 function calcSim(){const v=simVals;
-  SIM_CAMPOS.forEach(([k,,,,,u])=>{const e=document.getElementById('v_'+k);if(e)e.textContent=u==='R$'?brlFull(v[k]):v[k]+(u||'');});
-  const taxa=v.cpf/100*v.mar/100*v.pro/100*v.ass/100*v.pag/100,pagosDia=v.cli*taxa,libDia=pagosDia*v.val;
+  [...SIM_CAMPOS,...SIM_AV].forEach(([k,,,,,u])=>{const e=document.getElementById('v_'+k);if(e)e.textContent=u==='R$'?brlFull(v[k]):String(v[k]).replace('.',',')+(u||'');});
+  const taxa=v.conv/100,pagosDia=v.cli*taxa,libDia=pagosDia*v.val;
   const pctC=(v.seg/100)*pctTabela(true,v.parc)+(1-v.seg/100)*pctTabela(false,v.parc),comCt=v.val*pctC/100;
-  const metaDia=Number((estado.simulacao&&estado.simulacao.meta_dia)||(estado.meta&&estado.meta.meta_valor)||7000);
-  const nec=taxa*v.val>0?Math.ceil(metaDia/(taxa*v.val)):0,bate=libDia>=metaDia;
-  document.getElementById('simOrigem').textContent=simOrigem==='reais'?'(Usando os seus números reais.)':simOrigem==='exemplo'?'(Valores de exemplo: ajuste para a sua realidade.)':'';
+  const meta=metaDia(),nec=taxa*v.val>0?Math.ceil(meta/(taxa*v.val)):0,bate=libDia>=meta;
+  const {poucos}=dadosReais();
+  document.getElementById('simOrigem').textContent=simOrigem==='reais'?(poucos?'(Começa com os seus números reais, mas ainda são poucos dados: podem variar bastante.)':'(Começa com os seus números reais dos últimos 30 dias.)'):simOrigem==='exemplo'?'(Valores de exemplo.)':'';
   document.getElementById('simRes').innerHTML=`
-    <div class="sc"><span>De cada 100 clientes</span><b>${(taxa*100).toFixed(1).replace('.',',')}</b><small>viram contrato pago</small></div>
-    <div class="sc"><span>Contratos pagos</span><b>${pagosDia.toFixed(1).replace('.',',')} / dia</b><small>${Math.round(pagosDia*v.dias)} no mês</small></div>
-    <div class="sc ${bate?'ok':'ruim'}"><span>Liberado por dia</span><b>${brlFull(libDia)}</b><small>${bate?'✅ bate':'❌ não bate'} a meta de ${brlFull(metaDia)}</small></div>
-    <div class="sc"><span>Comissão por contrato</span><b>${brlFull(comCt)}</b><small>${pctC.toFixed(2).replace('.',',')}% em média (${v.seg}% com seguro, ${v.parc}x)</small></div>
-    <div class="sc ok"><span>Comissão no mês</span><b>${brlFull(comCt*pagosDia*v.dias)}</b><small>${brlFull(libDia*v.dias)} liberados em ${v.dias} dias</small></div>
-    <div class="sc"><span>Para bater a meta</span><b>${nec||'—'} clientes/dia</b><small>com essas taxas e esse valor médio</small></div>`;
+    <div class="sc"><span>Contratos pagos no mês</span><b>${Math.round(pagosDia*v.dias)}</b><small>${pagosDia.toFixed(1).replace('.',',')} por dia · ${brlFull(libDia*v.dias)} liberados</small></div>
+    <div class="sc ok"><span>Comissão no mês</span><b>${brlFull(comCt*pagosDia*v.dias)}</b><small>${brlFull(comCt)} por contrato (${pctC.toFixed(2).replace('.',',')}%)</small></div>
+    <div class="sc ${bate?'ok':'ruim'}"><span>Meta de ${brl(meta)} por dia</span><b>${bate?'✅ Bate':(nec||'—')+' clientes/dia'}</b><small>${bate?brlFull(libDia)+' liberados por dia':'é o que precisa entrar por dia para bater (hoje: '+v.cli+')'}</small></div>`;
   lsSet('escritorio_sim',JSON.stringify(simVals));lsSet('escritorio_sim_origem',simOrigem);}
 function simExemplo(){simVals={...SIM_EXEMPLO};simOrigem='exemplo';syncSim();calcSim();}
-function simUsarReais(){const {F,S,taxas,suficiente}=dadosReais();if(!(Number(F.entraram||0)>0))return;
-  const r=x=>Math.max(0,Math.min(100,Math.round(x*100)));
-  const parc=PARCELAS.reduce((a,b)=>Math.abs(b-Number(S.parcelas_media||46))<Math.abs(a-Number(S.parcelas_media||46))?b:a,46);
-  simVals={...simVals,cli:Math.max(1,Math.round(div(F.entraram,S.dias_janela||30))),cpf:r(taxas.cpf),mar:r(taxas.mar),pro:r(taxas.pro),ass:r(taxas.ass),pag:r(taxas.pag),
+function simUsarReais(){const {F,S}=dadosReais();if(!(Number(F.entraram||0)>0))return;
+  const conv=Math.max(.5,Math.min(40,Math.round(div(F.pagos||S.pagos,F.entraram)*200)/2));
+  const parc=[6,8,10,12,18,24,36,38,46].reduce((a,b)=>Math.abs(b-Number(S.parcelas_media||46))<Math.abs(a-Number(S.parcelas_media||46))?b:a,46);
+  simVals={...simVals,cli:Math.max(1,Math.round(div(F.entraram,S.dias_janela||30))),conv,
     val:Math.max(300,Math.round(Number(S.valor_medio||simVals.val)/100)*100),seg:Math.round(Number(S.pct_seguro!=null?S.pct_seguro:simVals.seg/100)*20)*5,parc};
-  simOrigem='reais';syncSim();calcSim();if(!suficiente)document.getElementById('simOrigem').textContent='(Números reais, mas ainda com poucos dados: podem variar bastante.)';}
+  simOrigem='reais';syncSim();calcSim();}
 
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
@@ -860,17 +888,22 @@ async function acao(tipo,leadId,alertaId){
 
 // ═════════════ COMISSÃO E META ═════════════
 function renderFin(){
-  const el=document.getElementById('fin');const M=estado.meta||{meta_valor:7000,valor_hoje:0,contratos_hoje:0};
-  const meta=Number(M.meta_valor||7000),feito=Number(M.valor_hoje||0),pv=Math.min(100,Math.round(feito/meta*100)),bateu=feito>=meta;
-  const cards=Object.entries(ETAPAS).map(([k,e])=>{const f=estado.financeiro.find(x=>x.etapa===k)||{contratos:0,valor_liberado:0,comissao:0};
-    return `<div class="fcard" style="--c:${e.cor}" onclick="abrirPainel('etapa:${k}')" role="button" tabindex="0"><h4>${e.icone} ${e.nome}${k==='pago'?'<span class="selo" style="background:#e3f7ee;color:#0f7a4f">mês</span>':''}</h4>
-      <div class="big">${brlFull(f.comissao)}</div><div class="sub">comissão · <b>${f.contratos}</b> contrato${Number(f.contratos)===1?'':'s'} · ${brl(f.valor_liberado)} liberado</div></div>`;}).join('');
-  el.innerHTML=`<div class="fcard" style="--c:${bateu?'#16a36a':'#2f6fed'}" onclick="abrirPainel('meta')" role="button" tabindex="0">
-      <h4>🎯 Meta do dia${bateu?'<span class="selo" style="background:#e3f7ee;color:#0f7a4f">BATIDA</span>':''}</h4>
-      <div class="big" style="color:${bateu?'#16a36a':'var(--tx)'}">${brlFull(feito)}</div>
-      <div class="meta-barra"><i style="width:${pv}%"></i></div>
-      <div class="meta-linha"><span>liberado em contratos pagos hoje</span><b>${pv}% de ${brlFull(meta)}</b></div>
-    </div>${cards}`;
+  const el=document.getElementById('fin');const M=estado.meta||{};
+  const meta=metaDia(),feito=Number(M.valor_hoje||0),pv=Math.min(100,Math.round(feito/meta*100)),bateu=feito>=meta;
+  const P=projecaoMes(),pm=Math.min(100,Math.round(P.realLib/P.metaMes*100)),pp=Math.min(100,Math.round(P.projLib/P.metaMes*100));
+  const f=k=>estado.financeiro.find(x=>x.etapa===k)||{contratos:0,valor_liberado:0,comissao:0};
+  const lnk=(k,txt)=>{const x=f(k),e=ETAPAS[k];return `<button class="lnk" onclick="abrirPainel('etapa:${k}')" title="${esc(e.desc)}">${e.icone} ${txt} <b>${brlFull(x.comissao)}</b> (${x.contratos})</button>`;};
+  el.innerHTML=`<div class="fbox"><div class="mt-grid">
+      <div class="mt" onclick="abrirPainel('meta')" role="button" tabindex="0">
+        <div class="mt-top"><span>🎯 Hoje${bateu?' · <span style="color:#0f7a4f">meta batida</span>':''}</span><b style="color:${bateu?'#16a36a':'var(--tx)'}">${brlFull(feito)}</b></div>
+        <div class="meta-barra"><i style="width:${pv}%"></i></div>
+        <div class="meta-linha"><span>${M.contratos_hoje||0} contrato${Number(M.contratos_hoje)===1?'':'s'} pago${Number(M.contratos_hoje)===1?'':'s'} hoje</span><b>${pv}% da meta de ${brl(meta)}</b></div></div>
+      <div class="mt" title="Projeção: o que já foi liberado no mês + a média dos últimos 7 dias nos dias que faltam">
+        <div class="mt-top"><span>📅 Mês</span><b>${brlFull(P.realLib)}</b></div>
+        <div class="meta-barra"><i style="width:${pm}%"></i>${P.projLib>P.realLib?`<s style="left:0;width:${pp}%"></s>`:''}</div>
+        <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`no ritmo atual fecha em <b>${brl(P.projLib)}</b>`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div>
+    </div>
+    <div class="mt-com"><span>Comissão:</span>${lnk('aguardando_formalizacao','aguardando assinatura')}${lnk('formalizado','formalizada')}${lnk('pago','recebida no mês')}</div></div>`;
 }
 function itemContrato(c){const e=ETAPAS[c.etapa]||{cor:'#999'};
   return `<div class="item"><div class="av" style="display:grid;place-items:center;font-size:16px;background:${e.cor}22">${(ETAPAS[c.etapa]||{}).icone||'📄'}</div>
@@ -943,6 +976,8 @@ function itemLead(l){const s=setorById(l.setor_id);const m=minDesde(l.entrou_set
     <div class="d"><b>${l.valor?brl(l.valor):'—'}</b><span style="color:${l.parado?'var(--vermelho)':''}">${l.parado?'⚠ ':''}${tempo(m)}</span></div></div>`;}
 function renderPainel(){
   const T=gTit,S=gSub,C=gCorpo;
+  if(painelAberto==='atencao'){const L=atencaoOrdenada();T.textContent='🔔 Precisa da sua atenção';S.textContent=L.length+(L.length===1?' item':' itens')+', do mais urgente para o menos urgente.';
+    C.innerHTML=L.length?`<div class="at-lista">${L.map(atItem).join('')}</div>`:'<div class="vazio">✅ Tudo em ordem: nada precisa de você agora.</div>';return;}
   if(painelAberto==='feed'){T.textContent='Feed ao vivo';S.textContent='Tudo o que está acontecendo na empresa, do mais recente para o mais antigo.';
     C.innerHTML=estado.eventos.length?estado.eventos.map(e=>{const s=setorById(e.setor_destino||e.setor_origem);const cor=e.tipo==='fechou'?'var(--verde)':e.tipo==='perdeu'?'var(--vermelho)':(s?s.cor:'#999');
       return `<div class="ev"><time>${hora(e.criado_em)}</time><i style="background:${cor}"></i><span>${esc(e.descricao)}</span></div>`;}).join(''):'<div class="vazio">Nenhum acontecimento ainda. Quando um cliente entrar, aparece aqui.</div>';return;}
