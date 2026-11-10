@@ -1043,9 +1043,9 @@ function simUsarReais(){const {F,S}=dadosReais();if(!(Number(F.entraram||0)>0))r
 // ═════════════ AGENTES (versões A/B/C) ═════════════
 const SETOR_ORD=['recepcao','simulacao','vendas','formalizacao','posvenda','gerente'];
 const SETOR_NOME={recepcao:'Recepção',simulacao:'Simulação',vendas:'Vendas',formalizacao:'Formalização',posvenda:'Pós-venda',gerente:'Recuperação'};
-const SETOR_PASSO={recepcao:'mandaram o CPF e tinham margem',simulacao:'receberam a proposta (as ofertas)',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a responder'};
+const SETOR_PASSO={recepcao:'mandaram o CPF e tinham margem',simulacao:'receberam a proposta (as ofertas)',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a conversar e avançaram uma etapa'};
 const MIN_AMOSTRA=10;
-const SETOR_COL={recepcao:'Mandaram CPF com margem',simulacao:'Receberam a proposta',vendas:'Escolheram uma oferta',formalizacao:'Assinaram',posvenda:'Foram pagos',gerente:'Voltaram a responder'};
+const SETOR_COL={recepcao:'Mandaram CPF com margem',simulacao:'Receberam a proposta',vendas:'Escolheram uma oferta',formalizacao:'Assinaram',posvenda:'Foram pagos',gerente:'Voltaram e avançaram'};
 let agF={dias:30,teste:true,par:['recepcao','vendas']};
 try{const v=JSON.parse(lsGet('escritorio_agf')||'null');if(v)agF={...agF,...v};}catch(e){}
 function agSalvar(){lsSet('escritorio_agf',JSON.stringify(agF));renderAgentes();}
