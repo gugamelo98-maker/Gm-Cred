@@ -5,16 +5,17 @@
 create or replace function credito.situacao_lead(l credito.leads) returns jsonb language sql stable as $$
   select case
     when l.operation_id is not null and credito.etapa_contrato(l.status_operacao) = 'pago' then '{"t":"Pago","g":"pago","e":6}'
-    when l.operation_id is not null and credito.etapa_contrato(l.status_operacao) = 'cancelado' then '{"t":"Proposta cancelada","g":"perdido","e":5}'
+    when l.operation_id is not null and credito.etapa_contrato(l.status_operacao) = 'cancelado' then '{"t":"Cancelou o contrato","g":"perdido","e":5}'
     when l.operation_id is not null and credito.etapa_contrato(l.status_operacao) = 'formalizado' then '{"t":"Assinou · aguardando pagamento","g":"andamento","e":5}'
-    when l.operation_id is not null then '{"t":"Proposta enviada · falta assinar","g":"andamento","e":4}'
-    when l.status = 'parou' and l.motivo_parada ilike 'sem margem%' then '{"t":"Sem margem","g":"perdido","e":2}'
-    when l.status = 'parou' and l.ofertas is not null then jsonb_build_object('t', 'Desistiu depois das ofertas', 'g', 'perdido', 'e', 3)
+    when l.operation_id is not null and coalesce(l.ultima_interacao, l.atualizado_em) < now() - interval '24 hours' then '{"t":"Recebeu o link e não assinou","g":"perdido","e":4}'
+    when l.operation_id is not null then '{"t":"Link enviado · falta assinar","g":"andamento","e":4}'
+    when l.status = 'parou' and l.motivo_parada ilike 'sem margem%' then '{"t":"Sem margem","g":"sem_margem","e":2}'
+    when l.status = 'parou' and l.ofertas is not null then '{"t":"Desistiu depois das ofertas","g":"perdido","e":3}'
     when l.status = 'parou' then '{"t":"Desistiu","g":"perdido","e":1}'
     when l.aguardando = 'humano' then '{"t":"Com atendente humano","g":"andamento","e":3}'
     when l.aguardando = 'cliente' and l.ultima_interacao < now() - interval '24 hours' then
       jsonb_build_object('t', 'Parou de responder · ' || case when l.oferta is not null then 'escolheu a oferta' when l.ofertas is not null then 'viu as ofertas'
-                                                            when l.cpf_informado is not null then 'mandou o CPF' else 'sem CPF' end, 'g', 'parado',
+                                                            when l.cpf_informado is not null then 'mandou o CPF' else 'sem CPF' end, 'g', 'perdido',
                          'e', case when l.oferta is not null then 4 when l.ofertas is not null then 3 when l.cpf_informado is not null then 2 else 1 end)
     when l.oferta is not null then '{"t":"Escolheu a oferta · falta PIX","g":"andamento","e":4}'
     when l.ofertas is not null then '{"t":"Recebeu as ofertas","g":"andamento","e":3}'
@@ -41,7 +42,5 @@ begin
                                          'crm', credito.crm_clientes()::jsonb))::json;
 end $function$;
 
--- 2026-11-10 (ajuste pedido pelo dono): "Sem margem" tem aba própria (grupo sem_margem) e não conta como perda.
+-- Sem margem tem aba própria (grupo sem_margem) e não conta como perda.
 -- Perdidos = parou de responder (24h) + recebeu o link e não assinou (24h) + cancelou o contrato + desistiu.
--- (a versão em vigor de credito.situacao_lead é a aplicada no banco nesta data; textos: "Cancelou o contrato",
---  "Recebeu o link e não assinou", "Link enviado · falta assinar", grupo "sem_margem")
