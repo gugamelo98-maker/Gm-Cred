@@ -403,6 +403,22 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 .rk .pos{width:22px;font-weight:800;color:var(--tx3)}.rk .cam{flex:1;min-width:0}.rk .tx{font-weight:800;white-space:nowrap}.rk .tx small{font-weight:500;color:var(--tx3)}
 @media (max-width:1100px){.ag-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:720px){.ag-cards{grid-template-columns:minmax(0,1fr)}.tc-top{flex-wrap:wrap}.ag-resumo div{min-width:0;flex-basis:100%}.rk{flex-wrap:wrap}}
+/* ── v3: salas com 3 agentes, menu em grupos, testes ── */
+.posto{position:absolute;bottom:0;top:0;width:0}
+.posto.p3 .agente{width:70px;height:76px;bottom:46px}
+.posto.p3 .mesa{width:110px;height:34px;bottom:24px}
+.posto.p3 .nome-ag{font-size:10.5px;padding:2px 7px;bottom:4px}
+.posto.p2 .agente{width:96px;height:104px;bottom:58px}
+.posto.p2 .mesa{width:170px;height:52px;bottom:22px}
+.nome-ag .vl{font-weight:800;color:var(--tx3);margin-right:3px}
+.balao{max-width:46%;top:36px}
+.nv-sep{display:block;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);text-align:center;border-top:1px solid var(--linha);padding-top:8px;margin:6px 6px 0;min-height:9px}
+.tst{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:6px 10px;font-size:11.5px;font-weight:700;color:var(--tx2);white-space:nowrap;flex-shrink:0}
+.tst.on{background:#fff4dc;border-color:#f1d9a0;color:#8a6200}
+@media (max-width:720px){
+  .nv-sep{border-top:0;border-left:1px solid var(--linha);padding:0;margin:8px 2px;min-height:0;width:1px;font-size:0;flex:0 0 1px}
+  .balao{top:34px;bottom:auto;max-width:56%}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -415,6 +431,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
     <div class="kpi"><b id="kPag" style="color:var(--verde)">0</b><span>Pagos hoje</span></div>
     <div class="kpi"><b id="kPar" style="color:var(--vermelho)">0</b><span>Parados</span></div>
   </div>
+  <button class="tst" id="tstBtn" onclick="alternarTestes()" title="Mostrar ou esconder os clientes criados no Chat teste em todo o painel" hidden></button>
   <div class="saude" id="saude" aria-label="Status do sistema"></div>
   <span class="upd" id="upd"></span>
   <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração"><i></i><span>...</span></button>
@@ -422,12 +439,14 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <div class="aviso" id="aviso"></div>
 <nav class="nav" aria-label="Telas do painel">
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
-  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
-  <button class="nv" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
   <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">🎯</span>Hoje</button>
+  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <span class="nv-sep">Análise</span>
   <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
   <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
+  <button class="nv" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
   <button class="nv" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
+  <span class="nv-sep"></span>
   <a class="nv" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">💬</span>Chat teste</a>
 </nav>
 
@@ -472,7 +491,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <section class="metas" id="mesBox" aria-label="Meta do mês"></section>
 <section class="vendas" aria-label="Vendas por dia">
   <div class="fbox">
-    <div class="vd-topo"><h4>📈 Vendas por dia</h4>
+    <div class="vd-topo"><h4>📈 Vendas por dia · últimos 30 dias</h4>
       <div class="seg" role="tablist" aria-label="Medida do gráfico"><button class="on" data-m="liberado" onclick="vdMedida('liberado')">Liberado</button><button data-m="pagos" onclick="vdMedida('pagos')">Contratos pagos</button><button data-m="comissao" onclick="vdMedida('comissao')">Comissão</button></div></div>
     <div class="vd-leg" id="vdLeg"></div>
     <div class="vd-chart" id="vdChart"></div>
@@ -619,7 +638,12 @@ function pessoaEmPe(id,parado){
   </svg>`;
 }
 function shade(hex,a){const n=parseInt(String(hex).replace('#',''),16);if(isNaN(n))return hex;return'#'+[n>>16,n>>8&255,n&255].map(c=>Math.min(255,Math.max(0,c+a)).toString(16).padStart(2,'0')).join('');}
-function visualAgente(ag){const base=VISUAL[ag.setor_id]||VISUAL.recepcao;const a=ag.avatar||{};return{...base,...(a.pele?{pele:a.pele}:{}),...(a.cabelo?{cabelo:a.cabelo}:{}),...(a.estilo?{estilo:a.estilo}:{}),...(a.roupa?{roupa:a.roupa}:{}),foto:a.foto};}
+function visualAgente(ag){const base=VISUAL[ag.setor_id]||VISUAL.recepcao;const a=ag.avatar||{};let v={...base};
+  if(ag.versao&&ag.versao!=='A'){const h=hash(ag.id*7+3);   // B e C ganham outra aparência para dar para distinguir na sala
+    v={...v,pele:PELES[h%PELES.length],cabelo:CABELOS[(h>>2)%CABELOS.length],estilo:['curto','longo','coque','ondulado','raspado'][(h>>4)%5],roupa:shade(base.roupa,ag.versao==='B'?-28:26),oculos:h%4===0,barba:false,gravata:base.gravata&&h%2===0};}
+  return{...v,...(a.pele?{pele:a.pele}:{}),...(a.cabelo?{cabelo:a.cabelo}:{}),...(a.estilo?{estilo:a.estilo}:{}),...(a.roupa?{roupa:a.roupa}:{}),foto:a.foto};}
+function agentesDe(setorId){const L=estado.agentes.filter(a=>a.setor_id===setorId);const V=L.filter(a=>a.versao);return (V.length?V:L).slice().sort((x,y)=>String(x.versao||'').localeCompare(String(y.versao||''))||x.id-y.id).slice(0,3);}
+const POSTOS={1:[50],2:[30,70],3:[19,50,81]};
 function avatarAgente(ag,classe){const v=visualAgente(ag);if(v.foto)return `<img src="${esc(v.foto)}" alt="${esc(ag.nome)}" style="width:100%;height:100%;object-fit:cover;border-radius:50% 50% 16px 16px">`;return pessoaSentada(v);}
 
 // ═════════════ CENÁRIO DE CADA SALA ═════════════
@@ -663,7 +687,10 @@ const DEMO_SETORES=[
  {id:'formalizacao',nome:'Formalização',descricao:'Coleta os dados, digita a proposta na V8 e cobra a assinatura',cor:'#16a36a',ordem:4,sla_minutos:1440},
  {id:'posvenda',nome:'Pós-venda',descricao:'Acompanha o pagamento, resolve pendências e pede indicação',cor:'#8a5cd6',ordem:5,sla_minutos:4320},
  {id:'gerente',nome:'Gerente',descricao:'Supervisiona todos os setores e resgata clientes parados',cor:'#6b7787',ordem:6,sla_minutos:null}];
-const DEMO_AG=[['Ana','recepcao','Recepcionista'],['Bruno','simulacao','Analista de crédito'],['Carla','vendas','Consultora de vendas'],['Diego','formalizacao','Especialista em contratos'],['Elisa','posvenda','Relacionamento'],['Fernando','gerente','Gerente geral']];
+const DEMO_N={recepcao:['Ana','Bia','Caio'],simulacao:['Bruno','Duda','Enzo'],vendas:['Carla','Fábio','Gabi'],formalizacao:['Diego','Helô','Igor'],posvenda:['Elisa','João','Lara'],gerente:['Fernando','Marta','Nico']};
+const DEMO_AB={recepcao:['Direta: pede o CPF logo','Consultiva: entende a necessidade antes','Segurança: passa confiança e depois pede o CPF'],simulacao:['Valor máximo primeiro','Parcela que cabe','Três opções'],vendas:['Objetiva','Consultiva: pergunta o motivo','Urgência leve'],formalizacao:['Direto','Passo a passo','Guiado com mini-guia'],posvenda:['Proativa','Sob demanda','Relacionamento'],gerente:['Lembrete simples','Novo motivo','Pergunta aberta']};
+const DEMO_AG=Object.keys(DEMO_N).flatMap((set,si)=>DEMO_N[set].map((n,i)=>({id:101+si*3+i,nome:n,setor_id:set,setor:set,versao:'ABC'[i],abordagem:DEMO_AB[set][i],papel:DEMO_AB[set][i],peso:1})));
+function demoAgDe(set){return DEMO_AG[Object.keys(DEMO_N).indexOf(set)*3+rnd(0,2)].id;}
 const DEMO_NOMES=['João Silva','Maria Santos','Pedro Oliveira','Carla Costa','Roberto Lima','Juliana Ferreira','Marcelo Souza','Patricia Alves','Fernando Rocha','Beatriz Mendes','André Cardoso','Camila Ribeiro','Rodrigo Nunes','Larissa Pinto','Leandro Castro','Amanda Correia','Fabio Dias','Renata Barbosa'];
 const FLUXO=[['recepcao','respondeu'],['recepcao','cpf_ok'],['simulacao','simulado'],['vendas','proposta'],['vendas','negociando'],['formalizacao','fechou'],['formalizacao','link_env'],['posvenda','assinou']];
 let demoState=null,demoSeq=0;
@@ -685,12 +712,12 @@ function demoAcao(tipo,leadId,alertaId){const D=demoState;
 function setNome(id){const s=DEMO_SETORES.find(x=>x.id===id);return s?s.nome:id;}
 function parado(l){const s=(estado.setores.length?estado.setores:DEMO_SETORES).find(x=>x.id===l.setor_id);return !!(s&&s.sla_minutos&&minDesde(l.entrou_setor_em)>s.sla_minutos);}
 function demoLead(st,min){const prod=Math.random()<.65?'clt':'fgts';const valor=prod==='clt'?rnd(9000,28000):rnd(3000,11000);
-  return{id:++demoSeq,nome:DEMO_NOMES[demoSeq%DEMO_NOMES.length],telefone:'55489'+rnd(10000000,99999999),setor_id:FLUXO[st][0],status:FLUXO[st][1],etapa:st,produto:prod,banco:Math.random()<.5?'v8digital':'hubcredito',valor,comissao:Math.round(valor*.03),numero_id:rnd(1,2),aguardando:Math.random()<.5?'cliente':'agente',entrou_setor_em:new Date(Date.now()-min*60000).toISOString(),ultima_interacao:new Date(Date.now()-min*30000).toISOString()};}
+  return{id:++demoSeq,nome:DEMO_NOMES[demoSeq%DEMO_NOMES.length],telefone:'55489'+rnd(10000000,99999999),setor_id:FLUXO[st][0],agente_id:demoAgDe(FLUXO[st][0]),status:FLUXO[st][1],etapa:st,produto:prod,banco:Math.random()<.5?'v8digital':'hubcredito',valor,comissao:Math.round(valor*.03),numero_id:rnd(1,2),aguardando:Math.random()<.5?'cliente':'agente',entrou_setor_em:new Date(Date.now()-min*60000).toISOString(),ultima_interacao:new Date(Date.now()-min*30000).toISOString()};}
 function demoVendas(){let seed=7;const rnd2=()=>(seed=(seed*16807)%2147483647)/2147483647;const out=[],h=new Date();
   for(let i=61;i>=0;i--){const d=new Date(h.getFullYear(),h.getMonth(),h.getDate()-i),fds=d.getDay()===0||d.getDay()===6,tr=1+(61-i)/61*.8,cli=Math.round((fds?6:16)*tr+rnd2()*6),pg=Math.max(0,Math.round(cli*.17+(rnd2()-.5)*2)),lib=pg*Math.round(3200+rnd2()*1800);
     out.push({dia:dataISO(d),clientes:cli,digitados:Math.round(cli*.25),pagos:pg,liberado:lib,comissao:Math.round(lib*.068)});}
   return out;}
-function demoInit(){demoState={setores:DEMO_SETORES,agentes:DEMO_AG.map((a,i)=>({id:i+1,nome:a[0],setor_id:a[1],papel:a[2],status:'livre',avatar:{},fechados:0,em_andamento:0,receita_total:0})),leads:[],eventos:[],numeros:[{id:1,apelido:'Atendimento 1',telefone:'(48) 9xxxx-0001',status_conexao:'conectado'},{id:2,apelido:'Atendimento 2',telefone:'(48) 9xxxx-0002',status_conexao:'conectado'}],fechados:0,comissao:0,entraram:0,contratos:[]};
+function demoInit(){demoBase=demoBase||demoGerar();demoState={setores:DEMO_SETORES,agentes:DEMO_AG.map(a=>({...a,status:'livre',avatar:{},fechados:0,em_andamento:0,receita_total:0})),leads:[],eventos:[],numeros:[{id:1,apelido:'Atendimento 1',telefone:'(48) 9xxxx-0001',status_conexao:'conectado'},{id:2,apelido:'Atendimento 2',telefone:'(48) 9xxxx-0002',status_conexao:'conectado'}],fechados:0,comissao:0,entraram:0,contratos:[]};
   for(let i=0;i<11;i++){demoState.leads.push(demoLead(rnd(0,FLUXO.length-1),rnd(1,200)));demoState.entraram++;}
   demoState.leads[0].aguardando='humano';
   demoState.alertas=[{id:1,tipo:'pendencia',prioridade:1,titulo:'Pendência de PIX na proposta',detalhe:'Chave PIX recusada pela V8: pedir nova chave',lead_id:demoState.leads[1].id,criado_em:new Date(Date.now()-35*60000).toISOString()},
@@ -708,16 +735,16 @@ function demoTick(){
     if(Math.random()<.06&&l.etapa<4){D.leads=D.leads.filter(x=>x!==l);demoEvento(l,'perdeu',l.nome+' desistiu na etapa "'+STATUS_LABEL[l.status]+'"',l.setor_id,l.setor_id);continue;}
     if(l.etapa>=FLUXO.length-1){if(Math.random()<.3){D.leads=D.leads.filter(x=>x!==l);demoEvento(l,'status',l.nome+' concluiu o pós-venda',l.setor_id,null);}continue;}
     const de=l.setor_id;l.etapa++;l.setor_id=FLUXO[l.etapa][0];l.status=FLUXO[l.etapa][1];l.ultima_interacao=new Date().toISOString();l.aguardando=Math.random()<.5?'cliente':'agente';
-    if(de!==l.setor_id){l.entrou_setor_em=new Date().toISOString();demoEvento(l,'mudou_setor',l.nome+' foi de '+setNome(de)+' para '+setNome(l.setor_id),de,l.setor_id);}
+    if(de!==l.setor_id){l.agente_id=demoAgDe(l.setor_id);l.entrou_setor_em=new Date().toISOString();demoEvento(l,'mudou_setor',l.nome+' foi de '+setNome(de)+' para '+setNome(l.setor_id),de,l.setor_id);}
     else demoEvento(l,'status',l.nome+': '+STATUS_LABEL[l.status],l.setor_id,l.setor_id);
     if(l.status==='link_env'&&!D.contratos.some(c=>c.lead_id===l.id)){const c=demoContrato(l);D.contratos.unshift(c);demoEvento(l,'contrato_aguardando_formalizacao',l.nome+': proposta digitada, '+brlFull(c.valor_liberado)+' · comissão '+brlFull(c.comissao),l.setor_id,l.setor_id);}
     if(l.status==='assinou'){const c=D.contratos.find(c=>c.lead_id===l.id);if(c)c.etapa='formalizado';}
-    if(l.status==='assinou'){D.fechados++;D.comissao+=l.comissao;const ag=D.agentes.find(a=>a.setor_id==='formalizacao');ag.fechados++;ag.receita_total+=l.comissao;demoEvento(l,'fechou',l.nome+' assinou o contrato! ('+brlFull(l.valor)+')',l.setor_id,l.setor_id);}
+    if(l.status==='assinou'){D.fechados++;D.comissao+=l.comissao;const ag=D.agentes.find(a=>a.id===l.agente_id)||D.agentes.find(a=>a.setor_id==='formalizacao');ag.fechados++;ag.receita_total+=l.comissao;demoEvento(l,'fechou',l.nome+' assinou o contrato! ('+brlFull(l.valor)+')',l.setor_id,l.setor_id);}
   }
   D.contratos.filter(c=>c.etapa==='formalizado').forEach(c=>{if(Math.random()<.12){c.etapa='pago';c.dt_pagamento=new Date().toISOString();demoEvento({id:c.lead_id},'contrato_pago',c.nome+': contrato pago! '+brlFull(c.valor_liberado)+' liberado · comissão '+brlFull(c.comissao),'posvenda','posvenda');}});
-  D.agentes.forEach(a=>{const n=D.leads.filter(l=>l.setor_id===a.setor_id).length;a.status=a.setor_id==='gerente'?(D.leads.some(parado)?'trabalhando':'livre'):(n>0&&Math.random()<.8?'trabalhando':'livre');a.em_andamento=n;});
+  D.agentes.forEach(a=>{const n=D.leads.filter(l=>l.agente_id===a.id).length;a.status=a.setor_id==='gerente'?(D.leads.some(parado)?'trabalhando':'livre'):(n>0?'trabalhando':'livre');a.em_andamento=n;});
   const leads=D.leads.map(l=>({...l,parado:parado(l)}));
-  return demoCoerente({setores:D.setores.map(s=>({...s,leads_ativos:leads.filter(l=>l.setor_id===s.id).length,leads_parados:leads.filter(l=>l.setor_id===s.id&&l.parado).length,agentes:1,agentes_trabalhando:D.agentes.filter(a=>a.setor_id===s.id&&a.status==='trabalhando').length})),
+  return demoCoerente({setores:D.setores.map(s=>({...s,leads_ativos:leads.filter(l=>l.setor_id===s.id).length,leads_parados:leads.filter(l=>l.setor_id===s.id&&l.parado).length,agentes:3,agentes_trabalhando:D.agentes.filter(a=>a.setor_id===s.id&&a.status==='trabalhando').length})),
     agentes:D.agentes.map(a=>({...a})),leads,eventos:D.eventos,numeros:D.numeros.map(n=>({...n,leads_ativos:leads.filter(l=>l.numero_id===n.id).length})),funil:[],
     resumo:{entraram_hoje:D.entraram,em_andamento:leads.length,fecharam_hoje:D.fechados,comissao_hoje:D.comissao,parados:leads.filter(l=>l.parado).length},
     financeiro:Object.keys(ETAPAS).map((k,i)=>{const cs=D.contratos.filter(c=>c.etapa===k);return{etapa:k,ordem:i+1,contratos:cs.length,valor_liberado:cs.reduce((a,c)=>a+c.valor_liberado,0),comissao:Math.round(cs.reduce((a,c)=>a+c.comissao,0)*100)/100};}),
@@ -726,60 +753,64 @@ function demoTick(){
     atencao:[...leads.filter(l=>l.aguardando==='humano').map(l=>({chave:'humano-'+l.id,tipo:'humano',prioridade:1,titulo:'Cliente aguardando atendimento humano',detalhe:'Setor: '+setNome(l.setor_id),lead_id:l.id,cliente:l.nome,desde:l.ultima_interacao})),
       ...D.alertas.map(a=>({chave:'alerta-'+a.id,tipo:a.tipo,prioridade:a.prioridade,titulo:a.titulo,detalhe:a.detalhe,lead_id:D.leads.some(x=>x.id===a.lead_id)?a.lead_id:null,alerta_id:a.id,cliente:(D.leads.find(x=>x.id===a.lead_id)||{}).nome,desde:a.criado_em})),
       ...leads.filter(l=>l.parado&&l.aguardando!=='humano'&&minDesde(l.entrou_setor_em)>=2*((DEMO_SETORES.find(s=>s.id===l.setor_id)||{}).sla_minutos||1e9)).slice(0,3).map(l=>({chave:'travado-'+l.id,tipo:'travado',prioridade:2,titulo:'Cliente travado há '+minDesde(l.entrou_setor_em)+' min',detalhe:'Setor: '+setNome(l.setor_id),lead_id:l.id,cliente:l.nome,desde:l.entrou_setor_em}))],
-    funil:(()=>{const e=D.entraram+60;return{entraram:e,enviaram_cpf:Math.round(e*.78),com_margem:Math.round(e*.52),receberam_proposta:Math.round(e*.41),assinaram:Math.round(e*.24),pagos:Math.round(e*.17),perdidos:Math.round(e*.35),
-      motivos_perda:[{motivo:'Sem margem disponível',total:Math.round(e*.12)},{motivo:'Parou de responder',total:Math.round(e*.1)},{motivo:'Sem vínculo CLT ativo',total:Math.round(e*.07)},{motivo:'Achou a parcela alta',total:Math.round(e*.04)},{motivo:'Não quis informar dados',total:Math.round(e*.02)}]};})(),
-    vendas:(()=>{const v=(D.vendasBase=D.vendasBase||demoVendas()).map(x=>({...x}));const pg=D.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&new Date(c.dt_pagamento).toDateString()===new Date().toDateString());const t=v[v.length-1];t.pagos=pg.length;t.liberado=pg.reduce((a,c)=>a+c.valor_liberado,0);t.comissao=pg.reduce((a,c)=>a+c.comissao,0);t.clientes=D.entraram;return v;})(),
-    simulacao:(()=>{const e=D.entraram+60,cs=D.contratos,av=f=>cs.length?cs.reduce((a,c)=>a+f(c),0)/cs.length:0,pg=cs.filter(c=>c.etapa==='pago'),hj=new Date();
-      return{dias_janela:30,clientes:e,contratos:cs.length+8,pagos:Math.round(e*.17),formalizados_ou_pagos:Math.round(e*.17)+3,valor_medio:Math.round(av(c=>c.valor_liberado)),pct_seguro:av(c=>c.com_seguro?1:0),parcelas_media:Math.round(av(c=>c.parcelas)),comissao_media:Math.round(av(c=>c.comissao)*100)/100,
-        pago_mes_valor:pg.reduce((a,c)=>a+c.valor_liberado,0)+38000,pago_mes_comissao:pg.reduce((a,c)=>a+c.comissao,0)+3100,dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};})(),
+    funil:{},vendas:[],simulacao:null,
     saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}});
 }
-let demoHist=null,demoAg=null;
-// agentes A/B/C fictícios: cada versão com uma chance diferente de segurar o cliente, para a comparação aparecer
-function demoAgentes(){if(demoAg)return demoAg;let seed=11;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;
-  const N={recepcao:['Ana','Bia','Caio'],simulacao:['Bruno','Duda','Enzo'],vendas:['Carla','Fábio','Gabi'],formalizacao:['Diego','Helô','Igor'],posvenda:['Elisa','João','Lara'],gerente:['Fernando','Marta','Nico']};
-  const AB={recepcao:['Direta: pede o CPF logo','Consultiva: entende a necessidade antes','Segurança: passa confiança e depois pede o CPF'],simulacao:['Valor máximo primeiro','Parcela que cabe','Três opções'],vendas:['Objetiva','Consultiva: pergunta o motivo','Urgência leve'],formalizacao:['Direto','Passo a passo','Guiado com mini-guia'],posvenda:['Proativa','Sob demanda','Relacionamento'],gerente:['Lembrete simples','Novo motivo','Pergunta aberta']};
+// DEMONSTRAÇÃO COERENTE: uma base só (cada cliente fictício com sua jornada pelos agentes A/B/C) alimenta
+// o gráfico de vendas, o funil, a simulação, o cadastro de clientes e a aba Agentes.
+let demoBase=null;
+function demoGerar(){let seed=11;const r=()=>(seed=(seed*16807)%2147483647)/2147483647,ri=(a,b)=>Math.floor(r()*(b-a+1))+a;
   const P={recepcao:[.62,.70,.78],simulacao:[.80,.86,.83],vendas:[.48,.62,.40],formalizacao:[.70,.82,.76],posvenda:[.92,.90,.95]};
-  let id=100;const agentes=[];Object.keys(N).forEach(set=>N[set].forEach((n,i)=>agentes.push({id:++id,nome:n,setor:set,versao:'ABC'[i],abordagem:AB[set][i],peso:1})));
-  const ag=(set,i)=>agentes.find(a=>a.setor===set&&a.versao==='ABC'[i]);
-  const jornadas=[];
-  for(let k=0;k<520;k++){const a={},e=new Date(Date.now()-r()*85*86400000).toISOString();let g='andamento',et=1,sit='Conversando · sem CPF';
-    const v={};['recepcao','simulacao','vendas','formalizacao','posvenda','gerente'].forEach(x=>v[x]=Math.floor(r()*3));
-    const bonus=(v.recepcao===1&&v.vendas===1)?.12:(v.recepcao===2&&v.vendas===2)?-.15:0;   // Bia+Fábio combinam bem; Caio+Gabi, mal
-    const passo=(set,p)=>{const ok=r()<p;a[set]=[ag(set,v[set]).id,ok?'avancou':'perdeu',Math.round(5+r()*60)];return ok;};
-    if(r()<.15){a.recepcao=[ag('recepcao',v.recepcao).id,'perdeu',8];g='sem_margem';et=2;sit='Sem margem';}
-    else if(!passo('recepcao',P.recepcao[v.recepcao])){g='perdido';et=1;sit=r()<.5?'Parou de responder · sem CPF':'Desistiu';}
-    else if(!passo('simulacao',P.simulacao[v.simulacao])){g='perdido';et=2;sit='Parou de responder · mandou o CPF';}
-    else if(!passo('vendas',P.vendas[v.vendas]+bonus)){g='perdido';et=3;sit=r()<.6?'Parou de responder · viu as ofertas':'Desistiu depois das ofertas';}
-    else if(!passo('formalizacao',P.formalizacao[v.formalizacao])){g='perdido';et=4;sit=r()<.7?'Recebeu o link e não assinou':'Cancelou o contrato';}
-    else{const pg=r()<P.posvenda[v.posvenda];a.posvenda=[ag('posvenda',v.posvenda).id,pg?'avancou':null,600];g=pg?'pago':'andamento';et=pg?6:5;sit=pg?'Pago':'Assinou · aguardando pagamento';}
-    if(g==='perdido'&&r()<.5){const ok=r()<[.15,.22,.3][v.gerente];a.gerente=[ag('gerente',v.gerente).id,ok?'recuperou':'perdeu',30];}
-    jornadas.push({l:9000+k,t:false,e,g,et,s:sit,a});}
-  return demoAg={agentes,jornadas};}
-function demoCrm(o){const cpf=()=>String(rnd(10000000000,99999999999)),SIT_ATIVO={respondeu:['Conversando · sem CPF',1],cpf_ok:['Mandou o CPF · consultando',2],simulado:['Recebeu as ofertas',3],proposta:['Recebeu as ofertas',3],negociando:['Recebeu as ofertas',3],fechou:['Escolheu a oferta · falta PIX',4],link_env:['Link enviado · falta assinar',4],assinou:['Assinou · aguardando pagamento',5]};
-  if(!demoHist){demoHist=[];const H=[['Pago','pago',6,null],['Pago','pago',6,null],['Pago','pago',6,null],['Sem margem','sem_margem',2,'Sem margem disponível'],['Sem margem','sem_margem',2,'Sem margem disponível'],['Desistiu','perdido',1,'Sem vínculo CLT ativo'],['Desistiu depois das ofertas','perdido',3,'Achou a parcela alta'],['Recebeu o link e não assinou','perdido',4,null],['Parou de responder · viu as ofertas','perdido',3,'Parou de responder'],['Parou de responder · mandou o CPF','perdido',2,'Parou de responder'],['Cancelou o contrato','perdido',5,null]];
-    for(let i=0;i<48;i++){const h=H[i%H.length],dias=rnd(0,29),ent=new Date(Date.now()-dias*86400000-rnd(1,600)*60000);const v=rnd(3000,9000);
-      demoHist.push({id:5000+i,nome:DEMO_NOMES[(i*7+3)%DEMO_NOMES.length].split(' ')[0]+' '+['Moura','Teixeira','Ramos','Freitas','Lopes','Vieira','Araújo','Gomes'][i%8],telefone:'55489'+rnd(10000000,99999999),cpf:cpf(),situacao:h[0],grupo:h[1],etapa:h[2],motivo:h[3],margem:h[2]>=3?rnd(250,900):null,oferta:h[2]>=4?{valor:v,prazo:46,parcela:Math.round(v/16)}:null,entrou:ent.toISOString(),ultima:new Date(ent.getTime()+rnd(5,300)*60000).toISOString(),teste:false});}}
-  const at=o.leads.map(l=>{const k=l.aguardando==='humano'?['Com atendente humano',3]:(SIT_ATIVO[l.status]||['Conversando · sem CPF',1]);return{id:l.id,nome:l.nome,telefone:l.telefone,cpf:k[1]>=2?(l._cpf=l._cpf||cpf()):null,situacao:k[0],grupo:'andamento',etapa:k[1],motivo:null,margem:k[1]>=3?412:null,oferta:k[1]>=4?{valor:l.valor,prazo:46,parcela:Math.round(l.valor/16)}:null,entrou:new Date(Date.now()-rnd(5,300)*60000).toISOString(),ultima:l.ultima_interacao,teste:false};});
-  return at.concat(demoHist).sort((a,b)=>new Date(b.ultima)-new Date(a.ultima));}
-// demonstração coerente: funil, simulação e comissão do mês saem da mesma série de vendas do gráfico
-function demoCoerente(o){const v=o.vendas,u30=v.slice(-30),hj=new Date(),soma=(a,k)=>a.reduce((s,x)=>s+x[k],0);
-  const mes=v.filter(x=>{const t=diaDe(x.dia);return t.getMonth()===hj.getMonth()&&t.getFullYear()===hj.getFullYear();});
-  const e=soma(u30,'clientes'),pg=soma(u30,'pagos'),lib=soma(u30,'liberado'),com=soma(u30,'comissao');
-  o.funil={...o.funil,entraram:e,enviaram_cpf:Math.round(e*.78),com_margem:Math.round(e*.52),receberam_proposta:Math.round(e*.41),assinaram:Math.round(pg/.85),pagos:pg,perdidos:Math.round(e*.35),
-    motivos_perda:[['Sem margem disponível',.12],['Parou de responder',.1],['Sem vínculo CLT ativo',.07],['Achou a parcela alta',.04],['Não quis informar dados',.02]].map(([m,f])=>({motivo:m,total:Math.round(e*f)}))};
-  o.simulacao={...o.simulacao,dias_janela:30,clientes:e,pagos:pg,valor_medio:pg?Math.round(lib/pg):0,comissao_media:pg?Math.round(com/pg*100)/100:0,pct_seguro:.7,parcelas_media:46,
-    pago_mes_valor:soma(mes,'liberado'),pago_mes_comissao:soma(mes,'comissao')};
-  o.crm=demoCrm(o);
-  o.agentes_dados=demoAgentes();
+  const ag=(set,i)=>DEMO_AG[Object.keys(DEMO_N).indexOf(set)*3+i].id,SOB=['Moura','Teixeira','Ramos','Freitas','Lopes','Vieira','Araújo','Gomes','Pires','Nogueira'];
+  const h=new Date(),vendas=[],jornadas=[],crm=[];let k=0;
+  for(let i=61;i>=0;i--){const d=new Date(h.getFullYear(),h.getMonth(),h.getDate()-i),fds=d.getDay()===0||d.getDay()===6,tr=1+(61-i)/61*.8;
+    const cli=i===0?0:Math.round((fds?6:16)*tr+r()*6);const dia={dia:dataISO(d),clientes:cli,digitados:0,pagos:0,liberado:0,comissao:0};
+    for(let c=0;c<cli;c++){const a={},e=new Date(d.getTime()+ri(8*60,21*60)*60000);let g='andamento',et=1,sit='Conversando',motivo=null,of=null;
+      const v={};Object.keys(DEMO_N).forEach(x=>v[x]=ri(0,2));
+      const bonus=(v.recepcao===1&&v.vendas===1)?.12:(v.recepcao===2&&v.vendas===2)?-.15:0;   // Bia+Fábio combinam bem; Caio+Gabi, mal
+      const passo=(set,p)=>{const ok=r()<p;a[set]=[ag(set,v[set]),ok?'avancou':'perdeu',Math.round(5+r()*60)];return ok;};
+      if(r()<.15){a.recepcao=[ag('recepcao',v.recepcao),'perdeu',8];g='sem_margem';et=2;sit='Sem margem';motivo='Sem margem disponível';}
+      else if(!passo('recepcao',P.recepcao[v.recepcao])){g='perdido';et=1;sit=r()<.5?'Sumiu · sem CPF':'Desistiu';}
+      else if(!passo('simulacao',P.simulacao[v.simulacao])){g='perdido';et=2;sit='Sumiu · mandou CPF';}
+      else if(!passo('vendas',P.vendas[v.vendas]+bonus)){g='perdido';et=3;sit=r()<.6?'Sumiu · recebeu proposta':'Desistiu · recebeu proposta';}
+      else{const val=ri(15,60)*100;of={valor:val,prazo:46,parcela:Math.round(val/16)};dia.digitados++;
+        if(!passo('formalizacao',P.formalizacao[v.formalizacao])){g='perdido';if(r()<.7){et=4;sit='Não assinou o link';}else{et=5;sit='Cancelou o contrato';}}
+        else{const pg=i>1&&r()<P.posvenda[v.posvenda];a.posvenda=[ag('posvenda',v.posvenda),pg?'avancou':null,600];g=pg?'pago':'andamento';et=pg?6:5;sit=pg?'Pago':'Aguardando pagamento';
+          if(pg){dia.pagos++;dia.liberado+=val;dia.comissao+=Math.round(val*.068);}}}
+      if(g==='perdido'&&r()<.5){const ok=r()<[.15,.22,.3][v.gerente];a.gerente=[ag('gerente',v.gerente),ok?'recuperou':'perdeu',30];}
+      const id=9000+(k++);jornadas.push({l:id,t:false,e:e.toISOString(),g,et,s:sit,a});
+      crm.push({id,nome:DEMO_NOMES[ri(0,DEMO_NOMES.length-1)].split(' ')[0]+' '+SOB[ri(0,SOB.length-1)],telefone:'55489'+ri(10000000,99999999),cpf:et>=2?String(ri(10000000000,99999999999)):null,situacao:sit,grupo:g,etapa:et,motivo,
+        margem:et>=3?ri(250,900):null,oferta:of,entrou:e.toISOString(),ultima:new Date(e.getTime()+ri(5,300)*60000).toISOString(),teste:false});}
+    vendas.push(dia);}
+  return{vendas,jornadas:jornadas.reverse(),crm:crm.reverse()};}
+function demoCoerente(o){const B=demoBase,hj=new Date(),soma=(a,k)=>a.reduce((s,x)=>s+x[k],0);
+  // hoje vem dos clientes "ao vivo" da demonstração
+  const v=B.vendas.map(x=>({...x})),t=v[v.length-1],pgH=o.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&new Date(c.dt_pagamento).toDateString()===hj.toDateString());
+  t.pagos=pgH.length;t.liberado=pgH.reduce((a,c)=>a+c.valor_liberado,0);t.comissao=pgH.reduce((a,c)=>a+c.comissao,0);t.clientes=demoState.entraram;o.vendas=v;
+  const SIT={respondeu:['Conversando',1],cpf_ok:['Consultando CPF',2],simulado:['Recebeu a proposta',3],proposta:['Recebeu a proposta',3],negociando:['Recebeu a proposta',3],fechou:['Escolheu oferta · falta PIX',4],link_env:['Link enviado',4],assinou:['Aguardando pagamento',5]};
+  const vivos=o.leads.map(l=>{const k=l.aguardando==='humano'?['Com atendente',3]:(SIT[l.status]||['Conversando',1]);return{id:l.id,nome:l.nome,telefone:l.telefone,cpf:k[1]>=2?(l._cpf=l._cpf||String(rnd(10000000000,99999999999))):null,situacao:k[0],grupo:'andamento',etapa:k[1],motivo:null,margem:k[1]>=3?412:null,oferta:k[1]>=4?{valor:l.valor,prazo:46,parcela:Math.round(l.valor/16)}:null,entrou:l.entrou||(l.entrou=new Date(Date.now()-rnd(5,300)*60000).toISOString()),ultima:l.ultima_interacao,teste:false};});
+  o.crm=vivos.concat(B.crm);
+  o.agentes_dados={agentes:DEMO_AG,jornadas:B.jornadas};
+  const lim=Date.now()-30*86400000,C=o.crm.filter(c=>new Date(c.entrou).getTime()>=lim),n=f=>C.filter(f).length;
+  o.funil={entraram:C.length,enviaram_cpf:n(c=>c.etapa>=2),com_margem:n(c=>c.etapa>=3),escolheram:n(c=>c.etapa>=4),receberam_proposta:n(c=>c.etapa>=4&&c.situacao!=='Escolheu oferta · falta PIX'),
+    assinaram:n(c=>c.grupo==='pago'||c.situacao==='Aguardando pagamento'),pagos:n(c=>c.grupo==='pago'),perdidos:n(c=>c.grupo==='perdido'),motivos_perda:[]};
+  const u30=v.slice(-30),pg=soma(u30,'pagos'),lib=soma(u30,'liberado'),com=soma(u30,'comissao'),mes=v.filter(x=>{const d=diaDe(x.dia);return d.getMonth()===hj.getMonth()&&d.getFullYear()===hj.getFullYear();});
+  o.simulacao={dias_janela:30,clientes:C.length,pagos:o.funil.pagos,valor_medio:pg?Math.round(lib/pg):0,comissao_media:pg?Math.round(com/pg*100)/100:0,pct_seguro:.7,parcelas_media:46,
+    pago_mes_valor:soma(mes,'liberado'),pago_mes_comissao:soma(mes,'comissao'),dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};
   const fp=o.financeiro.find(f=>f.etapa==='pago');if(fp){fp.contratos=soma(mes,'pagos');fp.valor_liberado=soma(mes,'liberado');fp.comissao=Math.round(soma(mes,'comissao')*100)/100;}
   return o;}
 
 // ═════════════ BUSCA DE DADOS ═════════════
+let verTeste=lsGet('escritorio_teste')==='1';
+const PARTES={clientes:'crm',hoje:'crm',funil:'crm',agentes:'crm,agentes'};   // o que cada tela precisa além do básico
+function partesDaTela(){return (typeof telaAtual!=='undefined'&&PARTES[telaAtual])||'nada';}
+function faltaParte(){const p=partesDaTela();return (p.includes('crm')&&estado.crm==null)||(p.includes('agentes')&&!estado.agentes_dados);}
+function alternarTestes(){verTeste=!verTeste;lsSet('escritorio_teste',verTeste?'1':'0');estado.crm=null;estado.agentes_dados=null;renderCrm();atualizar();}
 async function atualizar(){
+  const tb=document.getElementById('tstBtn');tb.hidden=demo;tb.className='tst'+(verTeste?' on':'');tb.textContent=verTeste?'🧪 Com testes':'🧪 Sem testes';
   if(demo){if(!demoState)demoInit();aplicarEstado(demoTick());ultimaAtualizacao=Date.now();setConn();return;}
   if(!chave){conectado=false;ultimoErro='sem chave';pedirChave();setConn();return;}
-  try{const r=await fetch(ENDPOINT+(ENDPOINT.includes('?')?'&':'?')+'k='+encodeURIComponent(chave),{cache:'no-store'});
+  try{const r=await fetch(ENDPOINT+(ENDPOINT.includes('?')?'&':'?')+'k='+encodeURIComponent(chave)+'&teste='+(verTeste?'1':'0')+'&partes='+partesDaTela(),{cache:'no-store'});
     if(r.status===401){chave='';lsSet('escritorio_token','');conectado=false;ultimoErro='chave inválida';pedirChave('Chave inválida ou desativada.');setConn();return;}
     if(!r.ok)throw new Error('HTTP '+r.status);aplicarEstado(await r.json());conectado=true;ultimoErro=null;ultimaAtualizacao=Date.now();}
   catch(e){conectado=false;ultimoErro=e.message;}
@@ -809,13 +840,13 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],crm:j.crm||[],agentes_dados:j.agentes_dados||null};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],crm:j.crm!==undefined?j.crm:(estado.crm===undefined?null:estado.crm),agentes_dados:j.agentes_dados!==undefined?j.agentes_dados:(estado.agentes_dados||null)};
   const R=estado.resumo;
   kAnd.textContent=R.em_andamento??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
   renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();renderCrm();renderAgentes();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
-  const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
+  const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id+(a.versao||'')).join('|');
   if(key!==estruturaKey){montarSalas();estruturaKey=key;}
   atualizarSalas();posicionarClientes();
   if(painelAberto&&painelAberto.startsWith('agente:'))painelAgente(Number(painelAberto.slice(7)));
@@ -823,39 +854,34 @@ function aplicarEstado(j){
 }
 function montarSalas(){
   salas.innerHTML=estado.setores.map(s=>{
-    const ag=estado.agentes.find(a=>a.setor_id===s.id);
+    const ags=agentesDe(s.id),pos=POSTOS[ags.length]||[50];
     return `<section class="sala" id="sala-${s.id}" tabindex="0" onclick="abrirPainel('${s.id}')" onkeydown="if(event.key==='Enter')abrirPainel('${s.id}')">
       <div class="sala-topo"><span class="cor" style="background:${s.cor}"></span><h2>${esc(s.nome)}</h2><span class="alerta" hidden></span><span class="cnt">0</span></div>
       <div class="cena">${cenaFundo(s)}
-        ${ag?`<div class="agente" id="ag-${ag.id}">${avatarAgente(ag)}</div><div class="mesa">${mesaSvg(s,false)}</div><span class="tag livre">DISPONÍVEL</span><span class="nome-ag">${esc(ag.nome)} · ${esc(ag.papel||'')}</span>`:'<div class="mesa">'+mesaSvg(s,false)+'</div>'}
+        ${ags.length?ags.map((ag,i)=>`<div class="posto p${ags.length}" style="left:${pos[i]}%"><div class="agente" id="ag-${ag.id}">${avatarAgente(ag)}</div><div class="mesa" id="mesa-${ag.id}">${mesaSvg(s,false)}</div><span class="nome-ag">${ag.versao?`<span class="vl">${esc(ag.versao)}</span>`:''}${esc(ag.nome)}${ags.length===1&&ag.papel?' · '+esc(ag.papel):''}</span></div>`).join('')+'<span class="tag livre">DISPONÍVEL</span>'
+          :'<div class="posto" style="left:50%"><div class="mesa">'+mesaSvg(s,false)+'</div></div>'}
         <div class="balao"></div>
-        <div class="zona" style="position:absolute;left:0;right:0;bottom:0;height:0"></div>
       </div>
-      <div class="sala-rodape"></div>
     </section>`;}).join('');
 }
 function atualizarSalas(){
   estado.setores.forEach(s=>{
     const el=document.getElementById('sala-'+s.id);if(!el)return;
-    const ag=estado.agentes.find(a=>a.setor_id===s.id);
-    const cnt=el.querySelector('.cnt'),al=el.querySelector('.alerta'),tag=el.querySelector('.tag'),bal=el.querySelector('.balao'),rod=el.querySelector('.sala-rodape');
+    const ags=agentesDe(s.id);
+    const cnt=el.querySelector('.cnt'),al=el.querySelector('.alerta'),tag=el.querySelector('.tag'),bal=el.querySelector('.balao');
     const ger=s.id==='gerente';const par=ger?(estado.resumo.parados||0):s.leads_parados;
     cnt.textContent=ger?(estado.resumo.em_andamento||0)+' na empresa':s.leads_ativos+(s.leads_ativos===1?' cliente':' clientes');
     al.hidden=!par;al.textContent='⚠ '+par+(par===1?' parado':' parados');
-    if(ag&&tag){
-      let st=ag.status||'livre';
-      tag.className='tag '+(ger&&par?'alerta':st);tag.textContent=ger&&par?'RESGATANDO CLIENTES':(AG_LABEL[st]||st.toUpperCase());
-      const agEl=document.getElementById('ag-'+ag.id);if(agEl)agEl.classList.toggle('trabalhando',st==='trabalhando');
-      el.querySelector('.mesa').innerHTML=mesaSvg(s,st==='trabalhando');
-    }
+    const comCliente=new Set(estado.leads.filter(l=>l.setor_id===s.id).map(l=>l.agente_id));
+    let algum=false;
+    ags.forEach(ag=>{const trab=(ag.status||'livre')==='trabalhando'||comCliente.has(ag.id)||(ger&&par>0);algum=algum||trab;
+      const agEl=document.getElementById('ag-'+ag.id);if(agEl)agEl.classList.toggle('trabalhando',trab);
+      const me=document.getElementById('mesa-'+ag.id);if(me&&me.dataset.on!==String(trab)){me.innerHTML=mesaSvg(s,trab);me.dataset.on=String(trab);}});
+    if(tag){tag.className='tag '+(ger&&par?'alerta':algum?'trabalhando':'livre');tag.textContent=ger&&par?'RESGATANDO CLIENTES':algum?'TRABALHANDO':'DISPONÍVEL';}
     const ev=estado.eventos.find(e=>ger?(e.tipo==='perdeu'||e.tipo==='fechou'):(e.setor_destino===s.id||e.setor_origem===s.id));
-    if(ger){bal.innerHTML=par?`<b>${esc(ag?ag.nome:'Gerente')}:</b> ${par} cliente${par>1?'s':''} passou do prazo. Vou cobrar os setores.`:`<b>${esc(ag?ag.nome:'Gerente')}:</b> Tudo em dia. Nenhum cliente parado.`;bal.classList.add('on');}
+    if(ger){bal.innerHTML=par?`${par} cliente${par>1?'s':''} passou do prazo. Vamos cobrar os setores.`:'Tudo em dia. Nenhum cliente parado.';bal.classList.add('on');}
     else if(ev){bal.innerHTML=`<b>${hora(ev.criado_em)}</b> · ${esc(ev.descricao)}`;bal.classList.add('on');}
     else bal.classList.remove('on');
-    const leads=ger?estado.leads.filter(l=>l.parado):estado.leads.filter(l=>l.setor_id===s.id);
-    const esp=leads.filter(l=>l.aguardando==='cliente').length;
-    rod.innerHTML=ger?`<span>Pagos hoje: <b>${(estado.meta&&estado.meta.contratos_hoje)||0}</b></span><span>Comissão dos pagos: <b>${brl(estado.meta&&estado.meta.comissao_hoje)}</b></span>`
-      :`<span>Prazo: ${s.sla_minutos?tempo(s.sla_minutos):'—'}</span><span>⏳ esperando cliente: ${esp}</span><span>🤖 com o agente: ${leads.length-esp}</span>`;
   });
 }
 
@@ -872,12 +898,12 @@ function renderAtencao(){const el=document.getElementById('atencao');const L=ate
   el.innerHTML=`<div class="at-topo">🔔 Precisa da sua atenção <span class="n">${L.length}</span>${L.length>3?`<button class="lnk" onclick="abrirPainel('atencao')">ver todos →</button>`:''}</div>
     <div class="at-lista" style="margin-top:10px">${L.slice(0,3).map(atItem).join('')}</div>`;}
 function renderFunil(){const el=document.getElementById('funilSec');const F=(estado.funil&&!Array.isArray(estado.funil))?estado.funil:{};const base=Number(F.entraram||0);
-  const et=[['Entraram',F.entraram],['Enviaram CPF',F.enviaram_cpf],['Com margem',F.com_margem],['Receberam proposta',F.receberam_proposta],['Assinaram',F.assinaram],['Pagos',F.pagos]];
+  const et=[['Entraram',F.entraram],['Mandaram o CPF',F.enviaram_cpf],['Receberam a proposta',F.com_margem],...(F.escolheram!=null?[['Escolheram uma oferta',F.escolheram]]:[]),['Link enviado',F.receberam_proposta],['Assinaram',F.assinaram],['Foram pagos',F.pagos]];
   const rows=et.map(([n,v],i)=>{v=Number(v||0);const pct=base?Math.round(v/base*100):0;const ant=i?Number(et[i-1][1]||0):0;
     return `<div class="fl" title="${i&&ant?Math.round(v/ant*100)+'% de quem chegou na etapa anterior':''}"><span>${n}</span><div class="bar"><i style="width:${base?Math.max(v?2:0,pct):0}%"></i></div><div class="v">${v}<small>${i?pct+'% do total':'100%'}</small></div></div>`;}).join('');
   const C30=(estado.crm||[]).filter(c=>c.entrou&&Date.now()-new Date(c.entrou).getTime()<=30*86400000);
   if(C30.length){const cont={};C30.filter(c=>c.grupo==='perdido').forEach(c=>{const k=catPerda(c);cont[k]=(cont[k]||0)+1;});
-    const L=['Parou de responder','Recebeu o link e não assinou','Cancelou o contrato','Desistiu'].map(k=>[k,cont[k]||0]),tot=L.reduce((a,x)=>a+x[1],0),sm=C30.filter(c=>c.grupo==='sem_margem').length;
+    const L=['Parou de responder','Não assinou o link','Cancelou o contrato','Desistiu'].map(k=>[k,cont[k]||0]),tot=L.reduce((a,x)=>a+x[1],0),sm=C30.filter(c=>c.grupo==='sem_margem').length;
     el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
     <div class="fbox"><h4>❌ Onde perdemos clientes · ${tot}</h4>${L.map(([k,n])=>`<button class="mot" onclick="verCat(this.dataset.c)" data-c="${esc(k)}" title="Ver esses clientes"><span>${esc(k)}</span><b>${n} ›</b></button>`).join('')}
       <button class="mot" style="margin-top:10px;color:var(--tx2)" onclick="crmF={grupo:'sem_margem',busca:'',motivo:'',cat:''};irPara('clientes')" title="Não conta como perda: o cliente não tinha margem"><span>🚫 Sem margem (fora das perdas)</span><b>${sm} ›</b></button></div>`;return;}
@@ -914,16 +940,16 @@ function renderVendas(){
   if(typeof telaAtual!=='undefined'&&telaAtual!=='mes'){return;}
   const S=serieVendas(),m=vdM,info=VD[m],meta=Number((estado.meta&&estado.meta.meta_valor)||7000);
   document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
-  document.getElementById('vdLeg').innerHTML=`<span><i style="background:#2a78d6"></i>Realizado</span><span><i style="background:repeating-linear-gradient(135deg,#2a78d6 0 2px,#e8f0fb 2px 5px);border:1px solid #2a78d6"></i>Projeção (média dos últimos 7 dias)</span><span><i style="height:3px;border-radius:2px;background:#eb6834"></i>Média de 7 dias</span>${m==='liberado'?'<span><i style="height:0;border-top:2px dashed #52514e;border-radius:0"></i>Meta diária</span>':''}`;
+  document.getElementById('vdLeg').innerHTML=`<span><i style="background:#2a78d6"></i>${info.nome} por dia</span>${m==='liberado'?'<span><i style="height:0;border-top:2px dashed #52514e;border-radius:0"></i>Meta diária</span>':''}`;
   if(!S){box.innerHTML='<div class="vazio">Sem dados de vendas.</div>';return;}
-  const pts=[...S.ult,...S.futuros],n=pts.length;
+  const pts=S.ult,n=pts.length;
   // média móvel de 7 dias sobre a série real
   const mm=S.ult.map((x,i)=>{const j=S.V.length-S.ult.length+i,w=S.V.slice(Math.max(0,j-6),j+1);return w.reduce((a,y)=>a+y[m],0)/w.length;});
   const W=Math.max(320,box.clientWidth||900),H=Math.round(Math.min(320,Math.max(220,W*.32))),pl=52,pr=12,pt=14,pb=30,iw=W-pl-pr,ih=H-pt-pb;
   let max=Math.max(...pts.map(x=>x[m]),...mm,m==='liberado'?meta:0);if(!(max>0))max=m==='liberado'?meta:(m==='pagos'?3:300);max*=1.12;
   const y=v=>pt+ih-(v/max)*ih,bw=iw/n,gap=Math.max(1,Math.min(4,bw*.25)),barW=Math.max(1.5,bw-gap);
   const ticks=4,grid=[...Array(ticks+1)].map((_,i)=>max/ticks*i);
-  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${info.nome} por dia nos últimos 30 dias com projeção até o fim do mês"><defs><pattern id="hach" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(135)"><rect width="5" height="5" fill="#e8f0fb"/><rect width="2" height="5" fill="#2a78d6"/></pattern></defs>`;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${info.nome} por dia nos últimos 30 dias"><defs><pattern id="hach" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(135)"><rect width="5" height="5" fill="#e8f0fb"/><rect width="2" height="5" fill="#2a78d6"/></pattern></defs>`;
   grid.forEach(g=>{svg+=`<line x1="${pl}" x2="${W-pr}" y1="${y(g)}" y2="${y(g)}" stroke="#e8edf3" stroke-width="1"/><text x="${pl-8}" y="${y(g)+4}" text-anchor="end" font-size="10.5" fill="#8a96a5">${info.eixo(g)}</text>`;});
   pts.forEach((x,i)=>{const v=x[m],h=Math.max(0,ih-(y(v)-pt)),bx=pl+i*bw+gap/2,r=Math.min(4,barW/2,h);
     if(v>0){const top=y(v);svg+=x.proj
@@ -935,7 +961,6 @@ function renderVendas(){
   svg+=`<line x1="${pl}" x2="${W-pr}" y1="${pt+ih}" y2="${pt+ih}" stroke="#cfd8e3"/>`;
   if(m==='liberado')svg+=`<line x1="${pl}" x2="${W-pr}" y1="${y(meta)}" y2="${y(meta)}" stroke="#52514e" stroke-width="1.5" stroke-dasharray="6 5"/><text x="${W-pr}" y="${y(meta)-6}" text-anchor="end" font-size="11" font-weight="700" fill="#52514e" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Meta ${brl(meta)}/dia</text>`;
   const lp=mm.map((v,i)=>`${i?'L':'M'}${(pl+i*bw+bw/2).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  svg+=`<path d="${lp}" fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
   const iHoje=S.ult.length-1;svg+=`<line id="vdCross" x1="0" x2="0" y1="${pt}" y2="${pt+ih}" stroke="#8a96a5" stroke-width="1" visibility="hidden"/>`;
   svg+=`<rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="transparent" id="vdHit"/></svg><div class="vd-tip" id="vdTip"></div>`;
   const vazio=S.ult.every(x=>!x[m]);
@@ -944,7 +969,7 @@ function renderVendas(){
   const mover=ev=>{const rc=box.querySelector('svg').getBoundingClientRect(),sx=(ev.touches?ev.touches[0].clientX:ev.clientX)-rc.left,esc=W/rc.width,xv=sx*esc,i=Math.max(0,Math.min(n-1,Math.floor((xv-pl)/bw)));const x=pts[i],cx=pl+i*bw+bw/2;
     cr.setAttribute('x1',cx);cr.setAttribute('x2',cx);cr.setAttribute('visibility','visible');
     const d=diaDe(x.dia);tip.innerHTML=x.proj?`<b>${DSEM[d.getDay()]} ${fmtDia(x.dia)} · projeção</b><div><span>${info.nome}</span><span>${info.fmt(x[m])}</span></div><div><span>Base</span><span>média dos últimos 7 dias</span></div>`
-      :`<b>${DSEM[d.getDay()]} ${fmtDia(x.dia)}${x.dia.slice(0,10)===S.hoje?' · hoje':''}</b><div><span>Liberado</span><span>${brlFull(x.liberado)}</span></div><div><span>Contratos pagos</span><span>${x.pagos}</span></div><div><span>Comissão</span><span>${brlFull(x.comissao)}</span></div><div><span>Clientes que entraram</span><span>${x.clientes}</span></div><div><span>Propostas digitadas</span><span>${x.digitados}</span></div>${i<mm.length?`<div><span>Média 7 dias</span><span>${info.fmt(mm[i])}</span></div>`:''}`;
+      :`<b>${DSEM[d.getDay()]} ${fmtDia(x.dia)}${x.dia.slice(0,10)===S.hoje?' · hoje':''}</b><div><span>Liberado</span><span>${brlFull(x.liberado)}</span></div><div><span>Contratos pagos</span><span>${x.pagos}</span></div><div><span>Comissão</span><span>${brlFull(x.comissao)}</span></div><div><span>Clientes que entraram</span><span>${x.clientes}</span></div><div><span>Propostas digitadas</span><span>${x.digitados}</span></div>`;
     tip.style.display='block';const tw=tip.offsetWidth;let left=cx/esc+12;if(left+tw>rc.width)left=cx/esc-tw-12;tip.style.left=Math.max(0,left)+'px';tip.style.top='8px';};
   hit.addEventListener('mousemove',mover);hit.addEventListener('touchstart',mover,{passive:true});hit.addEventListener('touchmove',mover,{passive:true});
   hit.addEventListener('mouseleave',()=>{tip.style.display='none';cr.setAttribute('visibility','hidden');});
@@ -1018,13 +1043,13 @@ function simUsarReais(){const {F,S}=dadosReais();if(!(Number(F.entraram||0)>0))r
 // ═════════════ AGENTES (versões A/B/C) ═════════════
 const SETOR_ORD=['recepcao','simulacao','vendas','formalizacao','posvenda','gerente'];
 const SETOR_NOME={recepcao:'Recepção',simulacao:'Simulação',vendas:'Vendas',formalizacao:'Formalização',posvenda:'Pós-venda',gerente:'Recuperação'};
-const SETOR_PASSO={recepcao:'mandaram o CPF e tinham margem',simulacao:'receberam e viram as ofertas',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a responder'};
+const SETOR_PASSO={recepcao:'mandaram o CPF e tinham margem',simulacao:'receberam a proposta (as ofertas)',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a responder'};
 const MIN_AMOSTRA=10;
-const SETOR_COL={recepcao:'Mandaram CPF com margem',simulacao:'Viram as ofertas',vendas:'Escolheram uma oferta',formalizacao:'Assinaram',posvenda:'Foram pagos',gerente:'Voltaram a responder'};
+const SETOR_COL={recepcao:'Mandaram CPF com margem',simulacao:'Receberam a proposta',vendas:'Escolheram uma oferta',formalizacao:'Assinaram',posvenda:'Foram pagos',gerente:'Voltaram a responder'};
 let agF={dias:30,teste:true,par:['recepcao','vendas']};
 try{const v=JSON.parse(lsGet('escritorio_agf')||'null');if(v)agF={...agF,...v};}catch(e){}
 function agSalvar(){lsSet('escritorio_agf',JSON.stringify(agF));renderAgentes();}
-function agJ(){const D=estado.agentes_dados||{},lim=Date.now()-agF.dias*86400000;return (D.jornadas||[]).filter(j=>(agF.teste||!j.t)&&new Date(j.e).getTime()>=lim);}
+function agJ(){const D=estado.agentes_dados||{},lim=Date.now()-agF.dias*86400000;return (D.jornadas||[]).filter(j=>new Date(j.e).getTime()>=lim);}
 function agLista(){return (estado.agentes_dados&&estado.agentes_dados.agentes)||[];}
 function assinou(j){return j.g==='pago'||(j.et>=5&&j.g!=='perdido');}
 function seguiu(j,set){const r=j.a&&j.a[set]&&j.a[set][1];if(set==='formalizacao')return assinou(j);if(set==='posvenda')return j.g==='pago';return r==='avancou'||r==='recuperou';}
@@ -1040,9 +1065,9 @@ function statsAg(ag,J){const L=J.filter(j=>j.a&&j.a[ag.setor]&&j.a[ag.setor][0]=
 function renderAgentes(){
   const el=document.getElementById('agSetores');if(!el||(typeof telaAtual!=='undefined'&&telaAtual!=='agentes'))return;
   const J=agJ(),A=agLista();
-  document.getElementById('agChips').innerHTML=[7,30,90].map(d=>`<button class="chip ${agF.dias===d?'on':''}" onclick="agF.dias=${d};agSalvar()">${d} dias</button>`).join('')
-    +`<button class="chip ${agF.teste?'on':''}" onclick="agF.teste=!agF.teste;agSalvar()" title="Clientes do Chat teste">${agF.teste?'✓ ':''}Incluir testes</button>`;
+  document.getElementById('agChips').innerHTML=[7,30,90].map(d=>`<button class="chip ${agF.dias===d?'on':''}" onclick="agF.dias=${d};agSalvar()">${d} dias</button>`).join('');
   const res=document.getElementById('agResumo'),cmb=document.getElementById('agCombos');
+  if(!estado.agentes_dados){res.innerHTML='';el.innerHTML='<div class="fbox" style="grid-column:1/-1"><div class="vazio">Carregando…</div></div>';cmb.innerHTML='';return;}
   if(!A.length||!J.length){res.innerHTML='';el.innerHTML='<div class="fbox" style="grid-column:1/-1"><div class="vazio">Ainda não há clientes no período. Assim que os agentes atenderem, a comparação entre as versões A, B e C aparece aqui.</div></div>';cmb.innerHTML='';return;}
   const VEN=['recepcao','simulacao','vendas','formalizacao'];
   const setores=SETOR_ORD.map(set=>{const st=A.filter(a=>a.setor===set).map(a=>({a,s:statsAg(a,J)}));
@@ -1054,7 +1079,7 @@ function renderAgentes(){
   const confi=setores.filter(l=>VEN.includes(l.set)).every(l=>l.ok&&l.best);
   const est=setores.filter(l=>VEN.includes(l.set)).reduce((m,l)=>m*((l.best?l.best.s.tSeg:0)/100),1);
   const base=J.filter(j=>j.g!=='sem_margem'),hoje=pc(base.filter(assinou).length,base.length);
-  res.innerHTML=`<div><span class="big">${J.length}</span>clientes atendidos nos últimos ${agF.dias} dias${agF.teste?' (com testes)':''} · <b>${pcT(hoje)}</b> assinaram</div>
+  res.innerHTML=`<div><span class="big">${J.length}</span>clientes atendidos nos últimos ${agF.dias} dias${verTeste&&!demo?' (com testes)':''} · <b>${pcT(hoje)}</b> assinaram</div>
     <div><span class="big" style="color:#b42318">${pior?SETOR_NOME[pior.set]:'—'}</span>${pior?`é onde mais perdemos: <b>${pior.tPerd}%</b> dos clientes param lá`:'ainda poucos dados para saber onde perdemos mais'}</div>
     <div><span class="big" style="color:#0f7a4f">${confi?Math.round(est*100)+'%':'⏳'}</span>${confi?`assinariam se todos passassem pelo <b>time ideal</b> (hoje: ${pcT(hoje)})`:'o time ideal ainda está sendo testado: faltam clientes em alguns setores'}</div>`;
   // 6 cartões
@@ -1072,7 +1097,7 @@ function renderAgentes(){
   cmb.innerHTML=`<div class="fbox"><h4>🧭 Times que mais assinaram · Recepção → Simulação → Vendas</h4>${top.length?top.slice(0,3).map((x,i)=>linha(x,['🥇','🥈','🥉'][i])).join('')+(top.length>3?linha(top[top.length-1],'👎'):''):'<div class="vazio">Ainda não há clientes suficientes que chegaram até Vendas.</div>'}</div>`;
 }
 function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPainel();return;}const s=statsAg(a,agJ());
-  gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(agF.teste?' (com testes)':' (sem testes)');
+  gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(verTeste&&!demo?' (com testes)':'');
   const P=Object.entries(s.paradas).sort((x,y)=>y[1]-x[1]);
   const cli=s.L.slice(0,60).map(j=>(estado.crm||[]).find(c=>c.id===j.l)||{id:j.l,nome:'Cliente #'+j.l,situacao:j.s,grupo:j.g,telefone:'',entrou:j.e});
   gCorpo.innerHTML=`<div class="g-kpis"><div><b>${s.n}</b><span>Clientes atendidos</span></div><div><b style="color:#0f7a4f">${pcT(s.tSeg)}</b><span>${SETOR_COL[a.setor]}</span></div>
@@ -1135,11 +1160,10 @@ function renderHoje(){
       <div class="hj-kpis">
         <div><b>${(estado.crm||[]).length?crmHoje.length:(R.entraram_hoje||0)}</b><span>Entraram hoje</span></div>
         <div><b>${cpfHoje}</b><span>Mandaram CPF</span></div>
-        <div><b>${ofHoje}</b><span>Receberam ofertas</span></div>
+        <div><b>${ofHoje}</b><span>Receberam proposta</span></div>
         <div><b style="color:var(--verde)">${M.contratos_hoje||0}</b><span>Pagos hoje</span></div>
         <div><b style="color:var(--verde)">${brlFull(M.comissao_hoje)}</b><span>Comissão hoje</span></div>
-      </div>
-      ${linhaComissao()}</div>`;
+      </div></div>`;
   const lst=document.getElementById('hojeListas');
   const pagos=estado.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&dataISO(new Date(c.dt_pagamento))===hojeISO());
   lst.innerHTML=`<div class="hj-grid">
@@ -1152,13 +1176,13 @@ function renderMes(){
   el.innerHTML=`<div class="fbox"><div class="mt" title="Projeção: o que já foi liberado no mês + a média dos últimos 7 dias nos dias que faltam">
         <div class="mt-top"><span>📅 Meta do mês</span><b>${brlFull(P.realLib)}</b></div>
         <div class="meta-barra"><i style="width:${pm}%"></i>${P.projLib>P.realLib?`<s style="left:0;width:${pp}%"></s>`:''}</div>
-        <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`${P.realPag} contratos pagos · no ritmo atual fecha em <b>${brl(P.projLib)}</b> (${brl(P.projCom)} de comissão)`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div></div>`;
+        <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`${P.realPag} contratos pagos · no ritmo atual fecha em <b>${brl(P.projLib)}</b> (${brl(P.projCom)} de comissão)`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div>${linhaComissao()}</div>`;
 }
 // ═════════════ CLIENTES (cadastro / CRM) ═════════════
 const CRM_GRUPOS=[['todos','Todos'],['andamento','Em andamento'],['pago','Pagos'],['perdido','Perdidos'],['sem_margem','Sem margem']];
 const CRM_COR={andamento:['#eaf1ff','#1f55c4'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318'],sem_margem:['#eef1f5','#5b6878']};
 let crmF={grupo:'todos',busca:'',motivo:'',cat:''};
-function catPerda(c){const t=c.situacao||'';return t.startsWith('Parou de responder')?'Parou de responder':t.startsWith('Desistiu')?'Desistiu':t;}
+function catPerda(c){const t=c.situacao||'';return t.startsWith('Sumiu')?'Parou de responder':t.startsWith('Desistiu')?'Desistiu':t;}
 function verCat(cat){crmF={grupo:'perdido',busca:'',motivo:'',cat};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
 function fmtCpf(c){c=String(c||'').replace(/\D/g,'');return c.length===11?c.slice(0,3)+'.'+c.slice(3,6)+'.'+c.slice(6,9)+'-'+c.slice(9):(c||'—');}
 function fmtTel(t){t=String(t||'');const d=t.replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');if(/^\d{10,11}$/.test(d))return '('+d.slice(0,2)+') '+d.slice(2,-4)+'-'+d.slice(-4);return t||'—';}
@@ -1173,6 +1197,7 @@ function renderCrm(){const el=document.getElementById('crmLista');if(!el)return;
   const n=g=>g==='todos'?T.length:T.filter(c=>c.grupo===g).length;
   document.getElementById('crmChips').innerHTML=CRM_GRUPOS.map(([g,t])=>`<button class="chip ${crmF.grupo===g&&!crmF.motivo&&!crmF.cat?'on':''}" onclick="crmGrupo('${g}')">${t} <b>${n(g)}</b></button>`).join('')+(crmF.motivo?`<button class="chip on" onclick="crmF.motivo='';renderCrm()">Motivo: ${esc(crmF.motivo)} ✕</button>`:'')+(crmF.cat?`<button class="chip on" onclick="crmF.cat='';renderCrm()">${esc(crmF.cat)} ✕</button>`:'');
   const L=crmFiltrados();
+  if(estado.crm==null){el.innerHTML='<div class="vazio">Carregando clientes…</div>';return;}
   if(!T.length){el.innerHTML='<div class="vazio">Nenhum cliente ainda. Todo cliente que entrar no escritório fica guardado aqui, com nome, número, CPF e onde parou.</div>';return;}
   if(!L.length){el.innerHTML='<div class="vazio">Nenhum cliente com esse filtro.</div>';return;}
   const off=(e)=>e.stopPropagation();
@@ -1198,32 +1223,32 @@ function posicionarClientes(){
   if(typeof telaAtual!=='undefined'&&telaAtual!=='escritorio')return;
   const camada=document.getElementById('clientes'),base=document.getElementById('escritorio').getBoundingClientRect();
   const porSetor={};estado.leads.forEach(l=>{(porSetor[l.setor_id]=porSetor[l.setor_id]||[]).push(l);});
-  const vivos=new Set();
+  const vivos=new Set(),OFF=[-30,30,-46,46];
   camada.querySelectorAll('.mais').forEach(m=>m.remove());
   Object.entries(porSetor).forEach(([sid,lista])=>{
     const sala=document.getElementById('sala-'+sid);if(!sala)return;
-    const r=sala.querySelector('.cena').getBoundingClientRect();
-    const max=Math.max(2,Math.floor((r.width-40)/34));
+    const r=sala.querySelector('.cena').getBoundingClientRect(),ags=agentesDe(sid),pos=POSTOS[ags.length]||[50];
     lista.sort((a,b)=>a.id-b.id);
-    lista.forEach((l,i)=>{
+    const fila={};let escondidos=0;
+    lista.forEach(l=>{
       vivos.add(l.id);
+      let pi=ags.findIndex(a=>a.id===l.agente_id);if(pi<0)pi=ags.length?hash(l.id)%ags.length:0;
+      const i=(fila[pi]=(fila[pi]||0)+1)-1,vis=i<OFF.length;if(!vis)escondidos++;
       let el=cliEls.get(l.id),novo=false;
       if(!el){el=document.createElement('div');el.className='cli';el.dataset.id=l.id;camada.appendChild(el);cliEls.set(l.id,el);novo=true;
         el.addEventListener('click',e=>{e.stopPropagation();abrirPainel('cliente:'+el.dataset.id);});
         el.addEventListener('mouseenter',e=>mostrarTip(Number(el.dataset.id),e.clientX,e.clientY));el.addEventListener('mouseleave',()=>{tip.style.display='none';});}
       const sig=(l.parado?1:0)+'';if(el.dataset.sig!==sig){el.innerHTML=pessoaEmPe(l.id,l.parado)+(l.parado?'<span class="exc">!</span>':'');el.dataset.sig=sig;}
-      const vis=i<max;
-      const lado=i%2===0?-1:1,pos=Math.floor(i/2)+1;
-      const x=r.left-base.left+r.width/2+lado*(70+pos*30)-15-(i===0?0:0);
-      const xx=Math.min(Math.max(x,r.left-base.left+6),r.right-base.left-36);
-      const y=r.bottom-base.top-78-(pos%2)*4;
-      if(novo){const rec=document.getElementById('sala-recepcao');const rr=rec?rec.querySelector('.cena').getBoundingClientRect():r;el.style.left=(rr.left-base.left+4)+'px';el.style.top=(rr.bottom-base.top-78)+'px';el.style.opacity='0';el.getBoundingClientRect();}
-      const mudou=el.dataset.setor&&el.dataset.setor!==sid;el.dataset.setor=sid;
+      const cx=r.left-base.left+r.width*pos[pi]/100;
+      const xx=Math.min(Math.max(cx+OFF[Math.min(i,OFF.length-1)]-15,r.left-base.left+4),r.right-base.left-34);
+      const y=r.bottom-base.top-76-(i>1?5:0);
+      if(novo){const rec=document.getElementById('sala-recepcao');const rr=rec?rec.querySelector('.cena').getBoundingClientRect():r;el.style.left=(rr.left-base.left+4)+'px';el.style.top=(rr.bottom-base.top-76)+'px';el.style.opacity='0';el.getBoundingClientRect();}
+      const chave=sid+':'+pi,mudou=el.dataset.setor&&el.dataset.setor!==chave;el.dataset.setor=chave;
       const antes=el.style.left+el.style.top;
-      el.style.left=xx+'px';el.style.top=y+'px';el.style.opacity=vis?'1':'0';el.style.zIndex=2+pos;
+      el.style.left=xx+'px';el.style.top=y+'px';el.style.opacity=vis?'1':'0';el.style.zIndex=3+i;
       if(antes!==el.style.left+el.style.top&&(mudou||novo)){el.classList.add('andando');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('andando'),2600);}
     });
-    if(lista.length>max){const m=document.createElement('span');m.className='mais';m.textContent='+'+(lista.length-max)+' clientes';m.style.left=(r.right-base.left-90)+'px';m.style.top=(r.top-base.top+8)+'px';camada.appendChild(m);}
+    if(escondidos){const m=document.createElement('span');m.className='mais';m.textContent='+'+escondidos+' clientes';m.style.left=(r.left-base.left+8)+'px';m.style.top=(r.top-base.top+8)+'px';camada.appendChild(m);}
   });
   for(const [id,el] of cliEls){if(!vivos.has(id)){el.style.opacity='0';setTimeout(()=>el.remove(),500);cliEls.delete(id);}}
 }
@@ -1284,7 +1309,7 @@ function renderPainel(){
   const k=ger?[[estado.resumo.em_andamento||0,'Clientes na empresa'],[estado.resumo.parados||0,'Parados além do prazo'],[(estado.meta&&estado.meta.contratos_hoje)||0,'Pagos hoje'],[brl(estado.meta&&estado.meta.comissao_hoje),'Comissão dos pagos hoje']]
     :[[s.leads_ativos,'Clientes aqui'],[s.leads_parados,'Parados'],[leads.filter(l=>l.aguardando==='cliente').length,'Esperando o cliente'],[ag?(AG_LABEL[ag.status]||ag.status):'—','Agente']];
   C.innerHTML=`<div class="g-kpis">${k.map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>
-    ${ag?`<div class="g-sec">Agente do setor</div><div class="item"><div class="av">${avatarAgente(ag)}</div><div class="t"><b>${esc(ag.nome)}</b><span>${esc(ag.papel||'')}</span></div><div class="d"><b>${ag.fechados||0}</b><span>fechados</span></div></div>`:''}
+    ${agentesDe(s.id).length?`<div class="g-sec">Agentes do setor</div>`+agentesDe(s.id).map(a=>`<div class="item"><div class="av">${avatarAgente(a)}</div><div class="t"><b>${a.versao?'<span class="vtag">'+esc(a.versao)+'</span>':''}${esc(a.nome)}</b><span>${esc(a.abordagem||a.papel||'')}</span></div><div class="d"><b>${estado.leads.filter(l=>l.setor_id===s.id&&l.agente_id===a.id).length}</b><span>clientes agora</span></div></div>`).join(''):''}
     <div class="g-sec">${ger?'Clientes parados (precisam de atenção)':'Clientes aqui agora'} · ${leads.length}</div>
     ${leads.length?leads.map(itemLead).join(''):`<div class="vazio">${ger?'Nenhum cliente parado. Tudo em dia!':'Nenhum cliente neste setor agora.'}</div>`}`;
 }
@@ -1294,12 +1319,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','clientes','agentes','hoje','mes','funil','simulacao'];
+const TELAS=['escritorio','hoje','clientes','mes','funil','agentes','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();}
 irPara(telaAtual);
 atualizar();agendar();
 </script>

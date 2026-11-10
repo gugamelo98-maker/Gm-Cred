@@ -287,7 +287,7 @@ function placar(lista){
       '<div class="pl-linha' + (melhor > 0 && a.atendidos >= 3 && a.taxa === melhor ? ' lider' : '') + '" title="' + esc(a.abordagem || '') + '"><span class="nm"><em>' + esc(a.versao) + '</em> ' + esc(a.nome) + '</span>' +
       '<span class="barra"><span style="width:' + (a.taxa || 0) + '%;background:' + s.cor + '"></span></span>' +
       '<span class="n">' + (a.atendidos ? (a.taxa || 0) + '% <span style="color:var(--tx3)">(' + a.sucesso + '/' + a.atendidos + ')</span>' : '—') + '</span></div>').join('') + '</div>';
-  }).join('') + '<p class="nota" style="margin-top:4px">% = clientes que avançaram para o próximo setor (na Recuperação: que voltaram a responder). A ★ aparece a partir de 3 atendimentos.</p>';
+  }).join('') + '<p class="nota" style="margin-top:4px">Mesma conta da aba Agentes: % dos clientes que fizeram o passo do setor. Sem margem e clientes ainda em atendimento não contam. A ★ aparece a partir de 3 atendimentos.</p>';
 }
 function aplicarLead(j){
   if (!j) return;
