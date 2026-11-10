@@ -373,6 +373,36 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 @media (max-width:720px){.jr{flex-wrap:wrap;gap:2px 10px}.jr>span{min-width:0!important}}
 @media (max-width:1100px){.ag-grid{grid-template-columns:1fr}}
 @media (max-width:720px){.ag-sec{margin-left:12px;margin-right:12px}.agf-l{grid-template-columns:1fr;gap:4px}.ag-t .opc{display:none}.ag-nome>span{display:none}.cmb{grid-template-columns:70px repeat(3,1fr)!important}.cmb-c{padding:6px 2px;font-size:10.5px}.cmb-c b{font-size:14px}.ag-t th{white-space:normal}}
+/* ── agentes v2 (limpo) ── */
+.ag-barra{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ag-barra h3{font-size:17px;font-weight:800;margin-right:auto}
+.ag-resumo{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ag-resumo div{flex:1;min-width:240px;background:#fff;border-radius:14px;box-shadow:var(--sombra);padding:12px 14px;font-size:13px;color:var(--tx2);line-height:1.45}
+.ag-resumo b{color:var(--tx)}
+.ag-resumo .big{display:block;font-size:22px;font-weight:800;color:var(--tx);margin-bottom:2px}
+.ag-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tc{min-width:0}
+.tc{background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.tc-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.tc-top h4{font-size:12px;font-weight:800;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em}
+.tc-top span{font-size:12px;color:var(--tx3)}
+.tc-win{display:flex;align-items:center;gap:10px;background:#f6f8fb;border-radius:12px;padding:10px 12px;cursor:pointer}
+.tc-win:hover{background:#eef3fa}
+.tc-win .lt{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:15px;background:#e3f7ee;color:#0f7a4f;flex-shrink:0}
+.tc-win.testando .lt{background:#fff4dc;color:#8a6200}
+.tc-win .nm{flex:1;min-width:0}.tc-win .nm b{display:block;font-size:14px}.tc-win .nm small{display:block;font-size:11.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-win .sel{font-size:11px;font-weight:800;border-radius:6px;padding:3px 7px;white-space:nowrap;background:#e3f7ee;color:#0f7a4f}
+.tc-win.testando .sel{background:#fff4dc;color:#8a6200}
+.tc-v{display:grid;grid-template-columns:auto 1fr 44px;gap:6px 8px;align-items:center;font-size:12.5px}
+.tc-v .vn{cursor:pointer;white-space:nowrap}.tc-v .vn:hover{color:var(--azul)}
+.tc-v .br{height:8px;background:#eef2f6;border-radius:4px;overflow:hidden}.tc-v .br i{display:block;height:100%;border-radius:4px;background:#b9c7da}
+.tc-v .br i.win{background:#16a36a}
+.tc-v .pv{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.tc-ft{font-size:11.5px;color:var(--tx3);border-top:1px solid #f0f3f7;padding-top:8px}
+.rk{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #f0f3f7;font-size:13px}
+.rk .pos{width:22px;font-weight:800;color:var(--tx3)}.rk .cam{flex:1;min-width:0}.rk .tx{font-weight:800;white-space:nowrap}.rk .tx small{font-weight:500;color:var(--tx3)}
+@media (max-width:1100px){.ag-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.ag-cards{grid-template-columns:minmax(0,1fr)}.tc-top{flex-wrap:wrap}.ag-resumo div{min-width:0;flex-basis:100%}.rk{flex-wrap:wrap}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -426,14 +456,10 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 
 <div class="view" id="v-agentes" hidden>
 <section class="ag-sec">
-  <div class="fbox ag-filtros">
-    <h4>🤖 Agentes · versões A, B e C de cada setor</h4>
-    <p class="simtx">Cada cliente é atendido por uma versão (A, B ou C) em cada setor. Aqui dá para ver onde cada versão segura ou perde o cliente e quais combinações assinam mais.</p>
-    <div class="chips" id="agChips"></div>
-  </div>
+  <div class="ag-barra"><h3>🤖 Agentes</h3><div class="chips" id="agChips"></div></div>
+  <div class="ag-resumo" id="agResumo"></div>
 </section>
-<section class="ag-sec" id="agFunil"></section>
-<section class="ag-sec" id="agSetores"></section>
+<section class="ag-sec"><div class="ag-cards" id="agSetores"></div></section>
 <section class="ag-sec" id="agCombos"></section>
 </div>
 
@@ -1013,54 +1039,37 @@ function statsAg(ag,J){const L=J.filter(j=>j.a&&j.a[ag.setor]&&j.a[ag.setor][0]=
   return{n,seg,perd,sm,ab,ass,pag,tm,paradas,L,tSeg:pc(seg,baseSeg),tPerd:pc(perd,baseSeg),tAss:pc(ass,n-sm),tPag:pc(pag,n-sm)};}
 function renderAgentes(){
   const el=document.getElementById('agSetores');if(!el||(typeof telaAtual!=='undefined'&&telaAtual!=='agentes'))return;
-  const J=agJ(),A=agLista(),todos=(estado.agentes_dados&&estado.agentes_dados.jornadas)||[];
+  const J=agJ(),A=agLista();
   document.getElementById('agChips').innerHTML=[7,30,90].map(d=>`<button class="chip ${agF.dias===d?'on':''}" onclick="agF.dias=${d};agSalvar()">${d} dias</button>`).join('')
-    +`<button class="chip ${agF.teste?'on':''}" onclick="agF.teste=!agF.teste;agSalvar()" title="Clientes do Chat teste">${agF.teste?'✓ ':''}Incluir testes</button><span style="font-size:12px;color:var(--tx3);align-self:center">${J.length} clientes no período</span>`;
-  if(!A.length){el.innerHTML='<div class="fbox"><div class="vazio">Sem dados dos agentes.</div></div>';document.getElementById('agFunil').innerHTML='';document.getElementById('agCombos').innerHTML='';return;}
-  // 1) onde os clientes param na IA (por setor)
-  const cor={seg:'#16a36a',perd:'#e5484d',sm:'#9aa5b4',ab:'#c9d6e6'};
-  const linhas=SETOR_ORD.filter(x=>x!=='gerente').map(set=>{const L=J.filter(j=>j.a&&j.a[set]),n=L.length;
-    const seg=L.filter(j=>seguiu(j,set)).length,aqui=L.filter(j=>!seguiu(j,set)),perd=aqui.filter(j=>j.g==='perdido').length,sm=aqui.filter(j=>j.g==='sem_margem').length,ab=aqui.length-perd-sm;
-    const w=v=>n?(v/n*100):0;
-    return `<div class="agf-l"><b>${SETOR_NOME[set]}</b><div class="agf-bar" title="${n} clientes">${n?`<i style="width:${w(seg)}%;background:${cor.seg}"></i><i style="width:${w(perd)}%;background:${cor.perd}"></i><i style="width:${w(sm)}%;background:${cor.sm}"></i><i style="width:${w(ab)}%;background:${cor.ab}"></i>`:''}</div>
-      <small>${n?`<b>${n}</b> chegaram · <b style="color:#0f7a4f">${pcT(pc(seg,n))}</b> ${SETOR_COL[set].replace(/^./,c=>c.toLowerCase())} · <b style="color:#b42318">${pcT(pc(perd,n))}</b> pararam aqui`:'ninguém chegou aqui ainda'}</small></div>`;}).join('');
-  const piorSet=SETOR_ORD.filter(x=>x!=='gerente').map(set=>{const L=J.filter(j=>j.a&&j.a[set]);const perd=L.filter(j=>!seguiu(j,set)&&j.g==='perdido').length;return[set,L.length,pc(perd,L.length)];}).filter(x=>x[1]>=MIN_AMOSTRA).sort((a,b)=>b[2]-a[2])[0];
-  document.getElementById('agFunil').innerHTML=`<div class="fbox"><h4>🚦 Onde os clientes param na IA</h4><div class="ag-funil">${linhas}</div>
-    <div class="ag-leg"><span><i style="background:${cor.seg}"></i>seguiram para a próxima etapa</span><span><i style="background:${cor.perd}"></i>pararam aqui (perdidos)</span><span><i style="background:${cor.sm}"></i>sem margem</span><span><i style="background:${cor.ab}"></i>ainda em atendimento</span></div>
-    ${piorSet?`<div class="ag-nota">👉 Onde mais perdemos clientes: <b>${SETOR_NOME[piorSet[0]]}</b> (${piorSet[2]}% param nessa etapa).</div>`:''}</div>`;
-  // 2) cada setor: A x B x C
-  el.innerHTML=`<div class="ag-grid">${SETOR_ORD.map(set=>{const ags=A.filter(a=>a.setor===set);if(!ags.length)return'';
-    const st=ags.map(a=>({a,s:statsAg(a,J)}));const ok=st.every(x=>x.s.n>=MIN_AMOSTRA);
-    const marca=(k)=>{if(!ok)return{};const v=st.map(x=>x.s[k]).filter(x=>x!=null);if(v.length<2)return{};const mx=Math.max(...v),mn=Math.min(...v);return mx===mn?{}:{mx,mn};};
-    const mSeg=marca('tSeg'),mPerd=marca('tPerd');
-    const cel=(v,m,inv)=>{const c=m.mx==null?'':(v===(inv?m.mn:m.mx)?'melhor':v===(inv?m.mx:m.mn)?'pior':'');return `<span class="${c}">${c==='melhor'?'🏆 ':''}${pcT(v)}</span><span class="mini"><i style="width:${v||0}%;${inv?'background:#e5484d':''}"></i></span>`;};
-    return `<div class="fbox ag-card"><h4>${SETOR_NOME[set]}<span class="meta-ag">${ok?'':'⏳ poucos dados: comparação ainda não é confiável'}</span></h4>
-      <table class="ag-t"><thead><tr><th>Versão</th><th>Atendidos</th><th>${SETOR_COL[set]}</th><th>Pararam aqui</th><th class="opc">Tempo médio</th></tr></thead><tbody>
-      ${st.map(({a,s})=>`<tr class="lin" onclick="abrirPainel('agente:${a.id}')"><td class="ag-nome"><b><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</b><span>${esc(a.abordagem||'')}</span></td>
-        <td>${s.n}</td><td>${cel(s.tSeg,mSeg)}</td><td>${cel(s.tPerd,mPerd,true)}</td><td class="opc">${s.n?tempo(s.tm):'—'}</td></tr>`).join('')}</tbody></table>
-      <div class="ag-nota">Só o trabalho deste setor: dos clientes que cada versão atendeu, quantos ${esc(SETOR_PASSO[set])} e quantos pararam aqui.${set==='recepcao'?' Sem margem não conta contra o agente.':''}</div></div>`;}).join('')}</div>`;
-  // 3) o time de 6: a melhor versão de cada setor + os times reais que mais assinaram
-  const VEN=['recepcao','simulacao','vendas','formalizacao'];   // setores que decidem se o cliente assina
-  const lider=SETOR_ORD.map(set=>{const st=A.filter(a=>a.setor===set).map(a=>({a,s:statsAg(a,J)}));
+    +`<button class="chip ${agF.teste?'on':''}" onclick="agF.teste=!agF.teste;agSalvar()" title="Clientes do Chat teste">${agF.teste?'✓ ':''}Incluir testes</button>`;
+  const res=document.getElementById('agResumo'),cmb=document.getElementById('agCombos');
+  if(!A.length||!J.length){res.innerHTML='';el.innerHTML='<div class="fbox" style="grid-column:1/-1"><div class="vazio">Ainda não há clientes no período. Assim que os agentes atenderem, a comparação entre as versões A, B e C aparece aqui.</div></div>';cmb.innerHTML='';return;}
+  const VEN=['recepcao','simulacao','vendas','formalizacao'];
+  const setores=SETOR_ORD.map(set=>{const st=A.filter(a=>a.setor===set).map(a=>({a,s:statsAg(a,J)}));
     const val=st.filter(x=>x.s.tSeg!=null).sort((x,y)=>y.s.tSeg-x.s.tSeg||y.s.n-x.s.n);
-    return{set,best:val[0]||null,ok:st.length>0&&st.every(x=>x.s.n>=MIN_AMOSTRA),st};});
-  const confi=lider.filter(l=>VEN.includes(l.set)).every(l=>l.ok&&l.best);
-  const est=lider.filter(l=>VEN.includes(l.set)).reduce((m,l)=>m*((l.best&&l.best.s.tSeg!=null?l.best.s.tSeg:0)/100),1);
+    const L=J.filter(j=>j.a&&j.a[set]),perd=L.filter(j=>!seguiu(j,set)&&j.g==='perdido').length;
+    return{set,st,best:val[0]||null,ok:st.length>0&&st.every(x=>x.s.n>=MIN_AMOSTRA),n:L.length,tPerd:pc(perd,L.length)};});
+  // resumo: 3 frases
+  const pior=setores.filter(x=>x.set!=='gerente'&&x.n>=MIN_AMOSTRA).sort((a,b)=>(b.tPerd||0)-(a.tPerd||0))[0];
+  const confi=setores.filter(l=>VEN.includes(l.set)).every(l=>l.ok&&l.best);
+  const est=setores.filter(l=>VEN.includes(l.set)).reduce((m,l)=>m*((l.best?l.best.s.tSeg:0)/100),1);
   const base=J.filter(j=>j.g!=='sem_margem'),hoje=pc(base.filter(assinou).length,base.length);
-  const timeHtml=lider.map(l=>{const b=l.best;return `<div class="jr" style="align-items:center"><span style="min-width:110px;color:var(--tx2)">${SETOR_NOME[l.set]}</span>
-      <span style="flex:1">${b?`${l.ok?'🏆 ':'<span title="Ainda poucos dados">⏳ </span>'}<span class="vtag">${esc(b.a.versao)}</span><b>${esc(b.a.nome)}</b> <span style="color:var(--tx3)">· ${esc(b.a.abordagem||'')}</span>`:'<span style="color:var(--tx3)">sem dados ainda</span>'}</span>
-      <b style="white-space:nowrap">${b?pcT(b.s.tSeg)+' <span style="font-weight:500;color:var(--tx3)">'+SETOR_COL[l.set].replace(/^./,c=>c.toLowerCase())+'</span>':''}</b></div>`;}).join('');
-  const chave=j=>VEN.map(x=>{const id=j.a&&j.a[x]&&j.a[x][0];const ag=A.find(a=>a.id===id);return ag?ag.versao:'·';}).join('');
-  const T3=['recepcao','simulacao','vendas'],chave3=j=>T3.map(x=>{const id=j.a[x][0];const ag=A.find(a=>a.id===id);return ag?ag.versao:'·';}).join('');
-  const grp={};J.filter(j=>j.g!=='sem_margem'&&j.a&&T3.every(x=>j.a[x])).forEach(j=>{const k=chave3(j);(grp[k]=grp[k]||{n:0,as:0});grp[k].n++;if(assinou(j))grp[k].as++;});
+  res.innerHTML=`<div><span class="big">${J.length}</span>clientes atendidos nos últimos ${agF.dias} dias${agF.teste?' (com testes)':''} · <b>${pcT(hoje)}</b> assinaram</div>
+    <div><span class="big" style="color:#b42318">${pior?SETOR_NOME[pior.set]:'—'}</span>${pior?`é onde mais perdemos: <b>${pior.tPerd}%</b> dos clientes param lá`:'ainda poucos dados para saber onde perdemos mais'}</div>
+    <div><span class="big" style="color:#0f7a4f">${confi?Math.round(est*100)+'%':'⏳'}</span>${confi?`assinariam se todos passassem pelo <b>time ideal</b> (hoje: ${pcT(hoje)})`:'o time ideal ainda está sendo testado: faltam clientes em alguns setores'}</div>`;
+  // 6 cartões
+  el.innerHTML=setores.map((x,i)=>{const b=x.best,cls=x.ok?'':'testando';
+    return `<div class="tc"><div class="tc-top"><h4>${i+1} · ${SETOR_NOME[x.set]}</h4><span>${x.n} clientes${x.set!=='gerente'&&x.tPerd!=null?' · '+x.tPerd+'% param aqui':''}</span></div>
+      ${b?`<div class="tc-win ${cls}" onclick="abrirPainel('agente:${b.a.id}')" title="Ver detalhes"><span class="lt">${esc(b.a.versao)}</span><div class="nm"><b>${esc(b.a.nome)}</b><small>${esc(b.a.abordagem||'')}</small></div><span class="sel">${x.ok?'🏆 melhor':'⏳ testando'}</span></div>`:'<div class="vazio">Sem dados ainda.</div>'}
+      <div class="tc-v">${x.st.map(({a,s})=>`<span class="vn" onclick="abrirPainel('agente:${a.id}')"><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</span><span class="br"><i class="${b&&b.a.id===a.id?'win':''}" style="width:${s.tSeg||0}%"></i></span><span class="pv" title="${s.n} clientes">${pcT(s.tSeg)}</span>`).join('')}</div>
+      <div class="tc-ft">% que ${esc(SETOR_PASSO[x.set])}${x.ok?'':' · menos de '+MIN_AMOSTRA+' clientes por versão'}</div></div>`;}).join('');
+  // ranking de times reais (Recepção → Simulação → Vendas)
+  const T3=['recepcao','simulacao','vendas'],grp={};
+  J.filter(j=>j.g!=='sem_margem'&&j.a&&T3.every(x=>j.a[x])).forEach(j=>{const k=T3.map(x=>{const ag=A.find(a=>a.id===j.a[x][0]);return ag?ag.versao:'·';}).join('');(grp[k]=grp[k]||{n:0,as:0});grp[k].n++;if(assinou(j))grp[k].as++;});
   const top=Object.entries(grp).filter(([,v])=>v.n>=3).map(([k,v])=>({k,...v,t:pc(v.as,v.n)})).sort((a,b)=>b.t-a.t||b.n-a.n);
   const nomeT=k=>k.split('').map((v,i)=>{const ag=A.find(a=>a.setor===T3[i]&&a.versao===v);return ag?`<span class="vtag">${v}</span>${esc(ag.nome)}`:'—';}).join(' → ');
-  document.getElementById('agCombos').innerHTML=`<div class="ag-grid"><div class="fbox"><h4>🏆 Time ideal · a melhor versão de cada setor</h4>${timeHtml}
-      <div class="ag-nota">${confi?`Se todos os clientes passassem por esse time, a estimativa é que <b>${Math.round(est*100)}%</b> cheguem a assinar (hoje, com as 3 versões misturadas: <b>${pcT(hoje)}</b>).`:'⏳ Ainda há setores com poucos dados (menos de '+MIN_AMOSTRA+' clientes por versão). O time aparece, mas pode mudar conforme entrarem mais clientes.'}
-      Cada setor é escolhido pelo próprio trabalho dele (coluna verde das tabelas acima).</div></div>
-    <div class="fbox"><h4>🧭 Times que mais assinaram</h4><div class="ag-nota" style="margin:-4px 0 6px">Combinações reais de Recepção → Simulação → Vendas que os clientes passaram, ordenadas por % que terminou assinando (mínimo 3 clientes, sem contar sem margem). Formalização, Pós-venda e Recuperação são escolhidas no Time ideal ao lado.</div>
-      ${top.length?top.slice(0,6).map((x,i)=>`<div class="jr"><span>${i===0?'🏆 ':''}${nomeT(x.k)}</span><b style="white-space:nowrap">${x.t}% <span style="font-weight:500;color:var(--tx3)">(${x.as} de ${x.n})</span></b></div>`).join('')
-        +(top.length>3?`<div class="ag-nota">Pior time: ${nomeT(top[top.length-1].k)} · ${top[top.length-1].t}% (${top[top.length-1].as} de ${top[top.length-1].n})</div>`:''):'<div class="vazio">Ainda não há clientes suficientes que chegaram até Vendas.</div>'}</div></div>`;
+  const linha=(x,pos)=>`<div class="rk"><span class="pos">${pos}</span><span class="cam">${nomeT(x.k)}</span><span class="tx">${x.t}% <small>assinaram (${x.as} de ${x.n})</small></span></div>`;
+  cmb.innerHTML=`<div class="fbox"><h4>🧭 Times que mais assinaram · Recepção → Simulação → Vendas</h4>${top.length?top.slice(0,3).map((x,i)=>linha(x,['🥇','🥈','🥉'][i])).join('')+(top.length>3?linha(top[top.length-1],'👎'):''):'<div class="vazio">Ainda não há clientes suficientes que chegaram até Vendas.</div>'}</div>`;
 }
 function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPainel();return;}const s=statsAg(a,agJ());
   gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(agF.teste?' (com testes)':' (sem testes)');
