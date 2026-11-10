@@ -339,6 +339,39 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   .nv{flex:0 0 auto;min-width:62px;padding:6px 6px}
 }
 @media (min-width:721px){.nav{padding-top:76px;gap:2px;overflow-y:auto}.nv{padding:8px 4px}}
+/* ── agentes A/B/C ── */
+.ag-sec{margin:14px 20px 0}
+.ag-filtros .chips{margin-top:4px}
+.ag-funil{display:flex;flex-direction:column;gap:10px}
+.agf-l{display:grid;grid-template-columns:120px 1fr 230px;gap:12px;align-items:center;font-size:13px}
+.agf-bar{display:flex;height:22px;border-radius:7px;overflow:hidden;background:#eef2f6}
+.agf-bar i{display:block;height:100%}
+.agf-l small{color:var(--tx2);font-size:12px;line-height:1.35}
+.ag-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tx2);margin-top:10px}.ag-leg span{display:inline-flex;align-items:center;gap:6px}.ag-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.ag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ag-card h4{display:flex;align-items:center;gap:8px}
+.ag-card .meta-ag{font-size:12px;color:var(--tx3);font-weight:500;text-transform:none;letter-spacing:0;margin-left:auto}
+.ag-t{width:100%;border-collapse:collapse;font-size:12.5px}
+.ag-card{min-width:0;overflow-x:auto}
+.ag-t th{font-size:10.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.03em;text-align:right;padding:4px 6px;white-space:nowrap}
+.ag-t th:first-child{text-align:left}
+.ag-t td{padding:8px 6px;border-top:1px solid #f0f3f7;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ag-t td:first-child{text-align:left;white-space:normal}
+.ag-t tr.lin{cursor:pointer}.ag-t tr.lin:hover td{background:#f7f9fc}
+.ag-nome b{font-size:13px}.ag-nome>span{display:block;font-size:11.5px;color:var(--tx3);line-height:1.3;max-width:260px}
+.vtag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:5px;padding:1px 6px;margin-right:5px;background:#eef1f5;color:#5b6878}
+.melhor{color:#0f7a4f;font-weight:800}.pior{color:#b42318;font-weight:800}
+.mini{display:block;height:4px;border-radius:2px;background:#eef2f6;margin-top:3px;overflow:hidden}.mini i{display:block;height:100%;background:var(--azul)}
+.ag-nota{font-size:12px;color:var(--tx2);margin-top:8px;line-height:1.45}
+.cmb{display:grid;gap:4px}
+.cmb-c{border-radius:8px;padding:8px;text-align:center;font-size:12px;line-height:1.3}
+.cmb-c b{display:block;font-size:16px}
+.cmb-h{font-size:11.5px;font-weight:700;color:var(--tx2);text-align:center;padding:4px}
+.cmb-sel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--tx2);margin-bottom:12px}
+.cmb-sel select{border:1px solid var(--linha);border-radius:8px;padding:6px 8px;font:inherit;font-size:12.5px;background:#fff}
+.jr{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #f0f3f7;font-size:12.5px}
+@media (max-width:1100px){.ag-grid{grid-template-columns:1fr}}
+@media (max-width:720px){.ag-sec{margin-left:12px;margin-right:12px}.agf-l{grid-template-columns:1fr;gap:4px}.ag-t .opc{display:none}.ag-nome>span{display:none}.cmb{grid-template-columns:70px repeat(3,1fr)!important}.cmb-c{padding:6px 2px;font-size:10.5px}.cmb-c b{font-size:14px}.ag-t th{white-space:normal}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -359,6 +392,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <nav class="nav" aria-label="Telas do painel">
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
   <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">🎯</span>Hoje</button>
   <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
   <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
@@ -387,6 +421,19 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
     <div id="crmLista"></div>
   </div>
 </section>
+</div>
+
+<div class="view" id="v-agentes" hidden>
+<section class="ag-sec">
+  <div class="fbox ag-filtros">
+    <h4>🤖 Agentes · versões A, B e C de cada setor</h4>
+    <p class="simtx">Cada cliente é atendido por uma versão (A, B ou C) em cada setor. Aqui dá para ver onde cada versão segura ou perde o cliente e quais combinações assinam mais.</p>
+    <div class="chips" id="agChips"></div>
+  </div>
+</section>
+<section class="ag-sec" id="agFunil"></section>
+<section class="ag-sec" id="agSetores"></section>
+<section class="ag-sec" id="agCombos"></section>
 </div>
 
 <div class="view" id="v-hoje" hidden>
@@ -660,7 +707,28 @@ function demoTick(){
         pago_mes_valor:pg.reduce((a,c)=>a+c.valor_liberado,0)+38000,pago_mes_comissao:pg.reduce((a,c)=>a+c.comissao,0)+3100,dias_mes:new Date(hj.getFullYear(),hj.getMonth()+1,0).getDate(),dia_atual:hj.getDate(),meta_dia:7000};})(),
     saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}});
 }
-let demoHist=null;
+let demoHist=null,demoAg=null;
+// agentes A/B/C fictícios: cada versão com uma chance diferente de segurar o cliente, para a comparação aparecer
+function demoAgentes(){if(demoAg)return demoAg;let seed=11;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const N={recepcao:['Ana','Bia','Caio'],simulacao:['Bruno','Duda','Enzo'],vendas:['Carla','Fábio','Gabi'],formalizacao:['Diego','Helô','Igor'],posvenda:['Elisa','João','Lara'],gerente:['Fernando','Marta','Nico']};
+  const AB={recepcao:['Direta: pede o CPF logo','Consultiva: entende a necessidade antes','Segurança: passa confiança e depois pede o CPF'],simulacao:['Valor máximo primeiro','Parcela que cabe','Três opções'],vendas:['Objetiva','Consultiva: pergunta o motivo','Urgência leve'],formalizacao:['Direto','Passo a passo','Guiado com mini-guia'],posvenda:['Proativa','Sob demanda','Relacionamento'],gerente:['Lembrete simples','Novo motivo','Pergunta aberta']};
+  const P={recepcao:[.62,.70,.78],simulacao:[.80,.86,.83],vendas:[.48,.62,.40],formalizacao:[.70,.82,.76],posvenda:[.92,.90,.95]};
+  let id=100;const agentes=[];Object.keys(N).forEach(set=>N[set].forEach((n,i)=>agentes.push({id:++id,nome:n,setor:set,versao:'ABC'[i],abordagem:AB[set][i],peso:1})));
+  const ag=(set,i)=>agentes.find(a=>a.setor===set&&a.versao==='ABC'[i]);
+  const jornadas=[];
+  for(let k=0;k<520;k++){const a={},e=new Date(Date.now()-r()*85*86400000).toISOString();let g='andamento',et=1,sit='Conversando · sem CPF';
+    const v={};['recepcao','simulacao','vendas','formalizacao','posvenda','gerente'].forEach(x=>v[x]=Math.floor(r()*3));
+    const bonus=(v.recepcao===1&&v.vendas===1)?.12:(v.recepcao===2&&v.vendas===2)?-.15:0;   // Bia+Fábio combinam bem; Caio+Gabi, mal
+    const passo=(set,p)=>{const ok=r()<p;a[set]=[ag(set,v[set]).id,ok?'avancou':'perdeu',Math.round(5+r()*60)];return ok;};
+    if(r()<.15){a.recepcao=[ag('recepcao',v.recepcao).id,'perdeu',8];g='sem_margem';et=2;sit='Sem margem';}
+    else if(!passo('recepcao',P.recepcao[v.recepcao])){g='perdido';et=1;sit=r()<.5?'Parou de responder · sem CPF':'Desistiu';}
+    else if(!passo('simulacao',P.simulacao[v.simulacao])){g='perdido';et=2;sit='Parou de responder · mandou o CPF';}
+    else if(!passo('vendas',P.vendas[v.vendas]+bonus)){g='perdido';et=3;sit=r()<.6?'Parou de responder · viu as ofertas':'Desistiu depois das ofertas';}
+    else if(!passo('formalizacao',P.formalizacao[v.formalizacao])){g='perdido';et=4;sit=r()<.7?'Recebeu o link e não assinou':'Cancelou o contrato';}
+    else{const pg=r()<P.posvenda[v.posvenda];a.posvenda=[ag('posvenda',v.posvenda).id,pg?'avancou':null,600];g=pg?'pago':'andamento';et=pg?6:5;sit=pg?'Pago':'Assinou · aguardando pagamento';}
+    if(g==='perdido'&&r()<.5){const ok=r()<[.15,.22,.3][v.gerente];a.gerente=[ag('gerente',v.gerente).id,ok?'recuperou':'perdeu',30];}
+    jornadas.push({l:9000+k,t:false,e,g,et,s:sit,a});}
+  return demoAg={agentes,jornadas};}
 function demoCrm(o){const cpf=()=>String(rnd(10000000000,99999999999)),SIT_ATIVO={respondeu:['Conversando · sem CPF',1],cpf_ok:['Mandou o CPF · consultando',2],simulado:['Recebeu as ofertas',3],proposta:['Recebeu as ofertas',3],negociando:['Recebeu as ofertas',3],fechou:['Escolheu a oferta · falta PIX',4],link_env:['Link enviado · falta assinar',4],assinou:['Assinou · aguardando pagamento',5]};
   if(!demoHist){demoHist=[];const H=[['Pago','pago',6,null],['Pago','pago',6,null],['Pago','pago',6,null],['Sem margem','sem_margem',2,'Sem margem disponível'],['Sem margem','sem_margem',2,'Sem margem disponível'],['Desistiu','perdido',1,'Sem vínculo CLT ativo'],['Desistiu depois das ofertas','perdido',3,'Achou a parcela alta'],['Recebeu o link e não assinou','perdido',4,null],['Parou de responder · viu as ofertas','perdido',3,'Parou de responder'],['Parou de responder · mandou o CPF','perdido',2,'Parou de responder'],['Cancelou o contrato','perdido',5,null]];
     for(let i=0;i<48;i++){const h=H[i%H.length],dias=rnd(0,29),ent=new Date(Date.now()-dias*86400000-rnd(1,600)*60000);const v=rnd(3000,9000);
@@ -676,6 +744,7 @@ function demoCoerente(o){const v=o.vendas,u30=v.slice(-30),hj=new Date(),soma=(a
   o.simulacao={...o.simulacao,dias_janela:30,clientes:e,pagos:pg,valor_medio:pg?Math.round(lib/pg):0,comissao_media:pg?Math.round(com/pg*100)/100:0,pct_seguro:.7,parcelas_media:46,
     pago_mes_valor:soma(mes,'liberado'),pago_mes_comissao:soma(mes,'comissao')};
   o.crm=demoCrm(o);
+  o.agentes_dados=demoAgentes();
   const fp=o.financeiro.find(f=>f.etapa==='pago');if(fp){fp.contratos=soma(mes,'pagos');fp.valor_liberado=soma(mes,'liberado');fp.comissao=Math.round(soma(mes,'comissao')*100)/100;}
   return o;}
 
@@ -713,16 +782,17 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],crm:j.crm||[]};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],crm:j.crm||[],agentes_dados:j.agentes_dados||null};
   const R=estado.resumo;
   kAnd.textContent=R.em_andamento??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
-  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();renderCrm();kPar.textContent=R.parados??0;
+  renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();renderCrm();renderAgentes();kPar.textContent=R.parados??0;
   const ev=estado.eventos[0];
   if(ev){tickerTxt.textContent=hora(ev.criado_em)+' · '+ev.descricao;if(ultimoEventoId!==null&&ev.id!==ultimoEventoId&&ev.tipo==='fechou')festa(ev.lead_id);ultimoEventoId=ev.id;}
   const key=estado.setores.map(s=>s.id+s.cor).join('|')+'#'+estado.agentes.map(a=>a.id+a.setor_id).join('|');
   if(key!==estruturaKey){montarSalas();estruturaKey=key;}
   atualizarSalas();posicionarClientes();
-  if(painelAberto&&!painelAberto.startsWith('cliente:'))renderPainel();
+  if(painelAberto&&painelAberto.startsWith('agente:'))painelAgente(Number(painelAberto.slice(7)));
+  else if(painelAberto&&!painelAberto.startsWith('cliente:'))renderPainel();
 }
 function montarSalas(){
   salas.innerHTML=estado.setores.map(s=>{
@@ -918,6 +988,84 @@ function simUsarReais(){const {F,S}=dadosReais();if(!(Number(F.entraram||0)>0))r
     val:Math.max(300,Math.round(Number(S.valor_medio||simVals.val)/100)*100),seg:Math.round(Number(S.pct_seguro!=null?S.pct_seguro:simVals.seg/100)*20)*5,parc};
   simOrigem='reais';syncSim();calcSim();}
 
+// ═════════════ AGENTES (versões A/B/C) ═════════════
+const SETOR_ORD=['recepcao','simulacao','vendas','formalizacao','posvenda','gerente'];
+const SETOR_NOME={recepcao:'Recepção',simulacao:'Simulação',vendas:'Vendas',formalizacao:'Formalização',posvenda:'Pós-venda',gerente:'Recuperação'};
+const SETOR_PASSO={recepcao:'foram para a simulação (mandaram CPF com margem)',simulacao:'foram para vendas (viram as ofertas)',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a responder'};
+const MIN_AMOSTRA=10;
+let agF={dias:30,teste:true,par:['recepcao','vendas']};
+try{const v=JSON.parse(lsGet('escritorio_agf')||'null');if(v)agF={...agF,...v};}catch(e){}
+function agSalvar(){lsSet('escritorio_agf',JSON.stringify(agF));renderAgentes();}
+function agJ(){const D=estado.agentes_dados||{},lim=Date.now()-agF.dias*86400000;return (D.jornadas||[]).filter(j=>(agF.teste||!j.t)&&new Date(j.e).getTime()>=lim);}
+function agLista(){return (estado.agentes_dados&&estado.agentes_dados.agentes)||[];}
+function assinou(j){return j.g==='pago'||(j.et>=5&&j.g!=='perdido');}
+function seguiu(j,set){const r=j.a&&j.a[set]&&j.a[set][1];if(set==='formalizacao')return assinou(j);if(set==='posvenda')return j.g==='pago';return r==='avancou'||r==='recuperou';}
+function pc(a,b){return b?Math.round(a/b*100):null;}
+function pcT(v){return v==null?'—':v+'%';}
+function statsAg(ag,J){const L=J.filter(j=>j.a&&j.a[ag.setor]&&j.a[ag.setor][0]===ag.id),n=L.length;
+  const seg=L.filter(j=>seguiu(j,ag.setor)).length,aqui=L.filter(j=>!seguiu(j,ag.setor));
+  const sm=aqui.filter(j=>j.g==='sem_margem').length,perd=aqui.filter(j=>j.g==='perdido').length,ab=aqui.filter(j=>j.g==='andamento').length;
+  const ass=L.filter(assinou).length,pag=L.filter(j=>j.g==='pago').length,tm=n?Math.round(L.reduce((a,j)=>a+(j.a[ag.setor][2]||0),0)/n):0;
+  const paradas={};aqui.filter(j=>j.g!=='andamento').forEach(j=>paradas[j.s]=(paradas[j.s]||0)+1);
+  const baseSeg=n-sm-ab;   // sem margem não é culpa do agente; quem ainda está em aberto não conta
+  return{n,seg,perd,sm,ab,ass,pag,tm,paradas,L,tSeg:pc(seg,baseSeg),tPerd:pc(perd,baseSeg),tAss:pc(ass,n-sm),tPag:pc(pag,n-sm)};}
+function renderAgentes(){
+  const el=document.getElementById('agSetores');if(!el||(typeof telaAtual!=='undefined'&&telaAtual!=='agentes'))return;
+  const J=agJ(),A=agLista(),todos=(estado.agentes_dados&&estado.agentes_dados.jornadas)||[];
+  document.getElementById('agChips').innerHTML=[7,30,90].map(d=>`<button class="chip ${agF.dias===d?'on':''}" onclick="agF.dias=${d};agSalvar()">${d} dias</button>`).join('')
+    +`<button class="chip ${agF.teste?'on':''}" onclick="agF.teste=!agF.teste;agSalvar()" title="Clientes do Chat teste">${agF.teste?'✓ ':''}Incluir testes</button><span style="font-size:12px;color:var(--tx3);align-self:center">${J.length} clientes no período</span>`;
+  if(!A.length){el.innerHTML='<div class="fbox"><div class="vazio">Sem dados dos agentes.</div></div>';document.getElementById('agFunil').innerHTML='';document.getElementById('agCombos').innerHTML='';return;}
+  // 1) onde os clientes param na IA (por setor)
+  const cor={seg:'#16a36a',perd:'#e5484d',sm:'#9aa5b4',ab:'#c9d6e6'};
+  const linhas=SETOR_ORD.filter(x=>x!=='gerente').map(set=>{const L=J.filter(j=>j.a&&j.a[set]),n=L.length;
+    const seg=L.filter(j=>seguiu(j,set)).length,aqui=L.filter(j=>!seguiu(j,set)),perd=aqui.filter(j=>j.g==='perdido').length,sm=aqui.filter(j=>j.g==='sem_margem').length,ab=aqui.length-perd-sm;
+    const w=v=>n?(v/n*100):0;
+    return `<div class="agf-l"><b>${SETOR_NOME[set]}</b><div class="agf-bar" title="${n} clientes">${n?`<i style="width:${w(seg)}%;background:${cor.seg}"></i><i style="width:${w(perd)}%;background:${cor.perd}"></i><i style="width:${w(sm)}%;background:${cor.sm}"></i><i style="width:${w(ab)}%;background:${cor.ab}"></i>`:''}</div>
+      <small>${n?`<b>${n}</b> chegaram · <b style="color:#0f7a4f">${pcT(pc(seg,n))}</b> ${set==='formalizacao'?'assinaram':set==='posvenda'?'pagos':'seguiram'} · <b style="color:#b42318">${pcT(pc(perd,n))}</b> pararam aqui`:'ninguém chegou aqui ainda'}</small></div>`;}).join('');
+  const piorSet=SETOR_ORD.filter(x=>x!=='gerente').map(set=>{const L=J.filter(j=>j.a&&j.a[set]);const perd=L.filter(j=>!seguiu(j,set)&&j.g==='perdido').length;return[set,L.length,pc(perd,L.length)];}).filter(x=>x[1]>=MIN_AMOSTRA).sort((a,b)=>b[2]-a[2])[0];
+  document.getElementById('agFunil').innerHTML=`<div class="fbox"><h4>🚦 Onde os clientes param na IA</h4><div class="ag-funil">${linhas}</div>
+    <div class="ag-leg"><span><i style="background:${cor.seg}"></i>seguiram para a próxima etapa</span><span><i style="background:${cor.perd}"></i>pararam aqui (perdidos)</span><span><i style="background:${cor.sm}"></i>sem margem</span><span><i style="background:${cor.ab}"></i>ainda em atendimento</span></div>
+    ${piorSet?`<div class="ag-nota">👉 Onde mais perdemos clientes: <b>${SETOR_NOME[piorSet[0]]}</b> (${piorSet[2]}% param nessa etapa).</div>`:''}</div>`;
+  // 2) cada setor: A x B x C
+  el.innerHTML=`<div class="ag-grid">${SETOR_ORD.map(set=>{const ags=A.filter(a=>a.setor===set);if(!ags.length)return'';
+    const st=ags.map(a=>({a,s:statsAg(a,J)}));const ok=st.every(x=>x.s.n>=MIN_AMOSTRA);
+    const marca=(k)=>{if(!ok)return{};const v=st.map(x=>x.s[k]).filter(x=>x!=null);if(v.length<2)return{};const mx=Math.max(...v),mn=Math.min(...v);return mx===mn?{}:{mx,mn};};
+    const mSeg=marca('tSeg'),mAss=marca('tAss'),mPerd=marca('tPerd');
+    const cel=(v,m,inv)=>{const c=m.mx==null?'':(v===(inv?m.mn:m.mx)?'melhor':v===(inv?m.mx:m.mn)?'pior':'');return `<span class="${c}">${c==='melhor'?'🏆 ':''}${pcT(v)}</span><span class="mini"><i style="width:${v||0}%;${inv?'background:#e5484d':''}"></i></span>`;};
+    return `<div class="fbox ag-card"><h4>${SETOR_NOME[set]}<span class="meta-ag">${ok?'':'⏳ poucos dados: comparação ainda não é confiável'}</span></h4>
+      <table class="ag-t"><thead><tr><th>Versão</th><th>Atendidos</th><th title="${esc(SETOR_PASSO[set])}">${set==='formalizacao'?'Assinaram':set==='posvenda'?'Pagos':set==='gerente'?'Voltaram':'Seguiram'}</th><th>Pararam aqui</th><th class="opc" title="Dos clientes que passaram por esse agente, quantos terminaram assinando">Assinaram (final)</th><th class="opc">Pagos</th><th class="opc">Tempo médio</th></tr></thead><tbody>
+      ${st.map(({a,s})=>`<tr class="lin" onclick="abrirPainel('agente:${a.id}')"><td class="ag-nome"><b><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</b><span>${esc(a.abordagem||'')}</span></td>
+        <td>${s.n}</td><td>${cel(s.tSeg,mSeg)}</td><td>${cel(s.tPerd,mPerd,true)}</td><td class="opc">${cel(s.tAss,mAss)}</td><td class="opc">${s.pag}</td><td class="opc">${s.n?tempo(s.tm):'—'}</td></tr>`).join('')}</tbody></table>
+      <div class="ag-nota">${esc(SETOR_NOME[set])}: “${set==='formalizacao'?'Assinaram':set==='posvenda'?'Pagos':set==='gerente'?'Voltaram':'Seguiram'}” = ${esc(SETOR_PASSO[set])}. Sem margem não conta contra o agente.</div></div>`;}).join('')}</div>`;
+  // 3) combinações
+  const [s1,s2]=agF.par,a1=A.filter(a=>a.setor===s1),a2=A.filter(a=>a.setor===s2);
+  const opt=v=>SETOR_ORD.map(x=>`<option value="${x}" ${x===v?'selected':''}>${SETOR_NOME[x]}</option>`).join('');
+  let mat='';
+  if(a1.length&&a2.length&&s1!==s2){mat=`<div class="cmb" style="grid-template-columns:140px repeat(${a2.length},1fr)"><div></div>${a2.map(b=>`<div class="cmb-h"><span class="vtag">${esc(b.versao)}</span>${esc(b.nome)}</div>`).join('')}
+      ${a1.map(a=>`<div class="cmb-h" style="text-align:left;align-self:center"><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</div>`+a2.map(b=>{const L=J.filter(j=>j.a&&j.a[s1]&&j.a[s2]&&j.a[s1][0]===a.id&&j.a[s2][0]===b.id&&j.g!=='sem_margem'),n=L.length,as=L.filter(assinou).length,t=pc(as,n);
+        const bg=n?`rgba(22,163,106,${0.08+0.7*(t||0)/100})`:'#f6f8fb';return `<div class="cmb-c" style="background:${bg};color:${(t||0)>55?'#fff':'var(--tx)'}"><b>${n?t+'%':'—'}</b>${n?as+' de '+n+' assinaram':'sem clientes'}${n&&n<MIN_AMOSTRA?'<br><span style="opacity:.75">poucos dados</span>':''}</div>`;}).join('')).join('')}</div>`;}
+  else mat='<div class="vazio">Escolha dois setores diferentes.</div>';
+  // jornadas completas
+  const chave=j=>['recepcao','simulacao','vendas'].map(x=>{const id=j.a&&j.a[x]&&j.a[x][0];const ag=A.find(a=>a.id===id);return ag?ag.versao:'·';}).join(' ');
+  const grp={};J.filter(j=>j.g!=='sem_margem'&&j.a&&j.a.vendas).forEach(j=>{const k=chave(j);(grp[k]=grp[k]||{n:0,as:0});grp[k].n++;if(assinou(j))grp[k].as++;});
+  const top=Object.entries(grp).filter(([,v])=>v.n>=3).map(([k,v])=>({k,...v,t:pc(v.as,v.n)})).sort((a,b)=>b.t-a.t||b.n-a.n);
+  const nomeJ=k=>k.split(' ').map((v,i)=>{const set=['recepcao','simulacao','vendas'][i];const ag=A.find(a=>a.setor===set&&a.versao===v);return ag?ag.nome+' ('+v+')':'—';}).join(' → ');
+  document.getElementById('agCombos').innerHTML=`<div class="ag-grid"><div class="fbox"><h4>🤝 Quem funciona melhor junto</h4>
+      <div class="cmb-sel">Combinar <select onchange="agF.par[0]=this.value;agSalvar()">${opt(s1)}</select> com <select onchange="agF.par[1]=this.value;agSalvar()">${opt(s2)}</select></div>${mat}
+      <div class="ag-nota">Cada quadrado: dos clientes atendidos por essa dupla (sem contar sem margem), quantos terminaram assinando. Quanto mais verde, melhor.</div></div>
+    <div class="fbox"><h4>🧭 Caminhos completos que mais assinam</h4>${top.length?`<div class="ag-nota" style="margin:-4px 0 6px">Recepção → Simulação → Vendas · % que terminou assinando (mínimo 3 clientes)</div>`+top.slice(0,6).map((x,i)=>`<div class="jr"><span>${i===0?'🏆 ':''}${esc(nomeJ(x.k))}</span><b style="white-space:nowrap">${x.t}% <span style="font-weight:500;color:var(--tx3)">(${x.as}/${x.n})</span></b></div>`).join('')
+      +(top.length>3?`<div class="ag-nota">Pior caminho: ${esc(nomeJ(top[top.length-1].k))} · ${top[top.length-1].t}% (${top[top.length-1].as}/${top[top.length-1].n})</div>`:''):'<div class="vazio">Ainda não há clientes suficientes passando por vendas.</div>'}</div></div>`;
+}
+function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPainel();return;}const s=statsAg(a,agJ());
+  gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(agF.teste?' (com testes)':' (sem testes)');
+  const P=Object.entries(s.paradas).sort((x,y)=>y[1]-x[1]);
+  const cli=s.L.slice(0,60).map(j=>(estado.crm||[]).find(c=>c.id===j.l)||{id:j.l,nome:'Cliente #'+j.l,situacao:j.s,grupo:j.g,telefone:'',entrou:j.e});
+  gCorpo.innerHTML=`<div class="g-kpis"><div><b>${s.n}</b><span>Clientes atendidos</span></div><div><b style="color:#0f7a4f">${pcT(s.tSeg)}</b><span>${a.setor==='formalizacao'?'Assinaram':a.setor==='posvenda'?'Pagos':a.setor==='gerente'?'Voltaram':'Seguiram'}</span></div>
+      <div><b style="color:#b42318">${pcT(s.tPerd)}</b><span>Pararam aqui</span></div><div><b>${pcT(s.tAss)}</b><span>Assinaram (final)</span></div></div>
+    <div class="g-sec">Onde os clientes pararam com ${esc(a.nome)} · ${P.reduce((x,y)=>x+y[1],0)}</div>
+    ${P.length?P.map(([t,n])=>`<div class="mot"><span>${esc(t)}</span><b>${n}</b></div>`).join(''):'<div class="vazio">Nenhum cliente parou aqui.</div>'}
+    <div class="g-sec">Clientes atendidos · ${s.n}</div>${cli.length?cli.map(crmItem).join(''):'<div class="vazio">Nenhum cliente no período.</div>'}`;}
+
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
   try{let f;
@@ -1086,7 +1234,7 @@ document.addEventListener('click',()=>{tip.style.display='none';});
 
 // ═════════════ GAVETA (detalhes) ═════════════
 let painelAberto=null;
-function abrirPainel(id){painelAberto=id;tip.style.display='none';if(String(id).startsWith('cliente:'))carregarFicha(Number(String(id).slice(8)));else renderPainel();veu.classList.add('on');gaveta.classList.add('on');gaveta.setAttribute('aria-hidden','false');}
+function abrirPainel(id){painelAberto=id;tip.style.display='none';if(String(id).startsWith('cliente:'))carregarFicha(Number(String(id).slice(8)));else if(String(id).startsWith('agente:'))painelAgente(Number(String(id).slice(7)));else renderPainel();veu.classList.add('on');gaveta.classList.add('on');gaveta.setAttribute('aria-hidden','false');}
 function fecharPainel(){painelAberto=null;veu.classList.remove('on');gaveta.classList.remove('on');gaveta.setAttribute('aria-hidden','true');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharPainel();});
 function itemLead(l){const s=setorById(l.setor_id);const m=minDesde(l.entrou_setor_em);
@@ -1131,12 +1279,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','clientes','hoje','mes','funil','simulacao'];
+const TELAS=['escritorio','clientes','agentes','hoje','mes','funil','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
