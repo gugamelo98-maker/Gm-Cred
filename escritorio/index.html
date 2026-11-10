@@ -370,6 +370,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 .cmb-sel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--tx2);margin-bottom:12px}
 .cmb-sel select{border:1px solid var(--linha);border-radius:8px;padding:6px 8px;font:inherit;font-size:12.5px;background:#fff}
 .jr{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #f0f3f7;font-size:12.5px}
+@media (max-width:720px){.jr{flex-wrap:wrap;gap:2px 10px}.jr>span{min-width:0!important}}
 @media (max-width:1100px){.ag-grid{grid-template-columns:1fr}}
 @media (max-width:720px){.ag-sec{margin-left:12px;margin-right:12px}.agf-l{grid-template-columns:1fr;gap:4px}.ag-t .opc{display:none}.ag-nome>span{display:none}.cmb{grid-template-columns:70px repeat(3,1fr)!important}.cmb-c{padding:6px 2px;font-size:10.5px}.cmb-c b{font-size:14px}.ag-t th{white-space:normal}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -1038,24 +1039,28 @@ function renderAgentes(){
       ${st.map(({a,s})=>`<tr class="lin" onclick="abrirPainel('agente:${a.id}')"><td class="ag-nome"><b><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</b><span>${esc(a.abordagem||'')}</span></td>
         <td>${s.n}</td><td>${cel(s.tSeg,mSeg)}</td><td>${cel(s.tPerd,mPerd,true)}</td><td class="opc">${s.n?tempo(s.tm):'—'}</td></tr>`).join('')}</tbody></table>
       <div class="ag-nota">Só o trabalho deste setor: dos clientes que cada versão atendeu, quantos ${esc(SETOR_PASSO[set])} e quantos pararam aqui.${set==='recepcao'?' Sem margem não conta contra o agente.':''}</div></div>`;}).join('')}</div>`;
-  // 3) combinações
-  const [s1,s2]=agF.par,a1=A.filter(a=>a.setor===s1),a2=A.filter(a=>a.setor===s2);
-  const opt=v=>SETOR_ORD.map(x=>`<option value="${x}" ${x===v?'selected':''}>${SETOR_NOME[x]}</option>`).join('');
-  let mat='';
-  if(a1.length&&a2.length&&s1!==s2){mat=`<div class="cmb" style="grid-template-columns:140px repeat(${a2.length},1fr)"><div></div>${a2.map(b=>`<div class="cmb-h"><span class="vtag">${esc(b.versao)}</span>${esc(b.nome)}</div>`).join('')}
-      ${a1.map(a=>`<div class="cmb-h" style="text-align:left;align-self:center"><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</div>`+a2.map(b=>{const L=J.filter(j=>j.a&&j.a[s1]&&j.a[s2]&&j.a[s1][0]===a.id&&j.a[s2][0]===b.id&&j.g!=='sem_margem'),n=L.length,as=L.filter(assinou).length,t=pc(as,n);
-        const bg=n?`rgba(22,163,106,${0.08+0.7*(t||0)/100})`:'#f6f8fb';return `<div class="cmb-c" style="background:${bg};color:${(t||0)>55?'#fff':'var(--tx)'}"><b>${n?t+'%':'—'}</b>${n?as+' de '+n+' assinaram':'sem clientes'}${n&&n<MIN_AMOSTRA?'<br><span style="opacity:.75">poucos dados</span>':''}</div>`;}).join('')).join('')}</div>`;}
-  else mat='<div class="vazio">Escolha dois setores diferentes.</div>';
-  // jornadas completas
-  const chave=j=>['recepcao','simulacao','vendas'].map(x=>{const id=j.a&&j.a[x]&&j.a[x][0];const ag=A.find(a=>a.id===id);return ag?ag.versao:'·';}).join(' ');
-  const grp={};J.filter(j=>j.g!=='sem_margem'&&j.a&&j.a.vendas).forEach(j=>{const k=chave(j);(grp[k]=grp[k]||{n:0,as:0});grp[k].n++;if(assinou(j))grp[k].as++;});
+  // 3) o time de 6: a melhor versão de cada setor + os times reais que mais assinaram
+  const VEN=['recepcao','simulacao','vendas','formalizacao'];   // setores que decidem se o cliente assina
+  const lider=SETOR_ORD.map(set=>{const st=A.filter(a=>a.setor===set).map(a=>({a,s:statsAg(a,J)}));
+    const val=st.filter(x=>x.s.tSeg!=null).sort((x,y)=>y.s.tSeg-x.s.tSeg||y.s.n-x.s.n);
+    return{set,best:val[0]||null,ok:st.length>0&&st.every(x=>x.s.n>=MIN_AMOSTRA),st};});
+  const confi=lider.filter(l=>VEN.includes(l.set)).every(l=>l.ok&&l.best);
+  const est=lider.filter(l=>VEN.includes(l.set)).reduce((m,l)=>m*((l.best&&l.best.s.tSeg!=null?l.best.s.tSeg:0)/100),1);
+  const base=J.filter(j=>j.g!=='sem_margem'),hoje=pc(base.filter(assinou).length,base.length);
+  const timeHtml=lider.map(l=>{const b=l.best;return `<div class="jr" style="align-items:center"><span style="min-width:110px;color:var(--tx2)">${SETOR_NOME[l.set]}</span>
+      <span style="flex:1">${b?`${l.ok?'🏆 ':'<span title="Ainda poucos dados">⏳ </span>'}<span class="vtag">${esc(b.a.versao)}</span><b>${esc(b.a.nome)}</b> <span style="color:var(--tx3)">· ${esc(b.a.abordagem||'')}</span>`:'<span style="color:var(--tx3)">sem dados ainda</span>'}</span>
+      <b style="white-space:nowrap">${b?pcT(b.s.tSeg)+' <span style="font-weight:500;color:var(--tx3)">'+SETOR_COL[l.set].replace(/^./,c=>c.toLowerCase())+'</span>':''}</b></div>`;}).join('');
+  const chave=j=>VEN.map(x=>{const id=j.a&&j.a[x]&&j.a[x][0];const ag=A.find(a=>a.id===id);return ag?ag.versao:'·';}).join('');
+  const T3=['recepcao','simulacao','vendas'],chave3=j=>T3.map(x=>{const id=j.a[x][0];const ag=A.find(a=>a.id===id);return ag?ag.versao:'·';}).join('');
+  const grp={};J.filter(j=>j.g!=='sem_margem'&&j.a&&T3.every(x=>j.a[x])).forEach(j=>{const k=chave3(j);(grp[k]=grp[k]||{n:0,as:0});grp[k].n++;if(assinou(j))grp[k].as++;});
   const top=Object.entries(grp).filter(([,v])=>v.n>=3).map(([k,v])=>({k,...v,t:pc(v.as,v.n)})).sort((a,b)=>b.t-a.t||b.n-a.n);
-  const nomeJ=k=>k.split(' ').map((v,i)=>{const set=['recepcao','simulacao','vendas'][i];const ag=A.find(a=>a.setor===set&&a.versao===v);return ag?ag.nome+' ('+v+')':'—';}).join(' → ');
-  document.getElementById('agCombos').innerHTML=`<div class="ag-grid"><div class="fbox"><h4>🤝 Quem funciona melhor junto</h4>
-      <div class="cmb-sel">Combinar <select onchange="agF.par[0]=this.value;agSalvar()">${opt(s1)}</select> com <select onchange="agF.par[1]=this.value;agSalvar()">${opt(s2)}</select></div>${mat}
-      <div class="ag-nota">Cada quadrado: dos clientes atendidos por essa dupla (sem contar sem margem), quantos terminaram assinando. Quanto mais verde, melhor.</div></div>
-    <div class="fbox"><h4>🧭 Caminhos completos que mais assinam</h4>${top.length?`<div class="ag-nota" style="margin:-4px 0 6px">Recepção → Simulação → Vendas · % que terminou assinando (mínimo 3 clientes)</div>`+top.slice(0,6).map((x,i)=>`<div class="jr"><span>${i===0?'🏆 ':''}${esc(nomeJ(x.k))}</span><b style="white-space:nowrap">${x.t}% <span style="font-weight:500;color:var(--tx3)">(${x.as}/${x.n})</span></b></div>`).join('')
-      +(top.length>3?`<div class="ag-nota">Pior caminho: ${esc(nomeJ(top[top.length-1].k))} · ${top[top.length-1].t}% (${top[top.length-1].as}/${top[top.length-1].n})</div>`:''):'<div class="vazio">Ainda não há clientes suficientes passando por vendas.</div>'}</div></div>`;
+  const nomeT=k=>k.split('').map((v,i)=>{const ag=A.find(a=>a.setor===T3[i]&&a.versao===v);return ag?`<span class="vtag">${v}</span>${esc(ag.nome)}`:'—';}).join(' → ');
+  document.getElementById('agCombos').innerHTML=`<div class="ag-grid"><div class="fbox"><h4>🏆 Time ideal · a melhor versão de cada setor</h4>${timeHtml}
+      <div class="ag-nota">${confi?`Se todos os clientes passassem por esse time, a estimativa é que <b>${Math.round(est*100)}%</b> cheguem a assinar (hoje, com as 3 versões misturadas: <b>${pcT(hoje)}</b>).`:'⏳ Ainda há setores com poucos dados (menos de '+MIN_AMOSTRA+' clientes por versão). O time aparece, mas pode mudar conforme entrarem mais clientes.'}
+      Cada setor é escolhido pelo próprio trabalho dele (coluna verde das tabelas acima).</div></div>
+    <div class="fbox"><h4>🧭 Times que mais assinaram</h4><div class="ag-nota" style="margin:-4px 0 6px">Combinações reais de Recepção → Simulação → Vendas que os clientes passaram, ordenadas por % que terminou assinando (mínimo 3 clientes, sem contar sem margem). Formalização, Pós-venda e Recuperação são escolhidas no Time ideal ao lado.</div>
+      ${top.length?top.slice(0,6).map((x,i)=>`<div class="jr"><span>${i===0?'🏆 ':''}${nomeT(x.k)}</span><b style="white-space:nowrap">${x.t}% <span style="font-weight:500;color:var(--tx3)">(${x.as} de ${x.n})</span></b></div>`).join('')
+        +(top.length>3?`<div class="ag-nota">Pior time: ${nomeT(top[top.length-1].k)} · ${top[top.length-1].t}% (${top[top.length-1].as} de ${top[top.length-1].n})</div>`:''):'<div class="vazio">Ainda não há clientes suficientes que chegaram até Vendas.</div>'}</div></div>`;
 }
 function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPainel();return;}const s=statsAg(a,agJ());
   gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(agF.teste?' (com testes)':' (sem testes)');
