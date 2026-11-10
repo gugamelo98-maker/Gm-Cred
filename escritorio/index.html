@@ -316,6 +316,7 @@ button{font:inherit;cursor:pointer}
 .chip{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--tx2)}
 .chip b{color:var(--tx);margin-left:2px}.chip.on{background:var(--azul);border-color:var(--azul);color:#fff}.chip.on b{color:#fff}
 .crm-tab{border:1px solid #edf1f5;border-radius:12px;overflow:hidden}
+.crm-etq{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:4px}
 .crm-l{display:grid;grid-template-columns:1.6fr 1.1fr 1.1fr 1.9fr 1fr 1fr;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid #f0f3f7;font-size:13px;cursor:pointer}
 .crm-l:hover{background:#f7f9fc}
 .crm-h{background:#f6f8fb;border-top:0;font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;cursor:default}.crm-h:hover{background:#f6f8fb}
@@ -1374,23 +1375,24 @@ function renderMes(){
         <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`${P.realPag} contratos pagos · no ritmo atual fecha em <b>${brl(P.projLib)}</b> (${brl(P.projCom)} de comissão)`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div>${linhaComissao()}</div>`;
 }
 // ═════════════ CLIENTES (cadastro / CRM) ═════════════
-const CRM_GRUPOS=[['todos','Todos'],['andamento','Em andamento'],['pago','Pagos'],['perdido','Perdidos'],['sem_margem','Sem margem']];
+const CRM_GRUPOS=[['todos','Todos'],['andamento','Em atendimento'],['perdido','Finalizados'],['sem_margem','Sem margem'],['pago','Pagos']];
 const CRM_COR={andamento:['#eaf1ff','#1f55c4'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318'],sem_margem:['#eef1f5','#5b6878']};
 let crmF={grupo:'todos',busca:'',motivo:'',cat:''};
-function catPerda(c){const t=c.situacao||'';return t.startsWith('Sumiu')?'Parou de responder':t.startsWith('Desistiu')?'Desistiu':t;}
+function catPerda(c){if(c.etiqueta)return c.etiqueta;const t=c.situacao||'';return t.startsWith('Sumiu')?'Parou de responder':t.startsWith('Desistiu')?'Desistiu':t;}
 function verCat(cat){crmF={grupo:'perdido',busca:'',motivo:'',cat};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
 function fmtCpf(c){c=String(c||'').replace(/\D/g,'');return c.length===11?c.slice(0,3)+'.'+c.slice(3,6)+'.'+c.slice(6,9)+'-'+c.slice(9):(c||'—');}
 function fmtTel(t){t=String(t||'');const d=t.replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');if(/^\d{10,11}$/.test(d))return '('+d.slice(0,2)+') '+d.slice(2,-4)+'-'+d.slice(-4);return t||'—';}
 function quando(iso){if(!iso)return'—';const d=new Date(iso),h=new Date();return dataISO(d)===dataISO(h)?'hoje '+hora(iso):d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-function pillSit(c){const k=CRM_COR[c.grupo]||['#eef1f5','#5b6878'];return `<span class="sit" style="background:${k[0]};color:${k[1]}">${esc(c.situacao)}</span>`;}
+function pillSit(c){const k=CRM_COR[c.grupo]||['#eef1f5','#5b6878'];const t=c.grupo==='perdido'&&c.etiqueta?'Finalizado · '+c.etiqueta:c.situacao;return `<span class="sit" style="background:${k[0]};color:${k[1]}">${esc(t)}</span>`;}
 function crmItem(c){return `<div class="item" role="button" tabindex="0" style="cursor:pointer" onclick="abrirPainel('cliente:${c.id}')"><div class="t"><b>${esc(c.nome||fmtTel(c.telefone))}${c.teste?' <span class="pill" style="background:#eef1f5;color:#5b6878">teste</span>':''}</b><span>${fmtTel(c.telefone)} · entrou ${quando(c.entrou)}</span></div><div class="d">${pillSit(c)}</div></div>`;}
 function crmFiltrados(){const b=crmF.busca.trim().toLowerCase(),bd=b.replace(/\D/g,'');
   return (estado.crm||[]).filter(c=>(crmF.grupo==='todos'||c.grupo===crmF.grupo)&&(!crmF.cat||catPerda(c)===crmF.cat)&&(!crmF.motivo||(c.motivo||'Sem motivo informado')===crmF.motivo)
     &&(!b||String(c.nome||'').toLowerCase().includes(b)||(bd.length>=3&&(String(c.telefone||'').replace(/\D/g,'').includes(bd)||String(c.cpf||'').includes(bd)))));}
 function crmGrupo(g){crmF.grupo=g;crmF.motivo='';crmF.cat='';renderCrm();}
+
 function renderCrm(){const el=document.getElementById('crmLista');if(!el)return;const T=estado.crm||[];
   const n=g=>g==='todos'?T.length:T.filter(c=>c.grupo===g).length;
-  document.getElementById('crmChips').innerHTML=CRM_GRUPOS.map(([g,t])=>`<button class="chip ${crmF.grupo===g&&!crmF.motivo&&!crmF.cat?'on':''}" onclick="crmGrupo('${g}')">${t} <b>${n(g)}</b></button>`).join('')+(crmF.motivo?`<button class="chip on" onclick="crmF.motivo='';renderCrm()">Motivo: ${esc(crmF.motivo)} ✕</button>`:'')+(crmF.cat?`<button class="chip on" onclick="crmF.cat='';renderCrm()">${esc(crmF.cat)} ✕</button>`:'');
+  document.getElementById('crmChips').innerHTML=CRM_GRUPOS.map(([g,t])=>`<button class="chip ${crmF.grupo===g&&!crmF.motivo&&!crmF.cat?'on':''}" onclick="crmGrupo('${g}')">${t} <b>${n(g)}</b></button>`).join('')+(crmF.motivo?`<button class="chip on" onclick="crmF.motivo='';renderCrm()">Motivo: ${esc(crmF.motivo)} ✕</button>`:'')+(crmF.grupo==='perdido'?'<div class="crm-etq">'+Object.entries(T.filter(c=>c.grupo==='perdido').reduce((m,c)=>{const e=catPerda(c);m[e]=(m[e]||0)+1;return m;},{})).sort((a,b)=>b[1]-a[1]).map(([e,q])=>`<button class="chip ${crmF.cat===e?'on':''}" onclick="crmF.cat=crmF.cat==='${e}'?'':'${e}';renderCrm()">🏷️ ${esc(e)} <b>${q}</b></button>`).join('')+'</div>':(crmF.cat?`<button class="chip on" onclick="crmF.cat='';renderCrm()">${esc(crmF.cat)} ✕</button>`:''));
   const L=crmFiltrados();
   if(estado.crm==null){el.innerHTML='<div class="vazio">Carregando clientes…</div>';return;}
   if(!T.length){el.innerHTML='<div class="vazio">Nenhum cliente ainda. Todo cliente que entrar no escritório fica guardado aqui, com nome, número, CPF e onde parou.</div>';return;}
