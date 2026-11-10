@@ -991,8 +991,9 @@ function simUsarReais(){const {F,S}=dadosReais();if(!(Number(F.entraram||0)>0))r
 // ═════════════ AGENTES (versões A/B/C) ═════════════
 const SETOR_ORD=['recepcao','simulacao','vendas','formalizacao','posvenda','gerente'];
 const SETOR_NOME={recepcao:'Recepção',simulacao:'Simulação',vendas:'Vendas',formalizacao:'Formalização',posvenda:'Pós-venda',gerente:'Recuperação'};
-const SETOR_PASSO={recepcao:'foram para a simulação (mandaram CPF com margem)',simulacao:'foram para vendas (viram as ofertas)',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a responder'};
+const SETOR_PASSO={recepcao:'mandaram o CPF e tinham margem',simulacao:'receberam e viram as ofertas',vendas:'escolheram uma oferta',formalizacao:'assinaram o contrato',posvenda:'foram pagos',gerente:'voltaram a responder'};
 const MIN_AMOSTRA=10;
+const SETOR_COL={recepcao:'Mandaram CPF com margem',simulacao:'Viram as ofertas',vendas:'Escolheram uma oferta',formalizacao:'Assinaram',posvenda:'Foram pagos',gerente:'Voltaram a responder'};
 let agF={dias:30,teste:true,par:['recepcao','vendas']};
 try{const v=JSON.parse(lsGet('escritorio_agf')||'null');if(v)agF={...agF,...v};}catch(e){}
 function agSalvar(){lsSet('escritorio_agf',JSON.stringify(agF));renderAgentes();}
@@ -1021,7 +1022,7 @@ function renderAgentes(){
     const seg=L.filter(j=>seguiu(j,set)).length,aqui=L.filter(j=>!seguiu(j,set)),perd=aqui.filter(j=>j.g==='perdido').length,sm=aqui.filter(j=>j.g==='sem_margem').length,ab=aqui.length-perd-sm;
     const w=v=>n?(v/n*100):0;
     return `<div class="agf-l"><b>${SETOR_NOME[set]}</b><div class="agf-bar" title="${n} clientes">${n?`<i style="width:${w(seg)}%;background:${cor.seg}"></i><i style="width:${w(perd)}%;background:${cor.perd}"></i><i style="width:${w(sm)}%;background:${cor.sm}"></i><i style="width:${w(ab)}%;background:${cor.ab}"></i>`:''}</div>
-      <small>${n?`<b>${n}</b> chegaram · <b style="color:#0f7a4f">${pcT(pc(seg,n))}</b> ${set==='formalizacao'?'assinaram':set==='posvenda'?'pagos':'seguiram'} · <b style="color:#b42318">${pcT(pc(perd,n))}</b> pararam aqui`:'ninguém chegou aqui ainda'}</small></div>`;}).join('');
+      <small>${n?`<b>${n}</b> chegaram · <b style="color:#0f7a4f">${pcT(pc(seg,n))}</b> ${SETOR_COL[set].replace(/^./,c=>c.toLowerCase())} · <b style="color:#b42318">${pcT(pc(perd,n))}</b> pararam aqui`:'ninguém chegou aqui ainda'}</small></div>`;}).join('');
   const piorSet=SETOR_ORD.filter(x=>x!=='gerente').map(set=>{const L=J.filter(j=>j.a&&j.a[set]);const perd=L.filter(j=>!seguiu(j,set)&&j.g==='perdido').length;return[set,L.length,pc(perd,L.length)];}).filter(x=>x[1]>=MIN_AMOSTRA).sort((a,b)=>b[2]-a[2])[0];
   document.getElementById('agFunil').innerHTML=`<div class="fbox"><h4>🚦 Onde os clientes param na IA</h4><div class="ag-funil">${linhas}</div>
     <div class="ag-leg"><span><i style="background:${cor.seg}"></i>seguiram para a próxima etapa</span><span><i style="background:${cor.perd}"></i>pararam aqui (perdidos)</span><span><i style="background:${cor.sm}"></i>sem margem</span><span><i style="background:${cor.ab}"></i>ainda em atendimento</span></div>
@@ -1030,13 +1031,13 @@ function renderAgentes(){
   el.innerHTML=`<div class="ag-grid">${SETOR_ORD.map(set=>{const ags=A.filter(a=>a.setor===set);if(!ags.length)return'';
     const st=ags.map(a=>({a,s:statsAg(a,J)}));const ok=st.every(x=>x.s.n>=MIN_AMOSTRA);
     const marca=(k)=>{if(!ok)return{};const v=st.map(x=>x.s[k]).filter(x=>x!=null);if(v.length<2)return{};const mx=Math.max(...v),mn=Math.min(...v);return mx===mn?{}:{mx,mn};};
-    const mSeg=marca('tSeg'),mAss=marca('tAss'),mPerd=marca('tPerd');
+    const mSeg=marca('tSeg'),mPerd=marca('tPerd');
     const cel=(v,m,inv)=>{const c=m.mx==null?'':(v===(inv?m.mn:m.mx)?'melhor':v===(inv?m.mx:m.mn)?'pior':'');return `<span class="${c}">${c==='melhor'?'🏆 ':''}${pcT(v)}</span><span class="mini"><i style="width:${v||0}%;${inv?'background:#e5484d':''}"></i></span>`;};
     return `<div class="fbox ag-card"><h4>${SETOR_NOME[set]}<span class="meta-ag">${ok?'':'⏳ poucos dados: comparação ainda não é confiável'}</span></h4>
-      <table class="ag-t"><thead><tr><th>Versão</th><th>Atendidos</th><th title="${esc(SETOR_PASSO[set])}">${set==='formalizacao'?'Assinaram':set==='posvenda'?'Pagos':set==='gerente'?'Voltaram':'Seguiram'}</th><th>Pararam aqui</th><th class="opc" title="Dos clientes que passaram por esse agente, quantos terminaram assinando">Assinaram (final)</th><th class="opc">Pagos</th><th class="opc">Tempo médio</th></tr></thead><tbody>
+      <table class="ag-t"><thead><tr><th>Versão</th><th>Atendidos</th><th>${SETOR_COL[set]}</th><th>Pararam aqui</th><th class="opc">Tempo médio</th></tr></thead><tbody>
       ${st.map(({a,s})=>`<tr class="lin" onclick="abrirPainel('agente:${a.id}')"><td class="ag-nome"><b><span class="vtag">${esc(a.versao)}</span>${esc(a.nome)}</b><span>${esc(a.abordagem||'')}</span></td>
-        <td>${s.n}</td><td>${cel(s.tSeg,mSeg)}</td><td>${cel(s.tPerd,mPerd,true)}</td><td class="opc">${cel(s.tAss,mAss)}</td><td class="opc">${s.pag}</td><td class="opc">${s.n?tempo(s.tm):'—'}</td></tr>`).join('')}</tbody></table>
-      <div class="ag-nota">${esc(SETOR_NOME[set])}: “${set==='formalizacao'?'Assinaram':set==='posvenda'?'Pagos':set==='gerente'?'Voltaram':'Seguiram'}” = ${esc(SETOR_PASSO[set])}. Sem margem não conta contra o agente.</div></div>`;}).join('')}</div>`;
+        <td>${s.n}</td><td>${cel(s.tSeg,mSeg)}</td><td>${cel(s.tPerd,mPerd,true)}</td><td class="opc">${s.n?tempo(s.tm):'—'}</td></tr>`).join('')}</tbody></table>
+      <div class="ag-nota">Só o trabalho deste setor: dos clientes que cada versão atendeu, quantos ${esc(SETOR_PASSO[set])} e quantos pararam aqui.${set==='recepcao'?' Sem margem não conta contra o agente.':''}</div></div>`;}).join('')}</div>`;
   // 3) combinações
   const [s1,s2]=agF.par,a1=A.filter(a=>a.setor===s1),a2=A.filter(a=>a.setor===s2);
   const opt=v=>SETOR_ORD.map(x=>`<option value="${x}" ${x===v?'selected':''}>${SETOR_NOME[x]}</option>`).join('');
@@ -1060,8 +1061,8 @@ function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPain
   gTit.innerHTML=`<span class="vtag">${esc(a.versao)}</span>${esc(a.nome)} · ${esc(SETOR_NOME[a.setor]||a.setor)}`;gSub.textContent=(a.abordagem||'')+' · últimos '+agF.dias+' dias'+(agF.teste?' (com testes)':' (sem testes)');
   const P=Object.entries(s.paradas).sort((x,y)=>y[1]-x[1]);
   const cli=s.L.slice(0,60).map(j=>(estado.crm||[]).find(c=>c.id===j.l)||{id:j.l,nome:'Cliente #'+j.l,situacao:j.s,grupo:j.g,telefone:'',entrou:j.e});
-  gCorpo.innerHTML=`<div class="g-kpis"><div><b>${s.n}</b><span>Clientes atendidos</span></div><div><b style="color:#0f7a4f">${pcT(s.tSeg)}</b><span>${a.setor==='formalizacao'?'Assinaram':a.setor==='posvenda'?'Pagos':a.setor==='gerente'?'Voltaram':'Seguiram'}</span></div>
-      <div><b style="color:#b42318">${pcT(s.tPerd)}</b><span>Pararam aqui</span></div><div><b>${pcT(s.tAss)}</b><span>Assinaram (final)</span></div></div>
+  gCorpo.innerHTML=`<div class="g-kpis"><div><b>${s.n}</b><span>Clientes atendidos</span></div><div><b style="color:#0f7a4f">${pcT(s.tSeg)}</b><span>${SETOR_COL[a.setor]}</span></div>
+      <div><b style="color:#b42318">${pcT(s.tPerd)}</b><span>Pararam aqui</span></div><div><b>${s.n?tempo(s.tm):'—'}</b><span>Tempo médio no setor</span></div></div>
     <div class="g-sec">Onde os clientes pararam com ${esc(a.nome)} · ${P.reduce((x,y)=>x+y[1],0)}</div>
     ${P.length?P.map(([t,n])=>`<div class="mot"><span>${esc(t)}</span><b>${n}</b></div>`).join(''):'<div class="vazio">Nenhum cliente parou aqui.</div>'}
     <div class="g-sec">Clientes atendidos · ${s.n}</div>${cli.length?cli.map(crmItem).join(''):'<div class="vazio">Nenhum cliente no período.</div>'}`;}
