@@ -51,3 +51,10 @@ begin
           'gastos', coalesce((select sum(valor) from credito.gastos where data >= m and data < (m + interval '1 month')::date), 0)) order by m desc)
         from (select generate_series(date_trunc('month', v_hoje) - interval '5 months', date_trunc('month', v_hoje), interval '1 month')::date m) s));
 end $function$;
+
+-- 2026-11-10: categoria "numeros" (gasto com números de WhatsApp).
+-- A coluna "tipo" guarda a categoria real; a coluna antiga "categoria" (com a regra original de 4 valores) recebe "outros"
+-- para os tipos novos, e a função lê coalesce(tipo, categoria). Assim não foi preciso remover a regra antiga.
+alter table credito.gastos add column if not exists tipo text;
+-- em credito.financeiro_api: valida ('disparos','numeros','trafego','bms','outros'); grava categoria = 'outros' quando o tipo é
+-- 'numeros' e tipo = categoria escolhida; lista e soma por coalesce(tipo, categoria). (versão em vigor: a aplicada no banco)

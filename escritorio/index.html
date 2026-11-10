@@ -531,10 +531,10 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <div class="fbox" id="finCat"></div>
   <div class="fbox"><h4>➕ Lançar gasto</h4>
     <form class="fin-form" id="finForm" onsubmit="finSalvar(event)">
-      <label>Categoria<select id="finCatIn"><option value="disparos">📤 Disparos de WhatsApp</option><option value="trafego">📣 Tráfego pago</option><option value="bms">🧩 BMs</option><option value="outros">📎 Outros</option></select></label>
+      <label>Categoria<select id="finCatIn"><option value="disparos">📤 Disparos de WhatsApp</option><option value="numeros">📱 Números de WhatsApp</option><option value="trafego">📣 Tráfego pago</option><option value="bms">🧩 BMs</option><option value="outros">📎 Outros</option></select></label>
       <label>Valor (R$)<input id="finValor" inputmode="decimal" placeholder="0,00" autocomplete="off" required></label>
       <label>Data<input id="finData" type="date" required></label>
-      <label class="larg">Descrição (opcional)<input id="finDesc" maxlength="200" placeholder="Ex.: 5.000 disparos, campanha Facebook, BM nova"></label>
+      <label class="larg">Descrição (opcional)<input id="finDesc" maxlength="200" placeholder="Ex.: 5.000 disparos, 3 chips novos, campanha Facebook, BM nova"></label>
       <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="finBtn" type="submit" style="padding:9px 16px;font-size:13px">Salvar gasto</button><span class="fin-erro" id="finErro" role="alert"></span></div>
     </form></div>
 </div></section>
@@ -1144,14 +1144,14 @@ function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPain
     <div class="g-sec">Clientes atendidos · ${s.n}</div>${cli.length?cli.map(crmItem).join(''):'<div class="vazio">Nenhum cliente no período.</div>'}`;}
 
 // ═════════════ FINANCEIRO (gastos, lucro e retorno) ═════════════
-const FIN_CAT={disparos:['📤','Disparos de WhatsApp','#16a36a'],trafego:['📣','Tráfego pago','#2f6fed'],bms:['🧩','BMs','#8a5cd6'],outros:['📎','Outros','#8a96a5']};
+const FIN_CAT={disparos:['📤','Disparos de WhatsApp','#16a36a'],numeros:['📱','Números de WhatsApp','#e0a100'],trafego:['📣','Tráfego pago','#2f6fed'],bms:['🧩','BMs','#8a5cd6'],outros:['📎','Outros','#8a96a5']};
 let finMesAtual=null,finDados=null,finOcupado=false,demoGastos=null;
 function mesISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function nomeMes(m){const [y,mm]=m.split('-').map(Number);const t=new Date(y,mm-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1);}
 function finMes(delta){const [y,m]=finMesAtual.split('-').map(Number);const d=new Date(y,m-1+delta,1);if(mesISO(d)>mesISO(new Date()))return;finMesAtual=mesISO(d);finCarregar();}
 function finDemo(acao,extra){
   if(!demoGastos){const h=new Date(),d=n=>dataISO(new Date(h.getFullYear(),h.getMonth(),Math.max(1,h.getDate()-n)));let i=0;
-    demoGastos=[[0,'trafego',180,'Campanha Facebook · CLT'],[1,'disparos',240,'6.000 disparos'],[2,'trafego',175,'Campanha Facebook · CLT'],[3,'bms',350,'BM nova'],[5,'disparos',200,'5.000 disparos'],[6,'trafego',190,'Campanha Instagram'],[8,'outros',99,'Ferramenta de números']].map(g=>({id:++i,data:d(g[0]),categoria:g[1],valor:g[2],descricao:g[3]}));}
+    demoGastos=[[0,'trafego',180,'Campanha Facebook · CLT'],[1,'disparos',240,'6.000 disparos'],[2,'trafego',175,'Campanha Facebook · CLT'],[3,'bms',350,'BM nova'],[4,'numeros',120,'3 chips novos'],[5,'disparos',200,'5.000 disparos'],[6,'trafego',190,'Campanha Instagram'],[8,'outros',99,'Ferramenta de números']].map(g=>({id:++i,data:d(g[0]),categoria:g[1],valor:g[2],descricao:g[3]}));}
   if(acao==='salvar')demoGastos.unshift({id:Date.now(),data:extra.data,categoria:extra.categoria,valor:Number(extra.valor),descricao:extra.descricao});
   if(acao==='apagar')demoGastos=demoGastos.filter(g=>String(g.id)!==String(extra.id));
   const noMes=m=>demoGastos.filter(g=>g.data.slice(0,7)===m),V=estado.vendas||[],vm=m=>V.filter(x=>x.dia.slice(0,7)===m),soma=(a,k)=>a.reduce((s,x)=>s+Number(x[k]||0),0);
