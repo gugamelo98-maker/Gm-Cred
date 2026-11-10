@@ -383,7 +383,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <section class="crm" aria-label="Cadastro de clientes">
   <div class="fbox">
     <div class="crm-topo"><h4>👥 Clientes · todos que já entraram no escritório</h4><button class="bt" onclick="crmCsv()">⬇ Baixar planilha</button></div>
-    <div class="crm-filtros"><input id="crmBusca" type="search" placeholder="Buscar por nome, telefone ou CPF" oninput="crmF.busca=this.value;crmF.motivo='';renderCrm()" aria-label="Buscar cliente"><div class="chips" id="crmChips"></div></div>
+    <div class="crm-filtros"><input id="crmBusca" type="search" placeholder="Buscar por nome, telefone ou CPF" oninput="crmF.busca=this.value;crmF.motivo='';crmF.cat='';renderCrm()" aria-label="Buscar cliente"><div class="chips" id="crmChips"></div></div>
     <div id="crmLista"></div>
   </div>
 </section>
@@ -661,8 +661,8 @@ function demoTick(){
     saude:{v8:{ok:true,detalhe:'Última chamada há 1 min, sem erros'},whatsapp:{ok:true,detalhe:'2 de 2 números conectados'},n8n:{ok:true,detalhe:'Sem erros na última hora'}}});
 }
 let demoHist=null;
-function demoCrm(o){const cpf=()=>String(rnd(10000000000,99999999999)),SIT_ATIVO={respondeu:['Conversando · sem CPF',1],cpf_ok:['Mandou o CPF · consultando',2],simulado:['Recebeu as ofertas',3],proposta:['Recebeu as ofertas',3],negociando:['Recebeu as ofertas',3],fechou:['Escolheu a oferta · falta PIX',4],link_env:['Proposta enviada · falta assinar',4],assinou:['Assinou · aguardando pagamento',5]};
-  if(!demoHist){demoHist=[];const H=[['Pago','pago',6,null],['Pago','pago',6,null],['Pago','pago',6,null],['Sem margem','perdido',2,'Sem margem disponível'],['Sem margem','perdido',2,'Sem margem disponível'],['Desistiu','perdido',1,'Sem vínculo CLT ativo'],['Desistiu depois das ofertas','perdido',3,'Achou a parcela alta'],['Desistiu','perdido',2,'Não quis informar dados'],['Parou de responder · viu as ofertas','parado',3,'Parou de responder'],['Parou de responder · mandou o CPF','parado',2,'Parou de responder'],['Proposta cancelada','perdido',5,null]];
+function demoCrm(o){const cpf=()=>String(rnd(10000000000,99999999999)),SIT_ATIVO={respondeu:['Conversando · sem CPF',1],cpf_ok:['Mandou o CPF · consultando',2],simulado:['Recebeu as ofertas',3],proposta:['Recebeu as ofertas',3],negociando:['Recebeu as ofertas',3],fechou:['Escolheu a oferta · falta PIX',4],link_env:['Link enviado · falta assinar',4],assinou:['Assinou · aguardando pagamento',5]};
+  if(!demoHist){demoHist=[];const H=[['Pago','pago',6,null],['Pago','pago',6,null],['Pago','pago',6,null],['Sem margem','sem_margem',2,'Sem margem disponível'],['Sem margem','sem_margem',2,'Sem margem disponível'],['Desistiu','perdido',1,'Sem vínculo CLT ativo'],['Desistiu depois das ofertas','perdido',3,'Achou a parcela alta'],['Recebeu o link e não assinou','perdido',4,null],['Parou de responder · viu as ofertas','perdido',3,'Parou de responder'],['Parou de responder · mandou o CPF','perdido',2,'Parou de responder'],['Cancelou o contrato','perdido',5,null]];
     for(let i=0;i<48;i++){const h=H[i%H.length],dias=rnd(0,29),ent=new Date(Date.now()-dias*86400000-rnd(1,600)*60000);const v=rnd(3000,9000);
       demoHist.push({id:5000+i,nome:DEMO_NOMES[(i*7+3)%DEMO_NOMES.length].split(' ')[0]+' '+['Moura','Teixeira','Ramos','Freitas','Lopes','Vieira','Araújo','Gomes'][i%8],telefone:'55489'+rnd(10000000,99999999),cpf:cpf(),situacao:h[0],grupo:h[1],etapa:h[2],motivo:h[3],margem:h[2]>=3?rnd(250,900):null,oferta:h[2]>=4?{valor:v,prazo:46,parcela:Math.round(v/16)}:null,entrou:ent.toISOString(),ultima:new Date(ent.getTime()+rnd(5,300)*60000).toISOString(),teste:false});}}
   const at=o.leads.map(l=>{const k=l.aguardando==='humano'?['Com atendente humano',3]:(SIT_ATIVO[l.status]||['Conversando · sem CPF',1]);return{id:l.id,nome:l.nome,telefone:l.telefone,cpf:k[1]>=2?(l._cpf=l._cpf||cpf()):null,situacao:k[0],grupo:'andamento',etapa:k[1],motivo:null,margem:k[1]>=3?412:null,oferta:k[1]>=4?{valor:l.valor,prazo:46,parcela:Math.round(l.valor/16)}:null,entrou:new Date(Date.now()-rnd(5,300)*60000).toISOString(),ultima:l.ultima_interacao,teste:false};});
@@ -778,9 +778,15 @@ function renderFunil(){const el=document.getElementById('funilSec');const F=(est
   const et=[['Entraram',F.entraram],['Enviaram CPF',F.enviaram_cpf],['Com margem',F.com_margem],['Receberam proposta',F.receberam_proposta],['Assinaram',F.assinaram],['Pagos',F.pagos]];
   const rows=et.map(([n,v],i)=>{v=Number(v||0);const pct=base?Math.round(v/base*100):0;const ant=i?Number(et[i-1][1]||0):0;
     return `<div class="fl" title="${i&&ant?Math.round(v/ant*100)+'% de quem chegou na etapa anterior':''}"><span>${n}</span><div class="bar"><i style="width:${base?Math.max(v?2:0,pct):0}%"></i></div><div class="v">${v}<small>${i?pct+'% do total':'100%'}</small></div></div>`;}).join('');
-  const M=F.motivos_perda||[];
+  const C30=(estado.crm||[]).filter(c=>c.entrou&&Date.now()-new Date(c.entrou).getTime()<=30*86400000);
+  if(C30.length){const cont={};C30.filter(c=>c.grupo==='perdido').forEach(c=>{const k=catPerda(c);cont[k]=(cont[k]||0)+1;});
+    const L=['Parou de responder','Recebeu o link e não assinou','Cancelou o contrato','Desistiu'].map(k=>[k,cont[k]||0]),tot=L.reduce((a,x)=>a+x[1],0),sm=C30.filter(c=>c.grupo==='sem_margem').length;
+    el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
+    <div class="fbox"><h4>❌ Onde perdemos clientes · ${tot}</h4>${L.map(([k,n])=>`<button class="mot" onclick="verCat(this.dataset.c)" data-c="${esc(k)}" title="Ver esses clientes"><span>${esc(k)}</span><b>${n} ›</b></button>`).join('')}
+      <button class="mot" style="margin-top:10px;color:var(--tx2)" onclick="crmF={grupo:'sem_margem',busca:'',motivo:'',cat:''};irPara('clientes')" title="Não conta como perda: o cliente não tinha margem"><span>🚫 Sem margem (fora das perdas)</span><b>${sm} ›</b></button></div>`;return;}
+  const TODOS=F.motivos_perda||[],ehSM=m=>/^sem margem/i.test(m.motivo||''),M=TODOS.filter(m=>!ehSM(m)),SM=TODOS.filter(ehSM).reduce((a,m)=>a+Number(m.total||0),0),totP=M.reduce((a,m)=>a+Number(m.total||0),0);
   el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
-    <div class="fbox"><h4>❌ Onde perdemos clientes · ${F.perdidos||0}</h4>${M.length?M.map(m=>`<button class="mot" onclick="verMotivo(this.dataset.m)" data-m="${esc(m.motivo)}" title="Ver esses clientes"><span>${esc(m.motivo)}</span><b>${m.total} ›</b></button>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}</div>`;}
+    <div class="fbox"><h4>❌ Onde perdemos clientes · ${totP}</h4>${M.length?M.map(m=>`<button class="mot" onclick="verMotivo(this.dataset.m)" data-m="${esc(m.motivo)}" title="Ver esses clientes"><span>${esc(m.motivo)}</span><b>${m.total} ›</b></button>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}<button class="mot" style="margin-top:10px;color:var(--tx2)" onclick="crmF={grupo:'sem_margem',busca:'',motivo:'',cat:''};irPara('clientes')" title="Não conta como perda: o cliente não tinha margem"><span>🚫 Sem margem (fora das perdas)</span><b>${SM} ›</b></button></div>`;}
 function renderSaude(){const S=estado.saude||{};
   const it=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>[n,x||{}]);
   const erro=it.filter(([,x])=>x.ok===false),ok=it.every(([,x])=>x.ok===true);
@@ -986,21 +992,23 @@ function renderMes(){
         <div class="meta-linha"><span>${P.vazio?'ainda sem vendas este mês':`${P.realPag} contratos pagos · no ritmo atual fecha em <b>${brl(P.projLib)}</b> (${brl(P.projCom)} de comissão)`}</span><b>${pm}% da meta de ${brl(P.metaMes)}</b></div></div></div>`;
 }
 // ═════════════ CLIENTES (cadastro / CRM) ═════════════
-const CRM_GRUPOS=[['todos','Todos'],['andamento','Em andamento'],['parado','Parou de responder'],['pago','Pagos'],['perdido','Perdidos']];
-const CRM_COR={andamento:['#eaf1ff','#1f55c4'],parado:['#fff4dc','#8a6200'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318']};
-let crmF={grupo:'todos',busca:'',motivo:''};
+const CRM_GRUPOS=[['todos','Todos'],['andamento','Em andamento'],['pago','Pagos'],['perdido','Perdidos'],['sem_margem','Sem margem']];
+const CRM_COR={andamento:['#eaf1ff','#1f55c4'],pago:['#e3f7ee','#0f7a4f'],perdido:['#fde8e8','#b42318'],sem_margem:['#eef1f5','#5b6878']};
+let crmF={grupo:'todos',busca:'',motivo:'',cat:''};
+function catPerda(c){const t=c.situacao||'';return t.startsWith('Parou de responder')?'Parou de responder':t.startsWith('Desistiu')?'Desistiu':t;}
+function verCat(cat){crmF={grupo:'perdido',busca:'',motivo:'',cat};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
 function fmtCpf(c){c=String(c||'').replace(/\D/g,'');return c.length===11?c.slice(0,3)+'.'+c.slice(3,6)+'.'+c.slice(6,9)+'-'+c.slice(9):(c||'—');}
 function fmtTel(t){t=String(t||'');const d=t.replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');if(/^\d{10,11}$/.test(d))return '('+d.slice(0,2)+') '+d.slice(2,-4)+'-'+d.slice(-4);return t||'—';}
 function quando(iso){if(!iso)return'—';const d=new Date(iso),h=new Date();return dataISO(d)===dataISO(h)?'hoje '+hora(iso):d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
 function pillSit(c){const k=CRM_COR[c.grupo]||['#eef1f5','#5b6878'];return `<span class="sit" style="background:${k[0]};color:${k[1]}">${esc(c.situacao)}</span>`;}
 function crmItem(c){return `<div class="item" role="button" tabindex="0" style="cursor:pointer" onclick="abrirPainel('cliente:${c.id}')"><div class="t"><b>${esc(c.nome||fmtTel(c.telefone))}${c.teste?' <span class="pill" style="background:#eef1f5;color:#5b6878">teste</span>':''}</b><span>${fmtTel(c.telefone)} · entrou ${quando(c.entrou)}</span></div><div class="d">${pillSit(c)}</div></div>`;}
 function crmFiltrados(){const b=crmF.busca.trim().toLowerCase(),bd=b.replace(/\D/g,'');
-  return (estado.crm||[]).filter(c=>(crmF.grupo==='todos'||c.grupo===crmF.grupo)&&(!crmF.motivo||(c.motivo||'Sem motivo informado')===crmF.motivo)
+  return (estado.crm||[]).filter(c=>(crmF.grupo==='todos'||c.grupo===crmF.grupo)&&(!crmF.cat||catPerda(c)===crmF.cat)&&(!crmF.motivo||(c.motivo||'Sem motivo informado')===crmF.motivo)
     &&(!b||String(c.nome||'').toLowerCase().includes(b)||(bd.length>=3&&(String(c.telefone||'').replace(/\D/g,'').includes(bd)||String(c.cpf||'').includes(bd)))));}
-function crmGrupo(g){crmF.grupo=g;crmF.motivo='';renderCrm();}
+function crmGrupo(g){crmF.grupo=g;crmF.motivo='';crmF.cat='';renderCrm();}
 function renderCrm(){const el=document.getElementById('crmLista');if(!el)return;const T=estado.crm||[];
   const n=g=>g==='todos'?T.length:T.filter(c=>c.grupo===g).length;
-  document.getElementById('crmChips').innerHTML=CRM_GRUPOS.map(([g,t])=>`<button class="chip ${crmF.grupo===g&&!crmF.motivo?'on':''}" onclick="crmGrupo('${g}')">${t} <b>${n(g)}</b></button>`).join('')+(crmF.motivo?`<button class="chip on" onclick="crmF.motivo='';renderCrm()">Motivo: ${esc(crmF.motivo)} ✕</button>`:'');
+  document.getElementById('crmChips').innerHTML=CRM_GRUPOS.map(([g,t])=>`<button class="chip ${crmF.grupo===g&&!crmF.motivo&&!crmF.cat?'on':''}" onclick="crmGrupo('${g}')">${t} <b>${n(g)}</b></button>`).join('')+(crmF.motivo?`<button class="chip on" onclick="crmF.motivo='';renderCrm()">Motivo: ${esc(crmF.motivo)} ✕</button>`:'')+(crmF.cat?`<button class="chip on" onclick="crmF.cat='';renderCrm()">${esc(crmF.cat)} ✕</button>`:'');
   const L=crmFiltrados();
   if(!T.length){el.innerHTML='<div class="vazio">Nenhum cliente ainda. Todo cliente que entrar no escritório fica guardado aqui, com nome, número, CPF e onde parou.</div>';return;}
   if(!L.length){el.innerHTML='<div class="vazio">Nenhum cliente com esse filtro.</div>';return;}
@@ -1015,7 +1023,7 @@ function crmCsv(){const L=crmFiltrados(),q=v=>'"'+String(v??'').replace(/"/g,'""
   const linhas=[['Nome','Telefone','CPF','Situação','Motivo','Margem','Valor da oferta','Prazo','Parcela','Entrou em','Última conversa','Teste']].concat(L.map(c=>[c.nome,fmtTel(c.telefone),fmtCpf(c.cpf),c.situacao,c.motivo,c.margem,c.oferta&&c.oferta.valor,c.oferta&&c.oferta.prazo,c.oferta&&c.oferta.parcela,c.entrou&&new Date(c.entrou).toLocaleString('pt-BR'),c.ultima&&new Date(c.ultima).toLocaleString('pt-BR'),c.teste?'sim':'']));
   const blob=new Blob(['﻿'+linhas.map(r=>r.map(q).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='clientes-gmcred-'+hojeISO()+'.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
-function verMotivo(m){crmF={grupo:'todos',busca:'',motivo:m};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
+function verMotivo(m){crmF={grupo:'todos',busca:'',motivo:m,cat:''};const i=document.getElementById('crmBusca');if(i)i.value='';irPara('clientes');}
 function itemContrato(c){const e=ETAPAS[c.etapa]||{cor:'#999'};
   return `<div class="item"><div class="av" style="display:grid;place-items:center;font-size:16px;background:${e.cor}22">${(ETAPAS[c.etapa]||{}).icone||'📄'}</div>
     <div class="t"><b>${esc(c.nome||'Cliente')}</b><span>${c.parcelas||'?'}x de ${brlFull(c.valor_parcela)} · ${c.com_seguro?'com seguro':'sem seguro'} · ${c.percentual!=null?String(c.percentual).replace('.',',')+'%':'—'}</span></div>

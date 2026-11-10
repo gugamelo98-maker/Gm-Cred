@@ -40,3 +40,8 @@ begin
                                          'vendas', credito.vendas_diarias()::jsonb,
                                          'crm', credito.crm_clientes()::jsonb))::json;
 end $function$;
+
+-- 2026-11-10 (ajuste pedido pelo dono): "Sem margem" tem aba própria (grupo sem_margem) e não conta como perda.
+-- Perdidos = parou de responder (24h) + recebeu o link e não assinou (24h) + cancelou o contrato + desistiu.
+-- (a versão em vigor de credito.situacao_lead é a aplicada no banco nesta data; textos: "Cancelou o contrato",
+--  "Recebeu o link e não assinou", "Link enviado · falta assinar", grupo "sem_margem")
