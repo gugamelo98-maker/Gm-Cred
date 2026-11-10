@@ -19,3 +19,13 @@ on conflict (chave) do nothing;
 -- credito.campanha_api(k, acao, dados): versão em vigor é a aplicada no banco nesta data
 -- (importa normalizando o telefone para 55+DDD+número, descarta inválidos e repetidos — inclusive quem já é cliente —,
 --  liga/pausa, salva a mensagem e devolve fila, enviados, responderam e a lista com CPF mascarado).
+
+-- 2026-11-10: WhatsApp ligado (instância "gmcred-campanha", webhook MESSAGES_UPSERT -> /webhook/gmcred/whatsapp)
+--  * n8n "GM Cred · WhatsApp (entrada)": recebe a mensagem, credito.receber_whatsapp(tel, texto, nome), espera 8 s,
+--    confere se é a última da sequência e chama o Agente;
+--  * n8n "GM Cred · WhatsApp (envio)": a cada minuto, credito.wpp_pendentes() (faz o passo da campanha quando passou o
+--    intervalo e devolve as mensagens de saída ainda não enviadas dos leads de WhatsApp) -> Evolution sendText -> wpp_marcar.
+--  * credito.conversas.enviado_wpp marca o que já saiu; credito.tel_lead() casa o número com ou sem o 9.
+--  * áudio pelo WhatsApp ainda não é transcrito: vira "🎤 (áudio que não deu para entender)" e a Ana pede para escrever.
+alter table credito.conversas add column if not exists enviado_wpp timestamptz;
+update credito.configuracoes set valor = valor || '{"instancia":"gmcred-campanha"}'::jsonb where chave = 'campanha';
