@@ -1249,15 +1249,26 @@ function renderFinanceiro(){const D=finDados;if(!D||typeof telaAtual==='undefine
 // ═════════════ CAMPANHA (a IA chama os clientes importados) ═════════════
 let cpDados=null,cpLinhas=[],cpDemo=null;
 const CP_ST={na_fila:['Na fila','#eaf1ff','#1f55c4'],enviado:['Enviado','#e3f7ee','#0f7a4f'],erro:['Erro','#fde8e8','#b42318']};
+function cpCpfOk(c){c=String(c).replace(/\D/g,'');if(c.length!==11||/^(\d)\1+$/.test(c))return false;for(const t of [9,10]){let x=0;for(let i=0;i<t;i++)x+=Number(c[i])*(t+1-i);if((x*10)%11%10!==Number(c[t]))return false;}return true;}
 function cpLer(txt){const L=String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);if(!L.length)return[];
   const sep=L[0].includes('\t')?'\t':(L[0].split(';').length>=L[0].split(',').length?';':',');
-  let cab=L[0].toLowerCase().split(sep).map(x=>x.trim().replace(/"/g,''));const temCab=cab.some(x=>/nome|tel|fone|celular|whats|cpf|margem/.test(x));
+  const cab=L[0].toLowerCase().split(sep).map(x=>x.trim().replace(/"/g,''));const temCab=cab.some(x=>/nome|tel|fone|celular|whats|cpf|margem/.test(x));
   const idx=k=>temCab?cab.findIndex(x=>k.test(x)):-1;
-  let iN=idx(/nome/),iT=idx(/tel|fone|celular|whats|n[uú]mero/),iC=idx(/cpf/),iM=idx(/margem|parcela|valor/);
-  if(!temCab){iN=0;iT=1;iC=2;iM=3;}
-  return (temCab?L.slice(1):L).map(l=>{const c=l.split(sep).map(x=>x.trim().replace(/^"|"$/g,''));const m=iM>=0?String(c[iM]||'').replace(/[^\d,.]/g,''):'';
-    return{nome:iN>=0?c[iN]||'':'',telefone:iT>=0?c[iT]||'':'',cpf:iC>=0?c[iC]||'':'',margem:m.includes(',')?m.replace(/\./g,'').replace(',','.'):m};}).filter(x=>String(x.telefone).replace(/\D/g,'').length>=10);}
-function cpAtualizarPrev(){cpLinhas=cpLer(document.getElementById('cpTexto').value);document.getElementById('cpPrev').textContent=cpLinhas.length?cpLinhas.length+' cliente(s) com telefone encontrados':'';document.getElementById('cpImp').disabled=!cpLinhas.length;}
+  const H={n:idx(/nome/),t:idx(/tel|fone|celular|whats|n[uú]mero/),c:idx(/cpf/),m:idx(/margem|parcela|valor/)};
+  const out=[];
+  for(const l of (temCab?L.slice(1):L)){const c=l.split(sep).map(x=>x.trim().replace(/^"|"$/g,''));
+    let nome=H.n>=0?c[H.n]||'':'',tel=H.t>=0?c[H.t]||'':'',cpf=H.c>=0?c[H.c]||'':'',mar=H.m>=0?c[H.m]||'':'';
+    // reconhece pelo conteúdo o que não veio pelo título (colunas em qualquer ordem)
+    c.forEach((v,i)=>{if([H.n,H.t,H.c,H.m].includes(i))return;const d=v.replace(/\D/g,'');
+      if(!cpf&&d.length===11&&cpCpfOk(d)&&(d.length!==v.replace(/[\s()+-]/g,'').length||/[.-]/.test(v)||!tel))cpf=v;
+      else if(!tel&&d.length>=10&&d.length<=13&&!/[a-z]/i.test(v)&&!(d.length===11&&cpCpfOk(d)&&/\d{3}\.\d{3}/.test(v)))tel=v;
+      else if(!mar&&/^R?\$?\s*\d{1,6}([.,]\d{2})?$/.test(v)&&d.length<=8)mar=v;
+      else if(!nome&&/[a-zà-ú]{2}/i.test(v))nome=v;});
+    if(!tel&&cpf&&String(cpf).replace(/\D/g,'').length===11&&!cpCpfOk(cpf)){tel=cpf;cpf='';}
+    const m=String(mar).replace(/[^\d,.]/g,'');
+    if(String(tel).replace(/\D/g,'').length>=10)out.push({nome,telefone:tel,cpf,margem:m.includes(',')?m.replace(/\./g,'').replace(',','.'):m});}
+  return out;}
+function cpAtualizarPrev(){cpLinhas=cpLer(document.getElementById('cpTexto').value);const tx=document.getElementById('cpTexto').value.trim();document.getElementById('cpPrev').textContent=cpLinhas.length?cpLinhas.length+' cliente(s) com telefone encontrados':(tx?'⚠️ Nenhum telefone encontrado. Confira se a lista tem uma coluna com DDD + número.':'');document.getElementById('cpImp').disabled=!cpLinhas.length;}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='cpTexto')cpAtualizarPrev();});
 function cpLerArquivo(inp){const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{document.getElementById('cpTexto').value=String(fr.result);cpAtualizarPrev();};fr.readAsText(f,'utf-8');inp.value='';}
 function cpDemoApi(acao,extra){if(!cpDemo)cpDemo={config:{ativa:false,intervalo_min:5,instancia:null,hora_inicio:8,hora_fim:20,mensagem:'Oi {nome}, tudo bem? Aqui é a Ana, da GM Cred 😊 Vi que você tem crédito CLT disponível pela carteira assinada. Quer que eu veja quanto consigo liberar pra você? É rapidinho e sem compromisso.'},contatos:[]};
