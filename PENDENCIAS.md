@@ -10,3 +10,4 @@
 - [x] Painel (2026-11-10): testes separados (botão 🧪), regra única de "no escritório", 3 agentes por sala, funil alinhado aos setores, placar igual à aba Agentes, carga sob demanda.
 - [ ] Guardar o histórico das instruções dos agentes (para a memória futura saber com qual versão cada conversa aconteceu).
 - [ ] WhatsApp: baixar o áudio recebido e mandar no campo "audio" do Roteador.
+- [ ] Ao ligar os números de WhatsApp: marcar cada um em credito.numeros.origem como "disparo" ou "trafego" (o Financeiro usa isso no custo por lead).

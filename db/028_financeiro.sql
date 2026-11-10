@@ -58,3 +58,11 @@ end $function$;
 alter table credito.gastos add column if not exists tipo text;
 -- em credito.financeiro_api: valida ('disparos','numeros','trafego','bms','outros'); grava categoria = 'outros' quando o tipo é
 -- 'numeros' e tipo = categoria escolhida; lista e soma por coalesce(tipo, categoria). (versão em vigor: a aplicada no banco)
+
+-- 2026-11-10: custo por lead · disparo x tráfego
+--  * gastos.quantidade = quantos disparos foram feitos naquele lançamento (só na categoria "disparos");
+--  * numeros.origem = 'disparo' | 'trafego': o lead herda a origem do número de WhatsApp por onde entrou;
+--  * financeiro_api devolve disparos_qtd, disparos_gasto_com_qtd e origens {disparo|trafego|indefinido: {leads, pagos}}.
+--  Enquanto os números não estiverem marcados, o painel só atribui os clientes a um canal quando o outro não teve gasto no mês.
+alter table credito.gastos add column if not exists quantidade integer;
+alter table credito.numeros add column if not exists origem text;
