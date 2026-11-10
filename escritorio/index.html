@@ -419,6 +419,22 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   .nv-sep{border-top:0;border-left:1px solid var(--linha);padding:0;margin:8px 2px;min-height:0;width:1px;font-size:0;flex:0 0 1px}
   .balao{top:34px;bottom:auto;max-width:56%}
 }
+/* ── financeiro ── */
+.fin-mes{font-size:13.5px;font-weight:700;align-self:center;min-width:128px;text-align:center}
+.fin-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 12px}
+.fin-form label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--tx2)}
+.fin-form .larg{grid-column:1/-1}
+.fin-form input,.fin-form select{border:1px solid var(--linha);border-radius:10px;padding:9px 10px;font:inherit;font-size:13.5px;background:#fff;min-width:0;width:100%}
+.fin-erro{font-size:12.5px;color:var(--vermelho);font-weight:600}
+.fc{display:grid;grid-template-columns:170px 1fr 96px;gap:10px;align-items:center;font-size:13px;margin-bottom:9px}
+.fc .br{height:10px;background:#eef2f6;border-radius:5px;overflow:hidden}.fc .br i{display:block;height:100%;border-radius:5px}
+.fc b{text-align:right;font-variant-numeric:tabular-nums}
+.fg{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #f0f3f7;font-size:13px}
+.fg .dt{color:var(--tx3);font-variant-numeric:tabular-nums;width:44px;flex-shrink:0}.fg .ds{flex:1;min-width:0}.fg .ds small{display:block;color:var(--tx3);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fg b{font-variant-numeric:tabular-nums;white-space:nowrap}.fg button{border:0;background:none;color:var(--tx3);font-size:14px;padding:4px 6px;border-radius:6px}.fg button:hover{background:#fde8e8;color:var(--vermelho)}
+.fh{width:100%;border-collapse:collapse;font-size:13px}.fh th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);text-align:right;padding:4px 6px}.fh th:first-child,.fh td:first-child{text-align:left}
+.fh td{padding:8px 6px;border-top:1px solid #f0f3f7;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:720px){.fin-form{grid-template-columns:1fr 1fr}.fc{grid-template-columns:1fr 84px}.fc .br{grid-column:1/-1;order:3}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -445,6 +461,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
   <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
   <button class="nv" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
+  <button class="nv" data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
   <button class="nv" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
   <span class="nv-sep"></span>
   <a class="nv" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">💬</span>Chat teste</a>
@@ -503,6 +520,25 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 
 <div class="view" id="v-funil" hidden>
 <section class="funil" id="funilSec" aria-label="Funil e perdas"></section>
+</div>
+
+<div class="view" id="v-financeiro" hidden>
+<section class="ag-sec">
+  <div class="ag-barra"><h3>💰 Financeiro</h3><div class="chips"><button class="chip" onclick="finMes(-1)" aria-label="Mês anterior">‹</button><span class="fin-mes" id="finMesTxt"></span><button class="chip" id="finProx" onclick="finMes(1)" aria-label="Próximo mês">›</button></div></div>
+  <div class="ag-resumo" id="finResumo"></div>
+</section>
+<section class="ag-sec"><div class="ag-grid">
+  <div class="fbox" id="finCat"></div>
+  <div class="fbox"><h4>➕ Lançar gasto</h4>
+    <form class="fin-form" id="finForm" onsubmit="finSalvar(event)">
+      <label>Categoria<select id="finCatIn"><option value="disparos">📤 Disparos de WhatsApp</option><option value="trafego">📣 Tráfego pago</option><option value="bms">🧩 BMs</option><option value="outros">📎 Outros</option></select></label>
+      <label>Valor (R$)<input id="finValor" inputmode="decimal" placeholder="0,00" autocomplete="off" required></label>
+      <label>Data<input id="finData" type="date" required></label>
+      <label class="larg">Descrição (opcional)<input id="finDesc" maxlength="200" placeholder="Ex.: 5.000 disparos, campanha Facebook, BM nova"></label>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="finBtn" type="submit" style="padding:9px 16px;font-size:13px">Salvar gasto</button><span class="fin-erro" id="finErro" role="alert"></span></div>
+    </form></div>
+</div></section>
+<section class="ag-sec"><div class="ag-grid"><div class="fbox" id="finLista"></div><div class="fbox" id="finHist"></div></div></section>
 </div>
 
 <div class="view" id="v-simulacao" hidden>
@@ -1107,6 +1143,61 @@ function painelAgente(id){const a=agLista().find(x=>x.id===id);if(!a){fecharPain
     ${P.length?P.map(([t,n])=>`<div class="mot"><span>${esc(t)}</span><b>${n}</b></div>`).join(''):'<div class="vazio">Nenhum cliente parou aqui.</div>'}
     <div class="g-sec">Clientes atendidos · ${s.n}</div>${cli.length?cli.map(crmItem).join(''):'<div class="vazio">Nenhum cliente no período.</div>'}`;}
 
+// ═════════════ FINANCEIRO (gastos, lucro e retorno) ═════════════
+const FIN_CAT={disparos:['📤','Disparos de WhatsApp','#16a36a'],trafego:['📣','Tráfego pago','#2f6fed'],bms:['🧩','BMs','#8a5cd6'],outros:['📎','Outros','#8a96a5']};
+let finMesAtual=null,finDados=null,finOcupado=false,demoGastos=null;
+function mesISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function nomeMes(m){const [y,mm]=m.split('-').map(Number);const t=new Date(y,mm-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1);}
+function finMes(delta){const [y,m]=finMesAtual.split('-').map(Number);const d=new Date(y,m-1+delta,1);if(mesISO(d)>mesISO(new Date()))return;finMesAtual=mesISO(d);finCarregar();}
+function finDemo(acao,extra){
+  if(!demoGastos){const h=new Date(),d=n=>dataISO(new Date(h.getFullYear(),h.getMonth(),Math.max(1,h.getDate()-n)));let i=0;
+    demoGastos=[[0,'trafego',180,'Campanha Facebook · CLT'],[1,'disparos',240,'6.000 disparos'],[2,'trafego',175,'Campanha Facebook · CLT'],[3,'bms',350,'BM nova'],[5,'disparos',200,'5.000 disparos'],[6,'trafego',190,'Campanha Instagram'],[8,'outros',99,'Ferramenta de números']].map(g=>({id:++i,data:d(g[0]),categoria:g[1],valor:g[2],descricao:g[3]}));}
+  if(acao==='salvar')demoGastos.unshift({id:Date.now(),data:extra.data,categoria:extra.categoria,valor:Number(extra.valor),descricao:extra.descricao});
+  if(acao==='apagar')demoGastos=demoGastos.filter(g=>String(g.id)!==String(extra.id));
+  const noMes=m=>demoGastos.filter(g=>g.data.slice(0,7)===m),V=estado.vendas||[],vm=m=>V.filter(x=>x.dia.slice(0,7)===m),soma=(a,k)=>a.reduce((s,x)=>s+Number(x[k]||0),0);
+  const G=noMes(finMesAtual),pc={};G.forEach(g=>pc[g.categoria]=(pc[g.categoria]||0)+g.valor);
+  const hist=[];for(let i=0;i<6;i++){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const m=mesISO(d);hist.push({mes:m,receita:soma(vm(m),'comissao'),gastos:soma(noMes(m),'valor')});}
+  return{mes:finMesAtual,hoje:dataISO(new Date()),erro:null,gastos:G.slice().sort((a,b)=>b.data.localeCompare(a.data)),por_categoria:pc,total_gastos:soma(G,'valor'),receita:soma(vm(finMesAtual),'comissao'),liberado:soma(vm(finMesAtual),'liberado'),
+    contratos_pagos:soma(vm(finMesAtual),'pagos'),prevista:estado.financeiro.filter(f=>f.etapa!=='pago').reduce((a,f)=>a+Number(f.comissao||0),0),clientes:soma(vm(finMesAtual),'clientes'),historico:hist};}
+async function finCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
+  if(!finMesAtual)finMesAtual=mesISO(new Date());
+  const di=document.getElementById('finData');if(di&&!di.value)di.value=dataISO(new Date());
+  if(finOcupado)return;finOcupado=true;let erro='';
+  try{
+    if(demo)finDados=finDemo(acao,extra);
+    else{if(!chave){pedirChave();return;}
+      const r=await fetch(BASE+'/escritorio/financeiro',{method:'POST',body:new URLSearchParams({k:chave,acao,mes:finMesAtual,...extra})});
+      if(r.status===401){pedirChave('Chave inválida ou desativada.');return;}
+      if(!r.ok)throw new Error('HTTP '+r.status);finDados=await r.json();}
+    erro=(finDados&&finDados.erro)||'';
+  }catch(e){erro='Não consegui falar com o servidor ('+e.message+').';}
+  finally{finOcupado=false;}
+  document.getElementById('finErro').textContent=erro;renderFinanceiro();return !erro;}
+async function finSalvar(ev){ev.preventDefault();
+  let v=document.getElementById('finValor').value.trim().replace(/[^\d.,]/g,'');if(v.includes(','))v=v.replace(/\./g,'').replace(',','.');
+  const valor=Number(v);if(!(valor>0)){document.getElementById('finErro').textContent='Informe um valor maior que zero.';return;}
+  const bt=document.getElementById('finBtn');bt.disabled=true;
+  const ok=await finCarregar('salvar',{valor:valor.toFixed(2),data:document.getElementById('finData').value,categoria:document.getElementById('finCatIn').value,descricao:document.getElementById('finDesc').value.trim()});
+  bt.disabled=false;if(ok){document.getElementById('finValor').value='';document.getElementById('finDesc').value='';}}
+function finApagar(id,txt){if(confirm('Apagar este gasto?\n'+txt))finCarregar('apagar',{id:String(id)});}
+function renderFinanceiro(){const D=finDados;if(!D||typeof telaAtual==='undefined'||telaAtual!=='financeiro')return;
+  document.getElementById('finMesTxt').textContent=nomeMes(D.mes);document.getElementById('finProx').disabled=D.mes>=mesISO(new Date());
+  const rec=Number(D.receita||0),gas=Number(D.total_gastos||0),lucro=rec-gas,pg=Number(D.contratos_pagos||0),cli=Number(D.clientes||0);
+  document.getElementById('finResumo').innerHTML=`
+    <div><span class="big" style="color:#0f7a4f">${brlFull(rec)}</span>comissão recebida · <b>${pg}</b> contrato${pg===1?'':'s'} pago${pg===1?'':'s'}</div>
+    <div><span class="big" style="color:#b42318">${brlFull(gas)}</span>gastos lançados no mês</div>
+    <div><span class="big" style="color:${lucro>=0?'#0f7a4f':'#b42318'}">${lucro<0?'− ':''}${brlFull(Math.abs(lucro))}</span>${lucro>=0?'lucro':'prejuízo'} do mês${gas>0?` · para cada R$ 1 gasto ${rec>0?'voltaram <b>R$ '+(rec/gas).toFixed(2).replace('.',',')+'</b>':'ainda não voltou nada'}`:''}</div>`;
+  const pc=D.por_categoria||{},max=Math.max(1,...Object.values(pc).map(Number));
+  document.getElementById('finCat').innerHTML=`<h4>📊 Para onde foi o dinheiro</h4>${Object.entries(FIN_CAT).map(([k,c])=>{const v=Number(pc[k]||0);return `<div class="fc"><span>${c[0]} ${c[1]}</span><span class="br"><i style="width:${v/max*100}%;background:${c[2]}"></i></span><b>${brlFull(v)}</b></div>`;}).join('')}
+    <div class="ag-nota">${gas>0?`Custo por cliente novo: <b>${cli?brlFull(gas/cli):'—'}</b> (${cli} clientes no mês) · Custo por contrato pago: <b>${pg?brlFull(gas/pg):'—'}</b>`:'Lance os gastos ao lado para ver o custo por cliente e por contrato pago.'}</div>`;
+  const G=D.gastos||[];
+  document.getElementById('finLista').innerHTML=`<h4>🧾 Gastos do mês · ${G.length}</h4>${G.length?G.map(g=>{const c=FIN_CAT[g.categoria]||FIN_CAT.outros,dt=String(g.data).slice(8,10)+'/'+String(g.data).slice(5,7);
+      return `<div class="fg"><span class="dt">${dt}</span><span class="ds">${c[0]} ${c[1]}${g.descricao?`<small>${esc(g.descricao)}</small>`:''}</span><b>${brlFull(g.valor)}</b><button title="Apagar" aria-label="Apagar gasto" onclick="finApagar('${g.id}','${dt} · ${c[1]} · ${brlFull(g.valor)}')">🗑</button></div>`;}).join(''):'<div class="vazio">Nenhum gasto lançado neste mês.</div>'}`;
+  document.getElementById('finHist').innerHTML=`<h4>📅 Últimos 6 meses</h4><table class="fh"><thead><tr><th>Mês</th><th>Comissão</th><th>Gastos</th><th>Lucro</th></tr></thead><tbody>${(D.historico||[]).map(h=>{const l=Number(h.receita)-Number(h.gastos);
+      return `<tr><td>${nomeMes(h.mes).replace(' de ',' ')}</td><td>${brl(h.receita)}</td><td>${brl(h.gastos)}</td><td style="font-weight:700;color:${l>=0?'#0f7a4f':'#b42318'}">${l<0?'−':''}${brl(Math.abs(l))}</td></tr>`;}).join('')}</tbody></table>
+    <div class="ag-nota">Comissão = contratos pagos no mês. A comissão prevista (contratos ainda não pagos: ${brlFull(D.prevista)}) não entra no lucro.</div>`;
+}
+
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
   try{let f;
@@ -1320,12 +1411,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','hoje','clientes','mes','funil','agentes','simulacao'];
+const TELAS=['escritorio','hoje','clientes','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
