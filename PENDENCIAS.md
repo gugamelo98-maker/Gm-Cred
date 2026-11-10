@@ -11,3 +11,4 @@
 - [ ] Guardar o histórico das instruções dos agentes (para a memória futura saber com qual versão cada conversa aconteceu).
 - [ ] WhatsApp: baixar o áudio recebido e mandar no campo "audio" do Roteador.
 - [ ] Ao ligar os números de WhatsApp: marcar cada um em credito.numeros.origem como "disparo" ou "trafego" (o Financeiro usa isso no custo por lead).
+- [ ] Campanha: disparador (1 msg/5 min pelo número "gmcred-campanha") + respostas do WhatsApp entrando no Roteador; testar com o número do dono antes dos 6 clientes.

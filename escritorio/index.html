@@ -442,6 +442,9 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 .cpl .big small{font-size:12.5px;font-weight:600;color:var(--tx3)}
 .cpl b{color:var(--tx)}
 @media (max-width:720px){.cpl{grid-template-columns:1fr}}
+.cp-txt{width:100%;border:1px solid var(--linha);border-radius:10px;padding:10px;font:inherit;font-size:13px;resize:vertical;margin-top:4px}
+.cp-linha{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}.cp-prev{font-size:12.5px;color:var(--tx2);flex:1}
+.cp-st{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:7px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -464,6 +467,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">🎯</span>Hoje</button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="campanha" onclick="irPara('campanha')"><span class="ico">📤</span>Campanha</button>
   <span class="nv-sep">Análise</span>
   <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
   <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
@@ -504,6 +508,27 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 </section>
 <section class="ag-sec"><div class="ag-cards" id="agSetores"></div></section>
 <section class="ag-sec" id="agCombos"></section>
+</div>
+
+<div class="view" id="v-campanha" hidden>
+<section class="ag-sec">
+  <div class="ag-barra"><h3>📤 Campanha · a IA chama os clientes</h3><button class="bt" id="cpBtn" onclick="cpAlternar()" style="padding:8px 14px"></button></div>
+  <div class="ag-resumo" id="cpResumo"></div>
+</section>
+<section class="ag-sec"><div class="ag-grid">
+  <div class="fbox"><h4>➕ Importar clientes</h4>
+    <p class="simtx">Cole as linhas da planilha (copie direto do Excel ou Google Sheets) ou escolha um arquivo CSV. Colunas: <b>nome, telefone, CPF, margem</b> (CPF e margem são opcionais). Se a primeira linha tiver os títulos, o sistema reconhece sozinho.</p>
+    <textarea id="cpTexto" rows="7" class="cp-txt" placeholder="João da Silva	48999998888	123.456.789-09	450,00"></textarea>
+    <div class="cp-linha"><label class="bt" style="cursor:pointer">📄 Escolher CSV<input type="file" id="cpArq" accept=".csv,.txt" hidden onchange="cpLerArquivo(this)"></label><span id="cpPrev" class="cp-prev"></span><button class="bt pri" id="cpImp" onclick="cpImportar()" disabled>Importar</button></div>
+    <div class="fin-erro" id="cpAviso" role="status" style="color:var(--tx2);margin-top:8px"></div>
+  </div>
+  <div class="fbox"><h4>💬 Primeira mensagem</h4>
+    <p class="simtx">É o que o cliente recebe primeiro. Use <b>{nome}</b> para o primeiro nome. Quando ele responder, a Ana assume a conversa.</p>
+    <textarea id="cpMsg" rows="5" class="cp-txt" maxlength="600"></textarea>
+    <div class="cp-linha"><button class="bt" onclick="cpSalvarMsg()">Salvar mensagem</button><span class="cp-prev" id="cpMsgOk"></span></div>
+  </div>
+</div></section>
+<section class="ag-sec"><div class="fbox" id="cpLista"></div></section>
 </div>
 
 <div class="view" id="v-hoje" hidden>
@@ -1221,6 +1246,46 @@ function renderFinanceiro(){const D=finDados;if(!D||typeof telaAtual==='undefine
     <div class="ag-nota">Comissão = contratos pagos no mês. A comissão prevista (contratos ainda não pagos: ${brlFull(D.prevista)}) não entra no lucro.</div>`;
 }
 
+// ═════════════ CAMPANHA (a IA chama os clientes importados) ═════════════
+let cpDados=null,cpLinhas=[],cpDemo=null;
+const CP_ST={na_fila:['Na fila','#eaf1ff','#1f55c4'],enviado:['Enviado','#e3f7ee','#0f7a4f'],erro:['Erro','#fde8e8','#b42318']};
+function cpLer(txt){const L=String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);if(!L.length)return[];
+  const sep=L[0].includes('\t')?'\t':(L[0].split(';').length>=L[0].split(',').length?';':',');
+  let cab=L[0].toLowerCase().split(sep).map(x=>x.trim().replace(/"/g,''));const temCab=cab.some(x=>/nome|tel|fone|celular|whats|cpf|margem/.test(x));
+  const idx=k=>temCab?cab.findIndex(x=>k.test(x)):-1;
+  let iN=idx(/nome/),iT=idx(/tel|fone|celular|whats|n[uú]mero/),iC=idx(/cpf/),iM=idx(/margem|parcela|valor/);
+  if(!temCab){iN=0;iT=1;iC=2;iM=3;}
+  return (temCab?L.slice(1):L).map(l=>{const c=l.split(sep).map(x=>x.trim().replace(/^"|"$/g,''));const m=iM>=0?String(c[iM]||'').replace(/[^\d,.]/g,''):'';
+    return{nome:iN>=0?c[iN]||'':'',telefone:iT>=0?c[iT]||'':'',cpf:iC>=0?c[iC]||'':'',margem:m.includes(',')?m.replace(/\./g,'').replace(',','.'):m};}).filter(x=>String(x.telefone).replace(/\D/g,'').length>=10);}
+function cpAtualizarPrev(){cpLinhas=cpLer(document.getElementById('cpTexto').value);document.getElementById('cpPrev').textContent=cpLinhas.length?cpLinhas.length+' cliente(s) com telefone encontrados':'';document.getElementById('cpImp').disabled=!cpLinhas.length;}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='cpTexto')cpAtualizarPrev();});
+function cpLerArquivo(inp){const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{document.getElementById('cpTexto').value=String(fr.result);cpAtualizarPrev();};fr.readAsText(f,'utf-8');inp.value='';}
+function cpDemoApi(acao,extra){if(!cpDemo)cpDemo={config:{ativa:false,intervalo_min:5,instancia:null,hora_inicio:8,hora_fim:20,mensagem:'Oi {nome}, tudo bem? Aqui é a Ana, da GM Cred 😊 Vi que você tem crédito CLT disponível pela carteira assinada. Quer que eu veja quanto consigo liberar pra você? É rapidinho e sem compromisso.'},contatos:[]};
+  let aviso=null;if(acao==='importar'){const L=JSON.parse(extra.linhas);L.forEach(l=>cpDemo.contatos.push({id:Date.now()+Math.random(),nome:l.nome,telefone:'55'+String(l.telefone).replace(/\D/g,'').replace(/^55/,''),cpf:l.cpf?'***':null,margem:l.margem||null,status:'na_fila'}));aviso=L.length+' importado(s)';}
+  if(acao==='ativar'||acao==='pausar')cpDemo.config.ativa=acao==='ativar';if(acao==='mensagem')cpDemo.config.mensagem=extra.mensagem;
+  const n=s=>cpDemo.contatos.filter(c=>c.status===s).length;return{aviso,config:cpDemo.config,na_fila:n('na_fila'),enviados:n('enviado'),erros:n('erro'),responderam:0,contatos:cpDemo.contatos};}
+async function cpCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
+  try{if(demo)cpDados=cpDemoApi(acao,extra);
+    else{if(!chave){pedirChave();return;}const r=await fetch(BASE+'/escritorio/campanha',{method:'POST',body:new URLSearchParams({k:chave,acao,...extra})});
+      if(r.status===401){pedirChave('Chave inválida ou desativada.');return;}if(!r.ok)throw new Error('HTTP '+r.status);cpDados=await r.json();}
+    if(cpDados.aviso)document.getElementById('cpAviso').textContent='✅ '+cpDados.aviso;
+  }catch(e){document.getElementById('cpAviso').textContent='Não consegui falar com o servidor ('+e.message+').';return;}
+  renderCampanha();}
+async function cpImportar(){if(!cpLinhas.length)return;const b=document.getElementById('cpImp');b.disabled=true;await cpCarregar('importar',{linhas:JSON.stringify(cpLinhas)});document.getElementById('cpTexto').value='';cpAtualizarPrev();}
+function cpSalvarMsg(){const m=document.getElementById('cpMsg').value.trim();if(m.length<20){document.getElementById('cpMsgOk').textContent='Mensagem muito curta.';return;}cpCarregar('mensagem',{mensagem:m}).then(()=>{document.getElementById('cpMsgOk').textContent='✅ Salva';});}
+function cpAlternar(){if(!cpDados)return;const at=!(cpDados.config||{}).ativa;if(at&&!confirm('Começar a enviar? Será 1 mensagem a cada '+((cpDados.config||{}).intervalo_min||5)+' minutos, das '+((cpDados.config||{}).hora_inicio||8)+'h às '+((cpDados.config||{}).hora_fim||20)+'h.'))return;cpCarregar(at?'ativar':'pausar');}
+function renderCampanha(){const D=cpDados;if(!D)return;const C=D.config||{},fila=Number(D.na_fila||0),iv=Number(C.intervalo_min||5);
+  const b=document.getElementById('cpBtn');b.textContent=C.ativa?'⏸ Pausar envios':'▶ Começar envios';b.className='bt '+(C.ativa?'':'pri');
+  const m=document.getElementById('cpMsg');if(m&&document.activeElement!==m)m.value=C.mensagem||'';
+  const horas=fila*iv/60;
+  document.getElementById('cpResumo').innerHTML=`
+    <div><span class="big">${fila}</span>na fila · ${fila?`termina em ~${horas<1?Math.ceil(fila*iv)+' min':horas.toFixed(1).replace('.',',')+' h'} de envio (1 a cada ${iv} min, das ${C.hora_inicio||8}h às ${C.hora_fim||20}h)`:'importe clientes ao lado'}</div>
+    <div><span class="big" style="color:#0f7a4f">${D.enviados||0}</span>mensagens enviadas · <b>${D.responderam||0}</b> responderam${D.erros?` · <span style="color:#b42318">${D.erros} com erro</span>`:''}</div>
+    <div><span class="big" style="color:${C.ativa?'#0f7a4f':'#8a6200'}">${C.ativa?'Enviando':'Pausada'}</span>${C.instancia?'pelo número '+esc(C.instancia):'⚠️ nenhum número de WhatsApp ligado à campanha ainda'}</div>`;
+  const L=D.contatos||[];
+  document.getElementById('cpLista').innerHTML=`<h4>👥 Clientes da campanha · ${L.length}</h4>${L.length?`<div class="crm-tab"><div class="crm-l crm-h"><span>Cliente</span><span>Telefone</span><span>CPF</span><span>Situação</span><span>Margem</span><span>Enviado</span></div>${L.map(c=>{const st=CP_ST[c.status]||['—','#eef1f5','#5b6878'];
+      return `<div class="crm-l" ${c.lead_id?`onclick="abrirPainel('cliente:${c.lead_id}')"`:'style="cursor:default"'}><span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b></span><span class="c-tel">${fmtTel(c.telefone)}</span><span class="c-cpf">${esc(c.cpf||'—')}</span><span class="c-sit"><span class="cp-st" style="background:${st[1]};color:${st[2]}" title="${esc(c.erro||'')}">${st[0]}</span>${c.status==='na_fila'?` <button class="lnk-a" style="font-size:11.5px" onclick="event.stopPropagation();cpCarregar('remover',{id:'${c.id}'})">remover</button>`:''}</span><span class="c-of">${c.margem?brlFull(c.margem):'—'}</span><span class="c-ult">${c.enviado_em?quando(c.enviado_em):'—'}</span></div>`;}).join('')}</div>`:'<div class="vazio">Nenhum cliente importado ainda.</div>'}`;}
+
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
   try{let f;
@@ -1434,12 +1499,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','hoje','clientes','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','hoje','clientes','campanha','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
