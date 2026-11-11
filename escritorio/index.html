@@ -327,6 +327,11 @@ button{font:inherit;cursor:pointer}
 .hj-kpis div{background:#f6f8fb;border-radius:12px;padding:10px 12px}.hj-kpis b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
 .rs-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.rs-top h4{margin:0}.rs-top .chips{display:flex;gap:6px}
 .rs-kpis{grid-template-columns:repeat(6,1fr)}
+.rs-ia{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px}.rs-ia div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #f0f3f7;font-size:14px}.rs-ia b{font-variant-numeric:tabular-nums}
+#fin > .fbox + .fbox{margin-top:14px}
+.rs-hist{margin-top:12px}.rs-hist summary{cursor:pointer;color:var(--azul,#1f55c4);font-weight:700;font-size:13px}
+.rs-tab{overflow-x:auto;margin-top:8px}.rs-tab table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}.rs-tab th{font-size:11px;text-transform:uppercase;color:var(--tx3);text-align:right;padding:6px 8px;white-space:nowrap}.rs-tab td{text-align:right;padding:7px 8px;border-top:1px solid #f0f3f7;white-space:nowrap}.rs-tab th:first-child,.rs-tab td:first-child{text-align:left}.rs-tab small{color:var(--tx3)}
+@media(max-width:900px){.rs-ia{grid-template-columns:1fr}}
 .rs-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin:14px 0}.rs-grid .fbox{margin:0}
 .rs-dep{display:grid;grid-template-columns:1fr 120px 46px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #f0f3f7}
 .rs-dep .rs-dn b{display:block;font-size:14px}.rs-dep .rs-dn span{font-size:12px;color:var(--tx2)}
@@ -1361,6 +1366,19 @@ let resP=lsGet('escritorio_resumo_p')||'hoje';
 function resPeriodo(p){resP=p;lsSet('escritorio_resumo_p',p);renderHoje();}
 const RES_SET=[['recepcao','Recepção','mandaram o CPF e tinham margem'],['simulacao','Simulação','receberam a proposta'],['vendas','Vendas','escolheram uma oferta'],['formalizacao','Formalização','assinaram'],['posvenda','Pós-venda','foram pagos'],['gerente','Recuperação','voltaram e avançaram']];
 function pctTx(a,b){return b?Math.round(a/b*100)+'%':'—';}
+function diaTx(d){const h=hojeISO();if(d===h)return 'Hoje';const o=new Date(h+'T12:00:00');o.setDate(o.getDate()-1);if(d===dataISO(o))return 'Ontem';const [a,m,dd]=d.split('-');return dd+'/'+m;}
+function blocoDias(){const RV=estado.resumo_v2||{},D=RV.dias||[],h=D[0]||{dia:hojeISO(),campanha:{},ia:{}},C=h.campanha||{},I=h.ia||{},env=+C.enviadas||0;
+  const camp=[['Mensagens enviadas',env,'1ª mensagem da campanha'],['Responderam',+C.responderam||0],['Confirmaram o CPF',+C.cpf||0],['Receberam a proposta',+C.proposta||0],['Link enviado',+C.link||0],['Foram pagos',+C.pagos||0]];
+  const ia=[['💬','Mensagens recebidas dos clientes',I.recebidas],['🤖','Respostas da IA',I.respostas],['📤','Mensagens da campanha',I.campanha],['🔁','Mensagens de recuperação',I.recuperacao],['🧑','Mensagens do atendente (você)',I.atendente],['🧮','Clientes simulados',I.simulacoes],['📝','Propostas enviadas (link)',I.propostas],['✍️','Contratos assinados',I.assinaram],['✅','Contratos pagos',I.pagos]];
+  const ant=D.slice(1).filter(d=>{const c=d.campanha||{},x=d.ia||{};return Object.values(c).some(v=>+v)||Object.values(x).some(v=>+v);});
+  const tCamp=ant.length?`<details class="rs-hist"><summary>Dias anteriores</summary><div class="rs-tab"><table><tr><th>Dia</th><th>Enviadas</th><th>Responderam</th><th>CPF</th><th>Proposta</th><th>Link</th><th>Pagos</th><th>Sem WhatsApp</th></tr>${ant.map(d=>{const c=d.campanha||{},e=+c.enviadas||0;return `<tr><td>${diaTx(d.dia)}</td><td>${e}</td><td>${+c.responderam||0} <small>${pctTx(+c.responderam||0,e)}</small></td><td>${+c.cpf||0}</td><td>${+c.proposta||0}</td><td>${+c.link||0}</td><td>${+c.pagos||0}</td><td>${+c.sem_whatsapp||0}</td></tr>`;}).join('')}</table></div></details>`:'';
+  const tIa=ant.length?`<details class="rs-hist"><summary>Dias anteriores</summary><div class="rs-tab"><table><tr><th>Dia</th><th>Recebidas</th><th>Respostas IA</th><th>Campanha</th><th>Recuperação</th><th>Atendente</th><th>Simulados</th><th>Links</th><th>Assinados</th><th>Pagos</th></tr>${ant.map(d=>{const x=d.ia||{};return `<tr><td>${diaTx(d.dia)}</td>${['recebidas','respostas','campanha','recuperacao','atendente','simulacoes','propostas','assinaram','pagos'].map(k=>`<td>${+x[k]||0}</td>`).join('')}</tr>`;}).join('')}</table></div></details>`:'';
+  return `<div class="fbox"><div class="rs-top"><h4>📤 Campanha de hoje</h4><span class="rs-nota" style="margin:0">${RV.campanha_ativa?'🟢 ligada':'⏸️ pausada'} · ${+RV.na_fila||0} na fila</span></div>
+      <div class="rs-camp">${camp.map(([t,v],i)=>`<div><b>${v}</b><span>${t}</span><small>${i?pctTx(v,env)+' das enviadas':'hoje'}</small></div>`).join('')}</div>
+      ${+C.sem_whatsapp?`<div class="rs-nota">🚫 ${C.sem_whatsapp} número${C.sem_whatsapp>1?'s':''} sem WhatsApp tirado${C.sem_whatsapp>1?'s':''} da fila hoje.</div>`:''}
+      <div class="rs-nota">Cada dia conta os clientes que receberam a 1ª mensagem naquele dia. Se alguém responde amanhã, conta no dia em que recebeu a mensagem.</div>${tCamp}</div>
+    <div class="fbox"><h4>🤖 Passo a passo da IA hoje</h4>
+      <div class="rs-ia">${ia.map(([e,t,v])=>`<div><span>${e} ${t}</span><b>${+v||0}</b></div>`).join('')}</div>${tIa}</div>`;}
 function renderHoje(){
   const el=document.getElementById('fin');if(!el)return;const M=estado.meta||{};
   const RV=(estado.resumo_v2||{})[resP==='hoje'?'hoje':resP]||{},N=RV.numeros||{},S=RV.setores||{},A=RV.agentes||[],C=RV.campanha||{};
@@ -1380,7 +1398,6 @@ function renderHoje(){
     if(fim>=3&&lin&&lin.pc!=null){const pc=Math.round(a.avancaram/fim*100);if(pc<=lin.pc-15)garg.push([1,`<b>${esc(a.nome)}</b> (${tn} ${a.versao}): converte ${pc}%, o setor converte ${lin.pc}% (${a.perderam} perdido${a.perderam>1?'s':''} de ${fim})`]);}});
   garg.sort((a,b)=>b[0]-a[0]);
   // campanha
-  const env=+C.enviados||0,cf=[['Mensagens enviadas',env],['Responderam',+C.responderam||0],['Confirmaram o CPF',+C.cpf||0],['Receberam a proposta',+C.proposta||0],['Link enviado',+C.link||0],['Foram pagos',+C.pagos||0]];
   el.innerHTML=`<div class="fbox"><div class="rs-top"><h4>📊 Resumo ${nome}</h4><div class="chips">${chips}</div></div>
       ${resP==='hoje'?`<div class="mt" onclick="abrirPainel('meta')" role="button" tabindex="0" style="margin-top:6px">
         <div class="mt-top"><span>🎯 Meta do dia${bateu?' · <span style="color:#0f7a4f">batida</span>':''}</span><b style="color:${bateu?'#16a36a':'var(--tx)'}">${brlFull(feito)}</b></div>
@@ -1400,9 +1417,7 @@ function renderHoje(){
       <div class="fbox"><h4>⚠️ Gargalos nos agentes</h4>${garg.length?garg.map(g=>`<div class="rs-g ${g[0]===2?'urg':''}">${g[1]}</div>`).join(''):'<div class="vazio">Nenhum gargalo: nenhum cliente esperando resposta e nenhum agente bem abaixo do seu setor.</div>'}
         <button class="lnk-a" onclick="irPara('agentes')">ver todos os agentes →</button></div>
     </div>
-    <div class="fbox"><h4>📤 Conversão da campanha ${nome}</h4>
-      ${env?`<div class="rs-camp">${cf.map(([t,v],i)=>`<div><b>${v}</b><span>${t}</span><small>${i?pctTx(v,env)+' das enviadas':'100%'}</small></div>`).join('')}</div>`:'<div class="vazio">Nenhuma mensagem de campanha enviada neste período.</div>'}
-      ${+C.sem_whatsapp?`<div class="rs-nota">🚫 ${C.sem_whatsapp} número${C.sem_whatsapp>1?'s':''} sem WhatsApp tirado${C.sem_whatsapp>1?'s':''} da fila.</div>`:''}</div>`;
+    ${blocoDias()}`;
   const lstEl=document.getElementById('hojeListas');if(resP!=='hoje'){lstEl.innerHTML='';return;}
   const crmHoje=(estado.crm||[]).filter(c=>c.entrou&&dataISO(new Date(c.entrou))===hojeISO());
   const lst=document.getElementById('hojeListas');
