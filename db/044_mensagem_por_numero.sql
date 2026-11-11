@@ -13,3 +13,10 @@
 --  * campanha_passo(): usa a mensagem do número (ou a padrão) passada por variar_msg.
 alter table credito.wpp_chips add column if not exists mensagem text;
 alter table credito.campanha_contatos add column if not exists instancia text;
+
+-- 11/11 (v2): lista fria — o número pode não ser de quem está no cadastro. Por isso:
+--  * as 5 mensagens ficaram SEM {nome} (quem não é a pessoa também pode responder e virar um CPF novo);
+--  * regra "NÚMERO DE OUTRA PESSOA" (substitui "NÚMERO ERRADO"): não usar o nome do cadastro antes de confirmar o CPF;
+--    se a pessoa não for a do cadastro, oferecer a consulta para ELA e pedir o CPF dela; só encerrar como
+--    "número errado" se ela não tiver interesse;
+--  * acao_agente(aplicar_consulta): se o CPF consultado for diferente do cpf_base, o nome do lead passa a ser o da V8.
