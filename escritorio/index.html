@@ -929,7 +929,7 @@ function toggleDemo(){demo=!demo;setTimeout(agendar,0);lsSet('escritorio_demo',d
 // ═════════════ RENDERIZAÇÃO ═════════════
 let ultimoEventoId=null,estruturaKey='';
 function aplicarEstado(j){
-  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],crm:j.crm!==undefined?j.crm:(estado.crm===undefined?null:estado.crm),agentes_dados:j.agentes_dados!==undefined?j.agentes_dados:(estado.agentes_dados||null)};
+  estado={setores:j.setores||[],agentes:j.agentes||[],leads:j.leads||[],eventos:j.eventos||[],resumo:j.resumo||{},numeros:j.numeros||[],funil:j.funil||[],financeiro:j.financeiro||[],meta:j.meta||null,contratos:j.contratos||[],atencao:j.atencao||[],saude:j.saude||{},simulacao:j.simulacao||null,vendas:j.vendas||[],resumo_v2:j.resumo_v2||null,crm:j.crm!==undefined?j.crm:(estado.crm===undefined?null:estado.crm),agentes_dados:j.agentes_dados!==undefined?j.agentes_dados:(estado.agentes_dados||null)};
   const R=estado.resumo;
   kAnd.textContent=R.em_andamento??0;kPag.textContent=(estado.meta&&estado.meta.contratos_hoje)||0;
   renderFin();renderAtencao();renderFunil();renderSaude();renderSimulacao();renderVendas();renderCrm();renderAgentes();kPar.textContent=R.parados??0;
