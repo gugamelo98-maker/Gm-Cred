@@ -16,3 +16,4 @@ update credito.leads set sem_followup = true where not teste and (criado_em at t
 -- Correção do dono: Juliana (104) e Liomar (88) receberam proposta e PODEM ter follow-up.
 -- Quem nunca respondeu já não recebe follow-up pela regra (prospecção / dt_respondeu nulo).
 update credito.leads set sem_followup = false where id in (88, 104);
+-- 11/11: regra do dono — a IA nunca diz "carteira assinada" ao cliente; usa "CLT" / "crédito CLT".
