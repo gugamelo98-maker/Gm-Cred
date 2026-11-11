@@ -24,3 +24,9 @@
 --  banco: leads.ofertas_msg; salvar_ofertas guarda a mensagem e manda a Ana enviá-la EXATAMENTE; contexto (modo apresentar)
 --         usa a mensagem pronta.
 alter table credito.leads add column if not exists ofertas_msg text;
+
+-- 11/11 (v3): formato aprovado pelo dono (teste 5 no grupo)
+--  Faixa: "✅ *Simulação pronta!*" + blocos "💰 *Parcela de R$ X*" / "📅 18x · *APROVADO R$ Y*" (R$ 100 em R$ 100,
+--         R$ 50 se a faixa for de até R$ 100; máx. 4 blocos).
+--  Valor único: "📅 18x de R$ 300" / "*APROVADO R$ 2.980,73*" separados por linha em branco.
+--  n8n "GM Cred · Agente", nó "Dividir em balões": a simulação pronta sai inteira em 1 balão (não quebra nas linhas em branco).
