@@ -135,3 +135,7 @@ end $function$;
 --  configuracoes.avisos = {numero: <grupo>, instancia: gmcred-4, reserva: [gmcred-5, gmcred-6]};
 --  wpp_pendentes2() usa a instância configurada e, se ela tiver caído, a primeira reserva conectada.
 --  O número da campanha (6775) também está no grupo, mas não é usado para enviar avisos (para preservar a campanha).
+
+-- 11/11: numeros_api acao 'criar' (aparelho) escolhe o próximo nome gmcred-N e grava o aparelho; o n8n
+-- "Estado do Painel" cria a instância na Evolution (nó Evolution API, credencial evolution_cloudfy) já com o webhook
+-- MESSAGES_UPSERT + CONNECTION_UPDATE e devolve o QR (GET /instance/connect com o hash da nova instância).
