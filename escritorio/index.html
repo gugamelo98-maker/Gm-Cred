@@ -352,6 +352,7 @@ button{font:inherit;cursor:pointer}
 .nm-c b{font-size:16px}.nm-st{display:inline-block;margin:6px 0;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:700}.nm-c input[type=text]{width:100%;box-sizing:border-box;border:1px solid #e3e8ef;border-radius:8px;padding:6px 8px;margin:6px 0}
 .nm-qr[hidden]{display:none!important}
 .nm-c small{display:block;color:var(--tx2);font-size:12px}.nm-qr{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:99}.nm-qr>div{background:#fff;border-radius:14px;padding:18px;text-align:center;max-width:320px}.nm-qr img{width:260px;height:260px;margin:10px 0}.nm-qr small{display:block;margin-bottom:10px;color:var(--tx2)}
+.in-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.in-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .rs-hist{margin-top:12px}.rs-hist summary{cursor:pointer;color:var(--azul,#1f55c4);font-weight:700;font-size:13px}
 .rs-tab{overflow-x:auto;margin-top:8px}.rs-tab table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}.rs-tab th{font-size:11px;text-transform:uppercase;color:var(--tx3);text-align:right;padding:6px 8px;white-space:nowrap}.rs-tab td{text-align:right;padding:7px 8px;border-top:1px solid #f0f3f7;white-space:nowrap}.rs-tab th:first-child,.rs-tab td:first-child{text-align:left}.rs-tab small{color:var(--tx3)}
 @media(max-width:900px){.rs-ia{grid-template-columns:1fr}}
@@ -540,6 +541,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="conversas" onclick="irPara('conversas')"><span class="ico">💬</span>Conversas<b class="badge" id="cvBadge" hidden></b></button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="indicacoes" onclick="irPara('indicacoes')"><span class="ico">🎁</span>Indicações</button>
   <button class="nv" data-v="whatsapp" onclick="irPara(ultimaWpp)" title="Campanha, números e maturador"><span class="ico">📱</span>WhatsApp<b class="badge" id="nmBadge" hidden></b></button>
   <span class="nv-sep">Análise</span>
   <button class="nv nv-an" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
@@ -607,6 +609,14 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <section class="ag-sec" id="agCombos"></section>
 </div>
 
+<div class="view" id="v-indicacoes" hidden>
+  <div class="fbox"><div class="rs-top"><h4>🎁 Programa de indicação</h4><button class="bt pri" onclick="inNovo()">+ Cadastrar indicador</button></div>
+    <div class="rs-nota" style="margin:0">Quem indica ganha 20% da comissão (com seguro) ou 5% (sem seguro), mínimo R$ 20, quando o contrato do indicado é pago. Só vale indicação que chega pelo link/código ou pelo contato passado à Ana.</div>
+    <div id="inResumo" class="hj-kpis in-kpis"></div></div>
+  <div class="fbox" style="margin-top:14px"><h4>💰 A pagar</h4><div id="inPagar"></div></div>
+  <div class="fbox" style="margin-top:14px"><h4>👥 Indicadores</h4><div id="inLista"></div></div>
+  <div class="fbox" style="margin-top:14px"><h4>📋 Indicações</h4><div id="inInd"></div></div>
+</div>
 <div class="view" id="v-conversas" hidden>
   <div class="cv-nums" id="cvNums"></div>
   <div class="cv-wrap">
@@ -1447,6 +1457,22 @@ async function nmNovo(){const ap=prompt('Onde vai ficar esse chip? (ex.: Motorol
 async function nmQr(nome,tel){const q=document.getElementById('nmQr');document.getElementById('nmQrT').textContent='Conectar '+tel;document.getElementById('nmQrImg').innerHTML='<div class="vazio">Gerando QR…</div>';q.hidden=false;
   const r=await nmApi('qr',{nome});document.getElementById('nmQrImg').innerHTML=r&&r.qr?`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}">`:`<div class="vazio">${r&&r.estado==='open'?'Esse número já está conectado.':'Não consegui gerar o QR agora. Tente de novo.'}</div>`;}
 function nmLigar(on){clearInterval(nmTimer);nmTimer=null;if(on){nmCarregar();nmTimer=setInterval(()=>{if(!document.hidden&&document.getElementById('nmQr').hidden)nmCarregar();},10000);}}
+
+let inD=null;
+async function inApi(acao,extra){if(demo)return null;if(!chave){pedirChave();return null;}
+  const r=await fetch(BASE+'/escritorio/indicacoes',{method:'POST',body:new URLSearchParams({k:chave,acao,...(extra||{})})});
+  if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}return r.ok?r.json():null;}
+async function inCarregar(acao,extra){const r=await inApi(acao||'ver',extra);if(r&&r.erro){alert(r.erro);}if(r&&r.indicadores){inD=r;inRender();}}
+async function inNovo(){const nome=prompt('Nome completo de quem vai indicar:');if(!nome)return;const cpf=prompt('CPF:');if(!cpf)return;const pix=prompt('Chave PIX:');if(!pix)return;const tel=prompt('Telefone com DDD (opcional):')||'';
+  await inCarregar('cadastrar',{nome,cpf,pix,telefone:tel});}
+async function inPagar(id,nome,v){if(!confirm('Confirmar que você pagou '+brlFull(v)+' para '+nome+'? O valor vai para o Financeiro.'))return;await inCarregar('pagar',{id});}
+function inCopiar(t){try{navigator.clipboard.writeText(t);}catch(e){}}
+const IN_ST={aberta:['Em andamento','#eaf1ff','#1f55c4'],creditada:['Fechou · creditada','#e3f7ee','#0f7a4f']};
+function inRender(){const D=inD||{},I=D.indicadores||[],X=D.indicacoes||[],pagar=I.filter(i=>+i.saldo>0);
+  document.getElementById('inResumo').innerHTML=`<div><b>${I.length}</b><span>Indicadores</span></div><div><b>${X.length}</b><span>Indicações</span></div><div><b>${X.filter(x=>x.status==='creditada').length}</b><span>Fecharam</span></div><div><b style="color:var(--verde)">${brlFull(pagar.reduce((a,i)=>a+ +i.saldo,0))}</b><span>A pagar · pago no mês ${brlFull(D.pago_mes||0)}</span></div>`;
+  document.getElementById('inPagar').innerHTML=pagar.length?`<div class="rs-tab"><table><tr><th>Indicador</th><th>Chave PIX</th><th>Saldo</th><th></th></tr>${pagar.map(i=>`<tr><td>${esc(i.nome)} <small>${esc(i.codigo)}</small></td><td style="text-align:left">${esc(i.pix||'—')} <button class="bt" onclick="inCopiar('${esc(i.pix||'')}')">copiar</button></td><td><b>${brlFull(i.saldo)}</b></td><td><button class="bt pri" onclick="inPagar(${i.id},'${esc(i.nome)}',${+i.saldo})">Marcar como pago</button></td></tr>`).join('')}</table></div><div class="rs-nota">Saldo entra aqui quando o contrato do indicado é pago. No fim do mês, pague todos os saldos.</div>`:'<div class="vazio">Nada a pagar agora.</div>';
+  document.getElementById('inLista').innerHTML=I.length?`<div class="rs-tab"><table><tr><th>Nome</th><th>Código</th><th>Link</th><th>Indicações</th><th>Fecharam</th><th>Ganho</th><th>Saldo</th></tr>${I.map(i=>`<tr><td>${esc(i.nome)}<br><small>${fmtTel(i.telefone||'')}</small></td><td><b>${esc(i.codigo)}</b></td><td><button class="bt" onclick="inCopiar('${esc(i.link)}')">copiar link</button></td><td>${i.indicacoes}</td><td>${i.fechadas}</td><td>${brlFull(i.ganho)}</td><td>${brlFull(i.saldo)}</td></tr>`).join('')}</table></div>`:'<div class="vazio">Ninguém cadastrado ainda. A Ana oferece o programa sozinha; você também pode cadastrar aqui.</div>';
+  document.getElementById('inInd').innerHTML=X.length?`<div class="rs-tab"><table><tr><th>Indicado</th><th>Quem indicou</th><th>Como chegou</th><th>Situação</th><th>Status</th><th>Valor</th></tr>${X.map(x=>{const st=IN_ST[x.status]||[x.status,'#eef1f5','#5b6878'];return `<tr><td>${esc(x.nome||'—')}<br><small>${fmtTel(x.telefone||'')}</small></td><td>${esc(x.indicador)} <small>${esc(x.codigo)}</small></td><td>${x.origem==='link'?'🔗 link/código':'📇 contato passado'}</td><td>${esc(x.situacao||'—')}</td><td><span class="sit" style="background:${st[1]};color:${st[2]}">${st[0]}</span></td><td>${x.valor!=null?brlFull(x.valor):'—'}</td></tr>`;}).join('')}</table></div>`:'<div class="vazio">Nenhuma indicação ainda.</div>';}
 async function cpCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
   try{if(demo)cpDados=cpDemoApi(acao,extra);
     else{if(!chave){pedirChave();return;}const r=await fetch(BASE+'/escritorio/campanha',{method:'POST',body:new URLSearchParams({k:chave,acao,...extra})});
@@ -1734,7 +1760,7 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','hoje','clientes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','hoje','clientes','indicacoes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
 const GRUPO_WPP=['campanha','numeros','maturador'],ANALISE=['hoje','mes','funil','agentes','financeiro','simulacao'];
@@ -1750,7 +1776,7 @@ function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_
   document.querySelectorAll('.mais-grid [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===telaAtual));
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='whatsapp'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
   fecharMais();
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
