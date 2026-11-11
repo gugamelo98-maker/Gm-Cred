@@ -1461,7 +1461,7 @@ async function nmTeste(nome,tel){const destino=prompt('Enviar teste a partir do 
 let nmQrVez=0;
 async function nmQr(nome,tel,vez){const q=document.getElementById('nmQr'),img=document.getElementById('nmQrImg');
   if(!vez){vez=1;nmQrVez++;document.getElementById('nmQrT').textContent='Conectar '+tel;img.innerHTML='<div class="vazio">Gerando QR… (pode levar uns 20 segundos)</div>';q.hidden=false;}
-  const eu=nmQrVez,r=await nmApi('qr',{nome});if(q.hidden||eu!==nmQrVez)return;
+  const eu=nmQrVez,r=await nmApi('qr',{nome,reiniciar:(vez===1||vez===8)?'true':'false'});if(q.hidden||eu!==nmQrVez)return;
   if(r&&r.estado==='open'){img.innerHTML='<div class="vazio">✅ Número conectado!</div>';nmCarregar();return;}
   if(r&&r.qr)img.innerHTML=`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}"><small style="display:block;margin-top:6px">No celular: WhatsApp → Aparelhos conectados → Conectar aparelho. O QR se atualiza sozinho.</small>`;
   else if(vez>=12){img.innerHTML='<div class="vazio">Não consegui gerar o QR agora. Feche e tente de novo.</div>';return;}
