@@ -1,0 +1,9 @@
+-- Empresa virtual CLT — revisão das abas (11/11/2026). Aplicado no Postgres da Cloudfy via replace nas funções:
+--  * agente da prospecção renomeado para "Lia" (havia duas "Duda"); leads da prospecção com agente_id da Lia.
+--  * atribuições de quem nunca respondeu que estavam na Recepção (marcadas "avancou" ao mover para a prospecção)
+--    passaram para o setor prospeccao, sem resultado. dados_agentes() ignora leads da prospecção.
+--  * crm_clientes(): CPF mostra o da base quando o cliente ainda não confirmou (cpf_da_base = true).
+--  * financeiro_api(): clientes do mês sem a prospecção; lead da campanha conta como origem "disparo".
+--  * simulacao_dados(): sem a prospecção.
+--  * v_leads_parados: só conta quem está esperando a NOSSA resposta (aguardando <> 'cliente').
+--  * campanha_api(ver): cada contato enviado traz a situação/etiqueta do cliente.

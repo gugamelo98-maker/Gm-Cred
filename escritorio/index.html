@@ -950,7 +950,7 @@ function atualizarSalas(){
       const me=document.getElementById('mesa-'+ag.id);if(me&&me.dataset.on!==String(trab)){me.innerHTML=mesaSvg(s,trab);me.dataset.on=String(trab);}});
     if(tag){tag.className='tag '+(ger&&par?'alerta':algum?'trabalhando':'livre');tag.textContent=ger&&par?'RESGATANDO CLIENTES':algum?'TRABALHANDO':'DISPONÍVEL';}
     const ev=estado.eventos.find(e=>ger?(e.tipo==='perdeu'||e.tipo==='fechou'):(e.setor_destino===s.id||e.setor_origem===s.id));
-    if(ger){bal.innerHTML=par?`${par} cliente${par>1?'s':''} passou do prazo. Vamos cobrar os setores.`:'Tudo em dia. Nenhum cliente parado.';bal.classList.add('on');}
+    if(ger){bal.innerHTML=par?`${par} cliente${par>1?'s':''} ${par>1?'estão':'está'} esperando a nossa resposta além do prazo. Vamos cobrar os setores.`:'Tudo em dia. Nenhum cliente parado.';bal.classList.add('on');}
     else if(ev){bal.innerHTML=`<b>${hora(ev.criado_em)}</b> · ${esc(ev.descricao)}`;bal.classList.add('on');}
     else bal.classList.remove('on');
   });
@@ -974,16 +974,17 @@ function renderFunil(){const el=document.getElementById('funilSec');const F=(est
     return `<div class="fl" title="${i&&ant?Math.round(v/ant*100)+'% de quem chegou na etapa anterior':''}"><span>${n}</span><div class="bar"><i style="width:${base?Math.max(v?2:0,pct):0}%"></i></div><div class="v">${v}<small>${i?pct+'% do total':'100%'}</small></div></div>`;}).join('');
   const C30=(estado.crm||[]).filter(c=>c.entrou&&Date.now()-new Date(c.entrou).getTime()<=30*86400000);
   if(C30.length){const cont={};C30.filter(c=>c.grupo==='perdido').forEach(c=>{const k=catPerda(c);cont[k]=(cont[k]||0)+1;});
-    const L=['Parou de responder','Não assinou o link','Cancelou o contrato','Desistiu'].map(k=>[k,cont[k]||0]),tot=L.reduce((a,x)=>a+x[1],0),sm=C30.filter(c=>c.grupo==='sem_margem').length;
+    const L=Object.entries(cont).sort((x,y)=>y[1]-x[1]),tot=L.reduce((a,x)=>a+x[1],0),sm=C30.filter(c=>c.grupo==='sem_margem').length,cm=C30.filter(c=>c.grupo==='com_margem').length;
     el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
-    <div class="fbox"><h4>❌ Onde perdemos clientes · ${tot}</h4>${L.map(([k,n])=>`<button class="mot" onclick="verCat(this.dataset.c)" data-c="${esc(k)}" title="Ver esses clientes"><span>${esc(k)}</span><b>${n} ›</b></button>`).join('')}
+    <div class="fbox"><h4>❌ Atendimentos finalizados · ${tot}</h4>${L.length?L.map(([k,n])=>`<button class="mot" onclick="verCat(this.dataset.c)" data-c="${esc(k)}" title="Ver esses clientes"><span>🏷️ ${esc(k)}</span><b>${n} ›</b></button>`).join(''):'<div class="vazio">Nenhum atendimento finalizado.</div>'}
+      <button class="mot" style="margin-top:10px;color:#a15c00" onclick="crmF={grupo:'com_margem',busca:'',motivo:'',cat:''};irPara('clientes')" title="Têm margem e pararam de responder: dá para chamar de novo"><span>💰 Com margem (dá para chamar de novo)</span><b>${cm} ›</b></button>
       <button class="mot" style="margin-top:10px;color:var(--tx2)" onclick="crmF={grupo:'sem_margem',busca:'',motivo:'',cat:''};irPara('clientes')" title="Não conta como perda: o cliente não tinha margem"><span>🚫 Sem margem (fora das perdas)</span><b>${sm} ›</b></button></div>`;return;}
   const TODOS=F.motivos_perda||[],ehSM=m=>/^sem margem/i.test(m.motivo||''),M=TODOS.filter(m=>!ehSM(m)),SM=TODOS.filter(ehSM).reduce((a,m)=>a+Number(m.total||0),0),totP=M.reduce((a,m)=>a+Number(m.total||0),0);
   el.innerHTML=`<div class="fbox"><h4>📉 Funil · últimos 30 dias</h4>${base?rows:'<div class="vazio">Ainda não há clientes nos últimos 30 dias.</div>'}</div>
     <div class="fbox"><h4>❌ Onde perdemos clientes · ${totP}</h4>${M.length?M.map(m=>`<button class="mot" onclick="verMotivo(this.dataset.m)" data-m="${esc(m.motivo)}" title="Ver esses clientes"><span>${esc(m.motivo)}</span><b>${m.total} ›</b></button>`).join(''):'<div class="vazio">Nenhuma perda registrada.</div>'}<button class="mot" style="margin-top:10px;color:var(--tx2)" onclick="crmF={grupo:'sem_margem',busca:'',motivo:'',cat:''};irPara('clientes')" title="Não conta como perda: o cliente não tinha margem"><span>🚫 Sem margem (fora das perdas)</span><b>${SM} ›</b></button></div>`;}
 function renderSaude(){const S=estado.saude||{};
   const it=[['V8',S.v8],['WhatsApp',S.whatsapp],['n8n',S.n8n]].map(([n,x])=>[n,x||{}]);
-  const erro=it.filter(([,x])=>x.ok===false),ok=it.every(([,x])=>x.ok===true);
+  const erro=it.filter(([,x])=>x.ok===false),ok=!erro.length&&it.some(([,x])=>x.ok===true);
   const tit=it.map(([n,x])=>(x.ok===true?'✅ ':x.ok===false?'❌ ':'• ')+n+': '+(x.detalhe||'sem dados')).join('\n');
   document.getElementById('saude').innerHTML=`<span class="sd ${erro.length?'erro':ok?'ok':'neutro'}" title="${esc(tit)}" aria-label="${esc(tit)}"><i></i><span>${erro.length?esc(erro.map(e=>e[0]).join(', '))+' com problema':ok?'Sistema ok':'Sistema'}</span></span>`;}
 
@@ -1299,7 +1300,7 @@ function renderCampanha(){const D=cpDados;if(!D)return;const C=D.config||{},fila
     <div><span class="big" style="color:#0f7a4f">${D.enviados||0}</span>mensagens enviadas · <b>${D.responderam||0}</b> responderam${D.erros?` · <span style="color:#b42318">${D.erros} com erro</span>`:''}</div>
     <div><span class="big" style="color:${C.ativa?'#0f7a4f':'#8a6200'}">${C.ativa?'Enviando':'Pausada'}</span>${C.instancia?'pelo número '+esc(C.instancia):'⚠️ nenhum número de WhatsApp ligado à campanha ainda'}</div>`;
   const L=D.contatos||[];
-  document.getElementById('cpLista').innerHTML=`<h4>👥 Clientes da campanha · ${L.length}</h4>${L.length?`<div class="crm-tab"><div class="crm-l crm-h"><span>Cliente</span><span>Telefone</span><span>CPF</span><span>Situação</span><span>Margem</span><span>Enviado</span></div>${L.map(c=>{const st=CP_ST[c.status]||['—','#eef1f5','#5b6878'];
+  document.getElementById('cpLista').innerHTML=`<h4>👥 Clientes da campanha · ${L.length}</h4>${L.length?`<div class="crm-tab"><div class="crm-l crm-h"><span>Cliente</span><span>Telefone</span><span>CPF</span><span>Situação</span><span>Margem</span><span>Enviado</span></div>${L.map(c=>{const st=c.status==='enviado'&&c.situacao?[c.situacao,...(/^(Número errado|Não contatar)/.test(c.situacao)?['#fde8e8','#b42318']:/^Prospecção/.test(c.situacao)?['#e3f7ee','#0f7a4f']:['#fff4dc','#a15c00'])]:(CP_ST[c.status]||['—','#eef1f5','#5b6878']);
       return `<div class="crm-l" ${c.lead_id?`onclick="abrirPainel('cliente:${c.lead_id}')"`:'style="cursor:default"'}><span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b></span><span class="c-tel">${fmtTel(c.telefone)}</span><span class="c-cpf">${esc(c.cpf||'—')}</span><span class="c-sit"><span class="cp-st" style="background:${st[1]};color:${st[2]}" title="${esc(c.erro||'')}">${st[0]}</span>${c.status==='na_fila'?` <button class="lnk-a" style="font-size:11.5px" onclick="event.stopPropagation();cpCarregar('remover',{id:'${c.id}'})">remover</button>`:''}</span><span class="c-of">${c.margem?brlFull(c.margem):'—'}</span><span class="c-ult">${c.enviado_em?quando(c.enviado_em):'—'}</span></div>`;}).join('')}</div>`:'<div class="vazio">Nenhum cliente importado ainda.</div>'}`;}
 
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
@@ -1401,7 +1402,7 @@ function renderCrm(){const el=document.getElementById('crmLista');if(!el)return;
   el.innerHTML=`<div class="crm-tab"><div class="crm-l crm-h"><span>Cliente</span><span>Telefone</span><span>CPF</span><span>Situação</span><span>Oferta</span><span>Última conversa</span></div>
     ${L.slice(0,300).map(c=>`<div class="crm-l" role="button" tabindex="0" onclick="abrirPainel('cliente:${c.id}')" onkeydown="if(event.key==='Enter')abrirPainel('cliente:${c.id}')">
       <span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b>${c.teste?' <span class="pill" style="background:#eef1f5;color:#5b6878">teste</span>':''}</span>
-      <span class="c-tel">${fmtTel(c.telefone)}</span><span class="c-cpf">${fmtCpf(c.cpf)}</span><span class="c-sit">${pillSit(c)}</span>
+      <span class="c-tel">${fmtTel(c.telefone)}</span><span class="c-cpf">${fmtCpf(c.cpf)}${c.cpf_da_base?' <small style="color:#8a94a3" title="CPF da planilha, ainda não confirmado pelo cliente">(base)</small>':''}</span><span class="c-sit">${pillSit(c)}</span>
       <span class="c-of">${c.oferta?brl(c.oferta.valor)+' em '+c.oferta.prazo+'x':c.margem?'margem '+brl(c.margem):'—'}</span><span class="c-ult">${quando(c.ultima)}</span></div>`).join('')}</div>
     ${L.length>300?`<div class="vazio" style="margin-top:8px">Mostrando 300 de ${L.length}. Use a busca ou baixe a planilha para ver todos.</div>`:''}`;}
 function crmCsv(){const L=crmFiltrados(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
