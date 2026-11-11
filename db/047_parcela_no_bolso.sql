@@ -10,3 +10,17 @@
 --  n8n "GM Cred · Ações": "Com margem?" só simula se não for pedir_parcela; "Resultado simulação" — 1ª simulação feita a
 --         partir da Recepção não mostra valores (as ofertas são apresentadas na sequência, sem duplicar).
 --  n8n "GM Cred · Acompanhamento": consulta que aprova depois -> "Pedir parcela?" -> Agente modo aviso com o texto da margem.
+
+-- 11/11 (v2): formato da simulação
+--  * Valor único ("uns 300") -> mensagem no formato da proposta da Vitória:
+--      ✅ *Simulação pronta!*
+--      📅 36x de R$ 300 → *R$ X* na sua conta
+--      📅 24x de R$ 300 → *R$ Y* na sua conta
+--      Qual prazo fica melhor pra você?
+--  * Faixa ("200 a 400") -> tabela de R$ 50 em R$ 50 (máx. 5 linhas, nunca acima da margem), colunas 24x e 36x.
+--  * Só tabela COM seguro. Prazos 36x e 24x; se a V8 recusar esses prazos para o cliente, usa os 2 maiores aceitos (ex.: 18x/12x).
+--  n8n: "GM Cred · Agente" (simular aceita faixa), "GM Cred · Ações" (lê faixa; passa a mensagem), "GM Cred · V8 Ferramentas"
+--       ("Montar simulações", "Oferta", "Resultado simulação" montam as ofertas e a mensagem pronta).
+--  banco: leads.ofertas_msg; salvar_ofertas guarda a mensagem e manda a Ana enviá-la EXATAMENTE; contexto (modo apresentar)
+--         usa a mensagem pronta.
+alter table credito.leads add column if not exists ofertas_msg text;
