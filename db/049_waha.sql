@@ -24,3 +24,6 @@
 --   contexto_gestor() = contexto_gestor_base() || contexto_campanha().
 -- campanha_api: situação "Prospecção · enviando/enviada/entregue/lida/não entregue".
 -- credito.waha_sessoes(json): o envio consulta /api/sessions a cada minuto e atualiza número, perfil e trava.
+-- Queda do WAHA (11/11 ~17h): check-exists sem resposta virava "sem whatsapp" → 9 contatos bloqueados por engano (revertido).
+--   Envio: "Confirmado sem WhatsApp?" só marca quando numberExists === false; sem resposta, a mensagem espera e tenta de novo.
+--   wpp_falhou: erro de conexão (ECONN/timeout/ngrok/502-504) não marca erro, só re-reserva para nova tentativa.
