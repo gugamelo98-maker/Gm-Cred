@@ -1,0 +1,12 @@
+-- Empresa virtual CLT — "qual parcela cabe no seu bolso?" antes de simular
+-- Aplicado em 2026-11-11 (banco + n8n).
+--  * Consulta aprovada com margem >= R$ 300: a Ana NÃO simula sozinha. Ela diz
+--    "Você tem disponível até R$ X de parcela. Dentro desse valor, o que cabe melhor no seu bolso?
+--     Geralmente os clientes pegam de R$ 300 a R$ 600 por mês de parcela." (se a margem < 600, a faixa vai até a margem)
+--    e simula com a parcela que o cliente disser (ou o máximo, se ele pedir).
+--  * Margem < R$ 300: segue como antes (simula com o máximo e apresenta as ofertas).
+--  banco: credito.texto_margem(m); acao_agente(aplicar_consulta) devolve pedir_parcela=true + texto;
+--         contexto_agente lembra a margem enquanto não houver ofertas; prompt da Recepção ajustado.
+--  n8n "GM Cred · Ações": "Com margem?" só simula se não for pedir_parcela; "Resultado simulação" — 1ª simulação feita a
+--         partir da Recepção não mostra valores (as ofertas são apresentadas na sequência, sem duplicar).
+--  n8n "GM Cred · Acompanhamento": consulta que aprova depois -> "Pedir parcela?" -> Agente modo aviso com o texto da margem.
