@@ -27,3 +27,9 @@ alter table credito.campanha_contatos add column if not exists instancia text;
 --  * conversas.reservado_em: wpp_pendentes2() reserva as mensagens que devolve e wpp_pendentes() não as devolve de novo
 --    por 4 min (evita envio duplicado quando uma execução ainda está esperando os 25 s).
 alter table credito.conversas add column if not exists reservado_em timestamptz;
+
+-- 11/11 (v4): falha de entrega de mensagens diretas na Evolution (desde a queda das 8h; grupos funcionavam).
+--  * Os 39 contatos enviados em 11/11 (nenhum respondeu) voltaram para a fila (status na_fila, enviado_em/instancia nulos).
+--  * campanha_passo(): se o contato já tem lead_id de prospecção que nunca respondeu, reaproveita esse lead
+--    (sem criar cliente duplicado) e manda a 1ª mensagem de novo.
+--  * Campanha pausada até a Evolution voltar a entregar mensagens diretas.
