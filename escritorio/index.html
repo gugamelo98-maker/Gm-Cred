@@ -329,6 +329,21 @@ button{font:inherit;cursor:pointer}
 .rs-kpis{grid-template-columns:repeat(6,1fr)}
 .rs-ia{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px}.rs-ia div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #f0f3f7;font-size:14px}.rs-ia b{font-variant-numeric:tabular-nums}
 #fin > .fbox + .fbox{margin-top:14px}
+.cv-nums{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.cv-num{background:#fff;border-radius:12px;padding:8px 12px;font-size:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}.cv-num b{display:block;font-size:13px}.cv-num.ok b::before{content:'● ';color:#16a36a}.cv-num.mal b::before{content:'● ';color:#d92d20}.cv-num.mal{background:#fde8e8}
+.cv-wrap{display:grid;grid-template-columns:320px 1fr;gap:12px;height:calc(100vh - 230px);min-height:420px}
+.cv-lista{background:#fff;border-radius:14px;overflow:auto;padding:10px}.cv-lista .busca{width:100%;padding:9px 11px;border:1px solid #e3e8ef;border-radius:10px;margin-bottom:8px;box-sizing:border-box}
+.cv-it{padding:9px 10px;border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}.cv-it:hover{background:#f4f6f9}.cv-it.on{background:#eaf1ff}
+.cv-it .t{min-width:0}.cv-it b{font-size:14px}.cv-it p{margin:2px 0 0;font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cv-it small{font-size:11px;color:var(--tx3);white-space:nowrap}
+.cv-it .n{background:#16a36a;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:800}
+.cv-chat{background:#fff;border-radius:14px;display:flex;flex-direction:column;min-height:0}
+.cv-top{padding:12px 14px;border-bottom:1px solid #eef1f5;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.cv-top b{font-size:15px}.cv-top span{font-size:12px;color:var(--tx2)}
+.cv-msgs{flex:1;overflow:auto;padding:14px;background:#efeae2;display:flex;flex-direction:column;gap:6px}
+.cv-b{max-width:75%;padding:7px 10px;border-radius:10px;font-size:14px;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.cv-b.in{background:#fff;align-self:flex-start}.cv-b.out{background:#d9fdd3;align-self:flex-end}.cv-b.hum{background:#cfe6ff}
+.cv-b small{display:block;font-size:10px;color:#667781;margin-top:3px;text-align:right}
+.cv-env{display:flex;gap:8px;padding:10px;border-top:1px solid #eef1f5}.cv-env textarea{flex:1;resize:none;border:1px solid #e3e8ef;border-radius:10px;padding:9px;font:inherit;height:44px}
+.badge{background:#d92d20;color:#fff;border-radius:9px;font-size:10px;padding:0 5px;margin-left:4px}
+@media(max-width:900px){.cv-wrap{grid-template-columns:1fr;height:auto}.cv-lista{max-height:260px}.cv-chat{height:70vh}}
 .rs-hist{margin-top:12px}.rs-hist summary{cursor:pointer;color:var(--azul,#1f55c4);font-weight:700;font-size:13px}
 .rs-tab{overflow-x:auto;margin-top:8px}.rs-tab table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}.rs-tab th{font-size:11px;text-transform:uppercase;color:var(--tx3);text-align:right;padding:6px 8px;white-space:nowrap}.rs-tab td{text-align:right;padding:7px 8px;border-top:1px solid #f0f3f7;white-space:nowrap}.rs-tab th:first-child,.rs-tab td:first-child{text-align:left}.rs-tab small{color:var(--tx3)}
 @media(max-width:900px){.rs-ia{grid-template-columns:1fr}}
@@ -486,6 +501,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="conversas" onclick="irPara('conversas')"><span class="ico">💬</span>Conversas<b class="badge" id="cvBadge" hidden></b></button>
   <button class="nv" data-v="campanha" onclick="irPara('campanha')"><span class="ico">📤</span>Campanha</button>
   <span class="nv-sep">Análise</span>
   <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
@@ -529,6 +545,13 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <section class="ag-sec" id="agCombos"></section>
 </div>
 
+<div class="view" id="v-conversas" hidden>
+  <div class="cv-nums" id="cvNums"></div>
+  <div class="cv-wrap">
+    <div class="cv-lista"><input id="cvBusca" class="busca" placeholder="Buscar nome ou telefone" oninput="cvRenderLista()"><div id="cvLista"><div class="vazio">Carregando conversas…</div></div></div>
+    <div class="cv-chat" id="cvChat"><div class="vazio" style="margin:auto">Escolha uma conversa ao lado.</div></div>
+  </div>
+</div>
 <div class="view" id="v-campanha" hidden>
 <section class="ag-sec">
   <div class="ag-barra"><h3>📤 Campanha · a IA chama os clientes</h3><button class="bt" id="cpBtn" onclick="cpAlternar()" style="padding:8px 14px"></button></div>
@@ -1299,6 +1322,31 @@ function cpDemoApi(acao,extra){if(!cpDemo)cpDemo={config:{ativa:false,intervalo_
   let aviso=null;if(acao==='importar'){const L=JSON.parse(extra.linhas);L.forEach(l=>cpDemo.contatos.push({id:Date.now()+Math.random(),nome:l.nome,telefone:'55'+String(l.telefone).replace(/\D/g,'').replace(/^55/,''),cpf:l.cpf?'***':null,margem:l.margem||null,status:'na_fila'}));aviso=L.length+' importado(s)';}
   if(acao==='ativar'||acao==='pausar')cpDemo.config.ativa=acao==='ativar';if(acao==='mensagem')cpDemo.config.mensagem=extra.mensagem;
   const n=s=>cpDemo.contatos.filter(c=>c.status===s).length;return{aviso,config:cpDemo.config,na_fila:n('na_fila'),enviados:n('enviado'),erros:n('erro'),responderam:0,contatos:cpDemo.contatos};}
+
+let cvD=null,cvSel=null,cvConv=null,cvTimer=null,cvEnviando=false;
+async function cvApi(acao,extra){if(demo)return null;if(!chave){pedirChave();return null;}
+  const r=await fetch(BASE+'/escritorio/atendimento',{method:'POST',body:new URLSearchParams({k:chave,acao,...(extra||{})})});
+  if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}return r.ok?r.json():null;}
+const MODO_TX={campanha:'campanha',recuperar:'recuperação',humano:'você',resposta:'IA',apresentar:'IA'};
+function cvHora(iso){return quando(iso);}
+function cvRenderNums(){const N=(cvD&&cvD.numeros)||[];document.getElementById('cvNums').innerHTML=N.map(n=>`<div class="cv-num ${n.estado==='open'?'ok':'mal'}" title="${esc(n.nome)}${n.caiu_em&&n.estado!=='open'?' · caiu em '+quando(n.caiu_em):''}"><b>${fmtTel(n.numero)}</b>${esc(n.situacao)} · ${n.enviadas_hoje} enviadas hoje${n.falhas_hoje?` · <span style="color:#b42318">${n.falhas_hoje} falhas</span>`:''}</div>`).join('');}
+function cvRenderLista(){const L=(cvD&&cvD.conversas)||[],b=(document.getElementById('cvBusca').value||'').toLowerCase(),bd=b.replace(/\D/g,'');
+  const F=L.filter(c=>!b||String(c.nome||'').toLowerCase().includes(b)||(bd.length>=3&&String(c.telefone).includes(bd)));
+  const esp=L.filter(c=>c.sem_resposta>0).length,bd2=document.getElementById('cvBadge');bd2.hidden=!esp;bd2.textContent=esp;
+  document.getElementById('cvLista').innerHTML=F.length?F.map(c=>`<div class="cv-it ${cvSel===c.id?'on':''}" onclick="cvAbrir(${c.id})"><div class="t"><b>${esc(c.nome||fmtTel(c.telefone))}</b><p>${c.ultima_dir==='entrada'?'':'↪ '}${esc(c.ultima||'')}</p><small>${esc(c.situacao||'')}${c.aguardando==='humano'?' · 🧑 com você':''}</small></div><div style="text-align:right"><small>${cvHora(c.ultima_em)}</small>${c.sem_resposta?`<div><span class="n">${c.sem_resposta}</span></div>`:''}</div></div>`).join(''):'<div class="vazio">Nenhuma conversa.</div>';}
+function cvRenderChat(rolar){const el=document.getElementById('cvChat');if(!cvConv||!cvConv.lead){return;}const l=cvConv.lead,M=cvConv.msgs||[];
+  const box=el.querySelector('.cv-msgs'),fim=!box||box.scrollTop+box.clientHeight>=box.scrollHeight-40,rasc=(el.querySelector('textarea')||{}).value||'';
+  el.innerHTML=`<div class="cv-top"><div><b>${esc(l.nome||fmtTel(l.telefone))}</b><br><span>${fmtTel(l.telefone)} · ${esc(l.situacao||'')}${l.instancia?' · pelo '+esc(l.instancia):''}</span></div>
+     <div>${l.humano?`<span style="color:#1f55c4;font-weight:700">🧑 Você está atendendo (IA pausada)</span> <button class="bt" onclick="cvDevolver()">Devolver para a IA</button>`:'<span>🤖 A IA está atendendo. Se você responder, ela pausa.</span>'}</div></div>
+    <div class="cv-msgs">${M.map(m=>`<div class="cv-b ${m.dir==='entrada'?'in':'out'} ${m.modo==='humano'?'hum':''}">${esc(m.txt)}<small>${m.dir==='entrada'?'cliente':esc(MODO_TX[m.modo]||'IA')} · ${hora(m.em)}${m.dir==='saida'?(m.erro?' · ❌ não saiu':m.enviado?' ✓':' · enviando…'):''}</small></div>`).join('')||'<div class="vazio">Sem mensagens.</div>'}</div>
+    <div class="cv-env"><textarea placeholder="Escreva sua resposta… (Enter envia, Shift+Enter quebra linha)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cvEnviar();}"></textarea><button class="bt pri" onclick="cvEnviar()">Enviar</button></div>`;
+  el.querySelector('textarea').value=rasc;const nb=el.querySelector('.cv-msgs');if(rolar||fim)nb.scrollTop=nb.scrollHeight;}
+async function cvAbrir(id){cvSel=id;cvRenderLista();const r=await cvApi('conversa',{id});if(r&&r.ok&&cvSel===id){const novo=!cvConv||!cvConv.lead||cvConv.lead.id!==id;cvConv=r;cvRenderChat(novo);}}
+async function cvEnviar(){const t=document.querySelector('#cvChat textarea');if(!t||!t.value.trim()||cvEnviando||!cvSel)return;cvEnviando=true;const txt=t.value;t.value='';
+  try{const r=await cvApi('enviar',{id:cvSel,texto:txt});if(!r||!r.ok){t.value=txt;alert((r&&r.erro)||'Não consegui enviar.');}await cvAbrir(cvSel);}finally{cvEnviando=false;}}
+async function cvDevolver(){if(!cvSel)return;await cvApi('devolver',{id:cvSel});await cvAbrir(cvSel);}
+async function cvCarregar(){const r=await cvApi('lista');if(r){cvD=r;cvRenderNums();cvRenderLista();}if(cvSel)await cvAbrir(cvSel);}
+function cvLigar(on){clearInterval(cvTimer);cvTimer=null;if(on){cvCarregar();cvTimer=setInterval(()=>{if(!document.hidden)cvCarregar();},4000);}}
 async function cpCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
   try{if(demo)cpDados=cpDemoApi(acao,extra);
     else{if(!chave){pedirChave();return;}const r=await fetch(BASE+'/escritorio/campanha',{method:'POST',body:new URLSearchParams({k:chave,acao,...extra})});
@@ -1576,12 +1624,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','hoje','clientes','campanha','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','hoje','clientes','conversas','campanha','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
