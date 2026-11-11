@@ -342,6 +342,7 @@ button{font:inherit;cursor:pointer}
 .cv-b.in{background:#fff;align-self:flex-start}.cv-b.out{background:#d9fdd3;align-self:flex-end}.cv-b.hum{background:#cfe6ff}
 .cv-b small{display:block;font-size:10px;color:#667781;margin-top:3px;text-align:right}
 .cv-env{display:flex;gap:8px;padding:10px;border-top:1px solid #eef1f5}.cv-env textarea{flex:1;resize:none;border:1px solid #e3e8ef;border-radius:10px;padding:9px;font:inherit;height:44px}
+.cv-fim{display:flex;gap:8px;align-items:center;padding:0 10px 10px;font-size:13px;flex-wrap:wrap}.cv-fim select{border:1px solid #e3e8ef;border-radius:8px;padding:5px}
 .badge{background:#d92d20;color:#fff;border-radius:9px;font-size:10px;padding:0 5px;margin-left:4px}
 @media(max-width:900px){.cv-wrap{grid-template-columns:1fr;height:auto}.cv-lista{max-height:260px}.cv-chat{height:70vh}}
 .nm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.nm-c{border:1px solid #edf1f5;border-radius:12px;padding:12px}.nm-c.mal{background:#fff5f5;border-color:#f5c2c0}
@@ -1336,7 +1337,7 @@ let cvD=null,cvSel=null,cvConv=null,cvTimer=null,cvEnviando=false;
 async function cvApi(acao,extra){if(demo)return null;if(!chave){pedirChave();return null;}
   const r=await fetch(BASE+'/escritorio/atendimento',{method:'POST',body:new URLSearchParams({k:chave,acao,...(extra||{})})});
   if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}return r.ok?r.json():null;}
-const MODO_TX={campanha:'campanha',recuperar:'recuperação',humano:'você',resposta:'IA',apresentar:'IA'};
+const MODO_TX={troca:'reserva',campanha:'campanha',recuperar:'recuperação',humano:'você',resposta:'IA',apresentar:'IA'};
 function cvHora(iso){return quando(iso);}
 function cvNumDe(inst){const N=(cvD&&cvD.numeros)||[],n=N.find(x=>x.nome===(inst||'gmcred-campanha'));return n?fmtTel(n.numero)+(n.estado==='open'?'':' ⚠️ caiu'):(inst||'');}
 function cvRenderNums(){const N=(cvD&&cvD.numeros)||[];document.getElementById('cvNums').innerHTML=N.map(n=>`<div class="cv-num ${n.estado==='open'?'ok':'mal'}" title="${esc(n.nome)}${n.caiu_em&&n.estado!=='open'?' · caiu em '+quando(n.caiu_em):''}"><b>${fmtTel(n.numero)}</b>${esc(n.situacao)} · ${n.enviadas_hoje} enviadas hoje${n.falhas_hoje?` · <span style="color:#b42318">${n.falhas_hoje} falhas</span>`:''}</div>`).join('');}
@@ -1344,14 +1345,18 @@ function cvRenderLista(){const L=(cvD&&cvD.conversas)||[],b=(document.getElement
   const F=L.filter(c=>!b||String(c.nome||'').toLowerCase().includes(b)||(bd.length>=3&&String(c.telefone).includes(bd)));
   const esp=L.filter(c=>c.sem_resposta>0).length,bd2=document.getElementById('cvBadge');bd2.hidden=!esp;bd2.textContent=esp;
   document.getElementById('cvLista').innerHTML=F.length?F.map(c=>`<div class="cv-it ${cvSel===c.id?'on':''}" onclick="cvAbrir(${c.id})"><div class="t"><b>${esc(c.nome||fmtTel(c.telefone))}</b><p>${c.ultima_dir==='entrada'?'':'↪ '}${esc(c.ultima||'')}</p><small>📱 ${esc(cvNumDe(c.instancia))} · ${esc(c.situacao||'')}${c.aguardando==='humano'?' · 🧑 com você':''}</small></div><div style="text-align:right"><small>${cvHora(c.ultima_em)}</small>${c.sem_resposta?`<div><span class="n">${c.sem_resposta}</span></div>`:''}</div></div>`).join(''):'<div class="vazio">Nenhuma conversa.</div>';}
-function cvRenderChat(rolar){const el=document.getElementById('cvChat');if(!cvConv||!cvConv.lead){return;}const l=cvConv.lead,M=cvConv.msgs||[];
-  const box=el.querySelector('.cv-msgs'),fim=!box||box.scrollTop+box.clientHeight>=box.scrollHeight-40,rasc=(el.querySelector('textarea')||{}).value||'';
-  el.innerHTML=`<div class="cv-top"><div><b>${esc(l.nome||fmtTel(l.telefone))}</b><br><span>${fmtTel(l.telefone)} · ${esc(l.situacao||'')} · <b style="color:#0f7a4f">📱 falando pelo ${esc(cvNumDe(l.instancia))}</b></span></div>
-     <div>${l.humano?`<span style="color:#1f55c4;font-weight:700">🧑 Você está atendendo (IA pausada)</span> <button class="bt" onclick="cvDevolver()">Devolver para a IA</button>`:'<span>🤖 A IA está atendendo. Se você responder, ela pausa.</span>'}</div></div>
-    <div class="cv-msgs">${M.map(m=>`<div class="cv-b ${m.dir==='entrada'?'in':'out'} ${m.modo==='humano'?'hum':''}">${esc(m.txt)}<small>${m.dir==='entrada'?'cliente':esc(MODO_TX[m.modo]||'IA')} · ${hora(m.em)}${m.dir==='saida'?(m.erro?' · ❌ não saiu':m.enviado?' ✓':' · enviando…'):''}</small></div>`).join('')||'<div class="vazio">Sem mensagens.</div>'}</div>
-    <div class="cv-env"><textarea placeholder="Escreva sua resposta… (Enter envia, Shift+Enter quebra linha)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cvEnviar();}"></textarea><button class="bt pri" onclick="cvEnviar()">Enviar</button></div>`;
-  el.querySelector('textarea').value=rasc;const nb=el.querySelector('.cv-msgs');if(rolar||fim)nb.scrollTop=nb.scrollHeight;}
-async function cvAbrir(id){cvSel=id;cvRenderLista();const r=await cvApi('conversa',{id});if(r&&r.ok&&cvSel===id){const novo=!cvConv||!cvConv.lead||cvConv.lead.id!==id;cvConv=r;cvRenderChat(novo);}}
+function cvRenderChat(rolar){const el=document.getElementById('cvChat');if(!cvConv||!cvConv.lead)return;const l=cvConv.lead,M=cvConv.msgs||[];
+  if(el.dataset.lead!==String(l.id)){el.dataset.lead=l.id;rolar=true;
+    el.innerHTML=`<div class="cv-top"></div><div class="cv-msgs"></div>
+    <div class="cv-env"><textarea placeholder="Escreva sua resposta… (Enter envia, Shift+Enter quebra linha)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cvEnviar();}"></textarea><button class="bt pri" onclick="cvEnviar()">Enviar</button></div>
+    <div class="cv-fim"><span>Finalizar atendimento:</span><select id="cvMotivo"><option value="sem interesse">Sem interesse</option><option value="já tem empréstimo">Já tem empréstimo</option><option value="número errado: não é o cliente">Número errado</option><option value="não contatar: pediu para não chamar">Não contatar</option><option value="sem margem: informado pelo atendente">Sem margem</option><option value="atendimento concluído">Atendimento concluído</option></select><button class="bt" onclick="cvFinalizar()">✔ Finalizar</button></div>`;}
+  el.querySelector('.cv-top').innerHTML=`<div><b>${esc(l.nome||fmtTel(l.telefone))}</b><br><span>${fmtTel(l.telefone)} · ${esc(l.situacao||'')} · <b style="color:#0f7a4f">📱 falando pelo ${esc(cvNumDe(l.instancia))}</b></span></div>
+     <div>${l.humano?`<span style="color:#1f55c4;font-weight:700">🧑 Você está atendendo (IA pausada)</span> <button class="bt" onclick="cvDevolver()">Devolver para a IA</button>`:'<span>🤖 A IA está atendendo. Se você responder, ela pausa.</span>'}</div>`;
+  const box=el.querySelector('.cv-msgs'),fim=box.scrollTop+box.clientHeight>=box.scrollHeight-40,html=M.map(m=>`<div class="cv-b ${m.dir==='entrada'?'in':'out'} ${m.modo==='humano'?'hum':''}">${esc(m.txt)}<small>${m.dir==='entrada'?'cliente':esc(MODO_TX[m.modo]||'IA')} · ${hora(m.em)}${m.dir==='saida'?(m.erro?' · ❌ não saiu':m.enviado?' ✓':' · enviando…'):''}</small></div>`).join('')||'<div class="vazio">Sem mensagens.</div>';
+  if(box.dataset.h!==html){box.dataset.h=html;box.innerHTML=html;if(rolar||fim)box.scrollTop=box.scrollHeight;}}
+async function cvFinalizar(){if(!cvSel)return;const m=document.getElementById('cvMotivo').value;if(!confirm('Finalizar o atendimento deste cliente como "'+m+'"?'))return;
+  const r=await cvApi('finalizar',{id:cvSel,texto:m});if(!r||!r.ok){alert('Não consegui finalizar.');return;}await cvCarregar();}
+async function cvAbrir(id){cvSel=id;const cc=((cvD&&cvD.conversas)||[]).find(x=>x.id===id);if(cc)cc.sem_resposta=0;cvRenderLista();const r=await cvApi('conversa',{id});if(r&&r.ok&&cvSel===id){const novo=!cvConv||!cvConv.lead||cvConv.lead.id!==id;cvConv=r;cvRenderChat(novo);}}
 async function cvEnviar(){const t=document.querySelector('#cvChat textarea');if(!t||!t.value.trim()||cvEnviando||!cvSel)return;cvEnviando=true;const txt=t.value;t.value='';
   try{const r=await cvApi('enviar',{id:cvSel,texto:txt});if(!r||!r.ok){t.value=txt;alert((r&&r.erro)||'Não consegui enviar.');}await cvAbrir(cvSel);}finally{cvEnviando=false;}}
 async function cvDevolver(){if(!cvSel)return;await cvApi('devolver',{id:cvSel});await cvAbrir(cvSel);}
