@@ -130,3 +130,8 @@ begin
         'para', credito.tel_fmt((select split_part("ownerJid", '@', 1) from public."Instance" where name = m.para)), 'texto', m.texto, 'em', m.criado_em,
         'ok', m.enviado_em is not null) order by m.id desc) from (select * from credito.maturador_msgs order by id desc limit 30) m), '[]'::json));
 end $function$;
+
+-- 11/11: avisos vão para o grupo "Avisos GM Cred" (120363412985164405@g.us), criado pelo dono com os 6 números.
+--  configuracoes.avisos = {numero: <grupo>, instancia: gmcred-4, reserva: [gmcred-5, gmcred-6]};
+--  wpp_pendentes2() usa a instância configurada e, se ela tiver caído, a primeira reserva conectada.
+--  O número da campanha (6775) também está no grupo, mas não é usado para enviar avisos (para preservar a campanha).
