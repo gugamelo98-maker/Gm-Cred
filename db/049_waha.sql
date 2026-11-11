@@ -15,3 +15,7 @@
 -- wpp_chips.oculto + numeros_api 'excluir': tira o número do painel, campanha, maturador e alertas.
 -- no_escritorio inclui a prospecção (aparece ao clicar no setor); v_resumo_hoje.em_andamento e resumo_grupo não contam a prospecção.
 -- variar_msg mantém quebras de linha (só junta espaços).
+-- wpp_motor.trava_ate + credito.waha_me(): guarda a trava "reachoutTimelock" que o WAHA manda em todo evento;
+--   avisa no grupo quando aparece, mostra no cartão do número e tira da campanha (campanha_instancias) até acabar.
+-- credito.wpp_acks_a_conferir() + nós "Entregas a conferir → Perguntar ao WAHA → Gravar entrega" (envio):
+--   pergunta ao WAHA o status das mensagens que ficaram só em ✓ (o aviso de entrega às vezes não chega).
