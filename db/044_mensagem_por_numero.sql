@@ -20,3 +20,10 @@ alter table credito.campanha_contatos add column if not exists instancia text;
 --    se a pessoa não for a do cadastro, oferecer a consulta para ELA e pedir o CPF dela; só encerrar como
 --    "número errado" se ela não tiver interesse;
 --  * acao_agente(aplicar_consulta): se o CPF consultado for diferente do cpf_base, o nome do lead passa a ser o da V8.
+
+-- 11/11 (v3): envios da campanha espaçados — 1 a cada 25 s (antes todos os números no mesmo segundo).
+--  * n8n "GM Cred · WhatsApp (envio)": mensagens com modo 'campanha' vão pelo nó "Enviar campanha (25s)"
+--    (lote de 1, intervalo de 25 s); respostas a clientes continuam saindo na hora.
+--  * conversas.reservado_em: wpp_pendentes2() reserva as mensagens que devolve e wpp_pendentes() não as devolve de novo
+--    por 4 min (evita envio duplicado quando uma execução ainda está esperando os 25 s).
+alter table credito.conversas add column if not exists reservado_em timestamptz;
