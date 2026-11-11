@@ -7,3 +7,9 @@
 --  * contexto_agente(): instrução específica para o toque do 3º dia (recuperacoes = 3) e o último (>= 4).
 --  * regras_gerais: "COLA DE OBJEÇÕES" — referência para a IA, não roteiro (ela responde com as próprias palavras).
 update credito.configuracoes set valor = valor || '{"tempos_proposta":[20,180,1440,4320,10080]}'::jsonb where chave = 'recuperacao';
+
+-- 11/11: leads.sem_followup — o dono pediu que os clientes da campanha de 10/11 (36, todos os leads até então)
+-- não recebam follow-up/recuperação. fila_acompanhamento() ignora sem_followup = true.
+-- Se o cliente mandar mensagem, a IA continua respondendo normalmente.
+alter table credito.leads add column if not exists sem_followup boolean not null default false;
+update credito.leads set sem_followup = true where not teste and (criado_em at time zone 'America/Sao_Paulo')::date <= date '2026-11-10';
