@@ -1421,7 +1421,7 @@ function renderFicha(f){const l=f&&f.lead;if(!l){gTit.textContent='Cliente não 
   gSub.innerHTML=`${s?'<span style="color:'+s.cor+'">●</span> '+esc(s.nome)+' · ':''}${STATUS_LABEL[l.status]||esc(l.status||'')}${l.numero?' · 📱 '+esc(l.numero):''}`;
   gCorpo.innerHTML=`<div class="ficha-acoes">${humano
       ?`<button class="bt" onclick="acao('devolver',${l.id})">🤖 Devolver ao agente</button><span style="font-size:12.5px;color:var(--vermelho);font-weight:600">Agente pausado: você está atendendo</span>`
-      :`<button class="bt pri" onclick="acao('assumir',${l.id})">🙋 Assumir atendimento</button><span style="font-size:12px;color:var(--tx3)">O agente para de responder este cliente</span>`}</div>
+      :`<button class="bt pri" onclick="acao('assumir',${l.id})">🙋 Assumir atendimento</button><span style="font-size:12px;color:var(--tx3)">O agente para de responder este cliente</span>`}${l.status==='parou'?'':`<span style="display:inline-flex;gap:6px;align-items:center;margin-left:auto"><select id="fichaMotivo" style="border:1px solid #e3e8ef;border-radius:8px;padding:6px">${MOTIVOS_FIM.map(([v,t])=>`<option value="${esc(v)}">${t}</option>`).join('')}</select><button class="bt" onclick="fichaFinalizar(${l.id})">✔ Finalizar atendimento</button></span>`}</div>
     <div class="dados"><div><span>Telefone</span><b>${esc(l.telefone||'—')}</b></div><div><span>CPF</span><b>${esc(l.cpf||'—')}</b></div>
       <div><span>Produto</span><b>${esc((l.produto||'—').toUpperCase())}</b></div><div><span>Valor</span><b>${brlFull(l.valor)}</b></div>
       <div><span>Entrou em</span><b>${l.criado_em?new Date(l.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—'}</b></div><div><span>No setor há</span><b>${tempo(minDesde(l.entrou_setor_em))}</b></div>
@@ -1432,6 +1432,9 @@ function renderFicha(f){const l=f&&f.lead;if(!l){gTit.textContent='Cliente não 
     <div class="g-sec">Linha do tempo</div>
     ${evs.length?`<div class="linha">${evs.map(e=>`<div><b style="color:var(--tx)">${new Date(e.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</b> · ${esc(e.descricao)}</div>`).join('')}</div>`:'<div class="vazio">Sem eventos.</div>'}`;
   const cb=document.getElementById('chatBox');if(cb)cb.scrollTop=cb.scrollHeight;}
+const MOTIVOS_FIM=[['sem interesse','Sem interesse'],['já tem empréstimo','Já tem empréstimo'],['número errado: não é o cliente','Número errado'],['não contatar: pediu para não chamar','Não contatar'],['sem margem: informado pelo atendente','Sem margem'],['atendimento concluído','Atendimento concluído']];
+async function fichaFinalizar(id){const m=document.getElementById('fichaMotivo').value;if(!confirm('Finalizar o atendimento deste cliente como "'+m+'"?'))return;
+  const r=await cvApi('finalizar',{id,texto:m});if(!r||!r.ok){alert('Não consegui finalizar.');return;}fecharPainel&&fecharPainel();atualizar();}
 async function acao(tipo,leadId,alertaId){
   if(demo){demoAcao(tipo,leadId,alertaId);return;}
   try{const r=await fetch(BASE+'/escritorio/acao',{method:'POST',body:new URLSearchParams({k:chave,tipo,lead_id:leadId||'',alerta_id:alertaId||''})});
