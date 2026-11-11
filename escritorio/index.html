@@ -344,6 +344,10 @@ button{font:inherit;cursor:pointer}
 .cv-env{display:flex;gap:8px;padding:10px;border-top:1px solid #eef1f5}.cv-env textarea{flex:1;resize:none;border:1px solid #e3e8ef;border-radius:10px;padding:9px;font:inherit;height:44px}
 .badge{background:#d92d20;color:#fff;border-radius:9px;font-size:10px;padding:0 5px;margin-left:4px}
 @media(max-width:900px){.cv-wrap{grid-template-columns:1fr;height:auto}.cv-lista{max-height:260px}.cv-chat{height:70vh}}
+.nm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}.nm-c{border:1px solid #edf1f5;border-radius:12px;padding:12px}.nm-c.mal{background:#fff5f5;border-color:#f5c2c0}
+.nm-c b{font-size:16px}.nm-st{display:inline-block;margin:6px 0;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:700}.nm-c input[type=text]{width:100%;box-sizing:border-box;border:1px solid #e3e8ef;border-radius:8px;padding:6px 8px;margin:6px 0}
+.nm-qr[hidden]{display:none!important}
+.nm-c small{display:block;color:var(--tx2);font-size:12px}.nm-qr{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:99}.nm-qr>div{background:#fff;border-radius:14px;padding:18px;text-align:center;max-width:320px}.nm-qr img{width:260px;height:260px;margin:10px 0}.nm-qr small{display:block;margin-bottom:10px;color:var(--tx2)}
 .rs-hist{margin-top:12px}.rs-hist summary{cursor:pointer;color:var(--azul,#1f55c4);font-weight:700;font-size:13px}
 .rs-tab{overflow-x:auto;margin-top:8px}.rs-tab table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}.rs-tab th{font-size:11px;text-transform:uppercase;color:var(--tx3);text-align:right;padding:6px 8px;white-space:nowrap}.rs-tab td{text-align:right;padding:7px 8px;border-top:1px solid #f0f3f7;white-space:nowrap}.rs-tab th:first-child,.rs-tab td:first-child{text-align:left}.rs-tab small{color:var(--tx3)}
 @media(max-width:900px){.rs-ia{grid-template-columns:1fr}}
@@ -503,6 +507,8 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
   <button class="nv" data-v="conversas" onclick="irPara('conversas')"><span class="ico">💬</span>Conversas<b class="badge" id="cvBadge" hidden></b></button>
   <button class="nv" data-v="campanha" onclick="irPara('campanha')"><span class="ico">📤</span>Campanha</button>
+  <button class="nv" data-v="numeros" onclick="irPara('numeros')"><span class="ico">📱</span>Números<b class="badge" id="nmBadge" hidden></b></button>
+  <button class="nv" data-v="maturador" onclick="irPara('maturador')"><span class="ico">🔄</span>Maturador</button>
   <span class="nv-sep">Análise</span>
   <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
   <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
@@ -552,6 +558,9 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
     <div class="cv-chat" id="cvChat"><div class="vazio" style="margin:auto">Escolha uma conversa ao lado.</div></div>
   </div>
 </div>
+<div class="view" id="v-numeros" hidden><div class="fbox"><h4>📱 Números de WhatsApp</h4><div class="rs-nota" style="margin:0 0 10px">Atualiza sozinho a cada 10 s. Se um número cair, você recebe um aviso no celular e pode reconectar aqui pelo QR.</div><div id="nmLista" class="nm-grid"><div class="vazio">Carregando…</div></div></div></div>
+<div class="view" id="v-maturador" hidden><div class="fbox"><h4>🔄 Maturador</h4><div class="rs-nota" style="margin:0 0 10px">Os números marcados trocam frases soltas entre si, de vez em quando (8h às 21h), para o WhatsApp ver uso normal. Comece com poucos números e intervalo maior.</div><div id="mtCfg"></div></div><div class="fbox" style="margin-top:14px"><h4>Últimas mensagens do maturador</h4><div id="mtUlt"></div></div></div>
+<div id="nmQr" class="nm-qr" hidden onclick="if(event.target===this)this.hidden=true"><div><b id="nmQrT"></b><div id="nmQrImg"></div><small>WhatsApp → Aparelhos conectados → Conectar um aparelho. O QR vale menos de 1 minuto.</small><button class="bt" onclick="document.getElementById('nmQr').hidden=true">Fechar</button></div></div>
 <div class="view" id="v-campanha" hidden>
 <section class="ag-sec">
   <div class="ag-barra"><h3>📤 Campanha · a IA chama os clientes</h3><button class="bt" id="cpBtn" onclick="cpAlternar()" style="padding:8px 14px"></button></div>
@@ -1348,6 +1357,27 @@ async function cvEnviar(){const t=document.querySelector('#cvChat textarea');if(
 async function cvDevolver(){if(!cvSel)return;await cvApi('devolver',{id:cvSel});await cvAbrir(cvSel);}
 async function cvCarregar(){const r=await cvApi('lista');if(r){cvD=r;cvRenderNums();cvRenderLista();}if(cvSel)await cvAbrir(cvSel);}
 function cvLigar(on){clearInterval(cvTimer);cvTimer=null;if(on){cvCarregar();cvTimer=setInterval(()=>{if(!document.hidden)cvCarregar();},4000);}}
+
+let nmD=null,nmTimer=null;
+async function nmApi(acao,extra){if(demo)return null;if(!chave){pedirChave();return null;}
+  const r=await fetch(BASE+'/escritorio/numeros',{method:'POST',body:new URLSearchParams({k:chave,acao,...(extra||{})})});
+  if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}return r.ok?r.json():null;}
+async function nmCarregar(acao,extra){const r=await nmApi(acao||'ver',extra);if(r&&r.numeros){nmD=r;nmRender();}}
+function nmRender(){const N=(nmD&&nmD.numeros)||[],mal=N.filter(n=>n.estado!=='open').length,bd=document.getElementById('nmBadge');bd.hidden=!mal;bd.textContent=mal;
+  const el=document.getElementById('nmLista');if(el)el.innerHTML=N.map(n=>{const ok=n.estado==='open';return `<div class="nm-c ${ok?'':'mal'}"><b>${fmtTel(n.numero)}</b> <small style="display:inline">${esc(n.nome)}</small><br>
+    <span class="nm-st" style="background:${ok?'#e3f7ee':'#fde8e8'};color:${ok?'#0f7a4f':'#b42318'}">${ok?'🟢':'🔴'} ${esc(n.situacao)}</span>${!ok&&n.caiu_em?`<small>caiu ${quando(n.caiu_em)}</small>`:''}
+    <input type="text" value="${esc(n.aparelho||'')}" placeholder="Onde está? ex.: Motorola · slot 2" onchange="nmCarregar('salvar',{nome:'${n.nome}',aparelho:this.value})">
+    <small>${n.enviadas_hoje} enviadas hoje${n.falhas_hoje?` · <span style="color:#b42318">${n.falhas_hoje} falhas</span>`:''} · ${n.maturadas_hoje} no maturador</small>
+    <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:13px"><input type="checkbox" ${n.maturar?'checked':''} onchange="nmCarregar('salvar',{nome:'${n.nome}',maturar:this.checked})"> usar no maturador</label>
+    ${ok?'':`<button class="bt pri" style="margin-top:8px" onclick="nmQr('${n.nome}','${fmtTel(n.numero)}')">Conectar (QR code)</button>`}</div>`;}).join('')||'<div class="vazio">Nenhum número.</div>';
+  const M=(nmD&&nmD.maturador)||{},cf=document.getElementById('mtCfg'),mats=N.filter(n=>n.maturar);
+  if(cf)cf.innerHTML=`<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="bt ${M.ativo?'':'pri'}" onclick="nmCarregar('maturador',{ativo:${!M.ativo}})">${M.ativo?'⏸️ Pausar maturador':'▶️ Ligar maturador'}</button>
+    <span>${M.ativo?'🟢 ligado':'⏸️ pausado'} · 1 mensagem a cada ~<input type="number" min="3" max="120" value="${M.intervalo_min||8}" style="width:60px" onchange="nmCarregar('maturador',{intervalo_min:this.value})"> min</span>
+    <span>${mats.length} número(s) marcados: ${mats.map(n=>fmtTel(n.numero)).join(', ')||'nenhum — marque na aba Números'}${mats.length===1?' (precisa de pelo menos 2)':''}</span></div>`;
+  const U=(nmD&&nmD.ultimas)||[],ul=document.getElementById('mtUlt');if(ul)ul.innerHTML=U.length?`<div class="rs-tab"><table><tr><th>Hora</th><th>De</th><th>Para</th><th style="text-align:left">Mensagem</th><th>Enviada</th></tr>${U.map(u=>`<tr><td>${quando(u.em)}</td><td>${esc(u.de)}</td><td>${esc(u.para)}</td><td style="text-align:left">${esc(u.texto)}</td><td>${u.ok?'✓':'…'}</td></tr>`).join('')}</table></div>`:'<div class="vazio">Nenhuma mensagem ainda.</div>';}
+async function nmQr(nome,tel){const q=document.getElementById('nmQr');document.getElementById('nmQrT').textContent='Conectar '+tel;document.getElementById('nmQrImg').innerHTML='<div class="vazio">Gerando QR…</div>';q.hidden=false;
+  const r=await nmApi('qr',{nome});document.getElementById('nmQrImg').innerHTML=r&&r.qr?`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}">`:`<div class="vazio">${r&&r.estado==='open'?'Esse número já está conectado.':'Não consegui gerar o QR agora. Tente de novo.'}</div>`;}
+function nmLigar(on){clearInterval(nmTimer);nmTimer=null;if(on){nmCarregar();nmTimer=setInterval(()=>{if(!document.hidden&&document.getElementById('nmQr').hidden)nmCarregar();},10000);}}
 async function cpCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
   try{if(demo)cpDados=cpDemoApi(acao,extra);
     else{if(!chave){pedirChave();return;}const r=await fetch(BASE+'/escritorio/campanha',{method:'POST',body:new URLSearchParams({k:chave,acao,...extra})});
@@ -1625,12 +1655,12 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','hoje','clientes','conversas','campanha','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','hoje','clientes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
