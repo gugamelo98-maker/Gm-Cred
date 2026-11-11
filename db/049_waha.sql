@@ -19,3 +19,8 @@
 --   avisa no grupo quando aparece, mostra no cartão do número e tira da campanha (campanha_instancias) até acabar.
 -- credito.wpp_acks_a_conferir() + nós "Entregas a conferir → Perguntar ao WAHA → Gravar entrega" (envio):
 --   pergunta ao WAHA o status das mensagens que ficaram só em ✓ (o aviso de entrega às vezes não chega).
+-- credito.contexto_campanha(): detalhe da campanha de hoje para a IA do grupo (início/último envio, envios por hora,
+--   por número enviadas/entregues/não entregues/responderam, clientes que responderam hoje com o que disseram).
+--   contexto_gestor() = contexto_gestor_base() || contexto_campanha().
+-- campanha_api: situação "Prospecção · enviando/enviada/entregue/lida/não entregue".
+-- credito.waha_sessoes(json): o envio consulta /api/sessions a cada minuto e atualiza número, perfil e trava.
