@@ -81,3 +81,7 @@ select credito.patch_034();
 select credito.sem_whatsapp('5569999653030'), credito.sem_whatsapp('5547997043428');
 update credito.conversas set erro_wpp = 'sem whatsapp' where enviado_wpp is null and erro_wpp is null
    and lead_id in (select id from credito.leads where telefone in ('5569999653030', '5547997043428'));
+
+-- 11/11 (ajuste de segurança contra banimento): credito.wpp_a_verificar() passou a conferir só o PRÓXIMO da fila,
+-- só com a campanha ligada e dentro do horário, e só quando não há nenhum já conferido esperando a vez
+-- (= no máximo 1 consulta a cada envio, no mesmo ritmo de 5 min). Antes eram até 50 por minuto.
