@@ -44,7 +44,7 @@ end $function$;
 create or replace function credito.grupo_comando(p_inst text, p_grupo text, p_autor text, p_texto text) returns json language plpgsql as $function$
 declare c jsonb := credito.config('avisos'); v_inst text;
 begin
-  if coalesce(p_grupo, '') <> c->>'numero' or regexp_replace(coalesce(p_autor, ''), '\D', '', 'g') not in (c->>'dono', credito.tel_lead(c->>'dono')) then return null; end if;
+  if coalesce(p_grupo, '') <> c->>'numero' or right(regexp_replace(coalesce(p_autor, ''), '\D', '', 'g'), 8) <> right(c->>'dono', 8) then return null; end if;
   if coalesce(p_texto, '') !~* '(\?|status|resumo|quant|atendiment|formaliza|aviso|parad|n[uú]mero|campanha|hoje|como est|novidade|relat)' then return null; end if;
   -- só uma instância responde: a primeira conectada entre a dos avisos e as reservas
   select n.nome into v_inst from json_to_recordset(credito.wpp_numeros()) as n(nome text, estado text)
