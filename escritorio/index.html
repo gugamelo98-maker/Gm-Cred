@@ -325,6 +325,19 @@ button{font:inherit;cursor:pointer}
 .sit{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:7px;line-height:1.3}
 .hj-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
 .hj-kpis div{background:#f6f8fb;border-radius:12px;padding:10px 12px}.hj-kpis b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.rs-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.rs-top h4{margin:0}.rs-top .chips{display:flex;gap:6px}
+.rs-kpis{grid-template-columns:repeat(6,1fr)}
+.rs-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin:14px 0}.rs-grid .fbox{margin:0}
+.rs-dep{display:grid;grid-template-columns:1fr 120px 46px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #f0f3f7}
+.rs-dep .rs-dn b{display:block;font-size:14px}.rs-dep .rs-dn span{font-size:12px;color:var(--tx2)}
+.rs-dep .bar{height:8px;background:#eef1f5;border-radius:6px;overflow:hidden}.rs-dep .bar i{display:block;height:100%;background:#16a36a;border-radius:6px}
+.rs-dep .rs-pc{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.rs-dep.pior .bar i{background:#d92d20}.rs-dep.pior .rs-pc,.rs-dep.pior b{color:#b42318}
+.rs-nota{font-size:12px;color:var(--tx2);margin-top:10px}
+.rs-g{padding:9px 11px;border-radius:10px;background:#fff7e6;color:#7a4b00;font-size:13px;margin-bottom:8px}.rs-g.urg{background:#fde8e8;color:#8f1d14}
+.rs-camp{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.rs-camp div{background:#f6f8fb;border-radius:12px;padding:10px 12px}
+.rs-camp b{display:block;font-size:20px;font-weight:800}.rs-camp span{display:block;font-size:12px;font-weight:700;color:var(--tx)}.rs-camp small{font-size:11px;color:var(--tx3)}
+@media(max-width:900px){.rs-kpis,.rs-camp{grid-template-columns:repeat(2,1fr)}.rs-grid{grid-template-columns:1fr}.rs-dep{grid-template-columns:1fr 70px 40px}}
 .hj-kpis span{font-size:11px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .hj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 button.mot{width:100%;border:0;border-bottom:1px solid #f0f3f7;background:none;text-align:left;cursor:pointer;color:var(--tx)}
@@ -466,7 +479,7 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 <div class="aviso" id="aviso"></div>
 <nav class="nav" aria-label="Telas do painel">
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
-  <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">🎯</span>Hoje</button>
+  <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
   <button class="nv" data-v="campanha" onclick="irPara('campanha')"><span class="ico">📤</span>Campanha</button>
   <span class="nv-sep">Análise</span>
@@ -1344,23 +1357,54 @@ function linhaComissao(){const f=k=>estado.financeiro.find(x=>x.etapa===k)||{con
   const lnk=(k,txt)=>{const x=f(k),e=ETAPAS[k];return `<button class="lnk" onclick="abrirPainel('etapa:${k}')" title="${esc(e.desc)}">${e.icone} ${txt} <b>${brlFull(x.comissao)}</b> (${x.contratos})</button>`;};
   return `<div class="mt-com"><span>Comissão:</span>${lnk('aguardando_formalizacao','aguardando assinatura')}${lnk('formalizado','formalizada')}${lnk('pago','recebida no mês')}</div>`;}
 function hojeISO(){return dataISO(new Date());}
+let resP=lsGet('escritorio_resumo_p')||'hoje';
+function resPeriodo(p){resP=p;lsSet('escritorio_resumo_p',p);renderHoje();}
+const RES_SET=[['recepcao','Recepção','mandaram o CPF e tinham margem'],['simulacao','Simulação','receberam a proposta'],['vendas','Vendas','escolheram uma oferta'],['formalizacao','Formalização','assinaram'],['posvenda','Pós-venda','foram pagos'],['gerente','Recuperação','voltaram e avançaram']];
+function pctTx(a,b){return b?Math.round(a/b*100)+'%':'—';}
 function renderHoje(){
-  const el=document.getElementById('fin');if(!el)return;const M=estado.meta||{},R=estado.resumo||{};
+  const el=document.getElementById('fin');if(!el)return;const M=estado.meta||{};
+  const RV=(estado.resumo_v2||{})[resP==='hoje'?'hoje':resP]||{},N=RV.numeros||{},S=RV.setores||{},A=RV.agentes||[],C=RV.campanha||{};
+  const nome={hoje:'hoje',d7:'nos últimos 7 dias',d30:'nos últimos 30 dias'}[resP];
   const meta=metaDia(),feito=Number(M.valor_hoje||0),pv=Math.min(100,Math.round(feito/meta*100)),bateu=feito>=meta;
-  const crmHoje=(estado.crm||[]).filter(c=>c.entrou&&dataISO(new Date(c.entrou))===hojeISO());
-  const cpfHoje=crmHoje.filter(c=>c.etapa>=2).length,ofHoje=crmHoje.filter(c=>c.etapa>=3).length;
-  el.innerHTML=`<div class="fbox">
-      <div class="mt" onclick="abrirPainel('meta')" role="button" tabindex="0">
+  const chips=[['hoje','Hoje'],['d7','7 dias'],['d30','30 dias']].map(([k,t])=>`<button class="chip ${resP===k?'on':''}" onclick="resPeriodo('${k}')">${t}</button>`).join('');
+  // conversão por departamento
+  const linhas=RES_SET.map(([id,t,ok])=>{const x=S[id]||{},n=+x.atendidos||0,av=+x.avancaram||0,pe=+x.perderam||0,an=+x.andamento||0,fim=av+pe,pc=fim?Math.round(av/fim*100):null;return {id,t,ok,n,av,pe,an,pc};});
+  const comPc=linhas.filter(l=>l.pc!=null&&l.av+l.pe>=3),pior=comPc.length>1?comPc.reduce((a,b)=>b.pc<a.pc?b:a):null;
+  const dep=linhas.map(l=>`<div class="rs-dep ${pior&&pior.id===l.id?'pior':''}"><div class="rs-dn"><b>${l.t}</b><span>${l.n} atendido${l.n===1?'':'s'} · ${l.av} ${l.ok}${l.pe?` · ${l.pe} perdido${l.pe>1?'s':''}`:''}${l.an?` · ${l.an} em andamento`:''}</span></div>
+      <div class="bar"><i style="width:${l.pc||0}%"></i></div><div class="rs-pc">${l.pc==null?'—':l.pc+'%'}</div></div>`).join('');
+  // gargalos por agente
+  const porSet={};A.forEach(a=>{(porSet[a.setor]=porSet[a.setor]||[]).push(a);});
+  const garg=[];A.forEach(a=>{const set=RES_SET.find(r=>r[0]===a.setor),tn=set?set[1]:a.setor;
+    if(a.esperando>0)garg.push([2,`<b>${esc(a.nome)}</b> (${tn} ${a.versao}): ${a.esperando} cliente${a.esperando>1?'s':''} esperando resposta dele agora`]);
+    const fim=a.avancaram+a.perderam,lin=linhas.find(l=>l.id===a.setor);
+    if(fim>=3&&lin&&lin.pc!=null){const pc=Math.round(a.avancaram/fim*100);if(pc<=lin.pc-15)garg.push([1,`<b>${esc(a.nome)}</b> (${tn} ${a.versao}): converte ${pc}%, o setor converte ${lin.pc}% (${a.perderam} perdido${a.perderam>1?'s':''} de ${fim})`]);}});
+  garg.sort((a,b)=>b[0]-a[0]);
+  // campanha
+  const env=+C.enviados||0,cf=[['Mensagens enviadas',env],['Responderam',+C.responderam||0],['Confirmaram o CPF',+C.cpf||0],['Receberam a proposta',+C.proposta||0],['Link enviado',+C.link||0],['Foram pagos',+C.pagos||0]];
+  el.innerHTML=`<div class="fbox"><div class="rs-top"><h4>📊 Resumo ${nome}</h4><div class="chips">${chips}</div></div>
+      ${resP==='hoje'?`<div class="mt" onclick="abrirPainel('meta')" role="button" tabindex="0" style="margin-top:6px">
         <div class="mt-top"><span>🎯 Meta do dia${bateu?' · <span style="color:#0f7a4f">batida</span>':''}</span><b style="color:${bateu?'#16a36a':'var(--tx)'}">${brlFull(feito)}</b></div>
         <div class="meta-barra"><i style="width:${pv}%"></i></div>
-        <div class="meta-linha"><span>liberado em contratos pagos hoje</span><b>${pv}% da meta de ${brl(meta)}${bateu?'':' · faltam '+brl(meta-feito)}</b></div></div>
-      <div class="hj-kpis">
-        <div><b>${(estado.crm||[]).length?crmHoje.length:(R.entraram_hoje||0)}</b><span>Entraram hoje</span></div>
-        <div><b>${cpfHoje}</b><span>Mandaram CPF</span></div>
-        <div><b>${ofHoje}</b><span>Receberam proposta</span></div>
-        <div><b style="color:var(--verde)">${M.contratos_hoje||0}</b><span>Pagos hoje</span></div>
-        <div><b style="color:var(--verde)">${brlFull(M.comissao_hoje)}</b><span>Comissão hoje</span></div>
-      </div></div>`;
+        <div class="meta-linha"><span>liberado em contratos pagos hoje</span><b>${pv}% da meta de ${brl(meta)}${bateu?'':' · faltam '+brl(meta-feito)}</b></div></div>`:''}
+      <div class="hj-kpis rs-kpis">
+        <div><b>${N.entraram||0}</b><span>Clientes entraram</span></div>
+        <div><b>${N.simularam||0}</b><span>Simulações feitas</span></div>
+        <div><b>${N.propostas||0}</b><span>Propostas enviadas (link)</span></div>
+        <div><b>${N.assinaram||0}</b><span>Assinaram</span></div>
+        <div><b style="color:var(--verde)">${N.pagos||0}</b><span>Contratos pagos</span></div>
+        <div><b style="color:var(--verde)">${brlFull(N.comissao||0)}</b><span>Comissão · ${brl(N.liberado||0)} liberados</span></div>
+      </div></div>
+    <div class="rs-grid">
+      <div class="fbox"><h4>🏢 Quanto cada departamento converte</h4>${dep}
+        <div class="rs-nota">% = avançaram ÷ (avançaram + perdidos). Quem ainda está em andamento não entra na conta.${pior?` <b style="color:#b42318">Em vermelho: o departamento que menos converte.</b>`:''}</div></div>
+      <div class="fbox"><h4>⚠️ Gargalos nos agentes</h4>${garg.length?garg.map(g=>`<div class="rs-g ${g[0]===2?'urg':''}">${g[1]}</div>`).join(''):'<div class="vazio">Nenhum gargalo: nenhum cliente esperando resposta e nenhum agente bem abaixo do seu setor.</div>'}
+        <button class="lnk-a" onclick="irPara('agentes')">ver todos os agentes →</button></div>
+    </div>
+    <div class="fbox"><h4>📤 Conversão da campanha ${nome}</h4>
+      ${env?`<div class="rs-camp">${cf.map(([t,v],i)=>`<div><b>${v}</b><span>${t}</span><small>${i?pctTx(v,env)+' das enviadas':'100%'}</small></div>`).join('')}</div>`:'<div class="vazio">Nenhuma mensagem de campanha enviada neste período.</div>'}
+      ${+C.sem_whatsapp?`<div class="rs-nota">🚫 ${C.sem_whatsapp} número${C.sem_whatsapp>1?'s':''} sem WhatsApp tirado${C.sem_whatsapp>1?'s':''} da fila.</div>`:''}</div>`;
+  const lstEl=document.getElementById('hojeListas');if(resP!=='hoje'){lstEl.innerHTML='';return;}
+  const crmHoje=(estado.crm||[]).filter(c=>c.entrou&&dataISO(new Date(c.entrou))===hojeISO());
   const lst=document.getElementById('hojeListas');
   const pagos=estado.contratos.filter(c=>c.etapa==='pago'&&c.dt_pagamento&&dataISO(new Date(c.dt_pagamento))===hojeISO());
   lst.innerHTML=`<div class="hj-grid">
@@ -1518,7 +1562,7 @@ let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
 const TELAS=['escritorio','hoje','clientes','campanha','mes','funil','agentes','financeiro','simulacao'];
-let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||(TELAS.includes(lsGet('escritorio_tela'))?lsGet('escritorio_tela'):'escritorio');
+let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
