@@ -486,6 +486,36 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 .cp-txt{width:100%;border:1px solid var(--linha);border-radius:10px;padding:10px;font:inherit;font-size:13px;resize:vertical;margin-top:4px}
 .cp-linha{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}.cp-prev{font-size:12.5px;color:var(--tx2);flex:1}
 .cp-st{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:7px}
+/* ── v4: menu em grupos (Operação · WhatsApp · Análise) ── */
+.nv-sep1{border-top:0;margin-top:0;padding-top:0}
+.nv-mais{display:none}
+.subnav{margin:14px 20px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.subnav h3{font-size:17px;font-weight:800;margin-right:auto}
+.subnav[hidden]{display:none!important}
+.wseg{display:flex;background:#fff;border:1px solid var(--linha);border-radius:12px;padding:3px;gap:2px}
+.wseg button{border:0;background:transparent;border-radius:9px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--tx2);white-space:nowrap}
+.wseg button:hover{background:#f4f7fa}
+.wseg button.on{background:#eaf1ff;color:var(--azul)}
+#v-numeros>.fbox,#v-maturador>.fbox,#v-conversas{margin:14px 20px 0}
+.mais-veu{position:fixed;inset:0;background:rgba(20,30,45,.35);z-index:80;opacity:0;pointer-events:none;transition:opacity .2s}
+.mais-veu.on{opacity:1;pointer-events:auto}
+.mais-sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(20,30,45,.2);transform:translateY(100%);transition:transform .25s}
+.mais-veu.on .mais-sheet{transform:none}
+.mais-sheet h5{font-size:11px;font-weight:800;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin:2px 4px 8px}
+.mais-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.mais-grid button,.mais-grid a{border:1px solid var(--linha);background:#fff;border-radius:12px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--tx2);text-decoration:none}
+.mais-grid .ico{font-size:22px;line-height:1}
+.mais-grid .on{background:#eaf1ff;border-color:#c9dafc;color:var(--azul)}
+.mais-fechar{width:100%;padding:11px;font-size:13.5px}
+@media (max-width:720px){
+  .nav .nv-sep,.nav .nv-an{display:none}
+  .nav .nv-mais{display:flex}
+  .nav{overflow-x:visible}
+  .nav .nv{flex:1 1 0;min-width:0;padding:6px 2px}
+  .subnav,#v-numeros>.fbox,#v-maturador>.fbox,#v-conversas{margin-left:12px;margin-right:12px}
+  .subnav h3{display:none}
+  .wseg{width:100%}.wseg button{flex:1;padding:8px 4px;font-size:12.5px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -505,22 +535,44 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
 </header>
 <div class="aviso" id="aviso"></div>
 <nav class="nav" aria-label="Telas do painel">
+  <span class="nv-sep nv-sep1">Operação</span>
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
-  <button class="nv" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
-  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
   <button class="nv" data-v="conversas" onclick="irPara('conversas')"><span class="ico">💬</span>Conversas<b class="badge" id="cvBadge" hidden></b></button>
-  <button class="nv" data-v="campanha" onclick="irPara('campanha')"><span class="ico">📤</span>Campanha</button>
-  <button class="nv" data-v="numeros" onclick="irPara('numeros')"><span class="ico">📱</span>Números<b class="badge" id="nmBadge" hidden></b></button>
-  <button class="nv" data-v="maturador" onclick="irPara('maturador')"><span class="ico">🔄</span>Maturador</button>
+  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="whatsapp" onclick="irPara(ultimaWpp)" title="Campanha, números e maturador"><span class="ico">📱</span>WhatsApp<b class="badge" id="nmBadge" hidden></b></button>
   <span class="nv-sep">Análise</span>
-  <button class="nv" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
-  <button class="nv" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
-  <button class="nv" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
-  <button class="nv" data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
-  <button class="nv" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
+  <button class="nv nv-an" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
+  <button class="nv nv-an" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
+  <button class="nv nv-an" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
+  <button class="nv nv-an" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
+  <button class="nv nv-an" data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
+  <button class="nv nv-an" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
   <span class="nv-sep"></span>
-  <a class="nv" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">💬</span>Chat teste</a>
+  <a class="nv nv-an" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">🧪</span>Chat teste</a>
+  <button class="nv nv-mais" data-v="mais" onclick="abrirMais()" aria-haspopup="dialog"><span class="ico">☰</span>Mais</button>
 </nav>
+<div class="mais-veu" id="maisVeu" onclick="if(event.target===this)fecharMais()" role="dialog" aria-modal="true" aria-label="Mais telas"><div class="mais-sheet">
+  <h5>Análise</h5>
+  <div class="mais-grid">
+    <button data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
+    <button data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
+    <button data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
+    <button data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
+    <button data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
+    <button data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
+  </div>
+  <h5>Testes</h5>
+  <div class="mais-grid"><a href="chat.html"><span class="ico">🧪</span>Chat teste</a></div>
+  <button class="bt mais-fechar" onclick="fecharMais()">Fechar</button>
+</div></div>
+<div class="subnav" id="wppTabs" hidden>
+  <h3>📱 WhatsApp</h3>
+  <div class="wseg" role="tablist" aria-label="Telas do WhatsApp">
+    <button data-w="campanha" onclick="irPara('campanha')">📤 Campanha</button>
+    <button data-w="numeros" onclick="irPara('numeros')">📱 Números</button>
+    <button data-w="maturador" onclick="irPara('maturador')">🔄 Maturador</button>
+  </div>
+</div>
 
 <div class="view" id="v-escritorio">
 <section class="atencao" id="atencao" aria-label="Precisa da sua atenção"></section>
@@ -1674,9 +1726,20 @@ function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeou
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
 const TELAS=['escritorio','hoje','clientes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
+// menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
+const GRUPO_WPP=['campanha','numeros','maturador'],ANALISE=['hoje','mes','funil','agentes','financeiro','simulacao'];
+let ultimaWpp=lsGet('escritorio_wpp');if(!GRUPO_WPP.includes(ultimaWpp))ultimaWpp='numeros';
+function abrirMais(){document.getElementById('maisVeu').classList.add('on');}
+function fecharMais(){document.getElementById('maisVeu').classList.remove('on');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharMais();});
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
-  document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
+  const ehWpp=GRUPO_WPP.includes(telaAtual);if(ehWpp){ultimaWpp=telaAtual;lsSet('escritorio_wpp',telaAtual);}
+  document.getElementById('wppTabs').hidden=!ehWpp;
+  document.querySelectorAll('.wseg button').forEach(b=>{const on=b.dataset.w===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
+  document.querySelectorAll('.mais-grid [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===telaAtual));
+  document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='whatsapp'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
+  fecharMais();
   window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
