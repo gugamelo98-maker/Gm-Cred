@@ -1,0 +1,12 @@
+-- 049 · WAHA (WhatsApp Web real, rodando no notebook via Docker + túnel ngrok) — já aplicado no banco
+-- credito.wpp_motor (instancia, motor 'waha', url, apikey, ativo, numero, perfil): números que saem pelo WAHA.
+-- credito.configuracoes 'waha' {url, apikey}: onde criar números novos (aba Números → + Novo número cria no WAHA).
+-- credito.v_instancias: lista única Evolution + WAHA (mesmas colunas de public."Instance" + motor).
+--   Todas as funções que liam public."Instance" agora leem a view (wpp_numeros, wpp_pendentes/2, wpp_evento,
+--   receber_wpp_v2, atendimento_api, wpp_a_verificar, transferir_conversas, campanha_placar, numeros_api).
+-- credito.wpp_pendentes3(): igual ao 2, com motor/url/apikey por mensagem.
+-- numeros_api: testar/qr/criar devolvem {waha:{...}} para números do WAHA.
+-- atendimento_api: resposta pelo painel de número WAHA entra na fila (sai em até 1 min pelo envio).
+-- wpp_a_verificar / campanha_passo: no WAHA a conferência de WhatsApp é feita no próprio envio (check-exists).
+-- n8n: envio (É WAHA? → Achar contato → Tem WhatsApp?), entrada (WAHA chegou → Motor WAHA → Telefone (WAHA) → Traduzir WAHA → Mensagem),
+--   painel (É WAHA (números)? → testar / iniciar+QR).

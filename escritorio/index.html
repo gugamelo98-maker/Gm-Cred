@@ -1437,7 +1437,7 @@ async function nmApi(acao,extra){if(demo)return null;if(!chave){pedirChave();ret
   if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}return r.ok?r.json():null;}
 async function nmCarregar(acao,extra){const r=await nmApi(acao||'ver',extra);if(r&&r.numeros){nmD=r;nmRender();}}
 function nmRender(){const N=(nmD&&nmD.numeros)||[],mal=N.filter(n=>n.estado!=='open').length,bd=document.getElementById('nmBadge');bd.hidden=!mal;bd.textContent=mal;
-  const cpn=N.filter(n=>n.campanha&&n.estado==='open').length,cpe=document.getElementById('nmCamp');if(cpe)cpe.textContent=`📤 Campanha: ${cpn} número(s) conectados e marcados = ${cpn} mensagem(ns) ao mesmo tempo a cada 5 min.`;const el=document.getElementById('nmLista');if(el)el.innerHTML=N.map(n=>{const ok=n.estado==='open';return `<div class="nm-c ${ok?'':'mal'}"><b>${fmtTel(n.numero)}</b> <small style="display:inline">${esc(n.nome)}</small><br>
+  const cpn=N.filter(n=>n.campanha&&n.estado==='open').length,cpe=document.getElementById('nmCamp');if(cpe)cpe.textContent=`📤 Campanha: ${cpn} número(s) conectados e marcados = ${cpn} mensagem(ns) ao mesmo tempo a cada 5 min.`;const el=document.getElementById('nmLista');if(el)el.innerHTML=N.map(n=>{const ok=n.estado==='open';return `<div class="nm-c ${ok?'':'mal'}"><b>${fmtTel(n.numero)}</b> <small style="display:inline">${esc(n.nome)} · ${n.motor==='waha'?'WAHA':'Evolution'}</small><br>
     <span class="nm-st" style="background:${ok?'#e3f7ee':'#fde8e8'};color:${ok?'#0f7a4f':'#b42318'}">${ok?'🟢':'🔴'} ${esc(n.situacao)}</span>${!ok&&n.caiu_em?`<small>caiu ${quando(n.caiu_em)}</small>`:''}
     <input type="text" value="${esc(n.aparelho||'')}" placeholder="Onde está? ex.: Motorola · slot 2" onchange="nmCarregar('salvar',{nome:'${n.nome}',aparelho:this.value})">
     <small>${n.enviadas_hoje} enviadas · ${n.entregues_hoje||0} entregues hoje${n.falhas_hoje?` · <span style="color:#b42318">${n.falhas_hoje} falhas</span>`:''} · ${n.maturadas_hoje} no maturador</small>
@@ -1450,16 +1450,22 @@ function nmRender(){const N=(nmD&&nmD.numeros)||[],mal=N.filter(n=>n.estado!=='o
     <span>${mats.length} número(s) marcados: ${mats.map(n=>fmtTel(n.numero)).join(', ')||'nenhum — marque na aba Números'}${mats.length===1?' (precisa de pelo menos 2)':''}</span></div>`;
   const U=(nmD&&nmD.ultimas)||[],ul=document.getElementById('mtUlt');if(ul)ul.innerHTML=U.length?`<div class="rs-tab"><table><tr><th>Hora</th><th>De</th><th>Para</th><th style="text-align:left">Mensagem</th><th>Enviada</th></tr>${U.map(u=>`<tr><td>${quando(u.em)}</td><td>${esc(u.de)}</td><td>${esc(u.para)}</td><td style="text-align:left">${esc(u.texto)}</td><td>${u.ok?'✓':'…'}</td></tr>`).join('')}</table></div>`:'<div class="vazio">Nenhuma mensagem ainda.</div>';}
 async function nmNovo(){const ap=prompt('Onde vai ficar esse chip? (ex.: Motorola · slot 4)');if(ap===null)return;
-  const q=document.getElementById('nmQr');document.getElementById('nmQrT').textContent='Novo número';document.getElementById('nmQrImg').innerHTML='<div class="vazio">Criando o número e gerando o QR…</div>';q.hidden=false;
+  const q=document.getElementById('nmQr');document.getElementById('nmQrT').textContent='Novo número';document.getElementById('nmQrImg').innerHTML='<div class="vazio">Criando o número…</div>';q.hidden=false;
   const r=await nmApi('criar',{aparelho:ap});
-  if(r&&r.criado){document.getElementById('nmQrT').textContent='Conectar '+r.criado+(ap?' · '+ap:'');document.getElementById('nmQrImg').innerHTML=r.qr?`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}">`:`<div class="vazio">Número criado, mas o QR não veio. Feche e use "Conectar (QR code)" no cartão dele.</div>`;nmCarregar();}
+  if(r&&r.criado){nmCarregar();nmQr(r.criado,r.criado+(ap?' · '+ap:''));}
   else document.getElementById('nmQrImg').innerHTML='<div class="vazio">Não consegui criar o número agora. Tente de novo.</div>';}
 async function nmTeste(nome,tel){const destino=prompt('Enviar teste a partir do '+tel+'.\nPara qual número? (com DDD)',lsGet('escritorio_teste_dest')||'48996077545');if(!destino)return;
   const mensagem=prompt('Escreva a mensagem de teste:','Teste de envio pelo '+tel);if(!mensagem)return;lsSet('escritorio_teste_dest',destino);
   const r=await nmApi('testar',{nome,destino:destino.replace(/\D/g,'').replace(/^(?!55)/,'55'),mensagem});
-  alert(r&&r.ok?'✅ A Evolution aceitou o envio. Confira se a mensagem chegou no celular de destino.':'❌ Não consegui enviar: '+((r&&r.detalhe)||'erro'));}
-async function nmQr(nome,tel){const q=document.getElementById('nmQr');document.getElementById('nmQrT').textContent='Conectar '+tel;document.getElementById('nmQrImg').innerHTML='<div class="vazio">Gerando QR…</div>';q.hidden=false;
-  const r=await nmApi('qr',{nome});document.getElementById('nmQrImg').innerHTML=r&&r.qr?`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}">`:`<div class="vazio">${r&&r.estado==='open'?'Esse número já está conectado.':'Não consegui gerar o QR agora. Tente de novo.'}</div>`;}
+  alert(r&&r.ok?'✅ O WhatsApp aceitou o envio. Confira se a mensagem chegou no celular de destino.':'❌ Não consegui enviar: '+((r&&r.detalhe)||'erro'));}
+let nmQrVez=0;
+async function nmQr(nome,tel,vez){const q=document.getElementById('nmQr'),img=document.getElementById('nmQrImg');
+  if(!vez){vez=1;nmQrVez++;document.getElementById('nmQrT').textContent='Conectar '+tel;img.innerHTML='<div class="vazio">Gerando QR… (pode levar uns 20 segundos)</div>';q.hidden=false;}
+  const eu=nmQrVez,r=await nmApi('qr',{nome});if(q.hidden||eu!==nmQrVez)return;
+  if(r&&r.estado==='open'){img.innerHTML='<div class="vazio">✅ Número conectado!</div>';nmCarregar();return;}
+  if(r&&r.qr)img.innerHTML=`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}"><small style="display:block;margin-top:6px">No celular: WhatsApp → Aparelhos conectados → Conectar aparelho. O QR se atualiza sozinho.</small>`;
+  else if(vez>=12){img.innerHTML='<div class="vazio">Não consegui gerar o QR agora. Feche e tente de novo.</div>';return;}
+  setTimeout(()=>nmQr(nome,tel,vez+1),r&&r.qr?15000:3000);}
 function nmLigar(on){clearInterval(nmTimer);nmTimer=null;if(on){nmCarregar();nmTimer=setInterval(()=>{if(!document.hidden&&document.getElementById('nmQr').hidden)nmCarregar();},10000);}}
 
 let inD=null;
