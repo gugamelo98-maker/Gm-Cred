@@ -56,3 +56,9 @@ begin
 end $function$;
 -- n8n "GM Cred · WhatsApp (entrada)": o nó Mensagem devolve grupo/autor e o nó "Evento do número" chama também
 -- credito.grupo_comando(instancia, grupo, autor, texto).
+
+-- 11/11 (v2): a pergunta do dono vai para uma IA (OpenRouter, gemini-2.5-flash) que responde SÓ o que foi perguntado,
+-- com os dados de credito.contexto_gestor() (resumo + projeção do mês + funil 30 dias + campanha + agentes).
+-- grupo_comando() agora devolve {pergunta, contexto}; o n8n "WhatsApp (entrada)" chama a IA e grava a resposta com
+-- credito.avisar() (sai no grupo pelo envio de 1 em 1 minuto). Se a IA falhar, manda o resumo geral.
+-- O dono é reconhecido pelos últimos 8 dígitos (o WhatsApp manda o número sem o 9).
