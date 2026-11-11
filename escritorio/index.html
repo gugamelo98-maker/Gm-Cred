@@ -1443,7 +1443,7 @@ function nmRender(){const N=(nmD&&nmD.numeros)||[],mal=N.filter(n=>n.estado!=='o
     <small>${n.enviadas_hoje} enviadas hoje${n.falhas_hoje?` · <span style="color:#b42318">${n.falhas_hoje} falhas</span>`:''} · ${n.maturadas_hoje} no maturador</small>
     <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:13px"><input type="checkbox" ${n.campanha?'checked':''} onchange="nmCarregar('salvar',{nome:'${n.nome}',campanha:this.checked})"> 📤 usar na campanha</label>
     <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:13px"><input type="checkbox" ${n.maturar?'checked':''} onchange="nmCarregar('salvar',{nome:'${n.nome}',maturar:this.checked})"> usar no maturador</label>
-    ${ok?'':`<button class="bt pri" style="margin-top:8px" onclick="nmQr('${n.nome}','${fmtTel(n.numero)}')">Conectar (QR code)</button>`}</div>`;}).join('')||'<div class="vazio">Nenhum número.</div>';
+    ${ok?`<button class="bt" style="margin-top:8px" onclick="nmTeste('${n.nome}','${fmtTel(n.numero)}')">✉️ Testar envio</button>`:`<button class="bt pri" style="margin-top:8px" onclick="nmQr('${n.nome}','${fmtTel(n.numero)}')">Conectar (QR code)</button>`}</div>`;}).join('')||'<div class="vazio">Nenhum número.</div>';
   const M=(nmD&&nmD.maturador)||{},cf=document.getElementById('mtCfg'),mats=N.filter(n=>n.maturar);
   if(cf)cf.innerHTML=`<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="bt ${M.ativo?'':'pri'}" onclick="nmCarregar('maturador',{ativo:${!M.ativo}})">${M.ativo?'⏸️ Pausar maturador':'▶️ Ligar maturador'}</button>
     <span>${M.ativo?'🟢 ligado':'⏸️ pausado'} · 1 mensagem a cada ~<input type="number" min="3" max="120" value="${M.intervalo_min||8}" style="width:60px" onchange="nmCarregar('maturador',{intervalo_min:this.value})"> min</span>
@@ -1454,6 +1454,10 @@ async function nmNovo(){const ap=prompt('Onde vai ficar esse chip? (ex.: Motorol
   const r=await nmApi('criar',{aparelho:ap});
   if(r&&r.criado){document.getElementById('nmQrT').textContent='Conectar '+r.criado+(ap?' · '+ap:'');document.getElementById('nmQrImg').innerHTML=r.qr?`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}">`:`<div class="vazio">Número criado, mas o QR não veio. Feche e use "Conectar (QR code)" no cartão dele.</div>`;nmCarregar();}
   else document.getElementById('nmQrImg').innerHTML='<div class="vazio">Não consegui criar o número agora. Tente de novo.</div>';}
+async function nmTeste(nome,tel){const destino=prompt('Enviar teste a partir do '+tel+'.\nPara qual número? (com DDD)',lsGet('escritorio_teste_dest')||'48996077545');if(!destino)return;
+  const mensagem=prompt('Escreva a mensagem de teste:','Teste de envio pelo '+tel);if(!mensagem)return;lsSet('escritorio_teste_dest',destino);
+  const r=await nmApi('testar',{nome,destino:destino.replace(/\D/g,'').replace(/^(?!55)/,'55'),mensagem});
+  alert(r&&r.ok?'✅ A Evolution aceitou o envio. Confira se a mensagem chegou no celular de destino.':'❌ Não consegui enviar: '+((r&&r.detalhe)||'erro'));}
 async function nmQr(nome,tel){const q=document.getElementById('nmQr');document.getElementById('nmQrT').textContent='Conectar '+tel;document.getElementById('nmQrImg').innerHTML='<div class="vazio">Gerando QR…</div>';q.hidden=false;
   const r=await nmApi('qr',{nome});document.getElementById('nmQrImg').innerHTML=r&&r.qr?`<img alt="QR code" src="${r.qr.startsWith('data:')?r.qr:'data:image/png;base64,'+r.qr}">`:`<div class="vazio">${r&&r.estado==='open'?'Esse número já está conectado.':'Não consegui gerar o QR agora. Tente de novo.'}</div>`;}
 function nmLigar(on){clearInterval(nmTimer);nmTimer=null;if(on){nmCarregar();nmTimer=setInterval(()=>{if(!document.hidden&&document.getElementById('nmQr').hidden)nmCarregar();},10000);}}

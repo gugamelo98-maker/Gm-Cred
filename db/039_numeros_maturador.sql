@@ -139,3 +139,6 @@ end $function$;
 -- 11/11: numeros_api acao 'criar' (aparelho) escolhe o próximo nome gmcred-N e grava o aparelho; o n8n
 -- "Estado do Painel" cria a instância na Evolution (nó Evolution API, credencial evolution_cloudfy) já com o webhook
 -- MESSAGES_UPSERT + CONNECTION_UPDATE e devolve o QR (GET /instance/connect com o hash da nova instância).
+
+-- 11/11: numeros_api acao 'testar' (nome, destino, mensagem) -> o n8n "Estado do Painel" envia a mensagem pela instância
+-- (nó "Enviar teste") e responde se a Evolution aceitou. Painel: botão "✉️ Testar envio" no cartão de cada número conectado.
