@@ -10,3 +10,8 @@
 -- wpp_a_verificar / campanha_passo: no WAHA a conferência de WhatsApp é feita no próprio envio (check-exists).
 -- n8n: envio (É WAHA? → Achar contato → Tem WhatsApp?), entrada (WAHA chegou → Motor WAHA → Telefone (WAHA) → Traduzir WAHA → Mensagem),
 --   painel (É WAHA (números)? → testar / iniciar+QR).
+-- wpp_chips.queda_avisada + credito.wpp_quedas() (chamada no wpp_pendentes2 a cada minuto): queda só conta após 3 min fora
+--   (aviso no grupo + reserva assume); "voltou" só avisa se houve aviso de queda.
+-- wpp_chips.oculto + numeros_api 'excluir': tira o número do painel, campanha, maturador e alertas.
+-- no_escritorio inclui a prospecção (aparece ao clicar no setor); v_resumo_hoje.em_andamento e resumo_grupo não contam a prospecção.
+-- variar_msg mantém quebras de linha (só junta espaços).

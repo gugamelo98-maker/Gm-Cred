@@ -1443,7 +1443,7 @@ function nmRender(){const N=(nmD&&nmD.numeros)||[],mal=N.filter(n=>n.estado!=='o
     <small>${n.enviadas_hoje} enviadas · ${n.entregues_hoje||0} entregues hoje${n.falhas_hoje?` · <span style="color:#b42318">${n.falhas_hoje} falhas</span>`:''} · ${n.maturadas_hoje} no maturador</small>
     <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:13px"><input type="checkbox" ${n.campanha?'checked':''} onchange="nmCarregar('salvar',{nome:'${n.nome}',campanha:this.checked})"> 📤 usar na campanha</label>
     <label style="display:flex;gap:6px;align-items:center;margin-top:6px;font-size:13px"><input type="checkbox" ${n.maturar?'checked':''} onchange="nmCarregar('salvar',{nome:'${n.nome}',maturar:this.checked})"> usar no maturador</label>
-    ${ok?`<button class="bt" style="margin-top:8px" onclick="nmTeste('${n.nome}','${fmtTel(n.numero)}')">✉️ Testar envio</button>`:`<button class="bt pri" style="margin-top:8px" onclick="nmQr('${n.nome}','${fmtTel(n.numero)}')">Conectar (QR code)</button>`}</div>`;}).join('')||'<div class="vazio">Nenhum número.</div>';
+    ${ok?`<button class="bt" style="margin-top:8px" onclick="nmTeste('${n.nome}','${fmtTel(n.numero)}')">✉️ Testar envio</button>`:`<button class="bt pri" style="margin-top:8px" onclick="nmQr('${n.nome}','${fmtTel(n.numero)}')">Conectar (QR code)</button>`} <button class="bt" style="margin-top:8px" title="Tirar do painel" onclick="nmExcluir('${n.nome}','${fmtTel(n.numero)}')">🗑️ Excluir</button></div>`;}).join('')||'<div class="vazio">Nenhum número.</div>';
   const M=(nmD&&nmD.maturador)||{},cf=document.getElementById('mtCfg'),mats=N.filter(n=>n.maturar);
   if(cf)cf.innerHTML=`<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="bt ${M.ativo?'':'pri'}" onclick="nmCarregar('maturador',{ativo:${!M.ativo}})">${M.ativo?'⏸️ Pausar maturador':'▶️ Ligar maturador'}</button>
     <span>${M.ativo?'🟢 ligado':'⏸️ pausado'} · 1 mensagem a cada ~<input type="number" min="3" max="120" value="${M.intervalo_min||8}" style="width:60px" onchange="nmCarregar('maturador',{intervalo_min:this.value})"> min</span>
@@ -1458,6 +1458,7 @@ async function nmTeste(nome,tel){const destino=prompt('Enviar teste a partir do 
   const mensagem=prompt('Escreva a mensagem de teste:','Teste de envio pelo '+tel);if(!mensagem)return;lsSet('escritorio_teste_dest',destino);
   const r=await nmApi('testar',{nome,destino:destino.replace(/\D/g,'').replace(/^(?!55)/,'55'),mensagem});
   alert(r&&r.ok?'✅ O WhatsApp aceitou o envio. Confira se a mensagem chegou no celular de destino.':'❌ Não consegui enviar: '+((r&&r.detalhe)||'erro'));}
+function nmExcluir(nome,tel){if(!confirm('Excluir o número '+(tel||nome)+' do painel?\n\nEle sai da campanha e do maturador e para de gerar alerta. Para usar de novo depois, é só criar um novo número.'))return;nmCarregar('excluir',{nome});}
 let nmQrVez=0;
 async function nmQr(nome,tel,vez){const q=document.getElementById('nmQr'),img=document.getElementById('nmQrImg');
   if(!vez){vez=1;nmQrVez++;document.getElementById('nmQrT').textContent='Conectar '+tel;img.innerHTML='<div class="vazio">Gerando QR… (pode levar uns 20 segundos)</div>';q.hidden=false;}
