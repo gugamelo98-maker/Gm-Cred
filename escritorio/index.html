@@ -616,6 +616,31 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
 .cp-dica{font-size:12px;color:var(--tx3)}
 @media (max-width:980px){.cpe{grid-template-columns:1fr}.cpe-prev{position:static}.cp-extras{grid-template-columns:1fr}}
 @media (max-width:720px){.cp-barra{flex-direction:column}.cp-liga{width:100%}.cpe-bt,.cpe-bt:has(.cpe-url){grid-template-columns:1fr auto}.cpe-bt select{grid-column:1/2}.cpe-bt .cpe-x{grid-row:1;grid-column:2}.cpe-bt .cpe-in{grid-column:1/-1}}
+
+/* ── v5: disparo ── */
+.dp-wrap{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;align-items:start}
+.dp-lista{position:sticky;top:84px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 110px);overflow:auto}
+.dp-lt{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.dp-lt h4{margin:0}
+.dp-it{position:relative;overflow:hidden;text-align:left;border:1px solid var(--linha);background:#fff;border-radius:10px;padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;width:100%}
+.dp-it.on{border-color:var(--azul);background:var(--azulc)}.dp-it-t{display:flex;align-items:center;justify-content:space-between;gap:6px}.dp-it-t b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dp-it small{font-size:11.5px;color:var(--tx3)}.dp-it i{position:absolute;left:0;bottom:0;height:3px;background:var(--azul);border-radius:0 3px 3px 0}
+.dp-det{display:flex;flex-direction:column;gap:14px;min-width:0}
+.dp-cab-t{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.dp-nome{flex:1;min-width:180px;border:1px solid transparent;border-radius:8px;padding:6px 8px;font:inherit;font-size:18px;font-weight:700;background:transparent}
+.dp-nome:hover,.dp-nome:focus{border-color:var(--linha);background:#fff}.dp-acoes{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}.dp-acoes .bt{padding:8px 14px;font-size:13px}
+.dp-funil{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px}
+.dp-k{border:1px solid var(--linha);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:1px}.dp-k b{font-size:20px;font-variant-numeric:tabular-nums}.dp-k span{font-size:11.5px;color:var(--tx2);font-weight:600}.dp-k small{font-size:11px;color:var(--tx3)}
+.dp-pn{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}.dp-pn th{font-size:11px;color:var(--tx3);text-align:left;font-weight:700;padding:6px;border-bottom:1px solid var(--linha)}.dp-pn td{padding:7px 6px;border-bottom:1px solid #f0f3f7;font-variant-numeric:tabular-nums}
+.dp-nums{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin:8px 0 12px}
+.dp-num{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--linha);border-radius:10px;padding:9px 10px;cursor:pointer}.dp-num span{display:flex;flex-direction:column}.dp-num b{font-size:13.5px}.dp-num small{font-size:11.5px;color:var(--tx3)}.dp-num.off small{color:#b42318}
+.dp-ritmo{font-size:13px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.dp-ritmo input{width:58px;border:1px solid var(--linha);border-radius:8px;padding:5px 6px;font:inherit}.dp-ritmo small{flex-basis:100%}
+.dp-vars{display:flex;flex-direction:column;gap:6px}.dp-var{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:start}.dp-var .cp-txt,.dp-vars .cp-txt{font-weight:400;margin:0}
+.dp-novas{border:1px dashed #c9dafc;background:#f7faff;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.dp-novas-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:400;font-size:12.5px}.dp-novas-t .bt:first-of-type{margin-left:auto}
+.dp-nova{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;background:#fff;border:1px solid var(--linha);border-radius:8px;padding:8px 10px;font-weight:400;font-size:13px;line-height:1.45}
+.dp-cl{grid-template-columns:1.4fr 1fr 1fr 1.3fr .8fr!important}
+#dpTesteNum{width:auto}
+@media (max-width:1100px){.dp-wrap{grid-template-columns:1fr}.dp-lista{position:static;max-height:none}.dp-funil{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:720px){.dp-funil{grid-template-columns:repeat(2,minmax(0,1fr))}.dp-acoes{margin-left:0}.dp-pn th:nth-child(5),.dp-pn td:nth-child(5){display:none}.dp-cl{grid-template-columns:1fr auto!important}.dp-cl>span:nth-child(3),.dp-cl>span:nth-child(5){display:none}}
 </style>
 </head>
 <body>
@@ -640,6 +665,7 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
   <button class="nv" data-v="conversas" onclick="irPara('conversas')" title="Conversas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="lb">Conversas</span><b class="badge" id="cvBadge" hidden></b></button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')" title="Clientes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg><span class="lb">Clientes</span></button>
   <button class="nv nv-an" data-v="campanha" onclick="irPara('campanha')" title="Campanha"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M18 8.5a5 5 0 0 1 0 7"/></svg><span class="lb">Campanha</span></button>
+  <button class="nv nv-an" data-v="disparo" onclick="irPara('disparo')" title="Disparo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg><span class="lb">Disparo</span></button>
   <button class="nv nv-an" data-v="mes" onclick="irPara('mes')" title="Vendas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="lb">Vendas</span></button>
   <button class="nv nv-an" data-v="funil" onclick="irPara('funil')" title="Funil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg><span class="lb">Funil</span></button>
   <div class="sb-fim">
@@ -653,6 +679,7 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
   <h5>Operação</h5>
   <div class="mais-grid">
     <button data-v="campanha" onclick="irPara('campanha')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M18 8.5a5 5 0 0 1 0 7"/></svg>Campanha</button>
+    <button data-v="disparo" onclick="irPara('disparo')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg>Disparo</button>
     <button data-v="mes" onclick="irPara('mes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Vendas</button>
     <button data-v="funil" onclick="irPara('funil')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>Funil</button>
   </div>
@@ -752,6 +779,13 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
   </details>
 </section>
 <section class="ag-sec"><div class="fbox" id="cpLista"></div></section>
+</div>
+
+<div class="view" id="v-disparo" hidden>
+<section class="ag-sec"><div class="dp-wrap">
+  <aside class="fbox dp-lista"><div class="dp-lt"><h4>Disparos</h4><button class="bt pri" onclick="dpNovo()">+ Novo disparo</button></div><div id="dpLista"><div class="vazio">Carregando…</div></div></aside>
+  <div id="dpDet" class="dp-det"></div>
+</div></section>
 </div>
 
 <div class="view" id="v-hoje" hidden>
@@ -1663,6 +1697,102 @@ function renderCampanha(){const D=cpDados;if(!D)return;cpRenderPlacar();const C=
   document.getElementById('cpLista').innerHTML=`<h4>👥 Clientes da campanha · ${L.length}</h4>${L.length?`<div class="crm-tab"><div class="crm-l crm-h"><span>Cliente</span><span>Telefone</span><span>CPF</span><span>Situação</span><span>Margem</span><span>Enviado</span></div>${L.map(c=>{const st=c.status==='enviado'&&c.situacao?[c.situacao,...(/^(Número errado|Não contatar)|não entregue/.test(c.situacao)?['#fde8e8','#b42318']:/^Prospecção · (entregue|lida)/.test(c.situacao)?['#e3f7ee','#0f7a4f']:/^Prospecção/.test(c.situacao)?['#eef1f5','#5b6878']:['#fff4dc','#a15c00'])]:c.status==='erro'&&c.erro?[c.erro,'#fde8e8','#b42318']:(CP_ST[c.status]||['—','#eef1f5','#5b6878']);
       return `<div class="crm-l" ${c.lead_id?`onclick="abrirPainel('cliente:${c.lead_id}')"`:'style="cursor:default"'}><span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b></span><span class="c-tel">${fmtTel(c.telefone)}</span><span class="c-cpf">${esc(c.cpf||'—')}</span><span class="c-sit"><span class="cp-st" style="background:${st[1]};color:${st[2]}" title="${esc(c.erro||'')}">${st[0]}</span>${c.status==='na_fila'?` <button class="lnk-a" style="font-size:11.5px" onclick="event.stopPropagation();cpCarregar('remover',{id:'${c.id}'})">remover</button>`:''}</span><span class="c-of">${c.margem?brlFull(c.margem):'—'}</span><span class="c-ult">${c.enviado_em?quando(c.enviado_em):'—'}</span></div>`;}).join('')}</div>`:'<div class="vazio">Nenhum cliente importado ainda.</div>'}`;}
 
+
+// ═════════════ DISPARO ═════════════
+let dpD=null,dpSel=+(lsGet('escritorio_dp')||0),dpEd=null,dpNovas=[],dpMsg='',dpLinhas=[];
+const DP_ST={rascunho:['Rascunho','#eef1f5','#5b6878'],ativo:['Enviando','#e3f7ee','#0f7a4f'],pausado:['Pausado','#fff4dc','#8a6200'],concluido:['Concluído','#eaf1ff','#1e40af'],encerrado:['Encerrado','#eef1f5','#5b6878']};
+async function dpCarregar(acao,extra){acao=acao||'ver';extra=extra||{};if(demo){document.getElementById('dpLista').innerHTML='<div class="vazio">Disponível só com o sistema ligado.</div>';return null;}if(!chave){pedirChave();return null;}
+  try{const r=await fetch(BASE+'/escritorio/disparo',{method:'POST',body:new URLSearchParams({k:chave,acao,id:dpSel||'',...extra})});if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}if(!r.ok)throw new Error('HTTP '+r.status);dpD=await r.json();}
+  catch(e){dpMsg='⚠️ Não consegui falar com o servidor ('+e.message+').';dpRender();return null;}
+  if(dpD.atual&&acao==='criar'){dpSel=dpD.atual;dpEd=null;}
+  dpMsg=dpD.erro?'⚠️ '+dpD.erro:dpD.aviso?'✅ '+dpD.aviso:dpMsg;dpRender();return dpD;}
+function dpAtual(){return dpD&&(dpD.disparos||[]).find(d=>d.id===dpSel);}
+function dpNovo(){if(dpEd&&dpEd.sujo&&!confirm('Tem alterações não salvas. Criar outro mesmo assim?'))return;dpEd=null;dpNovas=[];dpCarregar('criar');}
+function dpEscolher(id){if(dpEd&&dpEd.sujo&&!confirm('Tem alterações não salvas. Trocar mesmo assim?'))return;dpSel=id;lsSet('escritorio_dp',id);dpEd=null;dpNovas=[];dpMsg='';dpCarregar('ver');}
+function dpRender(){if(!dpD)return;const L=dpD.disparos||[],el=document.getElementById('dpLista');
+  if(dpSel&&!L.some(d=>d.id===dpSel))dpSel=0;if(!dpSel&&L.length)dpSel=L[0].id;
+  el.innerHTML=L.length?L.map(d=>{const st=DP_ST[d.status]||DP_ST.rascunho,R=d.resumo||{},t=+R.total||0,env=+R.enviadas||0;return `<button class="dp-it ${d.id===dpSel?'on':''}" onclick="dpEscolher(${d.id})"><span class="dp-it-t"><b>${esc(d.nome)}</b><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span></span><small>${env} de ${t} enviadas · ${R.atendimento||0} chamaram</small><i style="width:${t?Math.round(env/t*100):0}%"></i></button>`;}).join(''):'<div class="vazio">Nenhum disparo ainda. Clique em “+ Novo disparo”.</div>';
+  const det=document.getElementById('dpDet'),d=dpAtual();
+  if(!d){det.innerHTML='<div class="fbox"><div class="vazio">Crie um disparo para começar.</div></div>';return;}
+  if(dpEd&&dpEd.id===d.id&&det.contains(document.activeElement)){dpPintarResumo(d);return;}
+  if(!dpEd||dpEd.id!==d.id){const x=d.extra||{};dpEd={id:d.id,nome:d.nome,numeros:[...(d.numeros||[])],intervalo_min:d.intervalo_min,hora_inicio:d.hora_inicio,hora_fim:d.hora_fim,mensagem:d.mensagem||'',variacoes:[...(d.variacoes||[])],imagem:x.imagem||'',rodape:x.rodape||'',botoes:(x.botoes||[]).map(b=>({tipo:b.tipo==='link'?'link':'resposta',texto:b.texto||'',url:b.url||''})),sujo:false};}
+  dpDesenhar(d);}
+function dpPintarResumo(d){const el=document.getElementById('dpFunil');if(!el)return;const R=d.resumo||{},env=+R.enviadas||0,pc=v=>env?Math.round((+v||0)/env*100)+'%':'';
+  const C=[['Na fila',R.na_fila,''],['Enviadas',env,''],['Entregues',R.entregues,pc(R.entregues)],['Lidas',R.lidas,pc(R.lidas)],['Responderam',R.responderam,pc(R.responderam)],['Chamaram no atendimento',R.atendimento,pc(R.atendimento)],['Simularam',R.simularam,pc(R.simularam)],['Propostas',R.propostas,pc(R.propostas)],['Pagos',R.pagos,pc(R.pagos)],['Bloquearam',R.bloquearam,pc(R.bloquearam)]];
+  el.innerHTML=C.map(c=>`<div class="dp-k"><b>${+c[1]||0}</b><span>${c[0]}</span>${c[2]?`<small>${c[2]}</small>`:''}</div>`).join('');}
+function dpMudou(redesenhar){dpEd.sujo=true;const st=document.getElementById('dpSt');if(st)st.textContent='alterações não salvas';if(redesenhar)dpDesenhar(dpAtual());else dpPrevia();}
+function dpDesenhar(d){const E=dpEd,det=document.getElementById('dpDet'),st=DP_ST[d.status]||DP_ST.rascunho,N=(dpD.numeros||[]).filter(n=>n.funcao==='disparo'||E.numeros.includes(n.nome)),C=dpD.contatos||[],PN=dpD.por_numero||[],T=(dpD.testes||[]).slice(0,2);
+  const ativo=d.status==='ativo',fim=['encerrado','concluido'].includes(d.status);
+  det.innerHTML=`
+  <div class="fbox dp-cab"><div class="dp-cab-t"><input class="dp-nome" value="${esc(E.nome)}" maxlength="60" aria-label="Nome do disparo" oninput="dpEd.nome=this.value;dpMudou()"><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span>
+    <span class="dp-acoes">${ativo?`<button class="bt" onclick="dpCarregar('pausar')">Pausar</button>`:fim?'':`<button class="bt pri" onclick="dpComecar()">${d.status==='pausado'?'Continuar':'Começar disparo'}</button>`}${!fim&&d.status!=='rascunho'?`<button class="bt" onclick="if(confirm('Encerrar este disparo? Quem ainda está na fila não recebe.'))dpCarregar('encerrar')">Encerrar</button>`:''}${d.status==='rascunho'&&!(d.resumo||{}).enviadas?`<button class="bt" onclick="if(confirm('Apagar este rascunho?'))dpCarregar('apagar')">Apagar</button>`:''}<button class="bt" onclick="dpCarregar('ver')">Atualizar</button></span></div>
+    <div class="dp-funil" id="dpFunil"></div>
+    ${PN.length?`<table class="dp-pn"><thead><tr><th>Número</th><th>Enviadas</th><th>Responderam</th><th>Chamaram no atendimento</th><th>Bloquearam</th></tr></thead><tbody>${PN.map(x=>{const n=(dpD.numeros||[]).find(y=>y.nome===x.nome)||{};return `<tr><td>${fmtTel(n.numero)||x.nome}</td><td>${x.enviadas}</td><td>${x.responderam}</td><td>${x.atendimento}</td><td>${x.bloquearam}</td></tr>`;}).join('')}</tbody></table>`:''}
+  </div>
+  <div class="fbox"><h4>Números e ritmo</h4>
+    <div class="dp-nums">${N.length?N.map(n=>`<label class="dp-num ${n.estado==='open'?'':'off'}"><input type="checkbox" ${E.numeros.includes(n.nome)?'checked':''} onchange="dpTogNum('${n.nome}',this.checked)"><span><b>${fmtTel(n.numero)||n.nome}</b><small>${n.estado==='open'?(n.trava_ate?'⚠️ restrito pelo WhatsApp':'conectado'):'desconectado'} · ${n.enviadas} nas últimas 24h</small></span></label>`).join(''):'<div class="vazio">Nenhum número com função Disparo. Marque em Configurações › Números.</div>'}</div>
+    <div class="dp-ritmo">Cada número manda 1 mensagem a cada <input type="number" min="1" max="120" value="${E.intervalo_min}" oninput="dpEd.intervalo_min=this.value;dpMudou()" aria-label="Minutos entre mensagens"> min, das <input type="number" min="0" max="23" value="${E.hora_inicio}" oninput="dpEd.hora_inicio=this.value;dpMudou()" aria-label="Hora de início">h às <input type="number" min="1" max="24" value="${E.hora_fim}" oninput="dpEd.hora_fim=this.value;dpMudou()" aria-label="Hora de fim">h.
+      <small class="cpe-h">${E.numeros.length} número(s) · ~${Math.round(E.numeros.length*60/Math.max(1,+E.intervalo_min||5))} mensagens por hora. Números deste disparo param de mandar a Campanha enquanto ele estiver ativo.</small></div>
+  </div>
+  <div class="fbox"><div class="cpe">
+    <div class="cpe-form">
+      <h4 style="margin:0">Mensagem</h4>
+      <label class="cpe-l">Mensagem base<textarea rows="5" class="cp-txt" maxlength="800" oninput="dpEd.mensagem=this.value;dpMudou()">${esc(E.mensagem)}</textarea><small class="cpe-h">{saudacao} vira Bom dia / Boa tarde / Boa noite · {nome} vira o primeiro nome · *negrito*</small></label>
+      <div class="cpe-l">Variações <small class="cpe-h">(cada envio sorteia uma, sem repetir a anterior do mesmo número. Sem variação, vai a mensagem base.)</small>
+        <div class="dp-vars">${E.variacoes.map((v,i)=>`<div class="dp-var"><textarea rows="3" class="cp-txt" maxlength="800" aria-label="Variação ${i+1}" oninput="dpEd.variacoes[${i}]=this.value;dpMudou()">${esc(v)}</textarea><button class="bt cpe-x" title="Tirar variação" aria-label="Tirar variação ${i+1}" onclick="dpEd.variacoes.splice(${i},1);dpMudou(true)">✕</button></div>`).join('')||'<div class="cpe-h">Nenhuma variação aprovada ainda.</div>'}</div>
+        <div class="cp-linha"><button class="bt" id="dpGerarBt" onclick="dpGerar()">✨ Gerar variações com IA</button><button class="bt" onclick="dpEd.variacoes.push('');dpMudou(true)">+ Escrever uma</button></div>
+        ${dpNovas.length?`<div class="dp-novas"><div class="dp-novas-t"><b>Sugestões da IA</b> · aprove as que quiser<button class="bt pri" onclick="dpAprovar(-1)">Aprovar todas</button><button class="bt" onclick="dpNovas=[];dpDesenhar(dpAtual())">Descartar</button></div>${dpNovas.map((v,i)=>`<div class="dp-nova"><div>${cpFmtWa(v)}</div><button class="bt" onclick="dpAprovar(${i})">Aprovar</button></div>`).join('')}</div>`:''}</div>
+      <div class="cpe-l">Imagem <small class="cpe-h">(vai junto com os botões)</small><div class="cpe-img">${E.imagem?`<img src="${esc(E.imagem)}" alt="Imagem do disparo"><button class="bt" onclick="dpEd.imagem='';dpMudou(true)">Remover</button>`:''}<label class="bt" style="cursor:pointer">${E.imagem?'Trocar':'+ Escolher imagem'}<input type="file" accept="image/*" hidden onchange="dpImagem(this)"></label><span class="cp-prev" id="dpImgSt"></span></div></div>
+      <label class="cpe-l">Rodapé <small class="cpe-h">(opcional)</small><input class="cpe-in" maxlength="60" value="${esc(E.rodape)}" placeholder="GM Cred · crédito CLT" oninput="dpEd.rodape=this.value;dpMudou()"></label>
+      <div class="cpe-l">Botões <small class="cpe-h">(até 3 · texto com até 20 letras)</small>
+        ${E.botoes.map((b,i)=>`<div class="cpe-bt"><select aria-label="Tipo do botão ${i+1}" onchange="dpEd.botoes[${i}].tipo=this.value;dpMudou(true)"><option value="link" ${b.tipo==='link'?'selected':''}>Abrir link</option><option value="resposta" ${b.tipo==='resposta'?'selected':''}>Resposta rápida</option></select>
+          <input class="cpe-in" maxlength="20" placeholder="${b.tipo==='link'?'Ex.: CLIQUE AQUI':'Ex.: BLOQUEAR'}" value="${esc(b.texto)}" aria-label="Texto do botão ${i+1}" oninput="dpEd.botoes[${i}].texto=this.value;dpMudou()">
+          ${b.tipo==='link'?`<input class="cpe-in cpe-url" placeholder="https://wa.me/55..." value="${esc(b.url)}" aria-label="Link do botão ${i+1}" oninput="dpEd.botoes[${i}].url=this.value;dpMudou()">`:''}
+          <button class="bt cpe-x" title="Tirar botão" aria-label="Tirar botão ${i+1}" onclick="dpEd.botoes.splice(${i},1);dpMudou(true)">✕</button></div>`).join('')}
+        ${E.botoes.length<3?`<button class="bt" onclick="dpEd.botoes.push({tipo:'link',texto:'',url:''});dpMudou(true)">+ Adicionar botão</button>`:''}
+        <small class="cpe-h">Resposta rápida “BLOQUEAR”: o cliente sai da lista, a Ana se despede e fica marcado como clicou em bloquear.</small></div>
+      <div class="cp-linha"><button class="bt pri" onclick="dpSalvar()">Salvar</button><select id="dpTesteNum" class="cpe-in" aria-label="Número do teste">${(dpD.numeros||[]).filter(n=>n.estado==='open').map(n=>`<option value="${n.nome}" ${E.numeros.includes(n.nome)?'selected':''}>${fmtTel(n.numero)||n.nome}</option>`).join('')}</select><button class="bt" onclick="dpTeste()">Enviar teste para mim</button><span class="cp-prev" id="dpSt">${esc(dpMsg)}</span></div>
+      ${T.length?`<div class="cpe-testes">${T.map(t=>`<span>Teste das ${new Date(t.criado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}: ${t.enviado_em?'<b style="color:#0f7a4f">enviado ✓</b>':t.erro?'<b style="color:#b42318">não saiu</b> <small>'+esc(t.erro)+'</small>':'na fila…'}</span>`).join('')}</div>`:''}
+    </div>
+    <div class="cpe-prev"><div class="wa"><div class="wa-bal" id="dpPrev"></div></div><small class="cpe-h">Prévia com uma variação sorteada · <button class="lnk-a" onclick="dpPrevia(true)">sortear outra</button></small></div>
+  </div></div>
+  <div class="fbox"><div class="dp-lt"><h4>Lista · ${(d.resumo||{}).total||0} contatos</h4>${(d.resumo||{}).na_fila?`<button class="bt" onclick="if(confirm('Tirar da fila quem ainda não recebeu?'))dpCarregar('limpar_fila')">Limpar fila</button>`:''}</div>
+    ${fim?'':`<details class="cp-dobra" ${(d.resumo||{}).total?'':'open'}><summary><b>Importar contatos</b><span class="cp-dica">cole da planilha (nome e telefone) ou escolha um CSV</span></summary>
+      <textarea id="dpTexto" rows="5" class="cp-txt" placeholder="Maria da Silva	48999998888" oninput="dpPrevImp()"></textarea>
+      <div class="cp-linha"><label class="bt" style="cursor:pointer">📄 Escolher CSV<input type="file" accept=".csv,.txt" hidden onchange="dpArquivo(this)"></label><span class="cp-prev" id="dpImpPrev"></span><button class="bt pri" id="dpImpBt" onclick="dpImportar()" disabled>Importar</button></div></details>`}
+    ${C.length?`<div class="crm-tab"><div class="crm-l crm-h dp-cl"><span>Cliente</span><span>Telefone</span><span>Número</span><span>Situação</span><span>Enviado</span></div>${C.map(c=>{const n=(dpD.numeros||[]).find(y=>y.nome===c.instancia)||{},s2=c.status==='na_fila'?'Na fila':c.status==='removido'?(c.erro||'Removido'):(c.situacao||'Enviada'),cor=/Pago|Proposta|Simulou|Chamou|Respondeu/.test(s2)?['#e3f7ee','#0f7a4f']:/Bloqueou|Não entregue|Removido|bloqueado|atendimento$/.test(s2)?['#fde8e8','#b42318']:/Lida|Entregue/.test(s2)?['#eaf1ff','#1e40af']:['#eef1f5','#5b6878'];
+      return `<div class="crm-l dp-cl" ${c.lead_id?`onclick="abrirPainel('cliente:${c.lead_id}')"`:'style="cursor:default"'}><span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b></span><span class="c-tel">${fmtTel(c.telefone)}</span><span>${c.instancia?fmtTel(n.numero)||c.instancia:'—'}</span><span class="c-sit"><span class="cp-st" style="background:${cor[0]};color:${cor[1]}">${esc(s2)}</span></span><span class="c-ult">${c.enviado_em?quando(c.enviado_em):'—'}</span></div>`;}).join('')}</div>${C.length>=400?'<div class="cpe-h" style="margin-top:6px">Mostrando os 400 mais recentes.</div>':''}`:'<div class="vazio">Nenhum contato importado ainda.</div>'}
+  </div>`;
+  dpPintarResumo(d);dpPrevia();}
+function dpTogNum(n,on){const i=dpEd.numeros.indexOf(n);if(on&&i<0)dpEd.numeros.push(n);if(!on&&i>=0)dpEd.numeros.splice(i,1);dpMudou(true);}
+let dpPrevIdx=0;
+function dpPrevia(sortear){const E=dpEd,el=document.getElementById('dpPrev');if(!E||!el)return;const V=E.variacoes.filter(v=>v.trim().length>=15);if(sortear&&V.length)dpPrevIdx=(dpPrevIdx+1+Math.floor(Math.random()*Math.max(1,V.length-1)))%V.length;
+  let h=new Date().getHours();try{h=+new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',hour:'numeric',hourCycle:'h23'}).format(new Date());}catch(e){}const sd=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';let txt=(V.length?V[dpPrevIdx%V.length]:E.mensagem).replace(/\{saudacao\}/gi,sd).replace(/\{nome\}/g,'Maria');
+  const bts=E.botoes.filter(b=>b.texto.trim());
+  el.innerHTML=`${bts.length&&E.imagem?`<img src="${esc(E.imagem)}" alt="">`:''}<div class="wa-tx">${cpFmtWa(txt)||'<span style="color:#98a2b3">Escreva a mensagem…</span>'}</div>${bts.length&&E.rodape.trim()?`<div class="wa-rod">${esc(E.rodape)}</div>`:''}<div class="wa-hora">12:00</div>${bts.map(b=>`<div class="wa-bt">${b.tipo==='link'?'<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>':'<svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>'}${esc(b.texto)}</div>`).join('')}`;}
+function dpValidar(){const E=dpEd;if(E.mensagem.trim().length<15&&!E.variacoes.some(v=>v.trim().length>=15))return 'Escreva a mensagem base.';
+  for(const b of E.botoes){if(!b.texto.trim())return 'Tem botão sem texto.';if(b.tipo==='link'&&!/^https?:\/\/\S+$/.test(b.url.trim()))return 'O link do botão “'+b.texto+'” precisa começar com https://';}
+  if(E.imagem&&!E.botoes.length)return 'A imagem só vai junto com pelo menos 1 botão.';
+  if(+E.hora_fim<=+E.hora_inicio)return 'O horário de fim precisa ser depois do início.';return '';}
+async function dpSalvar(){const e=dpValidar();if(e){dpMsg='⚠️ '+e;document.getElementById('dpSt').textContent=dpMsg;return false;}const E=dpEd;
+  E.sujo=false;const r=await dpCarregar('salvar',{nome:E.nome.trim(),numeros:JSON.stringify(E.numeros),intervalo_min:E.intervalo_min,hora_inicio:E.hora_inicio,hora_fim:E.hora_fim,mensagem:E.mensagem.trim(),
+    variacoes:JSON.stringify(E.variacoes.map(v=>v.trim()).filter(v=>v.length>=15)),extra:JSON.stringify({imagem:E.imagem,rodape:E.rodape.trim(),botoes:E.botoes.map(b=>({tipo:b.tipo,texto:b.texto.trim(),url:b.url.trim()}))})});
+  if(r&&!r.erro){dpEd=null;dpRender();}return !!(r&&!r.erro);}
+async function dpComecar(){if(dpEd&&dpEd.sujo){if(!await dpSalvar())return;}const d=dpAtual();if(!d)return;const R=d.resumo||{};
+  if(!confirm(`Começar o disparo “${d.nome}”?\n\n${R.na_fila||0} contatos na fila · ${d.numeros.length} número(s) · 1 mensagem por número a cada ${d.intervalo_min} min, das ${d.hora_inicio}h às ${d.hora_fim}h.`))return;dpCarregar('ativar');}
+async function dpTeste(){if(dpEd&&dpEd.sujo){if(!await dpSalvar())return;}const n=document.getElementById('dpTesteNum');await dpCarregar('teste',{nome:n?n.value:''});}
+async function dpGerar(){const E=dpEd,b=document.getElementById('dpGerarBt');if(E.mensagem.trim().length<15){dpMsg='⚠️ Escreva a mensagem base antes de gerar.';document.getElementById('dpSt').textContent=dpMsg;return;}
+  b.disabled=true;b.textContent='Gerando… (até 30 s)';const keep=dpEd;const r=await dpCarregar('gerar',{mensagem:E.mensagem.trim()});dpEd=keep;if(r&&r.variacoes_novas)dpNovas=r.variacoes_novas;dpMsg=r&&r.erro?'⚠️ '+r.erro:'';dpDesenhar(dpAtual());}
+function dpAprovar(i){const add=i<0?dpNovas.splice(0):dpNovas.splice(i,1);dpEd.variacoes.push(...add);dpMudou(true);}
+function dpImagem(inp){const f=inp.files&&inp.files[0];if(!f)return;const st=document.getElementById('dpImgSt');st.textContent='Preparando…';const img=new Image(),u=URL.createObjectURL(f);
+  img.onload=async()=>{URL.revokeObjectURL(u);const m=1080,k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+    st.textContent='Enviando…';try{const r=await fetch(BASE+'/escritorio/campanha',{method:'POST',body:new URLSearchParams({k:chave,acao:'imagem',dados:c.toDataURL('image/jpeg',.85).split(',')[1]})});const j=await r.json();if(j.imagem_url){dpEd.imagem=j.imagem_url;dpMudou(true);}else st.textContent='⚠️ '+(j.erro||'não consegui enviar');}catch(e){st.textContent='⚠️ não consegui enviar';}};
+  img.onerror=()=>{st.textContent='⚠️ Arquivo de imagem inválido.';};img.src=u;}
+function dpPrevImp(){dpLinhas=cpLer(document.getElementById('dpTexto').value);const b=document.getElementById('dpImpBt'),p=document.getElementById('dpImpPrev');b.disabled=!dpLinhas.length;p.textContent=dpLinhas.length?dpLinhas.length+' contato(s) prontos para importar':'';}
+function dpArquivo(inp){const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{document.getElementById('dpTexto').value=String(fr.result||'');dpPrevImp();};fr.readAsText(f);}
+async function dpImportar(){if(!dpLinhas.length)return;if(dpEd&&dpEd.sujo){if(!await dpSalvar())return;}const b=document.getElementById('dpImpBt');if(b){b.disabled=true;b.textContent='Importando…';}
+  await dpCarregar('importar',{linhas:JSON.stringify(dpLinhas.map(l=>({nome:l.nome||'',telefone:l.telefone||''})))});dpLinhas=[];}
+
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
   try{let f;
@@ -1921,11 +2051,11 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','hoje','clientes','indicacoes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','disparo','hoje','clientes','indicacoes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
-const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['campanha','mes','funil'].concat(GRUPO_WPP);
-const PG={hoje:['Início','Resumo do dia em números'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],campanha:['Campanha','Prospecção pelo WhatsApp'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['campanha','disparo','mes','funil'].concat(GRUPO_WPP);
+const PG={hoje:['Início','Resumo do dia em números'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],campanha:['Campanha','Prospecção pelo WhatsApp'],disparo:['Disparo','Envio em massa pelos números de disparo'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
 function alternarMenu(){const m=document.body.classList.toggle('menu-mini');lsSet('escritorio_menu',m?'mini':'');}
 if(lsGet('escritorio_menu')==='mini')document.body.classList.add('menu-mini');
 let ultimaWpp=lsGet('escritorio_wpp');if(!GRUPO_WPP.includes(ultimaWpp))ultimaWpp='numeros';
@@ -1941,7 +2071,7 @@ function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='config'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
   fecharMais();
   {const t=PG[telaAtual]||PG.escritorio;document.getElementById('pgTit').textContent=t[0];document.getElementById('pgSub').textContent=t[1];}
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();if(telaAtual==='disparo')dpCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
