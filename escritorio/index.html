@@ -519,12 +519,75 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   .wseg{width:100%}.wseg button{flex:1;padding:8px 4px;font-size:12.5px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ── v5: visual limpo (menu lateral com ícones, recolhível) ── */
+:root{--bg:#f5f6f8;--piso:#eef1f5;--linha:#e6e9ee;--tx:#1b2230;--tx2:#5d6676;--tx3:#8f97a5;--azul:#2563eb;--azulc:#eef3fe;
+  --sombra:0 1px 2px rgba(16,24,40,.05);--sb:236px}
+html,body{background:var(--bg)}
+svg.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+#nav{position:fixed;left:0;top:0;bottom:0;width:var(--sb);background:#fff;border-right:1px solid var(--linha);display:flex;flex-direction:column;gap:2px;padding:14px 12px;z-index:45;overflow-y:auto;overflow-x:hidden;transition:width .2s}
+#nav .sb-marca{display:flex;align-items:center;gap:10px;padding:4px 6px 18px;min-width:0}
+#nav .logo{width:34px;height:34px;border-radius:9px;background:var(--azul);display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0}
+#nav .sb-txt b{display:block;font-size:15px;font-weight:800;white-space:nowrap}
+#nav .sb-txt small{display:block;font-size:11.5px;color:var(--tx3);white-space:nowrap}
+#nav .nv{flex:0 0 auto;min-width:0;width:100%;flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;font-size:14px;font-weight:500;color:#3d4553;text-decoration:none;white-space:nowrap}
+#nav .nv:hover{background:#f3f5f8}
+#nav .nv.on{background:var(--azulc);color:var(--azul);font-weight:600}
+#nav .nv .badge{position:static;margin-left:auto;font-size:10.5px;font-weight:700;padding:1px 7px}
+#nav .nv-sep{display:none}
+#nav .sb-fim{margin-top:auto;display:flex;flex-direction:column;gap:2px;padding-top:10px;border-top:1px solid var(--linha)}
+#nav .sb-recolher{border:0;background:transparent;display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;font-size:13px;color:var(--tx3);white-space:nowrap}
+#nav .sb-recolher:hover{background:#f3f5f8;color:var(--tx2)}
+#nav .sb-recolher svg{transition:transform .2s}
+#nav .nv-mais{display:none}
+body.menu-mini{--sb:72px}
+body.menu-mini #nav .lb,body.menu-mini #nav .sb-txt{display:none}
+body.menu-mini #nav .nv,body.menu-mini #nav .sb-recolher{justify-content:center;padding:10px 0}
+body.menu-mini #nav .sb-marca{justify-content:center;padding:4px 0 18px}
+body.menu-mini #nav .nv .badge{position:absolute;top:3px;right:8px;margin:0}
+body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
+.top{background:rgba(255,255,255,.92);border-bottom:1px solid var(--linha);padding:12px 24px;min-height:64px}
+.marca.pg h1{font-size:19px;font-weight:700}
+.marca.pg p{font-size:12.5px;color:var(--tx3)}
+.kpi{background:#fff;border:1px solid var(--linha);border-radius:10px}
+.fbox,.sala,.mt,.sc,.ag-card,.nm-c{box-shadow:var(--sombra)!important;border:1px solid var(--linha)}
+.fbox{border-radius:12px}
+.escritorio{background:var(--piso);box-shadow:inset 0 0 0 1px var(--linha)}
+.bt.pri,.bt.azul{background:var(--azul);border-color:var(--azul)}
+.subnav{margin:18px 24px 0}
+.cfg-tit{margin-right:auto}.cfg-tit h3{font-size:17px;font-weight:700;margin:0}.cfg-tit p{font-size:12.5px;color:var(--tx3)}
+.wseg{border-radius:10px}
+.wseg button{display:flex;align-items:center;gap:6px;font-weight:600}
+.wseg button svg.ico{width:16px;height:16px}
+.wseg button.on{background:var(--azulc);color:var(--azul)}
+.mais-grid svg.ico{width:22px;height:22px}
+.mais-grid .on{background:var(--azulc)}
+@media (min-width:721px){
+  body{padding-left:var(--sb);transition:padding-left .2s}
+  .ticker{left:var(--sb)}
+}
+@media (max-width:720px){
+  body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  .ticker{display:none}
+  #nav{top:auto;bottom:0;left:0;right:0;width:auto;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--linha);overflow:visible;gap:0}
+  #nav .sb-fim{margin:0;padding:0;border:0;flex:1 1 0;display:flex}
+  #nav .nv,#nav .nv-mais{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;font-size:11px;font-weight:600}
+  #nav .nv .badge{position:absolute;top:1px;right:calc(50% - 22px);margin:0}
+  #nav .sb-marca,#nav .sb-recolher,#nav .nv.nv-an{display:none}
+  #nav .sb-fim{flex-direction:row}
+  body.menu-mini #nav .lb{display:inline}
+  .top{padding:10px 14px;min-height:0}
+  .marca.pg h1{font-size:17px}
+  .subnav{margin:12px 12px 0}
+  .cfg-tit{display:none}
+  .wseg{width:100%;overflow-x:auto;scrollbar-width:none}.wseg::-webkit-scrollbar{display:none}
+  .wseg button{flex:0 0 auto;padding:8px 10px}
+}
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="marca"><div class="logo">GM</div><div><h1>Escritório CLT</h1><p>Empresa virtual · agentes de IA</p></div></div>
+  <div class="marca pg"><div><h1 id="pgTit">Escritório</h1><p id="pgSub">Empresa virtual · agentes de IA</p></div></div>
   <div class="kpis">
     <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
     <div class="kpi"><b id="kPag" style="color:var(--verde)">0</b><span>Pagos hoje</span></div>
@@ -536,44 +599,49 @@ button.mot:hover{background:#f7f9fc}button.mot b{color:var(--azul)}
   <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração"><i></i><span>...</span></button>
 </header>
 <div class="aviso" id="aviso"></div>
-<nav class="nav" aria-label="Telas do painel">
-  <span class="nv-sep nv-sep1">Operação</span>
-  <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
-  <button class="nv" data-v="conversas" onclick="irPara('conversas')"><span class="ico">💬</span>Conversas<b class="badge" id="cvBadge" hidden></b></button>
-  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
-  <button class="nv" data-v="indicacoes" onclick="irPara('indicacoes')"><span class="ico">🎁</span>Indicações</button>
-  <button class="nv" data-v="whatsapp" onclick="irPara(ultimaWpp)" title="Campanha, números e maturador"><span class="ico">📱</span>WhatsApp<b class="badge" id="nmBadge" hidden></b></button>
-  <span class="nv-sep">Análise</span>
-  <button class="nv nv-an" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
-  <button class="nv nv-an" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
-  <button class="nv nv-an" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
-  <button class="nv nv-an" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
-  <button class="nv nv-an" data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
-  <button class="nv nv-an" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
-  <span class="nv-sep"></span>
-  <a class="nv nv-an" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">🧪</span>Chat teste</a>
-  <button class="nv nv-mais" data-v="mais" onclick="abrirMais()" aria-haspopup="dialog"><span class="ico">☰</span>Mais</button>
+<nav class="nav" id="nav" aria-label="Telas do painel">
+  <div class="sb-marca"><div class="logo">GM</div><div class="sb-txt"><b>GM Cred</b><small>Escritório CLT</small></div></div>
+  <button class="nv" data-v="hoje" onclick="irPara('hoje')" title="Início"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/></svg><span class="lb">Início</span></button>
+  <button class="nv" data-v="escritorio" onclick="irPara('escritorio')" title="Escritório"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/></svg><span class="lb">Escritório</span><b class="badge" id="navBadge" hidden></b></button>
+  <button class="nv" data-v="conversas" onclick="irPara('conversas')" title="Conversas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="lb">Conversas</span><b class="badge" id="cvBadge" hidden></b></button>
+  <button class="nv" data-v="clientes" onclick="irPara('clientes')" title="Clientes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg><span class="lb">Clientes</span></button>
+  <button class="nv nv-an" data-v="campanha" onclick="irPara('campanha')" title="Campanha"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M18 8.5a5 5 0 0 1 0 7"/></svg><span class="lb">Campanha</span></button>
+  <button class="nv nv-an" data-v="mes" onclick="irPara('mes')" title="Vendas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="lb">Vendas</span></button>
+  <button class="nv nv-an" data-v="funil" onclick="irPara('funil')" title="Funil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg><span class="lb">Funil</span></button>
+  <div class="sb-fim">
+  <a class="nv nv-an" href="chat.html" title="Conversar com os agentes como se fosse um cliente"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.6 9.6A1.6 1.6 0 0 0 5.8 21h12.4a1.6 1.6 0 0 0 1.4-2.4L14 9V3"/><path d="M7.5 15h9"/></svg><span class="lb">Chat teste</span></a>
+  <button class="nv nv-an" data-v="config" onclick="irPara(ultimaWpp)" title="Configurações"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/><circle cx="12" cy="12" r="7"/></svg><span class="lb">Configurações</span><b class="badge" id="nmBadge" hidden></b></button>
+  <button class="nv nv-mais" data-v="mais" onclick="abrirMais()" aria-haspopup="dialog"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="lb">Mais</span></button>
+  <button class="sb-recolher" onclick="alternarMenu()" title="Recolher ou abrir o menu" aria-label="Recolher ou abrir o menu"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="lb">Recolher menu</span></button>
+  </div>
 </nav>
 <div class="mais-veu" id="maisVeu" onclick="if(event.target===this)fecharMais()" role="dialog" aria-modal="true" aria-label="Mais telas"><div class="mais-sheet">
-  <h5>Análise</h5>
+  <h5>Operação</h5>
   <div class="mais-grid">
-    <button data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
-    <button data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
-    <button data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
-    <button data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
-    <button data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
-    <button data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
+    <button data-v="campanha" onclick="irPara('campanha')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M18 8.5a5 5 0 0 1 0 7"/></svg>Campanha</button>
+    <button data-v="mes" onclick="irPara('mes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Vendas</button>
+    <button data-v="funil" onclick="irPara('funil')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>Funil</button>
   </div>
-  <h5>Testes</h5>
-  <div class="mais-grid"><a href="chat.html"><span class="ico">🧪</span>Chat teste</a></div>
+  <h5>Configurações</h5>
+  <div class="mais-grid">
+    <button data-v="numeros" onclick="irPara('numeros')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Números</button>
+    <button data-v="maturador" onclick="irPara('maturador')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></svg>Maturador</button>
+    <button data-v="agentes" onclick="irPara('agentes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>Agentes</button>
+    <button data-v="indicacoes" onclick="irPara('indicacoes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3.5 8 4.2 9 8 12 8zm0 0s1.5-4.5 4-3.8S15 8 12 8z"/></svg>Indicações</button>
+    <button data-v="financeiro" onclick="irPara('financeiro')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 9.5h.01M18 15.5h.01"/></svg>Financeiro</button>
+    <button data-v="simulacao" onclick="irPara('simulacao')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg>Simulação</button>
+    <a href="chat.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.6 9.6A1.6 1.6 0 0 0 5.8 21h12.4a1.6 1.6 0 0 0 1.4-2.4L14 9V3"/><path d="M7.5 15h9"/></svg>Chat teste</a>
+  </div>
   <button class="bt mais-fechar" onclick="fecharMais()">Fechar</button>
 </div></div>
 <div class="subnav" id="wppTabs" hidden>
-  <h3>📱 WhatsApp</h3>
-  <div class="wseg" role="tablist" aria-label="Telas do WhatsApp">
-    <button data-w="campanha" onclick="irPara('campanha')">📤 Campanha</button>
-    <button data-w="numeros" onclick="irPara('numeros')">📱 Números</button>
-    <button data-w="maturador" onclick="irPara('maturador')">🔄 Maturador</button>
+  <div class="wseg" role="tablist" aria-label="Configurações">
+    <button data-w="numeros" onclick="irPara('numeros')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Números</button>
+    <button data-w="maturador" onclick="irPara('maturador')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></svg>Maturador</button>
+    <button data-w="agentes" onclick="irPara('agentes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>Agentes</button>
+    <button data-w="indicacoes" onclick="irPara('indicacoes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3.5 8 4.2 9 8 12 8zm0 0s1.5-4.5 4-3.8S15 8 12 8z"/></svg>Indicações</button>
+    <button data-w="financeiro" onclick="irPara('financeiro')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 9.5h.01M18 15.5h.01"/></svg>Financeiro</button>
+    <button data-w="simulacao" onclick="irPara('simulacao')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg>Simulação</button>
   </div>
 </div>
 
@@ -1774,7 +1842,10 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar
 const TELAS=['escritorio','hoje','clientes','indicacoes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
-const GRUPO_WPP=['campanha','numeros','maturador'],ANALISE=['hoje','mes','funil','agentes','financeiro','simulacao'];
+const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['campanha','mes','funil'].concat(GRUPO_WPP);
+const PG={hoje:['Início','Resumo do dia em números'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],campanha:['Campanha','Prospecção pelo WhatsApp'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+function alternarMenu(){const m=document.body.classList.toggle('menu-mini');lsSet('escritorio_menu',m?'mini':'');}
+if(lsGet('escritorio_menu')==='mini')document.body.classList.add('menu-mini');
 let ultimaWpp=lsGet('escritorio_wpp');if(!GRUPO_WPP.includes(ultimaWpp))ultimaWpp='numeros';
 function abrirMais(){document.getElementById('maisVeu').classList.add('on');}
 function fecharMais(){document.getElementById('maisVeu').classList.remove('on');}
@@ -1785,8 +1856,9 @@ function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_
   document.getElementById('wppTabs').hidden=!ehWpp;
   document.querySelectorAll('.wseg button').forEach(b=>{const on=b.dataset.w===telaAtual;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
   document.querySelectorAll('.mais-grid [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===telaAtual));
-  document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='whatsapp'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
+  document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='config'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
   fecharMais();
+  {const t=PG[telaAtual]||PG.escritorio;document.getElementById('pgTit').textContent=t[0];document.getElementById('pgSub').textContent=t[1];}
   window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
