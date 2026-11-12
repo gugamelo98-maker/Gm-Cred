@@ -647,6 +647,7 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
 @media (max-width:1100px){.dp-wrap{grid-template-columns:1fr}.dp-lista{position:static;max-height:none}.dp-funil{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:720px){.dp-funil{grid-template-columns:repeat(2,minmax(0,1fr))}.dp-acoes{margin-left:0}.dp-pn th:nth-child(5),.dp-pn td:nth-child(5){display:none}.dp-cl{grid-template-columns:1fr auto!important}.dp-cl>span:nth-child(3),.dp-cl>span:nth-child(5){display:none}}
 
+.dp-msg-cab{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.dp-copiar{display:flex;gap:6px;margin-left:auto}.dp-copiar select{width:auto;max-width:260px}
 .dp-abas{display:flex;gap:6px;flex-wrap:wrap}.dp-abas button{border:1px solid var(--linha);background:var(--cfff);border-radius:9px;padding:6px 12px;display:flex;flex-direction:column;align-items:flex-start;font-size:13px;font-weight:700;color:var(--tx2)}
 .dp-abas button small{font-size:11px;font-weight:500;color:var(--tx3)}.dp-abas button.on{border-color:var(--azul);background:var(--azulc);color:var(--azul)}.dp-abas .dp-aba-mais{justify-content:center;border-style:dashed}
 .dp-pn small{color:var(--tx3);font-size:11px}.dp-best td{background:#f3fbf7}
@@ -1756,7 +1757,7 @@ const DP_ST={rascunho:['Rascunho','#eef1f5','#5b6878'],ativo:['Enviando','#e3f7e
 async function dpCarregar(acao,extra){acao=acao||'ver';extra=extra||{};if(demo){document.getElementById('dpLista').innerHTML='<div class="vazio">Disponível só com o sistema ligado.</div>';return null;}if(!chave){pedirChave();return null;}
   try{const r=await fetch(BASE+'/escritorio/disparo',{method:'POST',body:new URLSearchParams({k:chave,acao,id:dpSel||'',...extra})});if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}if(!r.ok)throw new Error('HTTP '+r.status);dpD=await r.json();}
   catch(e){dpMsg='⚠️ Não consegui falar com o servidor ('+e.message+').';dpRender();return null;}
-  if(dpD.atual&&acao==='criar'){dpSel=dpD.atual;dpEd=null;}
+  if(dpD.atual&&(acao==='criar'||acao==='duplicar')){dpSel=dpD.atual;lsSet('escritorio_dp',dpSel);dpEd=null;dpNovas=[];}
   dpMsg=dpD.erro?'⚠️ '+dpD.erro:dpD.aviso?'✅ '+dpD.aviso:dpMsg;dpRender();return dpD;}
 function dpAtual(){return dpD&&(dpD.disparos||[]).find(d=>d.id===dpSel);}
 function dpNovo(){if(dpEd&&dpEd.sujo&&!confirm('Tem alterações não salvas. Criar outro mesmo assim?'))return;dpEd=null;dpNovas=[];dpCarregar('criar');}
@@ -1777,7 +1778,7 @@ function dpDesenhar(d){const E=dpEd,det=document.getElementById('dpDet'),st=DP_S
   const ativo=d.status==='ativo',fim=['encerrado','concluido'].includes(d.status);
   det.innerHTML=`
   <div class="fbox dp-cab"><div class="dp-cab-t"><input class="dp-nome" value="${esc(E.nome)}" maxlength="60" aria-label="Nome do disparo" oninput="dpEd.nome=this.value;dpMudou()"><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span>
-    <span class="dp-acoes">${ativo?`<button class="bt" onclick="dpCarregar('pausar')">Pausar</button>`:fim?'':`<button class="bt pri" onclick="dpComecar()">${d.status==='pausado'?'Continuar':'Começar disparo'}</button>`}${!fim&&d.status!=='rascunho'?`<button class="bt" onclick="if(confirm('Encerrar este disparo? Quem ainda está na fila não recebe.'))dpCarregar('encerrar')">Encerrar</button>`:''}${d.status==='rascunho'&&!(d.resumo||{}).enviadas?`<button class="bt" onclick="if(confirm('Apagar este rascunho?'))dpCarregar('apagar')">Apagar</button>`:''}<button class="bt" onclick="dpCarregar('ver')">Atualizar</button></span></div>
+    <span class="dp-acoes">${ativo?`<button class="bt" onclick="dpCarregar('pausar')">Pausar</button>`:fim?'':`<button class="bt pri" onclick="dpComecar()">${d.status==='pausado'?'Continuar':'Começar disparo'}</button>`}${!fim&&d.status!=='rascunho'?`<button class="bt" onclick="if(confirm('Encerrar este disparo? Quem ainda está na fila não recebe.'))dpCarregar('encerrar')">Encerrar</button>`:''}${d.status==='rascunho'&&!(d.resumo||{}).enviadas?`<button class="bt" onclick="if(confirm('Apagar este rascunho?'))dpCarregar('apagar')">Apagar</button>`:''}<button class="bt" onclick="dpDuplicar()" title="Cria um disparo novo com as mesmas mensagens, botões, imagem, números e ritmo (sem a lista)">Duplicar</button><button class="bt" onclick="dpCarregar('ver')">Atualizar</button></span></div>
     <div class="dp-funil" id="dpFunil"></div>
     ${(()=>{const PM=dpD.por_mensagem||[];if(PM.length<1)return '';const tx=(x,v)=>x.enviadas?Math.round(v/x.enviadas*100):0,best=PM.length>1?PM.reduce((a,b)=>tx(b,b.atendimento+b.responderam)>tx(a,a.atendimento+a.responderam)?b:a):null;
       return `<table class="dp-pn"><thead><tr><th>Mensagem</th><th>Enviadas</th><th>Entregues</th><th>Responderam</th><th>Chamaram no atendimento</th><th>Simularam</th><th>Bloquearam</th></tr></thead><tbody>${PM.map(x=>`<tr${best&&best.msg===x.msg&&x.enviadas>=10?' class="dp-best"':''}><td><b>Mensagem ${x.msg}</b>${best&&best.msg===x.msg&&x.enviadas>=10?' <span class="cp-st" style="background:#e3f7ee;color:#0f7a4f">melhor até agora</span>':''}</td><td>${x.enviadas}</td><td>${x.entregues} <small>${tx(x,x.entregues)}%</small></td><td>${x.responderam} <small>${tx(x,x.responderam)}%</small></td><td>${x.atendimento} <small>${tx(x,x.atendimento)}%</small></td><td>${x.simularam}</td><td>${x.bloquearam} <small>${tx(x,x.bloquearam)}%</small></td></tr>`).join('')}</tbody></table>`;})()}
@@ -1790,7 +1791,7 @@ function dpDesenhar(d){const E=dpEd,det=document.getElementById('dpDet'),st=DP_S
   </div>
   <div class="fbox"><div class="cpe">
     <div class="cpe-form">
-      <h4 style="margin:0">Mensagens</h4>
+      <div class="dp-msg-cab"><h4 style="margin:0">Mensagens</h4>${(dpD.disparos||[]).filter(x=>x.id!==d.id&&(x.mensagens||[]).length).length?`<span class="dp-copiar"><select id="dpCopiarDe" class="cpe-in" aria-label="Copiar mensagens de outro disparo"><option value="">Copiar mensagens de…</option>${(dpD.disparos||[]).filter(x=>x.id!==d.id&&(x.mensagens||[]).length).map(x=>`<option value="${x.id}">${esc(x.nome)} · ${x.mensagens.length} msg</option>`).join('')}</select><button class="bt" onclick="dpCopiar()">Copiar</button></span>`:''}</div>
       <small class="cpe-h" style="margin-top:-8px">Coloque até 5 mensagens diferentes para testar qual funciona melhor. O sistema reveza entre elas em partes iguais e entre todos os números. Cada mensagem pode ter variações (mesmo sentido, palavras diferentes) para nenhum envio sair igual.</small>
       <div class="dp-abas" role="tablist">${E.mensagens.map((m,i)=>`<button role="tab" aria-selected="${i===E.aba}" class="${i===E.aba?'on':''}" onclick="dpEd.aba=${i};dpNovas=[];dpDesenhar(dpAtual())">Mensagem ${i+1}<small>${m.variacoes.length} variação(ões)</small></button>`).join('')}${E.mensagens.length<5?`<button class="dp-aba-mais" onclick="dpEd.mensagens.push({texto:'',variacoes:[]});dpEd.aba=dpEd.mensagens.length-1;dpNovas=[];dpMudou(true)">+ Mensagem</button>`:''}</div>
       ${(()=>{const i=E.aba,M=E.mensagens[i];return `
@@ -1821,6 +1822,10 @@ function dpDesenhar(d){const E=dpEd,det=document.getElementById('dpDet'),st=DP_S
       return `<div class="crm-l dp-cl" ${c.lead_id?`onclick="abrirPainel('cliente:${c.lead_id}')"`:'style="cursor:default"'}><span class="c-nome"><b>${esc(c.nome||'Sem nome')}</b></span><span class="c-tel">${fmtTel(c.telefone)}</span><span>${c.instancia?fmtTel(n.numero)||c.instancia:'—'}</span><span class="c-sit"><span class="cp-st" style="background:${cor[0]};color:${cor[1]}">${esc(s2)}</span></span><span class="c-ult">${c.enviado_em?quando(c.enviado_em):'—'}</span></div>`;}).join('')}</div>${C.length>=400?'<div class="cpe-h" style="margin-top:6px">Mostrando os 400 mais recentes.</div>':''}`:'<div class="vazio">Nenhum contato importado ainda.</div>'}
   </div>`;
   dpPintarResumo(d);dpPrevia();}
+async function dpDuplicar(){if(dpEd&&dpEd.sujo){if(!await dpSalvar())return;}if(!confirm('Criar um disparo novo com as mesmas mensagens, botões, imagem, números e ritmo? A lista de contatos não é copiada.'))return;dpCarregar('duplicar');}
+async function dpCopiar(){const s=document.getElementById('dpCopiarDe');if(!s||!s.value){dpMsg='⚠️ Escolha de qual disparo copiar.';const st=document.getElementById('dpSt');if(st)st.textContent=dpMsg;return;}
+  const o=(dpD.disparos||[]).find(x=>String(x.id)===s.value);if(!confirm(`Trocar as mensagens, variações, imagem e botões deste disparo pelas do “${o?o.nome:''}”?`))return;
+  dpEd=null;dpNovas=[];await dpCarregar('copiar',{origem:s.value});}
 function dpTogNum(n,on){const i=dpEd.numeros.indexOf(n);if(on&&i<0)dpEd.numeros.push(n);if(!on&&i>=0)dpEd.numeros.splice(i,1);dpMudou(true);}
 let dpPrevIdx=0;
 function dpPrevia(sortear){const E=dpEd,el=document.getElementById('dpPrev');if(!E||!el)return;const M=E.mensagens[E.aba]||{texto:'',variacoes:[]},V=M.variacoes.filter(v=>v.trim().length>=15);if(sortear&&V.length)dpPrevIdx=(dpPrevIdx+1+Math.floor(Math.random()*Math.max(1,V.length-1)))%V.length;
