@@ -84,6 +84,15 @@ Proposta de formato (o sistema vai chamar assim):
 ```
 Resposta igual ao `sendText` (com o ID serializado). Pelo teste: mandar a mensagem interativa **direto, sem viewOnce**, com o bloco `biz → interactive → native_flow`. Botão de copiar e `buttonsMessage` antigo não funcionam — não usar.
 
+
+### 1.9 NOVO — Foto e nome do perfil (para todo número novo já sair com a logo)
+Mesmo formato do WAHA:
+- `PUT /api/{nome}/profile/picture` com `{ "file": { "url": "https://escritorio-gm-cred.vercel.app/img/perfil-whatsapp.jpg" } }`
+  (aceitar também `{ "file": { "mimetype": "image/jpeg", "data": "<base64>" } }`). No Baileys: `sock.updateProfilePicture(sock.user.id, buffer)`.
+- `PUT /api/{nome}/profile/name` com `{ "name": "Ana Gm Cred" }`. No Baileys: `sock.updateProfileName(nome)`.
+- Resposta `200 {"success": true}`; sessão que não está `WORKING` → `409`.
+O sistema chama os dois uma vez, logo depois que um número novo conecta pelo QR.
+
 ---
 
 ## 2. Eventos que o servidor manda para o n8n
