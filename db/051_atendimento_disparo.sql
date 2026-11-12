@@ -76,3 +76,6 @@ begin
 end $f$;
 select credito.mig051();
 -- (aplicado depois) sem botão, o link do atendimento vai limpo: https://wa.me/<numero>
+-- (aplicado depois) todos os números vão para o servidor novo: todos enviam botões
+alter table credito.wpp_motor alter column botoes set default true;
+update credito.wpp_motor set botoes = true where not botoes;
