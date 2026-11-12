@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "redirect1.gmcredconsignado.com.br" }],
+      "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1"
+    }
+  ]
+}
