@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Escritório CLT</title>
+<title>GM Cred · Escritório</title>
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="img/favicon-64.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="theme-color" content="#2d2d30">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -133,7 +137,7 @@ button{font:inherit;cursor:pointer}
 .fcard .sub{font-size:12.5px;color:var(--tx2);margin-top:3px}
 .fcard .sub b{color:var(--tx)}
 .meta-barra{height:9px;background:#eef2f6;border-radius:999px;overflow:hidden;margin-top:8px}
-.meta-barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2f6fed,#16a36a);transition:width .6s}
+.meta-barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#c9971f,#e3b33c);transition:width .6s}
 .meta-linha{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-top:9px}
 .meta-linha b{color:var(--tx)}
 .selo{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:auto}
@@ -183,7 +187,7 @@ button{font:inherit;cursor:pointer}
 .fbox h4{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
 .fl{display:grid;grid-template-columns:150px 1fr 80px;gap:10px;align-items:center;margin-bottom:7px;font-size:12.5px}
 .fl .bar{height:20px;background:#eef2f6;border-radius:6px;overflow:hidden}
-.fl .bar i{display:block;height:100%;background:linear-gradient(90deg,#2f6fed,#16a3a0);border-radius:6px;transition:width .6s}
+.fl .bar i{display:block;height:100%;background:linear-gradient(90deg,#c9971f,#e3b33c);border-radius:6px;transition:width .6s}
 .fl .v{text-align:right;font-weight:700}.fl .v small{display:block;font-weight:500;color:var(--tx3);font-size:11px}
 .mot{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 0;border-bottom:1px solid #f0f3f7}
 /* ficha do cliente */
@@ -645,6 +649,21 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
 .dp-abas{display:flex;gap:6px;flex-wrap:wrap}.dp-abas button{border:1px solid var(--linha);background:#fff;border-radius:9px;padding:6px 12px;display:flex;flex-direction:column;align-items:flex-start;font-size:13px;font-weight:700;color:var(--tx2)}
 .dp-abas button small{font-size:11px;font-weight:500;color:var(--tx3)}.dp-abas button.on{border-color:var(--azul);background:var(--azulc);color:var(--azul)}.dp-abas .dp-aba-mais{justify-content:center;border-style:dashed}
 .dp-pn small{color:var(--tx3);font-size:11px}.dp-best td{background:#f3fbf7}
+
+/* ── v6: cores da marca (grafite + dourado da logo) ── */
+:root{--azul:#9a6b00;--azulc:#fbf3dc;--grafite:#2d2d30;--ouro:#e3b33c}
+#nav .logo-img{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:block}
+body.menu-mini #nav .logo-img{width:38px;height:38px}
+#nav .nv.on{background:var(--azulc);color:#7a5400}
+#nav .nv.on svg.ico{color:#9a6b00}
+.bt.pri,.bt.azul{background:var(--grafite);border-color:var(--grafite);color:#fff}
+.bt.pri:hover{background:#1f1f22}
+.cp-tabs button.on,.dp-it.on,.dp-abas button.on{border-color:var(--ouro);background:var(--azulc)}
+.cp-tabs button.on b,.dp-abas button.on{color:#7a5400}
+.dp-it i{background:var(--ouro)}
+.wseg button.on{background:var(--azulc);color:#7a5400}
+.mais-grid .on{background:var(--azulc);border-color:#f0dca6;color:#7a5400}
+.nv .badge{background:var(--vermelho)}
 </style>
 </head>
 <body>
@@ -663,7 +682,7 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
 </header>
 <div class="aviso" id="aviso"></div>
 <nav class="nav" id="nav" aria-label="Telas do painel">
-  <div class="sb-marca"><div class="logo">GM</div><div class="sb-txt"><b>GM Cred</b><small>Escritório CLT</small></div></div>
+  <div class="sb-marca"><img class="logo-img" src="img/logo-circulo.png" alt="GM Cred" width="36" height="36"><div class="sb-txt"><b>GM Cred</b><small>Escritório CLT</small></div></div>
   <button class="nv" data-v="hoje" onclick="irPara('hoje')" title="Início"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/></svg><span class="lb">Início</span></button>
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')" title="Escritório"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/></svg><span class="lb">Escritório</span><b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="conversas" onclick="irPara('conversas')" title="Conversas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="lb">Conversas</span><b class="badge" id="cvBadge" hidden></b></button>
