@@ -6,3 +6,5 @@ alter table credito.leads add column if not exists reconsultar_em timestamptz;
 alter table credito.leads add column if not exists tentativas_412 int not null default 0;
 -- funções alteradas no banco via credito.mig057(): acao_agente, fila_acompanhamento
 -- n8n "GM Cred · V8 Ferramentas" › Analisar busca: última consulta REJECTED com 412 + consultar_cpf → criar consulta nova
+-- (12/11 10h) DESFEITO no n8n: "Analisar busca" criar consulta nova quando a última era 412 fazia o Acompanhamento
+-- gerar 1 consulta nova por minuto. Voltou ao original: 412 → sem_margem → acao_agente marca REAUTORIZAR (não "sem margem").
