@@ -1,0 +1,4 @@
+-- 061: número novo recebe a logo da GM Cred e o nome "Ana Gm Cred" no perfil assim que conecta.
+-- wpp_motor.perfil_aplicado (números que já existiam = true; novos = false) e perfil_tentativas (até 5).
+-- credito.perfis_pendentes() lista os conectados pendentes; o fluxo "GM Cred · WhatsApp (envio)" chama
+-- PUT /api/{sessão}/profile/picture e /profile/name no servidor e marca com credito.perfil_marcar().
