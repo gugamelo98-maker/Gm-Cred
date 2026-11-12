@@ -1,9 +1,17 @@
 {
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [{ "type": "host", "value": "redirect1.gmcredconsignado.com.br" }],
-      "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1"
+      "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1",
+      "statusCode": 302
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "redirect1.gmcredconsignado.com.br" }],
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
     }
   ]
 }
