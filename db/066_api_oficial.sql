@@ -289,3 +289,9 @@ alter table credito.oficial_disparos alter column botao_telefone set default fal
 
 -- 069: opção "Telefone do cliente" no {{1}} do link do botão (botao_telefone = true): gmcredconsignado.com.br/<telefone>
 --      -> Vercel /:cod -> /webhook/gmcred/r?s=redirect1&c=<telefone> -> credito.rotador_proximo(slug, cod) marca clicou_em.
+
+-- 070: tudo que a Meta manda volta para o sistema.
+--  * credito.meta_eventos guarda cada aviso (qualidade do número, status/qualidade/categoria de modelo, conta, limite, erros).
+--  * oficial_webhook atualiza config 'oficial': qualidade_numero (último aviso) e templates[].qualidade/status/motivo/categoria.
+--  * "Atualizar mensagens modelo" agora também busca quality_score dos modelos e, do número: qualidade, limite diário, nome (oficial_numero_salvar).
+--  * oficial_cfg_publica devolve numero, qualidade_numero e os 30 últimos eventos para o painel.
