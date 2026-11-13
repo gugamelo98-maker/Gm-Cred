@@ -622,6 +622,14 @@ body.menu-mini #nav .sb-recolher svg{transform:rotate(180deg)}
 @media (max-width:980px){.cpe{grid-template-columns:1fr}.cpe-prev{position:static}.cp-extras{grid-template-columns:1fr}}
 @media (max-width:720px){.cp-barra{flex-direction:column}.cp-liga{width:100%}.cpe-bt,.cpe-bt:has(.cpe-url){grid-template-columns:1fr auto}.cpe-bt select{grid-column:1/2}.cpe-bt .cpe-x{grid-row:1;grid-column:2}.cpe-bt .cpe-in{grid-column:1/-1}}
 
+/* ── v5: API oficial ── */
+.of-cx{border:1px solid var(--linha);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.of-cx label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--tx3)}.of-cx input{border:1px solid var(--linha);border-radius:8px;padding:7px 8px;font:inherit;font-size:13px;color:var(--tx)}
+.of-cx code{font-size:11.5px;word-break:break-all;background:var(--azulc);padding:2px 5px;border-radius:5px}
+.of-k{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:14px}
+.of-prev{white-space:pre-wrap;background:var(--azulc);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.45}
+.of-var{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}.of-var select,.of-var input,.of-in{border:1px solid var(--linha);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px}
+.of-tab{width:100%;border-collapse:collapse;font-size:12.5px}.of-tab th{font-size:11px;color:var(--tx3);text-align:left;padding:6px;border-bottom:1px solid var(--linha)}.of-tab td{padding:6px;border-bottom:1px solid var(--linha);vertical-align:top}
 /* ── v5: disparo ── */
 .dp-wrap{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;align-items:start}
 .dp-lista{position:sticky;top:84px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 110px);overflow:auto}
@@ -716,6 +724,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <button class="nv" data-v="clientes" onclick="irPara('clientes')" title="Clientes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg><span class="lb">Clientes</span></button>
   <button class="nv nv-an" data-v="campanha" onclick="irPara('campanha')" title="Campanha"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M18 8.5a5 5 0 0 1 0 7"/></svg><span class="lb">Campanha</span></button>
   <button class="nv nv-an" data-v="disparo" onclick="irPara('disparo')" title="Disparo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg><span class="lb">Disparo</span></button>
+  <button class="nv nv-an" data-v="oficial" onclick="irPara('oficial')" title="API oficial"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg><span class="lb">API oficial</span></button>
   <button class="nv nv-an" data-v="mes" onclick="irPara('mes')" title="Vendas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="lb">Vendas</span></button>
   <button class="nv nv-an" data-v="funil" onclick="irPara('funil')" title="Funil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg><span class="lb">Funil</span></button>
   <div class="sb-fim">
@@ -731,6 +740,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <div class="mais-grid">
     <button data-v="campanha" onclick="irPara('campanha')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4a1 1 0 0 0 1 1h3l7 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M18 8.5a5 5 0 0 1 0 7"/></svg>Campanha</button>
     <button data-v="disparo" onclick="irPara('disparo')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg>Disparo</button>
+    <button data-v="oficial" onclick="irPara('oficial')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>API oficial</button>
     <button data-v="mes" onclick="irPara('mes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Vendas</button>
     <button data-v="funil" onclick="irPara('funil')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>Funil</button>
   </div>
@@ -837,6 +847,13 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <section class="ag-sec"><div class="dp-wrap">
   <aside class="fbox dp-lista"><div class="dp-lt"><h4>Disparos</h4><button class="bt pri" onclick="dpNovo()">+ Novo disparo</button></div><div id="dpLista"><div class="vazio">Carregando…</div></div></aside>
   <div id="dpDet" class="dp-det"></div>
+</div></section>
+</div>
+
+<div class="view" id="v-oficial" hidden>
+<section class="ag-sec"><div class="dp-wrap">
+  <aside class="fbox dp-lista"><div id="ofCx"></div><div class="dp-lt"><h4>Disparos oficiais</h4><button class="bt pri" onclick="ofCarregar('criar')">+ Novo</button></div><div id="ofLista"><div class="vazio">Carregando…</div></div></aside>
+  <div id="ofDet" class="dp-det"></div>
 </div></section>
 </div>
 
@@ -1855,6 +1872,79 @@ function dpArquivo(inp){const f=inp.files&&inp.files[0];if(!f)return;const fr=ne
 async function dpImportar(){if(!dpLinhas.length)return;if(dpEd&&dpEd.sujo){if(!await dpSalvar())return;}const b=document.getElementById('dpImpBt');if(b){b.disabled=true;b.textContent='Importando…';}
   await dpCarregar('importar',{linhas:JSON.stringify(dpLinhas.map(l=>({nome:l.nome||'',telefone:l.telefone||''})))});dpLinhas=[];}
 
+// ═════════════ API OFICIAL (mensagem modelo da Meta) ═════════════
+let ofD=null,ofSel=+(lsGet('escritorio_of')||0),ofEd=null,ofMsg='',ofLinhas=[],ofCxAberta=false,ofTimer=null;
+const OF_CT={na_fila:['Na fila','#eef1f5','#5b6878'],enviando:['Enviando','#eaf1ff','#1e40af'],enviado:['Enviada','#eaf1ff','#1e40af'],sent:['Enviada','#eaf1ff','#1e40af'],delivered:['Entregue','#e3f7ee','#0f7a4f'],read:['Lida','#e3f7ee','#0f7a4f'],falhou:['Falhou','#fde8e8','#b42318'],teste:['Teste','#fff4dc','#8a6200'],teste_ok:['Teste enviado','#e3f7ee','#0f7a4f'],teste_falhou:['Teste falhou','#fde8e8','#b42318']};
+async function ofCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
+  if(demo){document.getElementById('ofLista').innerHTML='<div class="vazio">Disponível só com o sistema ligado.</div>';return null;}
+  if(!chave){pedirChave();return null;}
+  try{const r=await fetch(BASE+'/escritorio/oficial',{method:'POST',body:new URLSearchParams({k:chave,acao,id:acao==='criar'?'':(ofSel||''),...extra})});
+    if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}if(!r.ok)throw new Error('HTTP '+r.status);ofD=await r.json();}
+  catch(e){ofMsg='⚠️ Não consegui falar com o servidor ('+e.message+').';ofRender();return null;}
+  if(acao==='criar'&&ofD.atual){ofSel=ofD.atual;lsSet('escritorio_of',ofSel);ofEd=null;}
+  if(acao==='apagar'){ofSel=0;ofEd=null;}
+  if(acao==='conexao'&&!ofD.erro)ofCxAberta=false;
+  ofMsg=ofD.erro?'⚠️ '+ofD.erro:(ofD.aviso?'✓ '+ofD.aviso:(acao==='ver'?ofMsg:''));
+  ofRender();ofAgendar();return ofD;}
+function ofAgendar(){clearTimeout(ofTimer);if(telaAtual!=='oficial')return;const at=(ofD&&ofD.disparos||[]).some(d=>d.status==='ativo');ofTimer=setTimeout(()=>{if(telaAtual==='oficial'&&!(ofEd&&ofEd.sujo))ofCarregar('ver');else ofAgendar();},at?15000:60000);}
+function ofAtual(){return (ofD&&ofD.disparos||[]).find(d=>d.id===ofSel)||null;}
+function ofEscolher(id){if(ofEd&&ofEd.sujo&&!confirm('Tem alterações não salvas. Trocar mesmo assim?'))return;ofSel=id;lsSet('escritorio_of',id);ofEd=null;ofMsg='';ofCarregar('ver');}
+function ofTpls(){return ((ofD&&ofD.conexao&&ofD.conexao.templates)||[]).filter(t=>t.status==='APPROVED');}
+function ofVars(txt){const m=String(txt||'').match(/\{\{\s*(\d+)\s*\}\}/g)||[];return Math.max(0,...m.map(x=>+x.replace(/\D/g,'')));}
+function ofRenderCx(){const C=(ofD&&ofD.conexao)||{},ok=C.tem_token&&C.phone_id,el=document.getElementById('ofCx');const nT=ofTpls().length;
+  if(!ofCxAberta&&ok){el.innerHTML=`<div class="of-cx"><b>✅ Conectado à Meta</b><small>Número ${esc(C.phone_id)} · ${nT} mensagem(ns) modelo aprovada(s)${C.templates_em?' · atualizado '+new Date(C.templates_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}</small>${C.templates_erro?`<small style="color:#b42318">⚠️ ${esc(C.templates_erro)}</small>`:''}<span style="display:flex;gap:6px;flex-wrap:wrap"><button class="bt" onclick="ofCarregar('templates')">Atualizar mensagens modelo</button><button class="bt" onclick="ofCxAberta=true;ofRenderCx()">Editar conexão</button></span></div>`;return;}
+  el.innerHTML=`<div class="of-cx"><b>Conexão com a Meta</b>
+    <label>Phone Number ID<input id="ofPh" inputmode="numeric" value="${esc(C.phone_id||'')}" placeholder="Ex.: 123456789012345"></label>
+    <label>ID da conta do WhatsApp Business (WABA)<input id="ofWa" inputmode="numeric" value="${esc(C.waba_id||'')}" placeholder="Ex.: 109876543210987"></label>
+    <label>Token de acesso<input id="ofTk" type="password" autocomplete="off" placeholder="${C.tem_token?'•••• termina em '+esc(C.token_fim)+' (deixe vazio para manter)':'Cole o token permanente'}"></label>
+    <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="bt pri" onclick="ofSalvarCx()">Salvar e buscar mensagens</button>${ok?'<button class="bt" onclick="ofCxAberta=false;ofRenderCx()">Cancelar</button>':''}</span>
+    ${C.verify_token?`<small>Para ver entregue / lida: no app da Meta, em WhatsApp → Configuração → Webhook, cole<br>URL: <code>${esc(C.webhook_url)}</code><br>Token de verificação: <code>${esc(C.verify_token)}</code><br>e assine o campo <b>messages</b>.</small>`:''}</div>`;}
+function ofSalvarCx(){const v=id=>document.getElementById(id).value.trim();ofCarregar('conexao',{phone_id:v('ofPh'),waba_id:v('ofWa'),token:v('ofTk')});}
+function ofRender(){if(!ofD)return;ofRenderCx();const L=ofD.disparos||[],el=document.getElementById('ofLista');
+  if(ofSel&&!L.some(d=>d.id===ofSel))ofSel=0;if(!ofSel&&L.length){ofSel=L[0].id;}
+  el.innerHTML=L.length?L.map(d=>{const st=DP_ST[d.status]||DP_ST.rascunho,R=d.resumo||{},t=+R.total||0,env=+R.enviadas||0;return `<button class="dp-it ${d.id===ofSel?'on':''}" onclick="ofEscolher(${d.id})"><span class="dp-it-t"><b>${esc(d.nome)}</b><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span></span><small>${env} de ${t} enviadas · ${R.chamaram||0} chamaram</small><i style="width:${t?Math.round(env/t*100):0}%"></i></button>`;}).join(''):'<div class="vazio">Nenhum disparo ainda. Clique em “+ Novo”.</div>';
+  const det=document.getElementById('ofDet'),d=ofAtual();
+  if(!d){det.innerHTML='<div class="fbox"><div class="vazio">Crie um disparo para começar.</div></div>';return;}
+  if(ofD.atual!==d.id&&!ofD.contatos){ofCarregar('ver');return;}
+  if(!ofEd||ofEd.id!==d.id)ofEd={id:d.id,nome:d.nome,template:d.template||'',idioma:d.idioma||'',corpo:(d.corpo||[]).map(v=>({tipo:v.tipo==='nome'?'nome':'texto',texto:v.texto||'',padrao:v.padrao||''})),cabecalho_imagem:d.cabecalho_imagem||'',por_minuto:d.por_minuto,hora_inicio:d.hora_inicio,hora_fim:d.hora_fim,sujo:false};
+  if(ofEd.sujo&&det.contains(document.activeElement)){ofPintarKpi(d);return;}
+  ofDesenhar(d);}
+function ofPintarKpi(d){const k=document.getElementById('ofKpi');if(!k)return;const R=d.resumo||{};
+  k.innerHTML=[['Na fila',R.na_fila],['Enviadas',R.enviadas],['Entregues',R.entregues],['Lidas',R.lidas],['Chamaram o 6775',R.chamaram],['Responderam no oficial',R.responderam],['Falharam',R.falharam]].map(x=>`<div class="dp-k"><b>${+x[1]||0}</b><span>${x[0]}</span></div>`).join('');}
+function ofMudou(re){ofEd.sujo=true;const st=document.getElementById('ofSt');if(st)st.textContent='alterações não salvas';if(re)ofDesenhar(ofAtual());}
+function ofEscolherTpl(v){const [nome,idioma]=String(v).split('|');const T=ofTpls().find(t=>t.nome===nome&&t.idioma===idioma);ofEd.template=nome||'';ofEd.idioma=idioma||'';
+  const n=T?ofVars(T.corpo):0;ofEd.corpo=Array.from({length:n},(_,i)=>ofEd.corpo[i]||{tipo:i===0?'nome':'texto',texto:'',padrao:''});if(!(T&&T.cabecalho==='IMAGE'))ofEd.cabecalho_imagem='';ofMudou(true);}
+function ofDesenhar(d){const E=ofEd,det=document.getElementById('ofDet'),st=DP_ST[d.status]||DP_ST.rascunho,ativo=d.status==='ativo',fim=['encerrado','concluido'].includes(d.status);
+  const TP=ofTpls(),T=TP.find(t=>t.nome===E.template&&t.idioma===E.idioma),C=ofD.contatos||[],R=d.resumo||{};
+  let prev=T?String(T.corpo||''):'';E.corpo.forEach((v,i)=>{prev=prev.split('{{'+(i+1)+'}}').join(v.tipo==='nome'?'[primeiro nome]':(v.texto||'[texto]'));});
+  det.innerHTML=`
+  <div class="fbox dp-cab"><div class="dp-cab-t"><input class="dp-nome" value="${esc(E.nome)}" maxlength="60" aria-label="Nome do disparo" oninput="ofEd.nome=this.value;ofMudou()"><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span>
+    <span class="dp-acoes">${ativo?`<button class="bt" onclick="ofCarregar('pausar')">Pausar</button>`:fim?'':`<button class="bt pri" onclick="ofComecar()">${d.status==='pausado'?'Continuar':'Começar disparo'}</button>`}${!fim&&d.status!=='rascunho'?`<button class="bt" onclick="if(confirm('Encerrar este disparo? Quem ainda está na fila não recebe.'))ofCarregar('encerrar')">Encerrar</button>`:''}${!(+R.enviadas)?`<button class="bt" onclick="if(confirm('Apagar este disparo?'))ofCarregar('apagar')">Apagar</button>`:''}</span></div>
+    <div class="cpe-h" id="ofSt" style="margin-top:6px">${esc(ofMsg)}</div>
+    <div class="of-k" id="ofKpi"></div></div>
+  <div class="fbox"><h4>Mensagem modelo</h4>
+    ${TP.length?`<select class="of-in" style="width:100%" onchange="ofEscolherTpl(this.value)"><option value="">Escolha uma mensagem aprovada…</option>${TP.map(t=>`<option value="${esc(t.nome+'|'+t.idioma)}" ${t.nome===E.template&&t.idioma===E.idioma?'selected':''}>${esc(t.nome)} · ${esc(t.idioma)} · ${esc((t.categoria||'').toLowerCase())}</option>`).join('')}</select>`:'<div class="vazio">Nenhuma mensagem modelo aprovada encontrada. Confira a conexão ao lado e clique em “Atualizar mensagens modelo”.</div>'}
+    ${T?`<div class="of-prev" style="margin-top:10px">${esc(prev)}${(T.botoes||[]).length?'\n\n'+T.botoes.map(b=>'🔘 '+esc(b.texto)).join('   '):''}</div>
+      ${E.corpo.map((v,i)=>`<div class="of-var"><b>{{${i+1}}}</b><select onchange="ofEd.corpo[${i}].tipo=this.value;ofMudou(true)"><option value="nome" ${v.tipo==='nome'?'selected':''}>Primeiro nome do cliente</option><option value="texto" ${v.tipo!=='nome'?'selected':''}>Texto fixo</option></select>${v.tipo==='nome'?`<input placeholder="Se não tiver nome, usar…" value="${esc(v.padrao)}" oninput="ofEd.corpo[${i}].padrao=this.value;ofMudou()">`:`<input placeholder="Texto" value="${esc(v.texto)}" oninput="ofEd.corpo[${i}].texto=this.value;ofMudou()">`}</div>`).join('')}
+      ${T.cabecalho==='IMAGE'?`<div class="of-var"><b>Imagem</b><input style="flex:1" placeholder="https://… (link da imagem)" value="${esc(E.cabecalho_imagem)}" oninput="ofEd.cabecalho_imagem=this.value;ofMudou()"></div>`:''}`:''}
+    <div class="dp-ritmo" style="margin-top:10px">Enviar <input type="number" min="1" max="200" value="${E.por_minuto}" oninput="ofEd.por_minuto=this.value;ofMudou()" aria-label="Mensagens por minuto"> por minuto, das <input type="number" min="0" max="23" value="${E.hora_inicio}" oninput="ofEd.hora_inicio=this.value;ofMudou()" aria-label="Hora de início">h às <input type="number" min="1" max="24" value="${E.hora_fim}" oninput="ofEd.hora_fim=this.value;ofMudou()" aria-label="Hora de fim">h.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center"><button class="bt pri" onclick="ofSalvar()">Salvar</button><input id="ofTelTeste" class="of-in" inputmode="tel" placeholder="Seu número (vazio = número do dono)" style="min-width:220px"><button class="bt" onclick="ofTeste()">Enviar teste</button></div></div>
+  <div class="fbox"><h4>Lista de contatos</h4><small class="cpe-h">Cole uma linha por contato (nome e telefone) ou abra um arquivo .csv / .txt. Telefones repetidos na mesma lista entram uma vez só.</small>
+    <textarea id="ofTexto" rows="5" class="cp-txt" placeholder="Maria da Silva	48999998888" oninput="ofPrevImp()"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px"><input type="file" accept=".csv,.txt" onchange="ofArquivo(this)"><button class="bt pri" id="ofImpBt" disabled onclick="ofImportar()">Importar</button><span class="cpe-h" id="ofImpPrev"></span>${+R.na_fila?`<button class="bt" style="margin-left:auto" onclick="if(confirm('Tirar da fila os ${+R.na_fila} que ainda não receberam?'))ofCarregar('limpar_fila')">Limpar fila</button>`:''}</div></div>
+  <div class="fbox"><h4>Contatos <small class="cpe-h">(últimos 300)</small></h4>${C.length?`<div style="overflow:auto"><table class="of-tab"><thead><tr><th>Telefone</th><th>Nome</th><th>Situação</th><th>Enviada</th><th>Chamou o 6775</th><th>Resposta no oficial</th></tr></thead><tbody>${C.map(c=>{const s=OF_CT[c.lido_em?'read':c.entregue_em?'delivered':c.status]||[c.status,'#eef1f5','#5b6878'];const h=t=>t?new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';return `<tr><td>${fmtTel(c.telefone)}</td><td>${esc(c.nome||'—')}</td><td><span class="cp-st" style="background:${s[1]};color:${s[2]}">${s[0]}</span>${c.erro?`<br><small style="color:#b42318">${esc(c.erro)}</small>`:''}</td><td>${h(c.enviado_em)}</td><td>${c.lead_id?'✅':'—'}</td><td>${c.resposta?esc(c.resposta):'—'}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="vazio">Nenhum contato ainda.</div>'}</div>`;
+  ofPintarKpi(d);ofPrevImp();}
+function ofPrevImp(){const t=document.getElementById('ofTexto');if(!t)return;ofLinhas=cpLer(t.value);const b=document.getElementById('ofImpBt'),p=document.getElementById('ofImpPrev');if(b)b.disabled=!ofLinhas.length;if(p)p.textContent=ofLinhas.length?ofLinhas.length+' contato(s) prontos para importar':'';}
+function ofArquivo(inp){const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{document.getElementById('ofTexto').value=String(fr.result);ofPrevImp();};fr.readAsText(f);}
+async function ofSalvar(){const E=ofEd;if(!E)return false;if(+E.hora_fim<=+E.hora_inicio){ofMsg='⚠️ O horário de fim precisa ser depois do início.';document.getElementById('ofSt').textContent=ofMsg;return false;}
+  E.sujo=false;const r=await ofCarregar('salvar',{nome:E.nome.trim(),template:E.template,idioma:E.idioma,corpo:JSON.stringify(E.corpo),cabecalho_imagem:E.cabecalho_imagem.trim(),botao_telefone:'false',por_minuto:E.por_minuto,hora_inicio:E.hora_inicio,hora_fim:E.hora_fim});
+  if(r&&!r.erro){ofEd=null;ofRender();}return !!(r&&!r.erro);}
+async function ofTeste(){if(ofEd&&ofEd.sujo){if(!await ofSalvar())return;}const tel=(document.getElementById('ofTelTeste')||{}).value||'';ofMsg='Enviando teste…';const st=document.getElementById('ofSt');if(st)st.textContent=ofMsg;await ofCarregar('teste',{telefone:tel});}
+async function ofImportar(){if(!ofLinhas.length)return;if(ofEd&&ofEd.sujo){if(!await ofSalvar())return;}const b=document.getElementById('ofImpBt');if(b){b.disabled=true;b.textContent='Importando…';}
+  await ofCarregar('importar',{linhas:JSON.stringify(ofLinhas.map(l=>({nome:l.nome||'',telefone:l.telefone||''})))});ofLinhas=[];}
+async function ofComecar(){if(ofEd&&ofEd.sujo){if(!await ofSalvar())return;}const d=ofAtual();if(!d)return;const R=d.resumo||{};
+  if(!confirm(`Começar o disparo “${d.nome}” pela API oficial?\n\n${R.na_fila||0} contatos na fila · ${d.por_minuto} por minuto, das ${d.hora_inicio}h às ${d.hora_fim}h.\nA Meta cobra cada mensagem enviada.`))return;ofCarregar('ativar');}
+
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
   try{let f;
@@ -2113,11 +2203,11 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','disparo','hoje','clientes','indicacoes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','disparo','oficial','hoje','clientes','indicacoes','conversas','campanha','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
-const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['campanha','disparo','mes','funil'].concat(GRUPO_WPP);
-const PG={hoje:['Início','Resumo do dia em números'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],campanha:['Campanha','Prospecção pelo WhatsApp'],disparo:['Disparo','Envio em massa pelos números de disparo'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['campanha','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
+const PG={hoje:['Início','Resumo do dia em números'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],campanha:['Campanha','Prospecção pelo WhatsApp'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
 function alternarTema(){const e=document.documentElement.dataset.tema==='escuro';if(e)delete document.documentElement.dataset.tema;else document.documentElement.dataset.tema='escuro';lsSet('escritorio_tema',e?'':'escuro');const m=document.querySelector('meta[name=theme-color]');if(m)m.content=e?'#ffffff':'#18181a';}
 function alternarMenu(){const m=document.body.classList.toggle('menu-mini');lsSet('escritorio_menu',m?'mini':'');}
 if(lsGet('escritorio_menu')==='mini')document.body.classList.add('menu-mini');
@@ -2134,7 +2224,7 @@ function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='config'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
   fecharMais();
   {const t=PG[telaAtual]||PG.escritorio;document.getElementById('pgTit').textContent=t[0];document.getElementById('pgSub').textContent=t[1];}
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();if(telaAtual==='disparo')dpCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='campanha')cpCarregar();if(telaAtual==='disparo')dpCarregar();if(telaAtual==='oficial')ofCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
