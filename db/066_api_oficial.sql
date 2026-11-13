@@ -299,3 +299,6 @@ alter table credito.oficial_disparos alter column botao_telefone set default fal
 -- 071: "Atualizar" também puxa os totais de cada mensagem modelo aprovada nos últimos 30 dias (template_analytics):
 --      enviadas, entregues, lidas, cliques e os de hoje -> templates[].metricas (credito.oficial_metricas_salvar). templates[].id salvo.
 --      O n8n também inscreve o app na conta (POST /{waba}/subscribed_apps) a cada atualização.
+
+-- 072: custo por lead (Financeiro): "disparo" agora conta só os leads com origem 'API oficial…' (os chips não têm custo por mensagem);
+--      tráfego continua pelo número de tráfego; o resto vira 'sem_custo'. (replace em credito.financeiro_api)
