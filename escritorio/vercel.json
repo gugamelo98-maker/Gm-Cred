@@ -12,17 +12,6 @@
       "statusCode": 302
     },
     {
-      "source": "/:cod([0-9]{10,13})",
-      "has": [
-        {
-          "type": "host",
-          "value": "redirect1.gmcredconsignado.com.br"
-        }
-      ],
-      "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1&c=:cod",
-      "statusCode": 302
-    },
-    {
       "source": "/:path*",
       "has": [
         {
@@ -45,17 +34,6 @@
       "statusCode": 302
     },
     {
-      "source": "/:cod([0-9]{10,13})",
-      "has": [
-        {
-          "type": "host",
-          "value": "gmcredconsignado.com.br"
-        }
-      ],
-      "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1&c=:cod",
-      "statusCode": 302
-    },
-    {
       "source": "/:path*",
       "has": [
         {
@@ -75,17 +53,6 @@
         }
       ],
       "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1",
-      "statusCode": 302
-    },
-    {
-      "source": "/:cod([0-9]{10,13})",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.gmcredconsignado.com.br"
-        }
-      ],
-      "destination": "https://rarelookingorca-n8n.cloudfy.live/webhook/gmcred/r?s=redirect1&c=:cod",
       "statusCode": 302
     },
     {

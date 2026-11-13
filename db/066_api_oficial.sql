@@ -7,7 +7,7 @@
 
 create table if not exists credito.oficial_disparos (
   id serial primary key, nome text not null, status text not null default 'rascunho',
-  template text, idioma text, corpo jsonb not null default '[]', cabecalho_imagem text, botao_telefone boolean not null default true,
+  template text, idioma text, corpo jsonb not null default '[]', cabecalho_imagem text, botao_telefone boolean not null default false,
   por_minuto int not null default 20, hora_inicio int not null default 8, hora_fim int not null default 22,
   criado_em timestamptz not null default now(), iniciado_em timestamptz, encerrado_em timestamptz);
 create table if not exists credito.oficial_contatos (
@@ -277,3 +277,6 @@ select credito.mig066();
 
 -- link da API oficial com "Olá" (identificação)
 update credito.rotadores set texto = 'Olá! Quero *simular* meu crédito CLT' where slug = 'redirect1';
+
+-- sem link com telefone (o botão da mensagem modelo na Meta não tem variável)
+alter table credito.oficial_disparos alter column botao_telefone set default false;
