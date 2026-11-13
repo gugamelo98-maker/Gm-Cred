@@ -280,3 +280,6 @@ update credito.rotadores set texto = 'Olá! Quero *simular* meu crédito CLT' wh
 
 -- sem link com telefone (o botão da mensagem modelo na Meta não tem variável)
 alter table credito.oficial_disparos alter column botao_telefone set default false;
+
+-- 067: a API oficial manda a fila toda de uma vez (até 500 por rodada de 1 minuto, 20 em paralelo no n8n)
+-- em credito.oficial_pendentes: 'limit greatest(1, least(d.por_minuto, 200))' -> 'limit 500'; reserva expira em 30 min
