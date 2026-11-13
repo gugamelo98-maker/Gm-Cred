@@ -1,0 +1,7 @@
+-- 079 (aplicado em 13/11):
+--  * texto_margem (margem >= R$ 300): "Você tem disponível até R$ X de parcela. A maioria dos nossos clientes costuma pegar uma parcela de
+--    R$ 300 por mês. Quer que eu simule com R$ 300 ou prefere outro valor?" — se concordar, simular 300. contexto_agente idem.
+--  * leads.reprocessar_modo / reprocessar_instrucao: mandar a Ana falar com um cliente específico (fila "Responder de novo" do
+--    Acompanhamento passa modo e instrução; marcar_reprocessar limpa ao concluir). Usado para mandar a simulação de R$ 300 ao Rafael (lead 466).
+--  * regras_gerais "NÃO NARRE O SISTEMA" + trava no n8n Agente (Dividir em balões): corta frases como "as ofertas já foram calculadas
+--    e vão aparecer na próxima mensagem" / "serão mostrados na sequência".
