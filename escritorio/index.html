@@ -811,7 +811,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <div class="view" id="v-conversas" hidden>
   <div class="cv-nums" id="cvNums"></div>
   <div class="cv-wrap">
-    <div class="cv-lista"><input id="cvBusca" class="busca" placeholder="Buscar nome ou telefone" oninput="cvRenderLista()"><div id="cvLista"><div class="vazio">Carregando conversas…</div></div></div>
+    <div class="cv-lista"><input id="cvBusca" class="busca" type="search" autocomplete="off" placeholder="Buscar nome ou telefone" oninput="cvRenderLista()"><div id="cvLista"><div class="vazio">Carregando conversas…</div></div></div>
     <div class="cv-chat" id="cvChat"><div class="vazio" style="margin:auto">Escolha uma conversa ao lado.</div></div>
   </div>
 </div>
@@ -922,6 +922,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="loginTit"><div class="login-box">
   <h3 id="loginTit">🔒 Chave de acesso</h3>
   <p>Os dados reais do escritório (clientes, conversas e comissões) são protegidos. Digite a chave de acesso para entrar.</p>
+  <input type="text" name="username" autocomplete="username" value="Escritório GM Cred" readonly tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
   <input id="chaveIn" type="password" placeholder="gm-…" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()">
   <div class="err" id="chaveErr"></div>
   <div class="bts2"><button class="bt" onclick="verDemo()">Ver demonstração</button><button class="bt pri" onclick="entrar()">Entrar</button></div>
@@ -2238,6 +2239,9 @@ let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
 const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['campanha','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
 const PG={hoje:['Início','Resumo do dia em números'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],campanha:['Campanha','Prospecção pelo WhatsApp'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+// o Chrome tratava qualquer campo do painel como "usuário" e ficava sugerindo/pedindo para salvar senha: só a tela de login fica com senha
+function semSenhaSalva(raiz){(raiz||document).querySelectorAll('input:not([type=password]):not([autocomplete=username]),textarea').forEach(e=>{if(e.getAttribute('autocomplete')!=='off')e.setAttribute('autocomplete','off');e.setAttribute('data-1p-ignore','');e.setAttribute('data-lpignore','true');e.setAttribute('data-form-type','other');});}
+semSenhaSalva();try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)semSenhaSalva(n.matches&&n.matches('input,textarea')?n.parentNode:n);}).observe(document.body,{childList:true,subtree:true});}catch(e){}
 function alternarTema(){const e=document.documentElement.dataset.tema==='escuro';if(e)delete document.documentElement.dataset.tema;else document.documentElement.dataset.tema='escuro';lsSet('escritorio_tema',e?'':'escuro');const m=document.querySelector('meta[name=theme-color]');if(m)m.content=e?'#ffffff':'#18181a';}
 function alternarMenu(){const m=document.body.classList.toggle('menu-mini');lsSet('escritorio_menu',m?'mini':'');}
 if(lsGet('escritorio_menu')==='mini')document.body.classList.add('menu-mini');
