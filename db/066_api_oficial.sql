@@ -283,3 +283,6 @@ alter table credito.oficial_disparos alter column botao_telefone set default fal
 
 -- 067: a API oficial manda a fila toda de uma vez (até 500 por rodada de 1 minuto, 20 em paralelo no n8n)
 -- em credito.oficial_pendentes: 'limit greatest(1, least(d.por_minuto, 200))' -> 'limit 500'; reserva expira em 30 min
+
+-- 068: mensagem modelo com {{1}} no link do botão: a Meta exige completar. Campo botao_sufixo (texto fixo, igual para todos).
+-- alter table credito.oficial_disparos add column botao_sufixo text; oficial_payload usa botao_sufixo; oficial_api salva/devolve botao_sufixo.
