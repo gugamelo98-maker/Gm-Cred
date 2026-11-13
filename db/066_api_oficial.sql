@@ -286,3 +286,6 @@ alter table credito.oficial_disparos alter column botao_telefone set default fal
 
 -- 068: mensagem modelo com {{1}} no link do botão: a Meta exige completar. Campo botao_sufixo (texto fixo, igual para todos).
 -- alter table credito.oficial_disparos add column botao_sufixo text; oficial_payload usa botao_sufixo; oficial_api salva/devolve botao_sufixo.
+
+-- 069: opção "Telefone do cliente" no {{1}} do link do botão (botao_telefone = true): gmcredconsignado.com.br/<telefone>
+--      -> Vercel /:cod -> /webhook/gmcred/r?s=redirect1&c=<telefone> -> credito.rotador_proximo(slug, cod) marca clicou_em.
