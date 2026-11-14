@@ -1,0 +1,22 @@
+-- 088/089/090 · Abertura pelo dinheiro, recusa mais firme, encerrar travado
+-- (já aplicado; registro)
+-- 088 Abertura:
+--  * Ações "V8: simular" (consultar_cpf): margem >= 300 simula parcela R$ 300 (senão a margem)
+--    e pede também o valor máximo (maximo: true).
+--  * V8 Ferramentas: "Montar simulações" acrescenta a simulação da margem cheia no maior prazo
+--    do CPF; "Resultado simulação" devolve 'maximo' {prazo, parcela, valor} fora das ofertas.
+--  * salvar_ofertas guarda dados_v8.maximo; valores_ok aceita esses valores.
+--  * acao_agente: margem >= 300 não pede mais a parcela (pedir_parcela desligado).
+--  * credito.abertura_ofertas(l): "Você pode pegar até *R$ X*, e costuma cair em até 3 horas depois que
+--    assina." + (margem >= 300) "A maioria dos nossos clientes costuma pegar uma parcela de R$ 300 por mês,
+--    então já simulei com esse valor pra você ver." — vai antes da simulação no modo apresentar.
+-- 089 Regras/prompts:
+--  * regras_gerais: CLIENTE DIZ QUE NÃO QUER (não aceita o 1º não: mostra o dinheiro "Só para fins de
+--    esclarecimento..." ou pede o CPF; depois parcela que cabe; só encerra se recusar de novo) e
+--    FINALIZAR ATENDIMENTO reescrito ("ok/blz/obrigado" após o 1º não não encerram).
+--  * Recepção: com_margem = só "deu tudo certo" (simulação vem sozinha); recusa antes do CPF.
+--  * Gerente: sem CPF usa a frase fixa. Estilos Ana/Bia/Caio presos à frase fixa; Gabi sem "PIX".
+--  * Resposta pronta "requisitos" sem "carteira assinada".
+-- 090 encerrar: bloqueado se houve "não" do cliente e a Ana respondeu menos de 2 vezes depois dele
+--    (exceto não contatar / número errado). Descrição das ferramentas encerrar e simular atualizada.
+-- Seguro e "robô": sem mudança, a pedido.
