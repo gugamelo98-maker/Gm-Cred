@@ -1,0 +1,12 @@
+-- 092 · Teste FGTS Lotus (não é a V8; não mexe no fluxo da Ana)
+-- Página escritorio/fgts.html (noindex, login do painel): cola CPFs, simula o FGTS na
+-- Lotus (banco BMP/Cartos) e mostra valor liberado, nome e telefone; copia telefones / CSV.
+-- n8n: "[Escritório] 🟣 Lotus FGTS (teste)" (ifdWgtAiqjtnZvgz)
+--   POST /webhook/escritorio/lotus (k = token de sessão):
+--     acao=salvar_token  -> credito.lotus_salvar_token(token)
+--     acao=simular       -> Lotus POST /v1/fgts/create-simulation (PENDING)
+--     acao=status&id=..  -> Lotus GET  /v1/fgts/simulation/{id}
+--   Token da Lotus guardado em credito.lotus_token (como o v8_token), colado pela página.
+-- credito.lotus_token (id=1, token, atualizado_em); credito.lotus_salvar_token(p_token).
+-- OBS: usa o backoffice interno da Lotus (não é API oficial). Se eles validarem o
+-- x-signature-hmac, as chamadas serão recusadas e o caminho é pedir a API oficial.

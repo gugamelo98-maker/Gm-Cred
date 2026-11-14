@@ -42,6 +42,12 @@ a{color:var(--azul)}
     <b>Entre no painel primeiro.</b> Esta página usa o mesmo login do escritório. <a href="index.html">Abrir o painel</a> e depois volte aqui.
   </div>
 
+  <div class="card" id="tokcard">
+    <label for="tok">Token do painel Lotus</label>
+    <textarea id="tok" placeholder="Cole aqui o token do seu painel Lotus logado (começa com eyJ...). Ele fica guardado no servidor; você só cola de novo quando vencer." autocomplete="off" style="min-height:70px"></textarea>
+    <div class="bts"><button class="pri" id="btTok" onclick="salvarToken()">Salvar token</button><span class="msg" id="tokMsg"></span></div>
+  </div>
+
   <div class="card" id="form">
     <label for="cpfs">CPFs</label>
     <textarea id="cpfs" placeholder="000.000.000-00&#10;111.111.111-11" autocomplete="off"></textarea>
@@ -98,16 +104,28 @@ function render() {
     return '<tr><td>' + esc(fmtCpf(l.cpf)) + '</td><td class="' + cls + '">' + esc(l.sit) + '</td><td><b>' + esc(brl(l.liberado)) + '</b></td><td>' + esc(l.nome || '—') + '</td><td>' + esc(l.telefone || '—') + '</td><td>' + esc(l.mensagem || '') + '</td></tr>';
   }).join('');
 }
+async function salvarToken() {
+  const t = $('tok').value.trim();
+  if (t.length < 20) { $('tokMsg').textContent = 'Cole o token completo.'; return; }
+  $('btTok').disabled = true; $('tokMsg').textContent = 'Salvando…';
+  try {
+    const r = await api({ acao: 'salvar_token', token: t });
+    if (r.ok) { $('tok').value = ''; $('tok').placeholder = 'Token salvo em ' + (r.salvo_em || 'agora') + '. Cole um novo só quando vencer.'; $('tokMsg').textContent = '✓ Token salvo.'; }
+    else $('tokMsg').textContent = '⚠️ ' + (r.erro || 'não consegui salvar');
+  } catch (e) { $('tokMsg').textContent = '⚠️ ' + e.message; }
+  finally { $('btTok').disabled = false; }
+}
+function avisaToken(r) { if (r && r.erro === 'TOKEN') $('tokMsg').textContent = '⚠️ ' + (r.mensagem || 'Cole um token novo da Lotus acima.'); }
 async function umCpf(l) {
   l.sit = 'Enviando'; render();
   const cfg = { periodos: $('periodos').value, seguro: $('seguro').value, provider: $('provider').value, tabela: $('tabela').value.trim() };
   const c = await api(Object.assign({ acao: 'simular', cpf: l.cpf }, cfg));
-  if (!c.ok) { l.sit = 'Erro'; l.mensagem = c.erro || 'não consegui simular'; render(); return; }
+  if (!c.ok) { avisaToken(c); l.sit = c.erro === 'TOKEN' ? 'Sem token' : 'Erro'; l.mensagem = c.mensagem || c.erro || 'não consegui simular'; render(); return; }
   l.sit = 'Processando'; l.mensagem = c.mensagem || ''; render();
   for (let i = 0; i < 20 && !cancelar; i++) {
     await dorme(4000);
     const s = await api({ acao: 'status', id: c.id });
-    if (s.erro) { l.sit = 'Erro'; l.mensagem = s.erro; render(); return; }
+    if (s.erro) { avisaToken(s); l.sit = s.erro === 'TOKEN' ? 'Sem token' : 'Erro'; l.mensagem = s.mensagem || s.erro; render(); return; }
     l.mensagem = s.mensagem || l.mensagem;
     if (s.processando || !s.status) { render(); continue; }
     l.liberado = s.liberado; l.nome = s.nome; l.telefone = s.telefone;
