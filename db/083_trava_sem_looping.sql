@@ -1,0 +1,13 @@
+-- 083 · Trava de valor sem looping; prazo 99 = maior prazo liberado para o CPF
+-- (já aplicado; registro)
+--
+-- 1) contexto_agente passa 'ultima_simulacao' (leads.ofertas_msg) e 'margem'.
+-- 2) Agente · "Dividir em balões": quando a Ana escreve valor/prazo que o banco
+--    não deu (ou chama a margem de "valor disponível/liberado"), só essas frases
+--    saem e vai a simulação real (a desta resposta ou a última salva).
+--    Não pergunta mais "qual parcela fica boa" (evita looping).
+--    "Nx de R$ ..." conta como parcela, não como valor liberado.
+-- 3) V8 Ferramentas · "Montar simulações": prazo 99 usa o maior prazo do
+--    pré-cálculo daquele CPF (ex.: 46x para um, 18x para outro), não o maior da
+--    tabela. Primeira simulação continua 36/24/18/12 (46x não entra nela).
+--    Se o banco travar a margem cheia, segue a 2ª rodada (85% / 60%) de sempre.
