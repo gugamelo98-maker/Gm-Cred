@@ -118,8 +118,8 @@ async function salvarToken() {
 function avisaToken(r) { if (r && r.erro === 'TOKEN') $('tokMsg').textContent = '⚠️ ' + (r.mensagem || 'Cole um token novo da Lotus acima.'); }
 async function rodar() {
   if (rodando || !chave) return;
-  const cpfs = [...new Set(($('cpfs').value.match(/\d[\d.\-\s]{9,16}\d/g) || []).map(x => x.replace(/\D/g, '')).filter(x => x.length === 11))];
-  if (!cpfs.length) { $('msg').textContent = 'Cole pelo menos um CPF com 11 números.'; return; }
+  const cpfs = [...new Set($('cpfs').value.split(/[\s,;]+/).map(x => x.replace(/\D/g, '')).filter(x => x.length >= 9 && x.length <= 11).map(x => x.padStart(11, '0')))];
+  if (!cpfs.length) { $('msg').textContent = 'Cole pelo menos um CPF (9 a 11 números; se faltar zero na frente, eu completo).'; return; }
   rodando = true; cancelar = false; $('btIr').disabled = true; $('btParar').hidden = false;
   const cfg = { periodos: $('periodos').value, seguro: $('seguro').value, provider: $('provider').value, tabela: $('tabela').value.trim() };
   const novas = cpfs.map(cpf => ({ cpf, sit: 'Na fila' }));
