@@ -20,3 +20,6 @@
 -- 090 encerrar: bloqueado se houve "não" do cliente e a Ana respondeu menos de 2 vezes depois dele
 --    (exceto não contatar / número errado). Descrição das ferramentas encerrar e simular atualizada.
 -- Seguro e "robô": sem mudança, a pedido.
+-- 091 Trava (n8n Agente · Dividir em balões): quando a resposta tem a frase do CPF, sai só a frase
+--    "Para seguir com seu atendimento me informe seu CPF por gentileza."; o texto antes dela só fica
+--    se a mensagem do cliente tinha pergunta (?). Caso Matheus: "Que bom que você quer simular, Matheus! 😊" foi cortado.
