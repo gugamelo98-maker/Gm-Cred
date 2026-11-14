@@ -16,7 +16,7 @@
 --    FINALIZAR ATENDIMENTO reescrito ("ok/blz/obrigado" após o 1º não não encerram).
 --  * Recepção: com_margem = só "deu tudo certo" (simulação vem sozinha); recusa antes do CPF.
 --  * Gerente: sem CPF usa a frase fixa. Estilos Ana/Bia/Caio presos à frase fixa; Gabi sem "PIX".
---  * Resposta pronta "requisitos" sem "carteira assinada".
+--  * Resposta pronta "requisitos" sem "carteira assinada": "...com base no seu CLT."
 -- 090 encerrar: bloqueado se houve "não" do cliente e a Ana respondeu menos de 2 vezes depois dele
 --    (exceto não contatar / número errado). Descrição das ferramentas encerrar e simular atualizada.
 -- Seguro e "robô": sem mudança, a pedido.
