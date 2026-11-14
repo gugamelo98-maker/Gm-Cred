@@ -10,3 +10,8 @@
 -- credito.lotus_token (id=1, token, atualizado_em); credito.lotus_salvar_token(p_token).
 -- OBS: usa o backoffice interno da Lotus (não é API oficial). Se eles validarem o
 -- x-signature-hmac, as chamadas serão recusadas e o caminho é pedir a API oficial.
+-- 093 · FGTS Lotus mais rápido: dispara tudo e busca o resultado por CPF
+-- n8n ifdWgtAiqjtnZvgz: acao=buscar -> GET /v1/fgts/simulations?query={cpf}&startDate&endDate
+--   devolve a simulação mais recente do CPF (status, totalTransfer=liberado, customerName, errorMessage).
+-- Página fgts.html: 1) dispara create de todos os CPFs (gap 350ms); 2) busca em rodadas,
+--   atualizando cada linha assim que a Lotus responde. Sem polling de 80s por CPF.
