@@ -1,0 +1,8 @@
+-- 084 · Aba "Consulta V8" no painel (margem + simulação direto no banco)
+-- Sem mudança de banco. n8n: "[Escritório] 🔎 Consulta V8" (4QYG9z1yUjj1FeDx)
+--   POST /webhook/escritorio/v8  (k = token de sessão, acao, cpf, dados)
+--   -> credito.validar_chave(k) -> V8 Ferramentas (consultar_cpf | status | simular).
+-- Painel: consulta o CPF (pede nome e nascimento se a V8 exigir), espera a V8
+-- processar (até 3 min), mostra a margem e já simula a parcela cheia.
+-- Prazo: padrão 36x/24x, maior prazo liberado (99), todos os prazos ou um prazo.
+-- Não cria lead nem conversa; nada fica salvo no navegador.

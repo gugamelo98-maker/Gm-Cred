@@ -1,0 +1,8 @@
+-- 085 · Conversas: mensagem do painel não saía pelos números do GM Cred Zap (waha)
+-- (já aplicado; registro)
+-- atendimento_api('enviar') só montava envio direto pela Evolution. Com o número
+-- gmcred-campanha no GM Cred Zap, o envio ficava sem apikey, o n8n não mandava
+-- e a mensagem ficava marcada como enviada.
+-- Agora: se o número é waha, a mensagem é gravada com enviado_wpp = null e sai
+-- pela fila de envio (wpp_pendentes3), a mesma das respostas da Ana.
+-- Número na Evolution continua com o envio direto de antes.

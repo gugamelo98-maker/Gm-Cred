@@ -1,0 +1,18 @@
+-- 082 · Ana nunca inventa valor; cliente quer mais → mesma parcela, maior prazo
+-- (já aplicado no banco e no n8n; este arquivo é registro)
+--
+-- 1) credito.prazos_cliente(l): união dos prazos de limites, ofertas, oferta e
+--    simulacoes — inclui prazos que a V8 devolveu (ex.: 46x).
+-- 2) regras_gerais:
+--    - VALOR: nunca diga valor (liberado, parcela, total) que não veio da V8.
+--    - CLIENTE QUER VALOR MAIOR: mantenha a parcela no máximo da margem e
+--      aumente o prazo se possível: simular com parcela = margem e prazo 99.
+--      Se não aumentar, diga que esse é o máximo que o banco libera hoje.
+-- 3) Agente (n8n ceV79RE3AkcDNRXd):
+--    - ferramenta simular: prazo "99 = maior prazo que o banco libera".
+--      Ações repassa o prazo como texto; V8 Ferramentas usa perto(Number(prazo)),
+--      então 99 vira o maior prazo disponível.
+--    - "Dividir em balões": travas de valor e prazo só aceitam números vindos do
+--      retorno das ferramentas (intermediateSteps[].observation), do bloco de
+--      simulação e de valores_ok; prazos devolvidos pelo banco entram na lista.
+--      Se a Ana citar valor fora disso, a mensagem é trocada por pedido de parcela.

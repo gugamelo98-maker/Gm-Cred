@@ -1,0 +1,2 @@
+-- 060: disparo_api ganha 'duplicar' (novo disparo com mensagens, variações, imagem, botões, números e ritmo — sem a lista)
+-- e 'copiar' (traz mensagens/variações/imagem/botões de outro disparo, campo origem). Aplicado via credito.mig060().

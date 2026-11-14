@@ -1,0 +1,13 @@
+-- Empresa virtual CLT — simulação respeita a parcela máxima que a V8 libera em cada prazo
+-- Sem mudança no banco: esta nota documenta a alteração feita no n8n em 2026-11-10.
+--
+-- Problema: cliente com margem alta (ex.: R$ 19.777) tinha a simulação recusada, porque a V8 limita
+-- a parcela por prazo (o valor total da operação vai até ~R$ 50.000). Ex. do CPF testado:
+--   6x 8.333,33 | 12x 4.166,66 | 18x 2.777,77 | 24x 2.083,33 | 36x 1.388,88 | 38x 1.315,78 | 46x 1.086,95
+--
+-- Solução (workflow "GM Cred · V8 Ferramentas"):
+--  * novo nó "Pré-cálculo" -> POST simulation/pre-calculate-installments (consult_id + config_id)
+--    devolve maxInstallmentValue de cada prazo;
+--  * "Montar simulações" e "Montar 2ª rodada" usam parcela = min(margem ou parcela pedida, máximo do prazo).
+-- Resultado no teste: 46x 1.086,95 / 36x 1.388,88 / 24x 2.083,33, com e sem seguro, todas aceitas pela V8.
+select 1;

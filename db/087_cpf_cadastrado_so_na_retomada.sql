@@ -1,0 +1,11 @@
+-- 087 · CPF cadastrado: primeiro pede o CPF; o CPF do cadastro só na retomada
+-- (já aplicado; registro)
+-- * contexto_agente: com cpf_base e sem CPF informado:
+--     - modo 'recuperar' (cliente não respondeu ao pedido de CPF): manda
+--       "Tenho um CPF cadastrado para esse número, se for o seu já simulo para você.
+--        Seu CPF termina com XXX" (só os 3 últimos números);
+--     - demais modos: pede o CPF com a frase padrão; se a mensagem do CPF cadastrado
+--       já foi enviada e o cliente confirmou, consulta com esse CPF; se não é dele, pede o CPF.
+-- * disparo_passo: o lead criado pelo disparo dos chips já leva o CPF importado
+--   (disparo_contatos.cpf) em cpf_base.
+-- * Backfill: 43 leads de disparo receberam cpf_base a partir de disparo_contatos.

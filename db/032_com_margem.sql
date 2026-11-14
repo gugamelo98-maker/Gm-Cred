@@ -1,0 +1,11 @@
+-- Empresa virtual CLT — grupo "Com margem" (repescagem)
+-- Aplicado no Postgres da Cloudfy, schema "credito", em 2026-11-10 (via replace em credito.situacao_lead).
+--  * Quem recebeu proposta/escolheu oferta e sumiu (24 h sem responder) e quem recebeu o link e não assinou
+--    vai para o grupo "com_margem" (etiquetas "Tem margem · não respondeu" / "Tem margem · não assinou o link"),
+--    não para Finalizados. Fica lá por 30 dias da última conversa; depois vira Finalizado · Não respondeu.
+--  * Se o cliente voltar a responder, volta ao atendimento normal. Se disser que não quer, vira Finalizado com etiqueta.
+--  * Ainda sem nova chamada automática (dias a definir). A lista sai pelo botão "Baixar planilha" na aba Clientes.
+-- Trechos trocados em situacao_lead:
+--   '{"t":"Não assinou o link","g":"perdido","e":4}'  ->  com_margem se a última conversa tem menos de 30 dias
+--   'g', 'perdido' (Sumiu)                             ->  com_margem se tem oferta/ofertas e menos de 30 dias
+-- credito.etiqueta_lead ganhou o caso 'com_margem'.

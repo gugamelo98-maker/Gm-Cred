@@ -1,0 +1,7 @@
+-- 074 (aplicado em 13/11): a Ana estava pondo emoji em 168 de 171 mensagens (regra "no máximo 1 emoji por mensagem").
+--  * regras_gerais: "EMOJI: quase nunca (no máximo 1 a cada 4 ou 5 mensagens)" + "JEITO DE ESCREVER" (sem exclamação em tudo,
+--    sem "Entendi!/Que ótimo!/Show!" no começo de toda mensagem, sem repetir o nome, sem frases prontas de robô).
+--  * Tirados os 😊 dos exemplos das regras (robô, áudio) e das respostas prontas.
+--  * Resposta pronta do prazo: "Depois que assina, costuma cair em até 3 horas."
+--  * n8n "GM Cred · Agente" → "Dividir em balões": trava — se a Ana usou emoji em alguma das 3 últimas mensagens, a resposta sai sem emoji;
+--    senão, no máximo 1. A mensagem de simulação (pronta do sistema) não é alterada.

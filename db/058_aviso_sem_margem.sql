@@ -1,0 +1,3 @@
+-- 058 (só n8n): "GM Cred · Acompanhamento" — quando a reconsulta automática volta "sem_margem",
+-- o nó "Sem margem?" chama o Agente em modo aviso e a Ana manda uma mensagem curta avisando o cliente
+-- (antes o atendimento era encerrado em silêncio depois de "te aviso na hora").

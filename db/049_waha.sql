@@ -1,0 +1,29 @@
+-- 049 · WAHA (WhatsApp Web real, rodando no notebook via Docker + túnel ngrok) — já aplicado no banco
+-- credito.wpp_motor (instancia, motor 'waha', url, apikey, ativo, numero, perfil): números que saem pelo WAHA.
+-- credito.configuracoes 'waha' {url, apikey}: onde criar números novos (aba Números → + Novo número cria no WAHA).
+-- credito.v_instancias: lista única Evolution + WAHA (mesmas colunas de public."Instance" + motor).
+--   Todas as funções que liam public."Instance" agora leem a view (wpp_numeros, wpp_pendentes/2, wpp_evento,
+--   receber_wpp_v2, atendimento_api, wpp_a_verificar, transferir_conversas, campanha_placar, numeros_api).
+-- credito.wpp_pendentes3(): igual ao 2, com motor/url/apikey por mensagem.
+-- numeros_api: testar/qr/criar devolvem {waha:{...}} para números do WAHA.
+-- atendimento_api: resposta pelo painel de número WAHA entra na fila (sai em até 1 min pelo envio).
+-- wpp_a_verificar / campanha_passo: no WAHA a conferência de WhatsApp é feita no próprio envio (check-exists).
+-- n8n: envio (É WAHA? → Achar contato → Tem WhatsApp?), entrada (WAHA chegou → Motor WAHA → Telefone (WAHA) → Traduzir WAHA → Mensagem),
+--   painel (É WAHA (números)? → testar / iniciar+QR).
+-- wpp_chips.queda_avisada + credito.wpp_quedas() (chamada no wpp_pendentes2 a cada minuto): queda só conta após 3 min fora
+--   (aviso no grupo + reserva assume); "voltou" só avisa se houve aviso de queda.
+-- wpp_chips.oculto + numeros_api 'excluir': tira o número do painel, campanha, maturador e alertas.
+-- no_escritorio inclui a prospecção (aparece ao clicar no setor); v_resumo_hoje.em_andamento e resumo_grupo não contam a prospecção.
+-- variar_msg mantém quebras de linha (só junta espaços).
+-- wpp_motor.trava_ate + credito.waha_me(): guarda a trava "reachoutTimelock" que o WAHA manda em todo evento;
+--   avisa no grupo quando aparece, mostra no cartão do número e tira da campanha (campanha_instancias) até acabar.
+-- credito.wpp_acks_a_conferir() + nós "Entregas a conferir → Perguntar ao WAHA → Gravar entrega" (envio):
+--   pergunta ao WAHA o status das mensagens que ficaram só em ✓ (o aviso de entrega às vezes não chega).
+-- credito.contexto_campanha(): detalhe da campanha de hoje para a IA do grupo (início/último envio, envios por hora,
+--   por número enviadas/entregues/não entregues/responderam, clientes que responderam hoje com o que disseram).
+--   contexto_gestor() = contexto_gestor_base() || contexto_campanha().
+-- campanha_api: situação "Prospecção · enviando/enviada/entregue/lida/não entregue".
+-- credito.waha_sessoes(json): o envio consulta /api/sessions a cada minuto e atualiza número, perfil e trava.
+-- Queda do WAHA (11/11 ~17h): check-exists sem resposta virava "sem whatsapp" → 9 contatos bloqueados por engano (revertido).
+--   Envio: "Confirmado sem WhatsApp?" só marca quando numberExists === false; sem resposta, a mensagem espera e tenta de novo.
+--   wpp_falhou: erro de conexão (ECONN/timeout/ngrok/502-504) não marca erro, só re-reserva para nova tentativa.

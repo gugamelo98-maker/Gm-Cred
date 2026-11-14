@@ -1,0 +1,6 @@
+-- 081 (aplicado em 13/11): "valor inventado nunca": a Ana inventou "46x = R$ 1.238,68" para o Luis (lead 345).
+--  * credito.valores_ok(lead): todos os valores reais do cliente (ofertas: valor/parcela/total, oferta escolhida, margem, R$ 300,
+--    valores da simulação apresentada, limites da V8, valores ditos pelo cliente ou pela equipe na conversa). contexto_agente devolve 'valores_ok'.
+--  * n8n Agente: Ana com returnIntermediateSteps; "Dividir em balões" barra a mensagem se tiver R$ que não está em valores_ok,
+--    nem na simulação pronta, nem no que as ferramentas devolveram na mesma resposta (troca por "Deixa eu simular certinho pra você.
+--    Qual parcela por mês fica boa?"). R$ 20 (indicação) liberado.

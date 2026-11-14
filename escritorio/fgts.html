@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>FGTS Lotus · Teste</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--linha:#e6e9ee;--tx:#1b2230;--tx2:#5d6676;--azul:#2563eb;--verde:#15803d;--verm:#b91c1c;--amar:#a16207}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1319;--card:#171c24;--linha:#2a313c;--tx:#e8ecf2;--tx2:#9aa4b2;--azul:#60a5fa;--verde:#4ade80;--verm:#f87171;--amar:#facc15}}
+:root[data-theme="dark"]{--bg:#0f1319;--card:#171c24;--linha:#2a313c;--tx:#e8ecf2;--tx2:#9aa4b2;--azul:#60a5fa;--verde:#4ade80;--verm:#f87171;--amar:#facc15}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:20px;margin:0 0 4px}.sub{color:var(--tx2);margin:0 0 16px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--linha);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:4px}
+textarea,input,select{width:100%;border:1px solid var(--linha);border-radius:10px;padding:9px 10px;font:inherit;background:var(--card);color:var(--tx)}
+textarea{min-height:110px;resize:vertical}
+.linha{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+@media (max-width:640px){.linha{grid-template-columns:1fr 1fr}}
+.bts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+button{border:1px solid var(--linha);background:var(--card);color:var(--tx);border-radius:10px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.pri{background:var(--azul);border-color:var(--azul);color:#fff}
+button:disabled{opacity:.55;cursor:default}
+.msg{font-size:12.5px;color:var(--tx2)}.erro{color:var(--verm);font-weight:600}
+.tab-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--linha);vertical-align:top}
+th{font-size:12px;color:var(--tx2);font-weight:600}
+.ok{color:var(--verde);font-weight:700}.pend{color:var(--amar);font-weight:600}.ruim{color:var(--verm);font-weight:600}
+.vazio{color:var(--tx2);padding:12px 0}
+a{color:var(--azul)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FGTS · Lotus (teste)</h1>
+  <p class="sub">Cole um ou vários CPFs (um por linha). A página dispara todas as simulações primeiro e depois vai buscando o resultado de cada uma, atualizando a tabela conforme a Lotus responde. Nada fica salvo: ao fechar a página, a lista some.</p>
+
+  <div class="card" id="semLogin" hidden>
+    <b>Entre no painel primeiro.</b> Esta página usa o mesmo login do escritório. <a href="index.html">Abrir o painel</a> e depois volte aqui.
+  </div>
+
+  <div class="card" id="tokcard">
+    <label for="tok">Token do painel Lotus</label>
+    <textarea id="tok" placeholder="Cole aqui o token do seu painel Lotus logado (começa com eyJ...). Ele fica guardado no servidor; você só cola de novo quando vencer." autocomplete="off" style="min-height:70px"></textarea>
+    <div class="bts"><button class="pri" id="btTok" onclick="salvarToken()">Salvar token</button><span class="msg" id="tokMsg"></span></div>
+  </div>
+
+  <div class="card" id="form">
+    <label for="cpfs">CPFs</label>
+    <textarea id="cpfs" placeholder="000.000.000-00&#10;111.111.111-11" autocomplete="off"></textarea>
+    <div class="linha">
+      <div><label for="periodos">Anos antecipados</label><select id="periodos"><option>5</option><option>4</option><option>3</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+      <div><label for="seguro">Seguro</label><select id="seguro"><option value="true">Com seguro</option><option value="false">Sem seguro</option></select></div>
+      <div><label for="provider">Banco</label><select id="provider"><option>BMP</option><option>CARTOS</option></select></div>
+      <div><label for="tabela">Tabela (opcional)</label><input id="tabela" autocomplete="off" placeholder="ID da tabela"></div>
+    </div>
+    <div class="bts">
+      <button class="pri" id="btIr" onclick="rodar()">Simular</button>
+      <button id="btParar" onclick="parar()" hidden>Parar</button>
+      <span class="msg" id="msg" role="status"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="bts" style="margin-top:0;justify-content:space-between">
+      <b>Resultados</b>
+      <span class="bts" style="margin-top:0">
+        <button onclick="copiar('tel')">Copiar telefones</button>
+        <button onclick="copiar('tudo')">Copiar tabela</button>
+        <button onclick="baixar()">Baixar CSV</button>
+      </span>
+    </div>
+    <div class="tab-wrap"><table>
+      <thead><tr><th>CPF</th><th>Situação</th><th>Valor liberado</th><th>Nome</th><th>Telefone</th><th>Mensagem</th></tr></thead>
+      <tbody id="res"><tr><td colspan="6" class="vazio">Nenhuma consulta ainda.</td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+<script>
+const API = 'https://rarelookingorca-n8n.cloudfy.live/webhook/escritorio/lotus';
+let chave = ''; try { chave = localStorage.getItem('escritorio_token') || ''; } catch (e) {}
+if (!chave) { document.getElementById('semLogin').hidden = false; document.getElementById('form').hidden = true; }
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const brl = v => v == null ? '—' : 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtCpf = c => c.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+const dorme = ms => new Promise(r => setTimeout(r, ms));
+let linhas = [], rodando = false, cancelar = false;
+
+async function api(dados) {
+  const r = await fetch(API, { method: 'POST', body: new URLSearchParams(Object.assign({ k: chave }, dados)) });
+  if (r.status === 401) throw new Error('login do painel vencido: entre no painel de novo');
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+function render() {
+  const tb = $('res');
+  if (!linhas.length) { tb.innerHTML = '<tr><td colspan="6" class="vazio">Nenhuma consulta ainda.</td></tr>'; return; }
+  tb.innerHTML = linhas.map(l => {
+    const cls = l.sit === 'Concluído' ? 'ok' : (l.sit === 'Processando' || l.sit === 'Na fila' || l.sit === 'Enviando') ? 'pend' : 'ruim';
+    return '<tr><td>' + esc(fmtCpf(l.cpf)) + '</td><td class="' + cls + '">' + esc(l.sit) + '</td><td><b>' + esc(brl(l.liberado)) + '</b></td><td>' + esc(l.nome || '—') + '</td><td>' + esc(l.telefone || '—') + '</td><td>' + esc(l.mensagem || '') + '</td></tr>';
+  }).join('');
+}
+async function salvarToken() {
+  const t = $('tok').value.trim();
+  if (t.length < 20) { $('tokMsg').textContent = 'Cole o token completo.'; return; }
+  $('btTok').disabled = true; $('tokMsg').textContent = 'Salvando…';
+  try {
+    const r = await api({ acao: 'salvar_token', token: t });
+    if (r.ok) { $('tok').value = ''; $('tok').placeholder = 'Token salvo em ' + (r.salvo_em || 'agora') + '. Cole um novo só quando vencer.'; $('tokMsg').textContent = '✓ Token salvo.'; }
+    else $('tokMsg').textContent = '⚠️ ' + (r.erro || 'não consegui salvar');
+  } catch (e) { $('tokMsg').textContent = '⚠️ ' + e.message; }
+  finally { $('btTok').disabled = false; }
+}
+function avisaToken(r) { if (r && r.erro === 'TOKEN') $('tokMsg').textContent = '⚠️ ' + (r.mensagem || 'Cole um token novo da Lotus acima.'); }
+async function rodar() {
+  if (rodando || !chave) return;
+  const cpfs = [...new Set($('cpfs').value.split(/[\s,;]+/).map(x => x.replace(/\D/g, '')).filter(x => x.length >= 9 && x.length <= 11).map(x => x.padStart(11, '0')))];
+  if (!cpfs.length) { $('msg').textContent = 'Cole pelo menos um CPF (9 a 11 números; se faltar zero na frente, eu completo).'; return; }
+  rodando = true; cancelar = false; $('btIr').disabled = true; $('btParar').hidden = false;
+  const cfg = { periodos: $('periodos').value, seguro: $('seguro').value, provider: $('provider').value, tabela: $('tabela').value.trim() };
+  const novas = cpfs.map(cpf => ({ cpf, sit: 'Na fila' }));
+  linhas = novas.concat(linhas); render();
+
+  // 1) dispara todas as simulações, rapidinho
+  for (let i = 0; i < novas.length && !cancelar; i++) {
+    const l = novas[i]; l.sit = 'Enviando'; render();
+    $('msg').textContent = 'Enviando ' + (i + 1) + ' de ' + novas.length + '…';
+    try {
+      const c = await api(Object.assign({ acao: 'simular', cpf: l.cpf }, cfg));
+      if (!c.ok) { avisaToken(c); l.sit = c.erro === 'TOKEN' ? 'Sem token' : 'Erro'; l.mensagem = c.mensagem || c.erro || 'não consegui enviar'; if (c.erro === 'TOKEN') { cancelar = true; } }
+      else { l.sit = 'Processando'; l.mensagem = ''; }
+    } catch (e) { l.sit = 'Erro'; l.mensagem = e.message; if (/login/.test(e.message)) cancelar = true; }
+    render(); await dorme(350);
+  }
+
+  // 2) busca o resultado de cada uma; vai atualizando na tela conforme responde
+  const pend = () => novas.filter(l => l.sit === 'Processando' && !cancelar);
+  for (let rodada = 0; rodada < 12 && pend().length && !cancelar; rodada++) {
+    if (rodada === 0) await dorme(6000); else await dorme(5000);
+    const faltam = pend();
+    for (let i = 0; i < faltam.length && !cancelar; i++) {
+      const l = faltam[i];
+      $('msg').textContent = 'Buscando resultados… faltam ' + (faltam.length - i);
+      try {
+        const s = await api({ acao: 'buscar', cpf: l.cpf });
+        if (s.erro === 'TOKEN') { avisaToken(s); l.sit = 'Sem token'; l.mensagem = s.mensagem; cancelar = true; }
+        else if (s.achou && !s.pendente) {
+          l.liberado = s.liberado; l.nome = s.nome; l.telefone = s.telefone; l.mensagem = s.mensagem || '';
+          l.sit = (s.liberado != null || s.status === 'COMPLETED' || s.status === 'SUCCESS') ? 'Concluído' : 'Não liberado';
+        }
+      } catch (e) { /* tenta de novo na próxima rodada */ }
+      render(); await dorme(350);
+    }
+  }
+  novas.forEach(l => { if (l.sit === 'Processando') { l.sit = 'Sem resposta'; l.mensagem = 'A Lotus ainda não terminou. Rode esse CPF de novo daqui a pouco.'; } if (l.sit === 'Na fila') l.sit = 'Parado'; });
+  render(); rodando = false; $('btIr').disabled = false; $('btParar').hidden = true;
+  $('msg').textContent = cancelar ? 'Parado.' : 'Pronto.';
+}
+function parar() { cancelar = true; $('msg').textContent = 'Parando…'; }
+function tabela(sep) {
+  const cab = ['CPF', 'Situação', 'Valor liberado', 'Nome', 'Telefone', 'Mensagem'];
+  const q = v => { v = String(v ?? ''); return sep === ';' && /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v.replace(/\t|\n/g, ' '); };
+  return [cab].concat(linhas.map(l => [fmtCpf(l.cpf), l.sit, l.liberado == null ? '' : Number(l.liberado).toFixed(2).replace('.', ','), l.nome || '', l.telefone || '', l.mensagem || ''])).map(r => r.map(q).join(sep)).join('\n');
+}
+async function copiar(tipo) {
+  const txt = tipo === 'tel' ? linhas.map(l => String(l.telefone || '').replace(/\D/g, '')).filter(Boolean).join('\n') : tabela('\t');
+  if (!txt) { $('msg').textContent = 'Nada para copiar ainda.'; return; }
+  try { await navigator.clipboard.writeText(txt); $('msg').textContent = 'Copiado.'; } catch (e) { $('msg').textContent = 'Não consegui copiar.'; }
+}
+function baixar() {
+  if (!linhas.length) { $('msg').textContent = 'Nada para baixar ainda.'; return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + tabela(';')], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'fgts-lotus.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+</script>
+</body>
+</html>
