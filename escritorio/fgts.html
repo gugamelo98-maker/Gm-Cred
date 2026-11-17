@@ -57,7 +57,6 @@ a{color:var(--azul)}
     <label for="cpfs">CPFs</label>
     <textarea id="cpfs" placeholder="000.000.000-00&#10;11122233344" autocomplete="off" oninput="contar()"></textarea>
     <div class="msg" id="qtd">Nenhum CPF detectado</div>
-    <div style="margin-top:10px;max-width:260px"><label for="pular">Pular os primeiros (opcional)</label><input id="pular" type="number" min="0" step="1" placeholder="ex.: 2000" oninput="contar()"></div>
     <div class="linha">
       <div><label for="periodos">Anos antecipados</label><select id="periodos"><option>5</option><option>4</option><option>3</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
       <div><label for="seguro">Seguro</label><select id="seguro"><option value="true">Com seguro</option><option value="false">Sem seguro</option></select></div>
@@ -87,6 +86,14 @@ a{color:var(--azul)}
       <div class="num"><b id="nSem">0</b><span>Sem saldo</span></div>
       <div class="num"><b id="nErro" style="color:var(--verm)">0</b><span>Erro</span></div>
     </div>
+    <b style="display:block;margin-top:14px">HUB (J17 e BMP)</b>
+    <div class="msg" id="hubEstado" style="margin-top:4px"></div>
+    <div class="nums">
+      <div class="num"><b id="nHubFeitos">0</b><span>Consultados na HUB</span></div>
+      <div class="num"><b id="nHubSaldo" style="color:var(--verde)">0</b><span>Com saldo na HUB</span></div>
+      <div class="num"><b id="nHubFila">0</b><span>Esperando HUB</span></div>
+      <div class="num"><b id="nTelTot">0</b><span>Telefones achados</span></div>
+    </div>
   </div>
 
   <div class="card" id="resCard" hidden>
@@ -98,8 +105,8 @@ a{color:var(--azul)}
       </span>
     </div>
     <div class="tab-wrap"><table>
-      <thead><tr><th>CPF</th><th>Valor liberado</th><th>Nome</th><th>Telefone</th></tr></thead>
-      <tbody id="res"><tr><td colspan="4" class="vazio">Ainda nenhum com saldo.</td></tr></tbody>
+      <thead><tr><th>CPF</th><th>Lotus</th><th>HUB</th><th>Nome</th><th>Telefone</th></tr></thead>
+      <tbody id="res"><tr><td colspan="5" class="vazio">Ainda nenhum com saldo.</td></tr></tbody>
     </table></div>
     <div class="msg" id="limite" style="margin-top:6px"></div>
   </div>
@@ -117,16 +124,12 @@ const fmtTel = t => { t = String(t || '').replace(/\D/g, ''); if (t.startsWith('
 const n = v => Number(v || 0).toLocaleString('pt-BR');
 let lote = null, timer = null, saldos = [];
 
-function todosCpfs() {
-  return $('cpfs').value.split(/[\s,;]+/).map(x => x.replace(/\D/g, '')).filter(x => x.length >= 9 && x.length <= 11).map(x => x.padStart(11, '0'));
-}
 function lerCpfs() {
-  const pular = Math.max(0, parseInt($('pular').value, 10) || 0);
-  return [...new Set(todosCpfs().slice(pular))];
+  return [...new Set($('cpfs').value.split(/[\s,;]+/).map(x => x.replace(/\D/g, '')).filter(x => x.length >= 9 && x.length <= 11).map(x => x.padStart(11, '0')))];
 }
 function contar() {
-  const total = todosCpfs().length, pular = Math.min(total, Math.max(0, parseInt($('pular').value, 10) || 0)), q = lerCpfs().length;
-  $('qtd').textContent = q ? n(q) + ' CPF' + (q > 1 ? 's' : '') + ' para simular' + (pular ? ' (de ' + n(total) + ' colados, pulando os primeiros ' + n(pular) + ')' : '') : (total ? 'Todos os ' + n(total) + ' foram pulados' : 'Nenhum CPF detectado');
+  const q = lerCpfs().length;
+  $('qtd').textContent = q ? n(q) + ' CPF' + (q > 1 ? 's' : '') + ' para simular' : 'Nenhum CPF detectado';
 }
 
 async function post(url, dados) {
@@ -171,7 +174,7 @@ async function atualizar() {
   try {
     const s = await fila('status', lote ? { lote } : {});
     mostrar(s);
-    if (s.estado === 'rodando' || s.estado === 'pausado') timer = setTimeout(atualizar, 8000);
+    if (s.estado === 'rodando' || s.estado === 'pausado' || (s.hub_na_fila || 0) > 0) timer = setTimeout(atualizar, 8000);
   } catch (e) { $('estado').textContent = '⚠️ ' + e.message; timer = setTimeout(atualizar, 15000); }
 }
 
@@ -190,12 +193,14 @@ function mostrar(s) {
   $('estado').textContent = txt;
   $('nConc').textContent = n(conc); $('nSaldo').textContent = n(s.com_saldo); $('nTel').textContent = n(s.com_telefone);
   $('nSem').textContent = n(s.sem_saldo); $('nErro').textContent = n(s.erros);
+  $('nHubFeitos').textContent = n(s.hub_feitos); $('nHubSaldo').textContent = n(s.hub_com_saldo); $('nHubFila').textContent = n(s.hub_na_fila); $('nTelTot').textContent = n(s.com_telefone_total);
+  $('hubEstado').textContent = (s.hub_token_ok ? '✓ Login da HUB automático, funcionando.' : '⏳ Entrando na HUB (o login é automático, renova a cada 6 horas).') + ' Vão para a HUB: os com saldo na Lotus (BMP e, se não tiver, J17) e os que não autorizaram na Lotus (J17).';
   const ativo = s.estado === 'rodando' || s.estado === 'pausado';
   $('btPausar').hidden = s.estado !== 'rodando'; $('btRetomar').hidden = s.estado !== 'pausado'; $('btEncerrar').hidden = !ativo;
   saldos = s.saldos || [];
-  $('res').innerHTML = saldos.length ? saldos.map(x => '<tr><td>' + esc(fmtCpf(x.cpf)) + '</td><td><b>' + esc(brl(x.liberado)) + '</b></td><td>' + esc(x.nome || '—') + '</td><td>' + esc(x.telefone ? fmtTel(x.telefone) : '—') + '</td></tr>').join('')
-    : '<tr><td colspan="4" class="vazio">Ainda nenhum com saldo.</td></tr>';
-  $('limite').textContent = (s.com_saldo || 0) > saldos.length ? 'Mostrando os ' + saldos.length + ' maiores. A planilha completa tem todos.' : '';
+  $('res').innerHTML = saldos.length ? saldos.map(x => '<tr><td>' + esc(fmtCpf(x.cpf)) + '</td><td><b>' + esc(brl(x.liberado)) + '</b></td><td><b>' + esc(x.hub_liberado == null ? '—' : brl(x.hub_liberado) + (x.hub_banco ? ' · ' + x.hub_banco : '')) + '</b></td><td>' + esc(x.nome || '—') + '</td><td>' + esc(x.telefone ? fmtTel(x.telefone) : '—') + '</td></tr>').join('')
+    : '<tr><td colspan="5" class="vazio">Ainda nenhum com saldo.</td></tr>';
+  $('limite').textContent = Math.max(s.com_saldo || 0, s.hub_com_saldo || 0) > saldos.length ? 'Mostrando os ' + saldos.length + ' maiores. A planilha completa tem todos.' : '';
 }
 
 async function controle(acao) {
@@ -218,7 +223,9 @@ async function baixar() {
     const d = await fila('planilha', { lote });
     const sit = { com_saldo: 'Com saldo', sem_saldo: 'Sem saldo', erro: 'Erro', cancelado: 'Cancelado', na_fila: 'Na fila', enviando: 'Enviando', enviado: 'Simulando', conferindo: 'Simulando' };
     const q = v => { v = String(v ?? ''); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    const linhas = [['CPF', 'Situação', 'Valor liberado', 'Nome', 'Telefone', 'Mensagem']].concat((d.linhas || []).map(x => [fmtCpf(x.cpf), sit[x.situacao] || x.situacao, x.liberado == null ? '' : Number(x.liberado).toFixed(2).replace('.', ','), x.nome || '', x.telefone || '', x.mensagem || '']));
+    const hs = { com_saldo: 'Com saldo', sem_saldo: 'Sem saldo', j17_pendente: 'Esperando J17', enviando: 'Consultando' };
+    const v = x => x == null ? '' : Number(x).toFixed(2).replace('.', ',');
+    const linhas = [['CPF', 'Situação Lotus', 'Valor Lotus', 'Mensagem Lotus', 'HUB', 'Valor HUB', 'Banco HUB', 'Tabela HUB', 'Mensagem HUB', 'Nome', 'Telefone', 'E-mail']].concat((d.linhas || []).map(x => [fmtCpf(x.cpf), sit[x.situacao] || x.situacao, v(x.liberado), x.mensagem || '', hs[x.hub_situacao] || x.hub_situacao || '', v(x.hub_liberado), x.hub_situacao === 'com_saldo' ? (x.hub_banco || '') : '', x.hub_tabela || '', x.hub_mensagem || '', x.nome || '', x.telefone || '', x.email || '']));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + linhas.map(r => r.map(q).join(';')).join('\n')], { type: 'text/csv;charset=utf-8' }));
     a.download = 'fgts-lotus-lote-' + lote + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
