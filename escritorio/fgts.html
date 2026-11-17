@@ -100,7 +100,9 @@ a{color:var(--azul)}
     <div class="bts" style="margin-top:0;justify-content:space-between">
       <b>Com saldo (maiores primeiro)</b>
       <span class="bts" style="margin-top:0">
+        <button onclick="copiarCpfs()">Copiar CPFs com saldo</button>
         <button onclick="copiarTel()">Copiar telefones</button>
+        <button onclick="juntarTelefones()">Juntar telefones com a base</button>
         <button onclick="baixar()">Baixar planilha completa</button>
       </span>
     </div>
@@ -109,6 +111,15 @@ a{color:var(--azul)}
       <tbody id="res"><tr><td colspan="5" class="vazio">Ainda nenhum com saldo.</td></tr></tbody>
     </table></div>
     <div class="msg" id="limite" style="margin-top:6px"></div>
+    <div id="juntaCard" hidden style="margin-top:14px">
+      <b>Telefones para rodar (higienização + base)</b>
+      <div class="msg" id="juntaMsg" style="margin-top:4px"></div>
+      <textarea id="juntaTel" readonly style="margin-top:8px;min-height:140px"></textarea>
+      <div class="bts">
+        <button onclick="copiarCaixa('juntaTel')">Copiar telefones</button>
+        <button onclick="baixarJunta()">Baixar planilha (CPF e telefones)</button>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -208,6 +219,81 @@ async function controle(acao) {
   if (acao === 'encerrar' && !confirm('Encerrar este lote? Os CPFs que ainda não foram enviados para a Lotus serão descartados.')) return;
   try { const s = await fila(acao, { lote }); mostrar(s); if (s.estado === 'rodando' || s.estado === 'pausado') acompanhar(); }
   catch (e) { $('estado').textContent = '⚠️ ' + e.message; }
+}
+
+const BASE_TEL = 'https://rarelookingorca-n8n.cloudfy.live/webhook/consulta-cpf';
+let junta = [];
+// todos os CPFs com saldo do lote (Lotus ou HUB), com o telefone achado na higienização
+async function comSaldoDoLote() {
+  const d = await fila('planilha', { lote });
+  return (d.linhas || []).filter(x => x.situacao === 'com_saldo' || x.hub_situacao === 'com_saldo');
+}
+async function copiarCaixa(id) {
+  const t = $(id).value;
+  try { await navigator.clipboard.writeText(t); $('limite').textContent = 'Copiado.'; }
+  catch (e) { $(id).select(); $('limite').textContent = 'Selecionei o texto: aperte Ctrl+C para copiar.'; }
+}
+async function copiarCpfs() {
+  if (!lote) return;
+  $('limite').textContent = 'Buscando os CPFs com saldo…';
+  try {
+    const cpfs = [...new Set((await comSaldoDoLote()).map(x => x.cpf))];
+    if (!cpfs.length) { $('limite').textContent = 'Nenhum CPF com saldo ainda.'; return; }
+    $('juntaCard').hidden = false; $('juntaMsg').textContent = n(cpfs.length) + ' CPFs com saldo.'; $('juntaTel').value = cpfs.join('\n');
+    await copiarCaixa('juntaTel');
+    $('limite').textContent = n(cpfs.length) + ' CPFs com saldo copiados.';
+  } catch (e) { $('limite').textContent = '⚠️ ' + e.message; }
+}
+// telefone no mesmo formato para comparar: DDD + número, com o 9 no celular
+function normTel(t) {
+  t = String(t || '').replace(/\D/g, '');
+  if (t.length > 11 && t.startsWith('55')) t = t.slice(2);
+  if (t.length === 10 && /[6-9]/.test(t[2])) t = t.slice(0, 2) + '9' + t.slice(2);
+  return (t.length === 10 || t.length === 11) ? t : '';
+}
+const telsDe = v => [...new Set(String(v || '').split(/[,;\/|\n]+/).map(normTel).filter(Boolean))];
+async function juntarTelefones() {
+  if (!lote) return;
+  $('juntaCard').hidden = false; $('juntaTel').value = ''; $('juntaMsg').textContent = 'Buscando os CPFs com saldo…';
+  try {
+    const linhas = await comSaldoDoLote();
+    if (!linhas.length) { $('juntaMsg').textContent = 'Nenhum CPF com saldo ainda.'; return; }
+    const cpfs = [...new Set(linhas.map(x => x.cpf))], base = {};
+    for (let i = 0; i < cpfs.length; i += 2000) {
+      $('juntaMsg').textContent = 'Consultando a base de telefones: ' + n(Math.min(i + 2000, cpfs.length)) + ' de ' + n(cpfs.length) + '…';
+      const r = await fetch(BASE_TEL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cpfs: cpfs.slice(i, i + 2000) }) });
+      if (!r.ok) throw new Error('a base de telefones respondeu ' + r.status);
+      const d = await r.json();
+      if (d.erro) throw new Error(d.erro);
+      (d.resultados || []).forEach(x => { if (x.encontrado) base[String(x.cpf).padStart(11, '0')] = x; });
+    }
+    let iguais = 0, diferentes = 0, soHig = 0, soBase = 0, sem = 0;
+    junta = linhas.filter((x, i, a) => a.findIndex(y => y.cpf === x.cpf) === i).map(x => {
+      const b = base[x.cpf] || {}, hig = telsDe(x.telefone), bas = telsDe(b.telefone);
+      const todos = [...new Set(hig.concat(bas))];
+      if (hig.length && bas.length) { if (todos.length === hig.length && todos.length === bas.length) iguais++; else diferentes++; }
+      else if (hig.length) soHig++; else if (bas.length) soBase++; else sem++;
+      return { cpf: x.cpf, nome: x.nome || b.nome || '', hig: hig.join(' '), base: bas.join(' '), tels: todos,
+               lotus: x.liberado, hub: x.hub_liberado };
+    });
+    const tels = [...new Set(junta.flatMap(x => x.tels))];
+    $('juntaTel').value = tels.join('\n');
+    $('juntaMsg').textContent = n(junta.length) + ' CPFs com saldo → ' + n(tels.length) + ' telefones para rodar. '
+      + 'Mesmo número nos dois: ' + n(iguais) + ' (ficou um só) · números diferentes: ' + n(diferentes) + ' (foram os dois) · só na higienização: ' + n(soHig)
+      + ' · só na base: ' + n(soBase) + ' · sem telefone: ' + n(sem) + '.';
+  } catch (e) {
+    $('juntaMsg').textContent = '⚠️ ' + (e instanceof TypeError ? 'não consegui falar com a base de telefones' : e.message);
+  }
+}
+function baixarJunta() {
+  if (!junta.length) return;
+  const q = v => { v = String(v ?? ''); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const v = x => x == null ? '' : Number(x).toFixed(2).replace('.', ',');
+  const linhas = [['CPF', 'Nome', 'Valor Lotus', 'Valor HUB', 'Telefone higienização', 'Telefone base', 'Telefones para rodar']]
+    .concat(junta.map(x => [fmtCpf(x.cpf), x.nome, v(x.lotus), v(x.hub), x.hig, x.base, x.tels.join(' ')]));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + linhas.map(r => r.map(q).join(';')).join('\n')], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'fgts-telefones-lote-' + lote + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 async function copiarTel() {
