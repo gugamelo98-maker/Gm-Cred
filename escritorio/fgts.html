@@ -198,7 +198,7 @@ function mostrar(s) {
   const ativo = s.estado === 'rodando' || s.estado === 'pausado';
   $('btPausar').hidden = s.estado !== 'rodando'; $('btRetomar').hidden = s.estado !== 'pausado'; $('btEncerrar').hidden = !ativo;
   saldos = s.saldos || [];
-  $('res').innerHTML = saldos.length ? saldos.map(x => '<tr><td>' + esc(fmtCpf(x.cpf)) + '</td><td><b>' + esc(brl(x.liberado)) + '</b></td><td><b>' + esc(x.hub_liberado == null ? '—' : brl(x.hub_liberado) + (x.hub_banco ? ' · ' + x.hub_banco : '')) + '</b></td><td>' + esc(x.nome || '—') + '</td><td>' + esc(x.telefone ? fmtTel(x.telefone) : '—') + '</td></tr>').join('')
+  $('res').innerHTML = saldos.length ? saldos.map(x => '<tr><td>' + esc(fmtCpf(x.cpf)) + '</td><td><b>' + esc(brl(x.liberado)) + '</b></td><td><b>' + esc(x.hub_liberado == null ? '—' : brl(x.hub_liberado) + (x.hub_banco ? ' · ' + x.hub_banco : '')) + '</b>' + (x.hub_tabela ? '<br><span class="msg">Tabela ' + esc(x.hub_tabela) + '</span>' : '') + '</td><td>' + esc(x.nome || '—') + '</td><td>' + esc(x.telefone ? fmtTel(x.telefone) : '—') + '</td></tr>').join('')
     : '<tr><td colspan="5" class="vazio">Ainda nenhum com saldo.</td></tr>';
   $('limite').textContent = Math.max(s.com_saldo || 0, s.hub_com_saldo || 0) > saldos.length ? 'Mostrando os ' + saldos.length + ' maiores. A planilha completa tem todos.' : '';
 }
