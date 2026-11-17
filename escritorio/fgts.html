@@ -57,6 +57,7 @@ a{color:var(--azul)}
     <label for="cpfs">CPFs</label>
     <textarea id="cpfs" placeholder="000.000.000-00&#10;11122233344" autocomplete="off" oninput="contar()"></textarea>
     <div class="msg" id="qtd">Nenhum CPF detectado</div>
+    <div style="margin-top:10px;max-width:260px"><label for="pular">Pular os primeiros (opcional)</label><input id="pular" type="number" min="0" step="1" placeholder="ex.: 2000" oninput="contar()"></div>
     <div class="linha">
       <div><label for="periodos">Anos antecipados</label><select id="periodos"><option>5</option><option>4</option><option>3</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
       <div><label for="seguro">Seguro</label><select id="seguro"><option value="true">Com seguro</option><option value="false">Sem seguro</option></select></div>
@@ -116,10 +117,17 @@ const fmtTel = t => { t = String(t || '').replace(/\D/g, ''); if (t.startsWith('
 const n = v => Number(v || 0).toLocaleString('pt-BR');
 let lote = null, timer = null, saldos = [];
 
-function lerCpfs() {
-  return [...new Set($('cpfs').value.split(/[\s,;]+/).map(x => x.replace(/\D/g, '')).filter(x => x.length >= 9 && x.length <= 11).map(x => x.padStart(11, '0')))];
+function todosCpfs() {
+  return $('cpfs').value.split(/[\s,;]+/).map(x => x.replace(/\D/g, '')).filter(x => x.length >= 9 && x.length <= 11).map(x => x.padStart(11, '0'));
 }
-function contar() { const q = lerCpfs().length; $('qtd').textContent = q ? n(q) + ' CPF' + (q > 1 ? 's' : '') + ' detectado' + (q > 1 ? 's' : '') : 'Nenhum CPF detectado'; }
+function lerCpfs() {
+  const pular = Math.max(0, parseInt($('pular').value, 10) || 0);
+  return [...new Set(todosCpfs().slice(pular))];
+}
+function contar() {
+  const total = todosCpfs().length, pular = Math.min(total, Math.max(0, parseInt($('pular').value, 10) || 0)), q = lerCpfs().length;
+  $('qtd').textContent = q ? n(q) + ' CPF' + (q > 1 ? 's' : '') + ' para simular' + (pular ? ' (de ' + n(total) + ' colados, pulando os primeiros ' + n(pular) + ')' : '') : (total ? 'Todos os ' + n(total) + ' foram pulados' : 'Nenhum CPF detectado');
+}
 
 async function post(url, dados) {
   const r = await fetch(url, { method: 'POST', body: new URLSearchParams(Object.assign({ k: chave }, dados)) });
