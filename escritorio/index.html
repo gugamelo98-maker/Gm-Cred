@@ -2356,6 +2356,7 @@ async function melhorRender(){
   todas.sort((a,b)=>(b.com==null?-1:b.com)-(a.com==null?-1:a.com)||(b.valor-a.valor));
   box.hidden=false;const m=todas[0];
   v8$('melhorRes').innerHTML=(m.com!=null?'<div class="v8-card"><small>'+esc(m.banco)+' · '+m.prazo+'x'+(m.seg?' com seguro':' sem seguro')+'</small><b class="big">Comissão '+brlFull(m.com)+'</b><small>Cliente recebe '+brlFull(m.valor)+' · parcela '+brlFull(m.parcela)+' · '+String(m.pct).replace('.',',')+'%</small></div>':'<div class="v8-lim">Sem tabela de comissão cadastrada para essas ofertas.</div>')
+   +(()=>{const pz=l=>[...new Set(l)].sort((x,y)=>y-x).map(n=>n+'x').join(', ');const u=pz(unnoOfs.map(o=>Number(o.prazo)).filter(Boolean)),v=pz(v8Lim.length?v8Lim:v8Final.map(o=>Number(o.prazo)));return '<div class="v8-lim"><b>Prazos liberados pelo banco</b>'+(v?'<br>V8: '+v:'')+(u?'<br>Unno: '+u:'')+'</div>';})()
    +'<table class="v8-tab"><thead><tr><th>Banco</th><th>Prazo</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>'+todas.map((o,i)=>'<tr><td>'+(i===0&&o.com!=null?'🏆 ':'')+esc(o.banco)+'</td><td>'+o.prazo+'x'+(o.seg?'':' <small>sem seguro</small>')+'</td><td>'+brlFull(o.valor)+'</td><td><b>'+(o.com==null?'—':brlFull(o.com))+'</b></td></tr>').join('')+'</tbody></table>';}
 /* ===== Unno (mesmo CPF da consulta V8) ===== */
 let unnoSeq=0,unnoApp='',unnoAppCpf='';
