@@ -12,3 +12,5 @@
 --   a cada 1 min: tarefas -> Lotus create-simulation / GET simulation/{id} (1 por segundo) -> gravar.
 -- Página escritorio/fgts.html reescrita para a fila (login do painel; pode fechar a página).
 -- V8 não é usada no FGTS (decisão do dono); HUB entra no mesmo robô quando houver acesso.
+-- 097 (a pedido do dono): 25 envios por minuto (era 15) + até 30 conferências; chamadas a cada
+--   0,6s (era 1s). ~1.500 CPFs por hora.
