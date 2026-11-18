@@ -400,6 +400,7 @@ button.mot:hover{background:var(--cf7f9fc)}button.mot b{color:var(--azul)}
 #v-v8 .ag-grid{align-items:start}
 .v8-col{display:grid;gap:12px;min-width:0;align-content:start}
 .v8-msg{font-size:12.5px;font-weight:600;color:var(--tx2)}.v8-msg.err{color:var(--vermelho)}.v8-msg:empty{display:none}
+.bk-logo{width:18px;height:18px;border-radius:5px;vertical-align:-4px;margin-right:7px;object-fit:cover}
 #v8Salva a{color:var(--azul,#2563eb);cursor:pointer;font-weight:700;margin-left:6px}
 @media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#v8SimBox{order:1}#unnoBox{order:2}#v8Box{order:3}#melhorBox{order:4}}
 .ag-card h4{display:flex;align-items:center;gap:8px}
@@ -954,11 +955,11 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   </div>
 </div>
 <div class="v8-col">
-  <div class="fbox" id="unnoBox" hidden><h4>🏦 Unno</h4>
+  <div class="fbox" id="unnoBox" hidden><h4><img class="bk-logo" src="img/logo-unno.png" alt="" width="18" height="18">Unno</h4>
     <div class="v8-msg" id="unnoMsg" role="status"></div>
     <div class="v8-res" id="unnoRes"></div>
   </div>
-  <div class="fbox" id="v8Box" hidden><h4>🟦 V8</h4>
+  <div class="fbox" id="v8Box" hidden><h4><img class="bk-logo" src="img/logo-v8.png" alt="" width="18" height="18">V8</h4>
     <div id="v8Ofertas"></div>
   </div>
 </div>
@@ -2382,15 +2383,15 @@ async function melhorRender(){
   await comCarregar();
   const slug=b=>String(b||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
   const todas=[];
-  v8Final.forEach(o=>{const seg=o.seguro!==false,pct=comPct('v8digital','',seg,Number(o.prazo));todas.push({fonte:'V8',banco:'V8',prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
-  unnoOfs.forEach(o=>{const seg=o.seguro!==false,b='unno:'+slug(o.banco),pct=comPct(b,o.tabela,seg,Number(o.prazo));todas.push({fonte:'Unno',banco:'Unno'+(o.banco?' · '+o.banco:'')+(o.tabela?' · '+o.tabela:''),prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
+  v8Final.forEach(o=>{const seg=o.seguro!==false,pct=comPct('v8digital','',seg,Number(o.prazo));todas.push({fonte:'V8',banco:'V8',logo:'v8',prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
+  unnoOfs.forEach(o=>{const seg=o.seguro!==false,b='unno:'+slug(o.banco),pct=comPct(b,o.tabela,seg,Number(o.prazo));todas.push({fonte:'Unno',logo:'unno',banco:'Unno'+(o.banco?' · '+o.banco:'')+(o.tabela?' · '+o.tabela:''),prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
   const box=v8$('melhorBox');if(!todas.length){box.hidden=true;return;}
   todas.forEach(o=>{o.com=o.pct==null?null:Math.round(o.valor*o.pct)/100;});
   todas.sort((a,b)=>(b.com==null?-1:b.com)-(a.com==null?-1:a.com)||(b.valor-a.valor));
   box.hidden=false;const m=todas[0];
   v8$('melhorRes').innerHTML=(m.com!=null?'<div class="v8-card"><small>'+esc(m.banco)+' · '+m.prazo+'x'+(m.seg?' com seguro':' sem seguro')+'</small><b class="big">Comissão '+brlFull(m.com)+'</b><small>Cliente recebe '+brlFull(m.valor)+' · parcela '+brlFull(m.parcela)+' · '+String(m.pct).replace('.',',')+'%</small></div>':'<div class="v8-lim">Sem tabela de comissão cadastrada para essas ofertas.</div>')
    +(()=>{const pz=l=>[...new Set(l)].sort((x,y)=>y-x).map(n=>n+'x').join(', ');const u=pz(unnoOfs.map(o=>Number(o.prazo)).filter(Boolean)),v=pz(v8Lim.length?v8Lim:v8Final.map(o=>Number(o.prazo)));return '<div class="v8-lim"><b>Prazos liberados pelo banco</b>'+(v?'<br>V8: '+v:'')+(u?'<br>Unno: '+u:'')+'</div>';})()
-   +'<table class="v8-tab"><thead><tr><th>Banco</th><th>Prazo</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>'+todas.map((o,i)=>'<tr><td>'+(i===0&&o.com!=null?'🏆 ':'')+esc(o.banco)+'</td><td>'+o.prazo+'x'+(o.seg?'':' <small>sem seguro</small>')+'</td><td>'+brlFull(o.valor)+'</td><td><b>'+(o.com==null?'—':brlFull(o.com))+'</b></td></tr>').join('')+'</tbody></table>';}
+   +'<table class="v8-tab"><thead><tr><th>Banco</th><th>Prazo</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>'+todas.map((o,i)=>'<tr><td>'+(i===0&&o.com!=null?'🏆 ':'')+'<img class="bk-logo" src="img/logo-'+o.logo+'.png" alt="" width="18" height="18">'+esc(o.banco)+'</td><td>'+o.prazo+'x'+(o.seg?'':' <small>sem seguro</small>')+'</td><td>'+brlFull(o.valor)+'</td><td><b>'+(o.com==null?'—':brlFull(o.com))+'</b></td></tr>').join('')+'</tbody></table>';}
 /* ===== Unno (mesmo CPF da consulta V8) ===== */
 let unnoSeq=0,unnoApp='',unnoAppCpf='';
 async function unnoApi(acao,cpf,dados){
