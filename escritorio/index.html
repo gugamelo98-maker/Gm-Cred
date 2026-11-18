@@ -2658,6 +2658,10 @@ function hubMostrar(d){
     const nota=d.parcela_usada?'<small>Simulado com parcela de '+brlFull(d.parcela_usada)+(d.ajustada?' (limite da margem da HUB)':'')+'</small>':'';
     box.innerHTML='<div class="v8-card">'+quem+'<b>Ofertas da HUB</b>'+nota+'<small>'+tabs.length+' tabela'+(tabs.length>1?'s':'')+' · toque para ver as ofertas de cada uma</small></div>'+cardsTabelas(tabs);return;}
   if(d.situacao==='precisa_dados'){const falta=d.falta||[];
+    if(falta.length&&falta.every(x=>['sexo','cidade'].includes(x))&&!hubAutoFeito[hubAppCpf]){
+      hubAutoFeito[hubAppCpf]=1;hubPreencheAuto(d.nome);hubApp='';
+      box.innerHTML='<div class="v8-card">'+quem+'<b>Consultando na HUB…</b></div>';
+      hubConsultar(hubAppCpf||v8$('v8Cpf').value.replace(/\D/g,''));return;}
     box.innerHTML='<div class="v8-card">'+quem+'<b>A HUB precisa de mais dados</b><small>Preencha aqui e consulte. A parcela digitada em Simular parcela já vale para a HUB.</small>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
       +(falta.includes('sexo')?'<select id="hubSexo2" style="padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2,#fff);color:var(--tx)"><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>':'')
@@ -2668,8 +2672,25 @@ function hubMostrar(d){
 function hubDadosOk(){const s=document.getElementById('hubSexo2'),c=document.getElementById('hubCidade2');
   if(s&&!s.value){v8$('hubMsg').textContent='Escolha o sexo do cliente.';return;}if(c&&!c.value.trim()){v8$('hubMsg').textContent='Digite a cidade do cliente.';return;}
   if(s)v8$('hubSexo').value=s.value;if(c)v8$('hubCidade').value=c.value.trim();hubApp='';hubConsultar(hubAppCpf||v8$('v8Cpf').value.replace(/\D/g,''));}
+/* HUB: sexo pelo nome e cidade padrão (a HUB exige, o cliente não precisa informar) */
+const HUB_CIDADE_PADRAO='Florianópolis';
+function hubSexoDoNome(nome){
+  const p=String(nome||'').trim().split(/\s+/)[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(!p)return 'M';
+  const homemA=['luca','lucca','joshua','jonata','mica','costa','sacha','nikita','gianluca','elias','tobias','matias','jonas','lucas','tomas','andre','jose'];
+  const mulher=['isabel','raquel','rachel','beatriz','ester','esther','ruth','carmen','miriam','mirian','ingrid','iris','lis','liz','jaqueline','jacqueline','michele','michelle','aline','eliane','elaine','daiane','daniele','suelen','sueli','simone','solange','josiane','viviane','adriane','ariane','karine','karen','kelly','keli','kelli','cristiane','cristine','rosangela','rosane','rosemeire','rosimeire','marlene','marilene','irene','lourdes','nazare','neide','neuza','ines','valdete','dulce','cleide','claudete','edinete','ivone','yvone','denise','elisete','lucimar','tais','thais','ana','luz','nair','nadir','vilma','jussara','lidiane','sheila','shirley','sirlei','solene'];
+  if(mulher.includes(p))return 'F';
+  if(homemA.includes(p))return 'M';
+  if(/a$/.test(p))return 'F';
+  if(/(ane|ine|iane|eli|ely|elly|ele|ice|ete|ise|ize|ede|ilde|aine|ysse|eide|essa)$/.test(p))return 'F';
+  return 'M';}
+function hubPreencheAuto(nome){
+  if(!v8$('hubSexo').value)v8$('hubSexo').value=hubSexoDoNome(nome||v8$('v8Nome').value);
+  if(!v8$('hubCidade').value.trim())v8$('hubCidade').value=HUB_CIDADE_PADRAO;}
+const hubAutoFeito={};
 async function hubConsultar(cpf){
   const seq=++hubSeq,box=v8$('hubBox');box.hidden=false;v8$('hubRes').innerHTML='';
+  hubPreencheAuto();
   const dados={nome:v8$('v8Nome').value.trim(),nascimento:v8$('v8Nasc').value.trim(),celular:v8$('unnoFone').value.trim(),email:v8$('unnoEmail').value.trim(),sexo:v8$('hubSexo').value,cidade:v8$('hubCidade').value.trim()};
   const retomar=hubApp&&hubAppCpf===cpf;hubAppCpf=cpf;
   try{
