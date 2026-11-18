@@ -400,7 +400,8 @@ button.mot:hover{background:var(--cf7f9fc)}button.mot b{color:var(--azul)}
 #v-v8 .ag-grid{align-items:start}
 .v8-col{display:grid;gap:12px;min-width:0;align-content:start}
 .v8-msg{font-size:12.5px;font-weight:600;color:var(--tx2)}.v8-msg.err{color:var(--vermelho)}.v8-msg:empty{display:none}
-@media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#unnoBox{order:1}#melhorBox{order:2}#v8SimBox{order:3}}
+#v8Salva a{color:var(--azul,#2563eb);cursor:pointer;font-weight:700;margin-left:6px}
+@media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#v8SimBox{order:1}#unnoBox{order:2}#v8Box{order:3}#melhorBox{order:4}}
 .ag-card h4{display:flex;align-items:center;gap:8px}
 .ag-card .meta-ag{font-size:12px;color:var(--tx3);font-weight:500;text-transform:none;letter-spacing:0;margin-left:auto}
 .ag-t{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -937,24 +938,28 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
       <div class="larg v8-lim" id="v8Dica">Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.</div>
       <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8Btn" type="submit" style="padding:9px 16px;font-size:13px">Consultar</button><span class="v8-msg" id="v8Msg" role="status"></span></div>
     </form>
+    <div class="v8-lim" id="v8Salva" hidden></div>
     <div class="v8-res" id="v8Res"></div>
+  </div>
+  <div class="fbox" id="v8SimBox" hidden><h4>💰 Simular parcela (V8 e Unno)</h4>
+    <form class="fin-form" onsubmit="simularAmbos(event)" autocomplete="off">
+      <label>Parcela desejada (R$)<input id="v8Parc" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+      <label style="grid-column:span 2">Prazo (V8)<select id="v8Prazo"></select></label>
+      <div class="larg v8-lim" id="v8ParcDica">Vazio = a margem de cada banco. A mesma parcela é simulada nos dois bancos.</div>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8SimBtn" type="submit" style="padding:9px 16px;font-size:13px">Simular nos dois bancos</button><span class="v8-msg" id="v8SimMsg" role="status"></span></div>
+    </form>
   </div>
   <div class="fbox" id="melhorBox" hidden><h4>🏆 Melhor proposta (por comissão)</h4>
     <div id="melhorRes"></div>
-  </div>
-  <div class="fbox" id="v8SimBox" hidden><h4>💰 Simular</h4>
-    <form class="fin-form" onsubmit="v8Simular(event)" autocomplete="off">
-      <label>Parcela (R$)<input id="v8Parc" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
-      <label style="grid-column:span 2">Prazo<select id="v8Prazo"></select></label>
-      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8SimBtn" type="submit" style="padding:9px 16px;font-size:13px">Simular</button><span class="fin-erro" id="v8SimMsg" role="status"></span></div>
-    </form>
-    <div id="v8Ofertas"></div>
   </div>
 </div>
 <div class="v8-col">
   <div class="fbox" id="unnoBox" hidden><h4>🏦 Unno</h4>
     <div class="v8-msg" id="unnoMsg" role="status"></div>
     <div class="v8-res" id="unnoRes"></div>
+  </div>
+  <div class="fbox" id="v8Box" hidden><h4>🟦 V8</h4>
+    <div id="v8Ofertas"></div>
   </div>
 </div>
 </div></section>
@@ -2327,12 +2332,15 @@ async function v8Api(acao,cpf,dados){
   if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 function v8PedeDados(on,txt){if(on){v8$('v8Extra').hidden=false;v8$('v8Dica').textContent=txt||'Não achei todos os dados desse CPF sozinho: preencha o que faltar e clique em Consultar de novo.';}}
 let v8CpfAnt='';
-v8$('v8Cpf').addEventListener('input',e=>{const c=e.target.value.replace(/\D/g,'');if(v8CpfAnt&&c!==v8CpfAnt){v8$('v8Extra').hidden=true;['v8Nome','v8Nasc','unnoFone','unnoEmail'].forEach(i=>{v8$(i).value='';});v8$('v8Dica').textContent='Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.';v8CpfAnt='';}});
-async function v8Consultar(ev){if(ev)ev.preventDefault();
+v8$('v8Cpf').addEventListener('input',e=>{const c=e.target.value.replace(/\D/g,'');if(v8CpfAnt&&c!==v8CpfAnt){v8$('v8Extra').hidden=true;v8$('v8Salva').hidden=true;['v8Nome','v8Nasc','unnoFone','unnoEmail'].forEach(i=>{v8$(i).value='';});v8$('v8Dica').textContent='Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.';v8CpfAnt='';}});
+async function v8Consultar(ev,forcar){if(ev)ev.preventDefault();
   if(demo){v8Msg('Disponível só com o sistema ligado.');return;}
   if(!chave){pedirChave();return;}
   const cpf=v8$('v8Cpf').value.replace(/\D/g,'');
   if(cpf.length!==11){v8Msg('O CPF precisa ter 11 números.');return;}
+  if(forcar){salvaLimpa(cpf);unnoApp='';unnoAppCpf='';}
+  else{const sv=salvaGet(cpf);if(sv&&(sv.v8C||sv.unnoApp)){salvaRestaurar(cpf,sv);return;}}
+  v8$('v8Salva').hidden=true;v8$('v8Box').hidden=true;v8$('v8Ofertas').innerHTML='';
   const dados={},nm=v8$('v8Nome').value.trim(),nc=v8$('v8Nasc').value.trim();
   if(nm&&/^\d{2}\/\d{2}\/\d{4}$/.test(nc)){dados.nome=nm;dados.nascimento=nc;}
   v8Final=[];unnoOfs=[];v8$('melhorBox').hidden=true;v8CpfAnt=cpf;
@@ -2354,7 +2362,9 @@ function v8Mostrar(cpf,d){
   if(d.situacao==='com_margem'){
     v8PedeDados(false);v8Msg('');v8C={cpf,consult_id:d.consult_id,margem:Number(d.margem)||0,nome:d.nome||''};
     res.innerHTML=cab(quem+'<small>Margem disponível (parcela máxima por mês)</small><b class="big">'+brlFull(v8C.margem)+'</b>');
-    if(v8C.margem>0&&v8C.consult_id){v8$('v8SimBox').hidden=false;v8$('v8Parc').value=v8C.margem.toFixed(2).replace('.',',');v8Opcoes('');v8Simular();}
+    salvaSet(cpf,{ts:Date.now(),v8C,v8Lim:[],v8Sim:null});
+    v8$('v8Parc').placeholder='até '+v8C.margem.toFixed(2).replace('.',',');
+    if(v8C.margem>0&&v8C.consult_id){v8$('v8SimBox').hidden=false;v8Opcoes('');v8Simular();}
     return;}
   if(d.situacao==='precisa_dados'){const t='A V8 não achou esse CPF sozinha: preencha nome completo e nascimento e clique em Consultar de novo.';v8PedeDados(true,t);v8Msg(t);return;}
   if(d.situacao==='sem_margem'){v8PedeDados(false);v8Msg('');res.innerHTML=cab(quem+'<b>Sem margem na V8</b>'+(d.descricao?'<small>'+esc(d.descricao)+'</small>':''));return;}
@@ -2388,6 +2398,17 @@ async function unnoApi(acao,cpf,dados){
   if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
   if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 v8$('unnoFone').addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);e.target.value=v.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d{1,4})$/,'$1-$2');});
+function cardsTabelas(tabs){
+  const linha=(o,g)=>'<tr><td>'+(o.prazo?o.prazo+'x':'-')+(o.variante&&o.variante!==g.tabela?'<small>'+esc(o.variante)+'</small>':'')+'</td><td>'+(o.parcela?brlFull(o.parcela):'-')+'</td><td><b>'+brlFull(o.valor)+'</b></td></tr>';
+  return tabs.map(g=>'<details class="un-tab"><summary><span class="un-nome">'+esc(g.tabela)+(g.banco?'<small>'+esc(g.banco)+'</small>':'')+'</span><span class="un-ap">a partir de<b>'+brlFull(g.a_partir_de)+'/mês</b></span><span class="un-ap">até<b>'+brlFull(g.max_valor)+'</b></span><span class="un-qtd">'+g.qtd+' oferta'+(g.qtd>1?'s':'')+'</span></summary><table class="v8-tab"><thead><tr><th>Prazo</th><th>Parcela</th><th>Valor liberado</th></tr></thead><tbody>'+g.ofertas.map(o=>linha(o,g)).join('')+'</tbody></table></details>').join('');}
+function v8Cards(lista,parc,lim,erros,ajust){
+  if(!lista.length)return '<div class="v8-card"><small>CPF '+esc(v8FmtCpf(v8C?v8C.cpf:''))+'</small><b>A V8 não aprovou essa simulação</b>'+(erros.length?'<small>'+esc([...new Set(erros)].join(' · '))+'</small>':'')+'</div>'+(lim?'<div class="v8-lim">Limites do banco para este CPF: '+esc(lim)+'</div>':'');
+  const tabs=['sem','com'].map(k=>{const os=lista.filter(o=>(o.seguro===false)===(k==='sem')).sort((a,b)=>a.prazo-b.prazo||b.valor-a.valor);
+    return os.length?{tabela:k==='sem'?'Sem seguro':'Com seguro',banco:'V8 · CLT Acelera',a_partir_de:Math.min(...os.map(o=>o.parcela)),max_valor:Math.max(...os.map(o=>o.valor)),qtd:os.length,ofertas:os}:null;}).filter(Boolean).sort((a,b)=>b.max_valor-a.max_valor);
+  const menor=lista.some(o=>Number(o.parcela)<parc-0.01);
+  return '<div class="v8-card"><small>CPF '+esc(v8FmtCpf(v8C?v8C.cpf:''))+'</small><b>Ofertas da V8</b><small>Simulado com parcela de '+brlFull(parc)+(ajust?' (limite da margem da V8)':'')+'</small><small>'+tabs.length+' tabela'+(tabs.length>1?'s':'')+' · toque para ver as ofertas de cada uma</small></div>'+cardsTabelas(tabs)
+    +(menor?'<div class="v8-lim">O banco não aceitou a parcela cheia em algum prazo, então a V8 simulou com a parcela menor que aparece na tabela.</div>':'')
+    +(lim?'<div class="v8-lim">Limites do banco para este CPF: '+esc(lim)+'</div>':'');}
 function unnoMostrar(d){
   const box=v8$('unnoRes'),msg=v8$('unnoMsg');msg.textContent='';
   const quem='<small>CPF '+esc(v8FmtCpf(unnoAppCpf))+'</small>';
@@ -2397,9 +2418,8 @@ function unnoMostrar(d){
   if(d.situacao==='ofertas'){
     unnoOfs=(d.ofertas||[]).slice();melhorRender();
     const tabs=Array.isArray(d.tabelas)&&d.tabelas.length?d.tabelas:[{tabela:'Ofertas',banco:'',a_partir_de:Math.min(...(d.ofertas||[]).map(o=>o.parcela||Infinity)),max_valor:Math.max(...(d.ofertas||[]).map(o=>o.valor||0)),qtd:(d.ofertas||[]).length,ofertas:(d.ofertas||[]).slice().sort((a,b)=>(a.prazo-b.prazo)||(b.valor-a.valor))}];
-    const linha=(o,g)=>'<tr><td>'+(o.prazo?o.prazo+'x':'-')+(o.variante&&o.variante!==g.tabela?'<small>'+esc(o.variante)+'</small>':'')+'</td><td>'+(o.parcela?brlFull(o.parcela):'-')+'</td><td><b>'+brlFull(o.valor)+'</b></td></tr>';
-    box.innerHTML='<div class="v8-card">'+quem+'<b>Ofertas da Unno</b><small>'+tabs.length+' tabela'+(tabs.length>1?'s':'')+' · toque para ver as ofertas de cada uma</small></div>'
-      +tabs.map(g=>'<details class="un-tab"><summary><span class="un-nome">'+esc(g.tabela)+(g.banco?'<small>'+esc(g.banco)+'</small>':'')+'</span><span class="un-ap">a partir de<b>'+brlFull(g.a_partir_de)+'/mês</b></span><span class="un-ap">até<b>'+brlFull(g.max_valor)+'</b></span><span class="un-qtd">'+g.qtd+' oferta'+(g.qtd>1?'s':'')+'</span></summary><table class="v8-tab"><thead><tr><th>Prazo</th><th>Parcela</th><th>Valor liberado</th></tr></thead><tbody>'+g.ofertas.map(o=>linha(o,g)).join('')+'</tbody></table></details>').join('');return;}
+    const nota=d.parcela_usada?'<small>Simulado com parcela de '+brlFull(d.parcela_usada)+(d.ajustada?' (limite da margem da Unno)':'')+'</small>':'';
+    box.innerHTML='<div class="v8-card">'+quem+'<b>Ofertas da Unno</b>'+nota+'<small>'+tabs.length+' tabela'+(tabs.length>1?'s':'')+' · toque para ver as ofertas de cada uma</small></div>'+cardsTabelas(tabs);return;}
   if(d.situacao==='precisa_dados'){v8PedeDados(true,(d.erro||'Faltam dados do cliente.')+' Preencha os campos e clique em Consultar de novo.');box.innerHTML='<div class="v8-lim">'+esc(d.erro||'')+'</div>';return;}
   box.innerHTML='<div class="v8-lim">⚠️ '+(d.erro&&d.situacao==='erro'&&/^Não consegui liberar/.test(d.erro)?esc(d.erro):'A Unno respondeu com erro'+(d.erro?' ('+esc(d.erro)+')':'')+'.')+'</div>';}
 async function unnoConsultar(cpf){
@@ -2409,43 +2429,69 @@ async function unnoConsultar(cpf){
   try{
     v8$('unnoMsg').textContent=retomar?'Conferindo a solicitação na Unno…':'Abrindo na Unno…';
     let d=retomar?await unnoApi('status',cpf,{application_id:unnoApp}):await unnoApi('abrir',cpf,dados);
-    if(seq!==unnoSeq)return;if(d.application_id)unnoApp=d.application_id;
+    if(seq!==unnoSeq)return;if(d.application_id){unnoApp=d.application_id;salvaSet(cpf,{unnoApp});v8$('v8SimBox').hidden=false;}
     if(!d.ok&&d.situacao==='precisa_dados'){unnoApp='';unnoMostrar(d);return;}
     let semTermo=0;
     for(let i=0;i<120&&d.ok&&['aguardando_termo','termo_assinado','processando'].includes(d.situacao);i++){
       if(d.situacao==='aguardando_termo'&&++semTermo>6){unnoMostrar({ok:false,situacao:'erro',erro:'Não consegui liberar a consulta automaticamente. Clique em Consultar de novo.'});return;}
       unnoMostrar(d);await new Promise(r=>setTimeout(r,5000));if(seq!==unnoSeq)return;
       d=await unnoApi('status',cpf,{application_id:unnoApp});if(seq!==unnoSeq)return;}
-    if(d.ok&&d.situacao==='ofertas'){d=await unnoApi('ofertas',cpf,{application_id:unnoApp});if(seq!==unnoSeq)return;}
-    if(['sem_margem','sem_ofertas','erro'].includes(d.situacao))unnoApp='';
+    if(d.ok&&d.situacao==='ofertas'){d=await unnoApi('ofertas',cpf,{application_id:unnoApp,parcela:v8Num(v8$('v8Parc').value)||''});if(seq!==unnoSeq)return;if(d.situacao==='ofertas')salvaSet(cpf,{unnoApp,unnoD:d});}
+    if(['sem_margem','sem_ofertas','erro'].includes(d.situacao)){unnoApp='';salvaSet(cpf,{unnoApp:''});}
     unnoMostrar(d);
   }catch(e){if(seq===unnoSeq)v8$('unnoMsg').textContent='⚠️ Não consegui consultar a Unno ('+e.message+').';}}
 function v8Opcoes(sel){const s=v8$('v8Prazo');
   s.innerHTML='<option value="">36x e 24x (padrão)</option><option value="99">Maior prazo liberado'+(v8Lim.length?' ('+v8Lim[0]+'x)':'')+'</option><option value="todos">Todos os prazos liberados</option>'+v8Lim.map(p=>'<option value="'+p+'">'+p+'x</option>').join('');
   s.value=sel||'';if(s.value!==(sel||''))s.value='';}
 async function v8Simular(ev){if(ev)ev.preventDefault();if(!v8C)return;
-  const parc=v8Num(v8$('v8Parc').value)||v8C.margem;
-  if(parc>v8C.margem+0.001){v8SimMsg('A parcela passa da margem ('+brlFull(v8C.margem)+').');return;}
-  const pz=v8$('v8Prazo').value,seq=++v8SimSeq,btn=v8$('v8SimBtn'),out=v8$('v8Ofertas');
-  btn.disabled=true;out.innerHTML='';v8SimMsg('Simulando na V8…');
+  let parc=v8Num(v8$('v8Parc').value)||v8C.margem,ajust=false;
+  if(parc>v8C.margem+0.001){parc=Math.floor(v8C.margem*100)/100;ajust=true;}
+  const pz=v8$('v8Prazo').value,seq=++v8SimSeq,out=v8$('v8Ofertas');
+  v8$('v8Box').hidden=false;out.innerHTML='<div class="v8-card"><b>Simulando na V8…</b></div>';
   const base={consult_id:v8C.consult_id,margem:v8C.margem,parcela:parc};let lista=[],lim='',erros=[];
   const roda=async p=>{const d=await v8Api('simular','',Object.assign({},base,{prazo:p}));if(d.limites)lim=d.limites;(d.ofertas||[]).forEach(o=>lista.push(o));(d.erros||[]).forEach(e=>e&&erros.push(e));};
   const leLim=()=>{if(lim)v8Lim=[...new Set([...lim.matchAll(/(\d+)x/g)].map(m=>+m[1]))].sort((a,b)=>b-a);};
   try{
     if(pz==='todos'){if(!v8Lim.length){await roda('');leLim();}lista=[];erros=[];const ps=v8Lim.slice();
-      for(let i=0;i<ps.length;i+=3){if(seq!==v8SimSeq)return;v8SimMsg('Simulando… '+Math.min(i+3,ps.length)+' de '+ps.length+' prazos');await Promise.all(ps.slice(i,i+3).map(p=>roda(String(p))));}}
+      for(let i=0;i<ps.length;i+=3){if(seq!==v8SimSeq)return;v8SimMsg('V8: simulando '+Math.min(i+3,ps.length)+' de '+ps.length+' prazos…');await Promise.all(ps.slice(i,i+3).map(p=>roda(String(p))));}}
     else await roda(pz);
     if(seq!==v8SimSeq)return;leLim();v8Opcoes(pz);
     const vis={};lista=lista.filter(o=>{const k=o.prazo+'|'+o.parcela+'|'+o.seguro;if(vis[k])return false;vis[k]=1;return o.valor>0;}).sort((a,b)=>(b.prazo-a.prazo)||(b.valor-a.valor));
-    let h='';
-    if(lista.length){
-      h='<table class="v8-tab"><thead><tr><th>Prazo</th><th>Parcela</th><th>Valor liberado</th></tr></thead><tbody>'+lista.map(o=>'<tr><td>'+o.prazo+'x'+(o.seguro===false?' <small>sem seguro</small>':'')+'</td><td>'+brlFull(o.parcela)+'</td><td><b>'+brlFull(o.valor)+'</b></td></tr>').join('')+'</tbody></table>';
-      if(lista.some(o=>Number(o.parcela)<parc-0.01))h+='<div class="v8-lim">O banco não aceitou a parcela cheia em algum prazo, então a V8 simulou com a parcela menor que aparece na tabela.</div>';
-    }else h='<div class="v8-lim"><b>O banco não aprovou essa simulação.</b>'+(erros.length?'<br>'+esc([...new Set(erros)].join(' · ')):'')+'</div>';
-    if(lim)h+='<div class="v8-lim">Limites do banco para este CPF: '+esc(lim)+'</div>';
-    out.innerHTML=h;v8SimMsg('');v8Final=lista.slice();melhorRender();
-  }catch(e){if(seq===v8SimSeq)v8SimMsg('⚠️ Não consegui simular ('+e.message+').');}
-  finally{if(seq===v8SimSeq)btn.disabled=false;}}
+    out.innerHTML=v8Cards(lista,parc,lim,erros,ajust);v8SimMsg('');v8Final=lista.slice();melhorRender();
+    salvaSet(v8C.cpf,{v8Lim,v8Sim:{lista,parc,lim,erros,ajust}});
+  }catch(e){if(seq===v8SimSeq){out.innerHTML='<div class="v8-lim">⚠️ Não consegui simular na V8 ('+esc(e.message)+'). Se a consulta for antiga, clique em Refazer consulta.</div>';}}}
+async function unnoSimular(parc){if(!unnoApp)return;const cpf=unnoAppCpf,seq=++unnoSeq;
+  v8$('unnoBox').hidden=false;v8$('unnoRes').innerHTML='<div class="v8-card"><small>CPF '+esc(v8FmtCpf(cpf))+'</small><b>Simulando na Unno…</b></div>';
+  try{
+    const d=await unnoApi('ofertas',cpf,{application_id:unnoApp,parcela:parc||''});if(seq!==unnoSeq)return;
+    if(d.situacao==='ofertas'){salvaSet(cpf,{unnoApp,unnoD:d});}
+    else if(d.situacao==='erro'){unnoApp='';salvaSet(cpf,{unnoApp:'',unnoD:null});v8$('unnoRes').innerHTML='<div class="v8-lim">⚠️ A consulta da Unno expirou. Clique em Refazer consulta.</div>';return;}
+    unnoMostrar(d);
+  }catch(e){if(seq===unnoSeq)v8$('unnoRes').innerHTML='<div class="v8-lim">⚠️ Não consegui simular na Unno ('+esc(e.message)+').</div>';}}
+function simularAmbos(ev){if(ev)ev.preventDefault();
+  if(!v8C&&!unnoApp){v8SimMsg('Faça a consulta do CPF primeiro.');return;}
+  const parc=v8Num(v8$('v8Parc').value);v8SimMsg('');
+  if(v8C)v8Simular();
+  if(unnoApp)unnoSimular(parc);}
+/* ===== Consulta salva por CPF (neste navegador) ===== */
+const SALVA_KEY='gm_consultas_v1',SALVA_TTL=3*3600*1000;
+function salvaTudo(){try{return JSON.parse(localStorage.getItem(SALVA_KEY)||'{}')||{};}catch(e){return{};}}
+function salvaGet(cpf){const e=salvaTudo()[cpf];return e&&Date.now()-e.ts<SALVA_TTL?e:null;}
+function salvaSet(cpf,patch){if(!cpf)return;try{const t=salvaTudo(),e=Object.assign(t[cpf]||{ts:Date.now()},patch);t[cpf]=e;
+  const ks=Object.keys(t).sort((a,b)=>t[b].ts-t[a].ts).slice(0,30);const n={};ks.forEach(k=>{n[k]=t[k];});localStorage.setItem(SALVA_KEY,JSON.stringify(n));}catch(e){}}
+function salvaLimpa(cpf){try{const t=salvaTudo();delete t[cpf];localStorage.setItem(SALVA_KEY,JSON.stringify(t));}catch(e){}}
+function salvaAviso(e){const el=v8$('v8Salva'),h=new Date(e.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  el.innerHTML='Consulta salva de '+h+' · é só digitar a parcela e simular.<a onclick="v8Consultar(null,true)">Refazer consulta</a>';el.hidden=false;}
+function salvaRestaurar(cpf,e){
+  v8Seq++;v8SimSeq++;unnoSeq++;v8CpfAnt=cpf;v8Msg('');v8$('v8Res').innerHTML='';v8Final=[];unnoOfs=[];
+  v8C=e.v8C||null;v8Lim=e.v8Lim||[];unnoApp=e.unnoApp||'';unnoAppCpf=unnoApp?cpf:'';
+  if(v8C){v8$('v8Res').innerHTML='<div class="v8-card"><small>'+esc(v8C.nome||'')+(v8C.nome?' · ':'')+'CPF '+esc(v8FmtCpf(cpf))+'</small><small>Margem disponível (parcela máxima por mês)</small><b class="big">'+brlFull(v8C.margem)+'</b></div>';v8Opcoes('');}
+  v8$('v8Box').hidden=!(e.v8Sim);
+  if(e.v8Sim){v8Final=(e.v8Sim.lista||[]).slice();v8$('v8Ofertas').innerHTML=v8Cards(e.v8Sim.lista||[],e.v8Sim.parc,e.v8Sim.lim,e.v8Sim.erros||[],e.v8Sim.ajust);}
+  v8$('unnoBox').hidden=!(e.unnoD);
+  if(e.unnoD){v8$('unnoRes').innerHTML='';unnoMostrar(e.unnoD);}
+  v8$('v8SimBox').hidden=!(v8C||unnoApp);melhorRender();salvaAviso(e);
+  if(v8Num(v8$('v8Parc').value))simularAmbos();}
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
   const ehWpp=GRUPO_WPP.includes(telaAtual);if(ehWpp){ultimaWpp=telaAtual;lsSet('escritorio_wpp',telaAtual);}
