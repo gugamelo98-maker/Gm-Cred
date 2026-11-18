@@ -398,6 +398,8 @@ button.mot:hover{background:var(--cf7f9fc)}button.mot b{color:var(--azul)}
 .ag-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tx2);margin-top:10px}.ag-leg span{display:inline-flex;align-items:center;gap:6px}.ag-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
 .ag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 #v-v8 .ag-grid{align-items:start}
+.v8-col{display:grid;gap:12px;min-width:0;align-content:start}
+@media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#unnoBox{order:1}#melhorBox{order:2}#v8SimBox{order:3}}
 .ag-card h4{display:flex;align-items:center;gap:8px}
 .ag-card .meta-ag{font-size:12px;color:var(--tx3);font-weight:500;text-transform:none;letter-spacing:0;margin-left:auto}
 .ag-t{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -920,7 +922,8 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 </div>
 
 <div class="view" id="v-v8" hidden>
-<section class="ag-sec"><div class="ag-grid">
+<section class="ag-sec"><div class="ag-grid v8-cols">
+<div class="v8-col">
   <div class="fbox"><h4>🔎 Consultar CPF (V8 e Unno)</h4>
     <form class="fin-form" onsubmit="v8Consultar(event)" autocomplete="off">
       <label class="larg">CPF<input id="v8Cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required></label>
@@ -935,10 +938,6 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
     </form>
     <div class="v8-res" id="v8Res"></div>
   </div>
-  <div class="fbox" id="unnoBox" hidden><h4>🏦 Unno</h4>
-    <div class="fin-erro" id="unnoMsg" role="status"></div>
-    <div class="v8-res" id="unnoRes"></div>
-  </div>
   <div class="fbox" id="melhorBox" hidden><h4>🏆 Melhor proposta (por comissão)</h4>
     <div id="melhorRes"></div>
   </div>
@@ -950,6 +949,13 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
     </form>
     <div id="v8Ofertas"></div>
   </div>
+</div>
+<div class="v8-col">
+  <div class="fbox" id="unnoBox" hidden><h4>🏦 Unno</h4>
+    <div class="fin-erro" id="unnoMsg" role="status"></div>
+    <div class="v8-res" id="unnoRes"></div>
+  </div>
+</div>
 </div></section>
 </div>
 
