@@ -417,7 +417,7 @@ button.mot:hover{background:var(--cf7f9fc)}button.mot b{color:var(--azul)}
 .lk-card b{display:block;font-size:14.5px}.lk-card small{display:block;color:var(--tx2);font-size:12px;margin-top:2px;overflow-wrap:anywhere}
 .bk-logo{width:18px;height:18px;border-radius:5px;vertical-align:-4px;margin-right:7px;object-fit:cover}
 #v8Salva a{color:var(--azul,#2563eb);cursor:pointer;font-weight:700;margin-left:6px}
-@media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#v8SimBox{order:1}#unnoBox{order:2}#v8Box{order:3}#melhorBox{order:4}}
+@media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#v8SimBox{order:1}#unnoBox{order:2}#hubBox{order:3}#v8Box{order:4}#melhorBox{order:5}}
 .ag-card h4{display:flex;align-items:center;gap:8px}
 .ag-card .meta-ag{font-size:12px;color:var(--tx3);font-weight:500;text-transform:none;letter-spacing:0;margin-left:auto}
 .ag-t{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -758,7 +758,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <button class="nv" data-v="escritorio" onclick="irPara('escritorio')" title="Escritório"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/></svg><span class="lb">Escritório</span><b class="badge" id="navBadge" hidden></b></button>
   <button class="nv" data-v="conversas" onclick="irPara('conversas')" title="Conversas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="lb">Conversas</span><b class="badge" id="cvBadge" hidden></b></button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')" title="Clientes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg><span class="lb">Clientes</span></button>
-  <button class="nv nv-an" data-v="v8" onclick="irPara('v8')" title="Consulta V8 e Unno"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg><span class="lb">Consulta V8 / Unno</span></button>
+  <button class="nv nv-an" data-v="v8" onclick="irPara('v8')" title="Consulta V8, Unno e HUB"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg><span class="lb">Consulta V8 / Unno / HUB</span></button>
   <button class="nv nv-an" data-v="links" onclick="irPara('links')" title="Links"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg><span class="lb">Links</span></button>
   <button class="nv nv-an" data-v="disparo" onclick="irPara('disparo')" title="Disparo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg><span class="lb">Disparo</span></button>
   <button class="nv nv-an" data-v="oficial" onclick="irPara('oficial')" title="API oficial"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg><span class="lb">API oficial</span></button>
@@ -775,7 +775,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <div class="mais-veu" id="maisVeu" onclick="if(event.target===this)fecharMais()" role="dialog" aria-modal="true" aria-label="Mais telas"><div class="mais-sheet">
   <h5>Operação</h5>
   <div class="mais-grid">
-    <button data-v="v8" onclick="irPara('v8')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg>Consulta V8 / Unno</button>
+    <button data-v="v8" onclick="irPara('v8')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg>Consulta V8 / Unno / HUB</button>
     <button data-v="links" onclick="irPara('links')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg>Links</button>
     <button data-v="disparo" onclick="irPara('disparo')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg>Disparo</button>
     <button data-v="oficial" onclick="irPara('oficial')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>API oficial</button>
@@ -951,7 +951,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <div class="view" id="v-v8" hidden>
 <section class="ag-sec"><div class="ag-grid v8-cols">
 <div class="v8-col">
-  <div class="fbox"><h4>🔎 Consultar CPF (V8 e Unno)</h4>
+  <div class="fbox"><h4>🔎 Consultar CPF (V8, Unno e HUB)</h4>
     <form class="fin-form" onsubmit="v8Consultar(event)" autocomplete="off">
       <label class="larg">CPF<input id="v8Cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required></label>
       <div class="larg v8-extra" id="v8Extra" hidden>
@@ -959,6 +959,8 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
         <label>Data de nascimento<input id="v8Nasc" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off"></label>
         <label>Celular (Unno)<input id="unnoFone" inputmode="numeric" placeholder="(00) 00000-0000" maxlength="15" autocomplete="off"></label>
         <label>E-mail (Unno)<input id="unnoEmail" type="email" placeholder="cliente@email.com" autocomplete="off"></label>
+        <label>Sexo (HUB)<select id="hubSexo"><option value="">Escolha</option><option value="M">Masculino</option><option value="F">Feminino</option></select></label>
+        <label>Cidade (HUB)<input id="hubCidade" placeholder="Cidade do cliente" autocomplete="off"></label>
       </div>
       <div class="larg v8-lim" id="v8Dica">Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.</div>
       <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8Btn" type="submit" style="padding:9px 16px;font-size:13px">Consultar</button><span class="v8-msg" id="v8Msg" role="status"></span></div>
@@ -966,12 +968,12 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
     <div class="v8-lim" id="v8Salva" hidden></div>
     <div class="v8-res" id="v8Res"></div>
   </div>
-  <div class="fbox" id="v8SimBox" hidden><h4>💰 Simular parcela (V8 e Unno)</h4>
+  <div class="fbox" id="v8SimBox" hidden><h4>💰 Simular parcela (V8, Unno e HUB)</h4>
     <form class="fin-form" onsubmit="simularAmbos(event)" autocomplete="off">
       <label>Parcela desejada (R$)<input id="v8Parc" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
       <label style="grid-column:span 2">Prazo (V8)<select id="v8Prazo"></select></label>
-      <div class="larg v8-lim" id="v8ParcDica">Vazio = a margem de cada banco. A mesma parcela é simulada nos dois bancos.</div>
-      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8SimBtn" type="submit" style="padding:9px 16px;font-size:13px">Simular nos dois bancos</button><span class="v8-msg" id="v8SimMsg" role="status"></span></div>
+      <div class="larg v8-lim" id="v8ParcDica">Vazio = a margem de cada banco. A mesma parcela é simulada em todos os bancos.</div>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8SimBtn" type="submit" style="padding:9px 16px;font-size:13px">Simular em todos</button><span class="v8-msg" id="v8SimMsg" role="status"></span></div>
     </form>
   </div>
   <div class="fbox" id="melhorBox" hidden><h4>🏆 Melhor proposta (por comissão)</h4>
@@ -982,6 +984,10 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <div class="fbox" id="unnoBox" hidden><h4><img class="bk-logo" src="img/logo-unno.png" alt="" width="18" height="18">Unno</h4>
     <div class="v8-msg" id="unnoMsg" role="status"></div>
     <div class="v8-res" id="unnoRes"></div>
+  </div>
+  <div class="fbox" id="hubBox" hidden><h4><img class="bk-logo" src="img/logo-hub.png" alt="" width="18" height="18">HUB</h4>
+    <div class="v8-msg" id="hubMsg" role="status"></div>
+    <div class="v8-res" id="hubRes"></div>
   </div>
   <div class="fbox" id="v8Box" hidden><h4><img class="bk-logo" src="img/logo-v8.png" alt="" width="18" height="18">V8</h4>
     <div id="v8Ofertas"></div>
@@ -2349,7 +2355,7 @@ const TELAS=['escritorio','v8','disparo','oficial','hoje','clientes','indicacoes
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
 const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['v8','links','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
-const PG={hoje:['Início','Resumo do dia em números'],v8:['Consulta V8 e Unno','Margem e simulação direto nos bancos'],escritorio:['Escritório','Empresa virtual · agentes de IA'],links:['Links','Ferramentas e páginas da GM Cred'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+const PG={hoje:['Início','Resumo do dia em números'],v8:['Consulta V8, Unno e HUB','Margem e simulação direto nos bancos'],escritorio:['Escritório','Empresa virtual · agentes de IA'],links:['Links','Ferramentas e páginas da GM Cred'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
 // o Chrome tratava qualquer campo do painel como "usuário" e ficava sugerindo/pedindo para salvar senha: só a tela de login fica com senha
 function semSenhaSalva(raiz){(raiz||document).querySelectorAll('input:not([type=password]):not([autocomplete=username]),textarea').forEach(e=>{if(e.getAttribute('autocomplete')!=='off')e.setAttribute('autocomplete','off');e.setAttribute('data-1p-ignore','');e.setAttribute('data-lpignore','true');e.setAttribute('data-form-type','other');});}
 semSenhaSalva();try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)semSenhaSalva(n.matches&&n.matches('input,textarea')?n.parentNode:n);}).observe(document.body,{childList:true,subtree:true});}catch(e){}
@@ -2365,7 +2371,7 @@ let v8C=null,v8Lim=[],v8Seq=0,v8SimSeq=0;
 const v8$=id=>document.getElementById(id);
 const v8Num=v=>{v=String(v||'').replace(/[^\d.,]/g,'');if(v.includes(',')||/^\d{1,3}(\.\d{3})+$/.test(v))v=v.replace(/\./g,'').replace(',','.');return Number(v)||0;};
 const v8Msg=t=>{v8$('v8Msg').textContent=t||'';},v8SimMsg=t=>{v8$('v8SimMsg').textContent=t||'';};
-['v8Msg','unnoMsg'].forEach(i=>{const el=v8$(i);new MutationObserver(()=>el.classList.toggle('err',/⚠|inválid|precisa ter|disponível só|não achou/i.test(el.textContent))).observe(el,{childList:true,characterData:true,subtree:true});});
+['v8Msg','unnoMsg','hubMsg'].forEach(i=>{const el=v8$(i);new MutationObserver(()=>el.classList.toggle('err',/⚠|inválid|precisa ter|disponível só|não achou/i.test(el.textContent))).observe(el,{childList:true,characterData:true,subtree:true});});
 function v8FmtCpf(c){c=String(c||'').replace(/\D/g,'').slice(0,11);return c.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2');}
 v8$('v8Cpf').addEventListener('input',e=>{e.target.value=v8FmtCpf(e.target.value);});
 v8$('v8Nasc').addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=v.replace(/^(\d{2})(\d)/,'$1/$2').replace(/^(\d{2})\/(\d{2})(\d)/,'$1/$2/$3');});
@@ -2375,19 +2381,19 @@ async function v8Api(acao,cpf,dados){
   if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
 function v8PedeDados(on,txt){if(on){v8$('v8Extra').hidden=false;v8$('v8Dica').textContent=txt||'Não achei todos os dados desse CPF sozinho: preencha o que faltar e clique em Consultar de novo.';}}
 let v8CpfAnt='';
-v8$('v8Cpf').addEventListener('input',e=>{const c=e.target.value.replace(/\D/g,'');if(v8CpfAnt&&c!==v8CpfAnt){v8$('v8Extra').hidden=true;v8$('v8Salva').hidden=true;['v8Nome','v8Nasc','unnoFone','unnoEmail'].forEach(i=>{v8$(i).value='';});v8$('v8Dica').textContent='Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.';v8CpfAnt='';}});
+v8$('v8Cpf').addEventListener('input',e=>{const c=e.target.value.replace(/\D/g,'');if(v8CpfAnt&&c!==v8CpfAnt){v8$('v8Extra').hidden=true;v8$('v8Salva').hidden=true;['v8Nome','v8Nasc','unnoFone','unnoEmail','hubSexo','hubCidade'].forEach(i=>{v8$(i).value='';});v8$('v8Dica').textContent='Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.';v8CpfAnt='';}});
 async function v8Consultar(ev,forcar){if(ev)ev.preventDefault();
   if(demo){v8Msg('Disponível só com o sistema ligado.');return;}
   if(!chave){pedirChave();return;}
   const cpf=v8$('v8Cpf').value.replace(/\D/g,'');
   if(cpf.length!==11){v8Msg('O CPF precisa ter 11 números.');return;}
-  if(forcar){salvaLimpa(cpf);unnoApp='';unnoAppCpf='';}
-  else{const sv=salvaGet(cpf);if(sv&&(sv.v8C||sv.unnoApp)){salvaRestaurar(cpf,sv);return;}}
+  if(forcar){salvaLimpa(cpf);unnoApp='';unnoAppCpf='';hubApp='';hubAppCpf='';}
+  else{const sv=salvaGet(cpf);if(sv&&(sv.v8C||sv.unnoApp||sv.hubApp)){salvaRestaurar(cpf,sv);return;}}
   v8$('v8Salva').hidden=true;v8$('v8Box').hidden=true;v8$('v8Ofertas').innerHTML='';
   const dados={},nm=v8$('v8Nome').value.trim(),nc=v8$('v8Nasc').value.trim();
   if(nm&&/^\d{2}\/\d{2}\/\d{4}$/.test(nc)){dados.nome=nm;dados.nascimento=nc;}
-  v8Final=[];unnoOfs=[];v8$('melhorBox').hidden=true;v8CpfAnt=cpf;
-  unnoConsultar(cpf);
+  v8Final=[];unnoOfs=[];hubOfs=[];v8$('melhorBox').hidden=true;v8CpfAnt=cpf;
+  unnoConsultar(cpf);hubConsultar(cpf);
   const seq=++v8Seq;v8SimSeq++;v8C=null;v8Lim=[];v8$('v8SimBox').hidden=true;v8$('v8Ofertas').innerHTML='';v8$('v8Res').innerHTML='';
   const btn=v8$('v8Btn');btn.disabled=true;v8Msg('Consultando na V8…');
   try{
@@ -2415,7 +2421,7 @@ function v8Mostrar(cpf,d){
   if(d.situacao==='processando'||d.situacao==='sem_consulta'){v8Msg('A V8 ainda está processando. Clique em Consultar de novo daqui a pouco.');return;}
   v8Msg('⚠️ A V8 respondeu com erro'+(d.erro?' ('+d.erro+')':'')+'. Tente de novo.');}
 /* ===== Melhor proposta por comissão (V8 + Unno) ===== */
-let v8Final=[],unnoOfs=[],comTab=null;
+let v8Final=[],unnoOfs=[],hubOfs=[],comTab=null;
 async function comCarregar(){if(comTab)return comTab;try{const d=await unnoApi('comissoes','',{});comTab=(d&&d.tabelas)||[];}catch(e){comTab=[];}return comTab;}
 const comNorm=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
 function comPct(banco,tabela,seguro,prazo){
@@ -2427,12 +2433,13 @@ async function melhorRender(){
   const todas=[];
   v8Final.forEach(o=>{const seg=o.seguro!==false,pct=comPct('v8digital','',seg,Number(o.prazo));todas.push({fonte:'V8',banco:'V8',logo:'v8',prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
   unnoOfs.forEach(o=>{const seg=o.seguro!==false,b='unno:'+slug(o.banco),pct=comPct(b,o.tabela,seg,Number(o.prazo));todas.push({fonte:'Unno',logo:'unno',banco:'Unno'+(o.banco?' · '+o.banco:'')+(o.tabela?' · '+o.tabela:''),prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
+  hubOfs.forEach(o=>{const seg=o.seguro!==false,pct=comPct('hub:'+slug(o.banco),o.tabela,seg,Number(o.prazo));todas.push({fonte:'HUB',logo:'hub',banco:'HUB'+(o.banco?' · '+o.banco:'')+(o.tabela?' · '+o.tabela:''),prazo:o.prazo,parcela:o.parcela,valor:o.valor,seg,pct});});
   const box=v8$('melhorBox');if(!todas.length){box.hidden=true;return;}
   todas.forEach(o=>{o.com=o.pct==null?null:Math.round(o.valor*o.pct)/100;});
   todas.sort((a,b)=>(b.com==null?-1:b.com)-(a.com==null?-1:a.com)||(b.valor-a.valor));
   box.hidden=false;const m=todas[0];
   v8$('melhorRes').innerHTML=(m.com!=null?'<div class="v8-card"><small>'+esc(m.banco)+' · '+m.prazo+'x'+(m.seg?' com seguro':' sem seguro')+'</small><b class="big">Comissão '+brlFull(m.com)+'</b><small>Cliente recebe '+brlFull(m.valor)+' · parcela '+brlFull(m.parcela)+' · '+String(m.pct).replace('.',',')+'%</small></div>':'<div class="v8-lim">Sem tabela de comissão cadastrada para essas ofertas.</div>')
-   +(()=>{const pz=l=>[...new Set(l)].sort((x,y)=>y-x).map(n=>n+'x').join(', ');const u=pz(unnoOfs.map(o=>Number(o.prazo)).filter(Boolean)),v=pz(v8Lim.length?v8Lim:v8Final.map(o=>Number(o.prazo)));return '<div class="v8-lim"><b>Prazos liberados pelo banco</b>'+(v?'<br>V8: '+v:'')+(u?'<br>Unno: '+u:'')+'</div>';})()
+   +(()=>{const pz=l=>[...new Set(l)].sort((x,y)=>y-x).map(n=>n+'x').join(', ');const u=pz(unnoOfs.map(o=>Number(o.prazo)).filter(Boolean)),h=pz(hubOfs.map(o=>Number(o.prazo)).filter(Boolean)),v=pz(v8Lim.length?v8Lim:v8Final.map(o=>Number(o.prazo)));return '<div class="v8-lim"><b>Prazos liberados pelo banco</b>'+(v?'<br>V8: '+v:'')+(u?'<br>Unno: '+u:'')+(h?'<br>HUB: '+h:'')+'</div>';})()
    +'<table class="v8-tab"><thead><tr><th>Banco</th><th>Prazo</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>'+todas.map((o,i)=>'<tr><td>'+(i===0&&o.com!=null?'🏆 ':'')+'<img class="bk-logo" src="img/logo-'+o.logo+'.png" alt="" width="18" height="18">'+esc(o.banco)+'</td><td>'+o.prazo+'x'+(o.seg?'':' <small>sem seguro</small>')+'</td><td>'+brlFull(o.valor)+'</td><td><b>'+(o.com==null?'—':brlFull(o.com))+'</b></td></tr>').join('')+'</tbody></table>';}
 /* ===== Unno (mesmo CPF da consulta V8) ===== */
 let unnoSeq=0,unnoApp='',unnoAppCpf='';
@@ -2517,11 +2524,57 @@ async function unnoSimular(parc){if(!unnoApp)return;const cpf=unnoAppCpf,seq=++u
     else if(d.situacao==='erro'){unnoApp='';salvaSet(cpf,{unnoApp:'',unnoD:null});v8$('unnoRes').innerHTML='<div class="v8-lim">⚠️ A consulta da Unno expirou. Clique em Refazer consulta.</div>';return;}
     unnoMostrar(d);
   }catch(e){if(seq===unnoSeq)v8$('unnoRes').innerHTML='<div class="v8-lim">⚠️ Não consegui simular na Unno ('+esc(e.message)+').</div>';}}
+/* ===== HUB (CLT, mesmo CPF da consulta) ===== */
+let hubSeq=0,hubApp='',hubAppCpf='';
+async function hubApi(acao,cpf,dados){
+  const r=await fetch(BASE+'/escritorio/hub',{method:'POST',body:new URLSearchParams({k:chave,acao,cpf:cpf||'',dados:JSON.stringify(dados||{})})});
+  if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
+  if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+function hubMostrar(d){
+  const box=v8$('hubRes'),msg=v8$('hubMsg');msg.textContent='';
+  const quem='<small>CPF '+esc(v8FmtCpf(hubAppCpf))+'</small>';
+  if(d.situacao==='processando'){box.innerHTML='<div class="v8-card">'+quem+'<b>Consultando na HUB…</b></div>';return;}
+  if(d.situacao==='aguardando_termo'){box.innerHTML='<div class="v8-card">'+quem+'<b>A HUB precisa da autorização do cliente</b><small>O cliente precisa aceitar o termo de consulta da HUB. Depois de aceitar, clique em Refazer consulta.</small><small><a href="'+esc(d.link_termo||'https://termo.hubcredito.com.br/')+'" target="_blank" rel="noopener">Abrir o termo da HUB</a></small></div>';return;}
+  if(d.situacao==='sem_margem'){box.innerHTML='<div class="v8-card">'+quem+'<b>Sem margem na HUB</b>'+(d.erro?'<small>'+esc(d.erro)+'</small>':'')+'</div>';return;}
+  if(d.situacao==='sem_ofertas'){box.innerHTML='<div class="v8-card">'+quem+'<b>A HUB não liberou oferta para este CPF</b></div>';return;}
+  if(d.situacao==='ofertas'){
+    hubOfs=(d.ofertas||[]).slice();melhorRender();
+    const tabs=Array.isArray(d.tabelas)&&d.tabelas.length?d.tabelas:[];
+    const nota=d.parcela_usada?'<small>Simulado com parcela de '+brlFull(d.parcela_usada)+(d.ajustada?' (limite da margem da HUB)':'')+'</small>':'';
+    box.innerHTML='<div class="v8-card">'+quem+'<b>Ofertas da HUB</b>'+nota+'<small>'+tabs.length+' tabela'+(tabs.length>1?'s':'')+' · toque para ver as ofertas de cada uma</small></div>'+cardsTabelas(tabs);return;}
+  if(d.situacao==='precisa_dados'){v8PedeDados(true,(d.erro||'Faltam dados do cliente.')+' Preencha os campos e clique em Consultar de novo.');box.innerHTML='<div class="v8-lim">'+esc(d.erro||'')+'</div>';return;}
+  box.innerHTML='<div class="v8-lim">⚠️ A HUB respondeu com erro'+(d.erro?' ('+esc(d.erro)+')':'')+'.</div>';}
+async function hubConsultar(cpf){
+  const seq=++hubSeq,box=v8$('hubBox');box.hidden=false;v8$('hubRes').innerHTML='';
+  const dados={nome:v8$('v8Nome').value.trim(),nascimento:v8$('v8Nasc').value.trim(),celular:v8$('unnoFone').value.trim(),email:v8$('unnoEmail').value.trim(),sexo:v8$('hubSexo').value,cidade:v8$('hubCidade').value.trim()};
+  const retomar=hubApp&&hubAppCpf===cpf;hubAppCpf=cpf;
+  try{
+    v8$('hubMsg').textContent=retomar?'Conferindo a pré-simulação na HUB…':'Abrindo na HUB…';
+    let d=retomar?await hubApi('status',cpf,{presim_id:hubApp}):await hubApi('abrir',cpf,dados);
+    if(seq!==hubSeq)return;
+    if(d.presim_id){hubApp=String(d.presim_id);salvaSet(cpf,{hubApp});v8$('v8SimBox').hidden=false;}
+    if(!d.ok&&d.situacao==='precisa_dados'){hubApp='';hubMostrar(d);return;}
+    for(let i=0;i<60&&d.ok&&d.situacao==='processando';i++){
+      hubMostrar(d);await new Promise(r=>setTimeout(r,5000));if(seq!==hubSeq)return;
+      d=await hubApi('status',cpf,{presim_id:hubApp});if(seq!==hubSeq)return;}
+    if(d.ok&&d.situacao==='pronto'){d=await hubApi('simular',cpf,{presim_id:hubApp,parcela:v8Num(v8$('v8Parc').value)||''});if(seq!==hubSeq)return;if(d.situacao==='ofertas')salvaSet(cpf,{hubApp,hubD:d});}
+    if(['aguardando_termo','sem_margem','sem_ofertas','erro'].includes(d.situacao)||(!d.ok&&d.situacao==='erro')){hubApp='';salvaSet(cpf,{hubApp:''});}
+    hubMostrar(d);
+  }catch(e){if(seq===hubSeq)v8$('hubMsg').textContent='⚠️ Não consegui consultar a HUB ('+e.message+').';}}
+async function hubSimular(parc){if(!hubApp)return;const cpf=hubAppCpf,seq=++hubSeq;
+  v8$('hubBox').hidden=false;v8$('hubRes').innerHTML='<div class="v8-card"><small>CPF '+esc(v8FmtCpf(cpf))+'</small><b>Simulando na HUB…</b></div>';
+  try{
+    const d=await hubApi('simular',cpf,{presim_id:hubApp,parcela:parc||''});if(seq!==hubSeq)return;
+    if(d.situacao==='ofertas')salvaSet(cpf,{hubApp,hubD:d});
+    else if(d.situacao==='erro'||d.situacao==='aguardando_termo'){hubApp='';salvaSet(cpf,{hubApp:'',hubD:null});}
+    hubMostrar(d);
+  }catch(e){if(seq===hubSeq)v8$('hubRes').innerHTML='<div class="v8-lim">⚠️ Não consegui simular na HUB ('+esc(e.message)+').</div>';}}
 function simularAmbos(ev){if(ev)ev.preventDefault();
-  if(!v8C&&!unnoApp){v8SimMsg('Faça a consulta do CPF primeiro.');return;}
+  if(!v8C&&!unnoApp&&!hubApp){v8SimMsg('Faça a consulta do CPF primeiro.');return;}
   const parc=v8Num(v8$('v8Parc').value);v8SimMsg('');
   if(v8C)v8Simular();
-  if(unnoApp)unnoSimular(parc);}
+  if(unnoApp)unnoSimular(parc);
+  if(hubApp)hubSimular(parc);}
 /* ===== Consulta salva por CPF (neste navegador) ===== */
 const SALVA_KEY='gm_consultas_v1',SALVA_TTL=3*3600*1000;
 function salvaTudo(){try{return JSON.parse(localStorage.getItem(SALVA_KEY)||'{}')||{};}catch(e){return{};}}
@@ -2532,14 +2585,15 @@ function salvaLimpa(cpf){try{const t=salvaTudo();delete t[cpf];localStorage.setI
 function salvaAviso(e){const el=v8$('v8Salva'),h=new Date(e.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   el.innerHTML='Consulta salva de '+h+' · é só digitar a parcela e simular.<a onclick="v8Consultar(null,true)">Refazer consulta</a>';el.hidden=false;}
 function salvaRestaurar(cpf,e){
-  v8Seq++;v8SimSeq++;unnoSeq++;v8CpfAnt=cpf;v8Msg('');v8$('v8Res').innerHTML='';v8Final=[];unnoOfs=[];
+  v8Seq++;v8SimSeq++;unnoSeq++;hubSeq++;v8CpfAnt=cpf;hubOfs=[];hubApp=e.hubApp||'';hubAppCpf=hubApp?cpf:'';v8Msg('');v8$('v8Res').innerHTML='';v8Final=[];unnoOfs=[];
   v8C=e.v8C||null;v8Lim=e.v8Lim||[];unnoApp=e.unnoApp||'';unnoAppCpf=unnoApp?cpf:'';
   if(v8C){v8$('v8Res').innerHTML='<div class="v8-card"><small>'+esc(v8C.nome||'')+(v8C.nome?' · ':'')+'CPF '+esc(v8FmtCpf(cpf))+'</small><small>Margem disponível (parcela máxima por mês)</small><b class="big">'+brlFull(v8C.margem)+'</b></div>';v8Opcoes('');}
   v8$('v8Box').hidden=!(e.v8Sim);
   if(e.v8Sim){v8Final=(e.v8Sim.lista||[]).slice();v8$('v8Ofertas').innerHTML=v8Cards(e.v8Sim.lista||[],e.v8Sim.parc,e.v8Sim.lim,e.v8Sim.erros||[],e.v8Sim.ajust);}
+  v8$('hubBox').hidden=!(e.hubD);if(e.hubD){v8$('hubRes').innerHTML='';hubMostrar(e.hubD);}
   v8$('unnoBox').hidden=!(e.unnoD);
   if(e.unnoD){v8$('unnoRes').innerHTML='';unnoMostrar(e.unnoD);}
-  v8$('v8SimBox').hidden=!(v8C||unnoApp);melhorRender();salvaAviso(e);
+  v8$('v8SimBox').hidden=!(v8C||unnoApp||hubApp);melhorRender();salvaAviso(e);
   if(v8Num(v8$('v8Parc').value))simularAmbos();}
 function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_tela',telaAtual);try{history.replaceState(null,'','#tela-'+telaAtual);}catch(e){}
   TELAS.forEach(t=>{document.getElementById('v-'+t).hidden=telaAtual!==t;});
