@@ -1,0 +1,6 @@
+-- 073 (aplicado em 13/11):
+--  * regras_gerais: "RESPOSTA AUTOMÁTICA DE EMPRESA ... encerrar número errado" virou "MENSAGEM AUTOMÁTICA": a Ana não responde
+--    e não encerra; responde exatamente [SILENCIO]. n8n "GM Cred · Agente" → "Dividir em balões": [SILENCIO] = nenhum balão (não envia nada).
+--  * regras_gerais: "Não prometa prazo de liberação" virou: se perguntar quando cai, depois da assinatura cai no PIX em até 3 horas, se estiver tudo certo.
+--  * respostas_prontas "Quanto tempo para cair o dinheiro?": "Depois que você assina, o valor cai no seu PIX em até 3 horas, se estiver tudo certo."
+--  * ajuste: frase sem "PIX": "Depois da assinatura, o dinheiro costuma cair em até 3 horas 😊" (regra e resposta pronta).

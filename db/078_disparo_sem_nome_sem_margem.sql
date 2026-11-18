@@ -1,0 +1,5 @@
+-- 078 (aplicado em 13/11): 6 mensagens do disparo 12 saíram ", consta no seu CPF uma margem de até uma boa parcela"
+--   (lista importada às 19:27 com o painel ainda na versão antiga: só telefone, sem CPF → sem nome e sem margem).
+--  * disparo 12: nome, CPF e margem preenchidos pelos 44 contatos (lista CPF+telefone do dono) — os 38 da fila saem certos.
+--  * disparo_render: sem nome, tira "{nome}," e começa a frase com maiúscula ("Consta no seu CPF...").
+--  * disparo_passo: mensagem com {margem} e contato sem margem → não envia (removido, "sem margem para a mensagem").

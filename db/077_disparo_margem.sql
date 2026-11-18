@@ -1,0 +1,5 @@
+-- 077 (aplicado em 13/11): variável {margem} no disparo.
+--  * disparo_contatos ganhou cpf e margem. Importar aceita colunas nome/telefone/cpf/margem; se vier CPF sem margem,
+--    pega nome e margem da base de higienizados (public.meus_leads).
+--  * disparo_passo: {margem} vira "R$ 1.234,56" (credito.disparo_margem_txt; sem ",00"); sem margem vira "uma boa parcela".
+--  * Teste do disparo: {margem} vira "R$ 1.234,56" de exemplo. IA de variações mantém {margem}.

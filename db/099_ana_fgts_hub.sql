@@ -1,0 +1,20 @@
+-- 099 (aplicada direto no banco via MCP): Ana atende FGTS pela HUB
+--
+-- Config credito.configuracoes 'hub_fgts': cpf_atendente, loja_id 9562, tabelas ["MEGA POWER","SONHO DO CORBAN"],
+--   limite_robo_dia (0 = robô de higienização da HUB parado), ana_ativa (false = só leads de teste usam a Ana no FGTS).
+-- credito.hub_uso (dia, robo, ana, limite_em): limite diário de consultas FGTS da loja na HUB.
+--   hub_gravar: "atingiu o limite de consultas" -> volta pra fila e marca o dia; hub_tarefas para no limite do robô.
+-- credito.leads.fgts jsonb: cpf, cadastro (HUB obter-dados-cliente), v8 (dados básicos), sim {banc, tabelas},
+--   oferta / oferta_ordem, conta, conta_confirmada, mae, nascimento, proposta_id, situacao, url, avisado_*.
+-- credito.bancos_compe + banco_codigo(texto): nome/apelido/código -> código COMPE.
+-- Funções: cpf_ok, fgts_brl, fgts_oferta(lead, ordem), fgts_faltando, fgts_payload (POST /api/proposta da HUB),
+--   fgts_preparar(lead, acao, p) / fgts_gravar(lead, acao, r)  [acoes: simular, outra_tabela, dados, enviar, status],
+--   fgts_valores (trava de valor), fgts_prompt (bloco do system da Ana quando produto = 'fgts'), fgts_acompanhar().
+-- contexto_agente: inclui fgts_prompt e os valores do FGTS em valores_ok.
+-- receber_wpp_v2: com hub_fgts.ana_ativa (ou lead de teste) marca produto = 'fgts' e não manda para o humano.
+-- V8 Ferramentas: nova ação dados_basicos (só lê nome/nascimento/sexo, não cria consulta de margem).
+--
+-- n8n: prm2lvEyUNoirtep "GM Cred · HUB FGTS" (cadastro HUB + V8 + simulação BMP->J17, envio, status;
+--      a cada 3 min acompanha propostas e avisa o cliente pela Ana no modo 'aviso').
+--      Agente ceV79RE3AkcDNRXd: ferramentas fgts_simular, fgts_melhorar_valor, fgts_dados, fgts_enviar_proposta, fgts_status_proposta.
+-- Docs HUB: https://api-docs.hubcredito.com.br/docs/Proposta/FGTS/envio

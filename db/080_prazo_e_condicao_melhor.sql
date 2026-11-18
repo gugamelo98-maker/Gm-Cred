@@ -1,0 +1,8 @@
+-- 080 (aplicado em 13/11) — caso Luis (lead 345): Ana ofereceu "46x = R$ 1.238,68" (não existe) e "condição melhor" que liberava menos.
+--  * credito.prazos_cliente(lead): prazos da V8 para o cliente (limites → ofertas → padrão 36..6). contexto_agente mostra
+--    "PRAZOS que existem para este cliente ... NUNCA ofereça outro prazo nem calcule valores de cabeça" e devolve 'prazos' no ctx.
+--  * "Condição melhor" (sem seguro) só entra se liberar MAIS do que o cliente já viu (ofertas com seguro e valores da mensagem
+--    apresentada); senão não aparece e 'liberado' fica falso (a trava de "condição melhor" no n8n segura a frase).
+--  * Retomada: não repete oferta/frase já enviada; se já ofereceu e ele não respondeu, só pergunta de leve se conseguiu ver.
+--  * n8n Agente (Dividir em balões): trava de prazo — "NNx / NN vezes / NN parcelas" fora dos prazos do cliente (de 6 a 120)
+--    troca a mensagem por "O prazo máximo pra você é de 36x. Quer que eu veja com outra parcela?".

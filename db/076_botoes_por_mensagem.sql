@@ -1,0 +1,6 @@
+-- 076 (aplicado em 13/11): imagem, rodapé e botões passam a ser de CADA mensagem do disparo (antes eram do disparo inteiro).
+--  * mensagens[i].extra = {imagem, rodape, botoes}; credito.disparo_extra_limpo(e) limpa; credito.disparo_extra_da_msg(disparo, msg)
+--    devolve o extra da mensagem (ou o do disparo, para os antigos).
+--  * disparo_passo e o teste do disparo_api usam o extra da mensagem sorteada; salvar grava o extra de cada mensagem.
+--  * Disparos existentes: cada mensagem recebeu uma cópia do extra do disparo (nada mudou no envio).
+--  * Painel: dpEd.imagem/rodape/botoes apontam para a mensagem da aba aberta; "+ Mensagem" copia os da mensagem atual.
