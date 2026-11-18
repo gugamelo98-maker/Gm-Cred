@@ -785,6 +785,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <h5>Configurações</h5>
   <div class="mais-grid">
     <button data-v="numeros" onclick="irPara('numeros')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Números</button>
+    <button data-v="bms" onclick="irPara('bms')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>BMs Meta</button>
     <button data-v="maturador" onclick="irPara('maturador')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></svg>Maturador</button>
     <button data-v="agentes" onclick="irPara('agentes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>Agentes</button>
     <button data-v="indicacoes" onclick="irPara('indicacoes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3.5 8 4.2 9 8 12 8zm0 0s1.5-4.5 4-3.8S15 8 12 8z"/></svg>Indicações</button>
@@ -798,6 +799,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <div class="subnav" id="wppTabs" hidden>
   <div class="wseg" role="tablist" aria-label="Configurações">
     <button data-w="numeros" onclick="irPara('numeros')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Números</button>
+    <button data-w="bms" onclick="irPara('bms')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>BMs Meta</button>
     <button data-w="maturador" onclick="irPara('maturador')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></svg>Maturador</button>
     <button data-w="agentes" onclick="irPara('agentes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>Agentes</button>
     <button data-w="indicacoes" onclick="irPara('indicacoes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3.5 8 4.2 9 8 12 8zm0 0s1.5-4.5 4-3.8S15 8 12 8z"/></svg>Indicações</button>
@@ -892,6 +894,16 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
 <section class="ag-sec"><div class="dp-wrap">
   <aside class="fbox dp-lista"><div id="ofCx"></div><div class="dp-lt"><h4>Disparos oficiais</h4><button class="bt pri" onclick="ofCarregar('criar')">+ Novo</button></div><div id="ofLista"><div class="vazio">Carregando…</div></div></aside>
   <div id="ofDet" class="dp-det"></div>
+</div></section>
+</div>
+
+<div class="view" id="v-bms" hidden>
+<section class="ag-sec"><div class="ag-grid">
+  <div class="fbox"><div class="rs-top"><h4>🟢 BMs da Meta (API oficial)</h4><button class="bt pri" onclick="bmNova()">+ Nova BM</button></div>
+    <div class="rs-nota" style="margin:0 0 10px">Cada BM é uma conexão com a Meta (número, WABA e token). Cadastre quantas precisar: na aba <b>API oficial</b> você escolhe por qual BM cada disparo sai.</div>
+    <div class="v8-msg" id="bmMsg" role="status"></div><div id="bmLista"></div></div>
+  <div class="fbox" id="bmEdBox" hidden></div>
+  <div class="fbox" id="bmWebhook"></div>
 </div></section>
 </div>
 
@@ -2002,13 +2014,16 @@ async function ofCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
   catch(e){ofMsg='⚠️ Não consegui falar com o servidor ('+e.message+').';ofRender();return null;}
   if(acao==='criar'&&ofD.atual){ofSel=ofD.atual;lsSet('escritorio_of',ofSel);ofEd=null;}
   if(acao==='apagar'){ofSel=0;ofEd=null;}
-  if(acao==='conexao'&&!ofD.erro)ofCxAberta=false;
+  
   ofMsg=ofD.erro?'⚠️ '+ofD.erro:(ofD.aviso?'✓ '+ofD.aviso:(acao==='ver'?ofMsg:''));
   ofRender();ofAgendar();return ofD;}
 function ofAgendar(){clearTimeout(ofTimer);if(telaAtual!=='oficial')return;const at=(ofD&&ofD.disparos||[]).some(d=>d.status==='ativo');ofTimer=setTimeout(()=>{if(telaAtual==='oficial'&&!(ofEd&&ofEd.sujo))ofCarregar('ver');else ofAgendar();},at?15000:60000);}
 function ofAtual(){return (ofD&&ofD.disparos||[]).find(d=>d.id===ofSel)||null;}
 function ofEscolher(id){if(ofEd&&ofEd.sujo&&!confirm('Tem alterações não salvas. Trocar mesmo assim?'))return;ofSel=id;lsSet('escritorio_of',id);ofEd=null;ofMsg='';ofCarregar('ver');}
-function ofTpls(){return ((ofD&&ofD.conexao&&ofD.conexao.templates)||[]).filter(t=>t.status==='APPROVED');}
+function ofBms(){return (ofD&&ofD.conexao&&ofD.conexao.bms)||[];}
+function ofBmAtual(){const d=ofEd||ofAtual()||{},L=ofBms();return L.find(b=>+b.id===+d.bm_id)||null;}
+function ofTpls(){const b=ofBmAtual();return ((b&&b.templates)||[]).filter(t=>t.status==='APPROVED');}
+function ofBmNome(b){const n=b.numero||{};return b.nome+' · '+(n.telefone||b.phone_id||'sem número')+(b.ativo?'':' (desativada)');}
 function ofVars(txt){const m=String(txt||'').match(/\{\{\s*(\d+)\s*\}\}/g)||[];return Math.max(0,...m.map(x=>+x.replace(/\D/g,'')));}
 const OF_Q={GREEN:['Alta','#0f7a4f'],YELLOW:['Média','#8a6200'],RED:['Baixa','#b42318'],UNKNOWN:['Sem nota ainda','#5b6878'],HIGH:['Alta','#0f7a4f'],MEDIUM:['Média','#8a6200'],LOW:['Baixa','#b42318']};
 function ofQ(q){const x=OF_Q[String(q||'').toUpperCase()];return x?`<b style="color:${x[1]}">${x[0]}</b>`:esc(q||'—');}
@@ -2032,27 +2047,17 @@ function ofEvTxt(e){const v=e.valor||{},c=e.campo;
 function ofEvVis(L){const out=[];(L||[]).forEach(e=>{if(e.campo==='inscricao_app'||(e.campo==='account_update'&&(e.valor||{}).event==='WEBHOOK_CONFIG_UPDATED'))return;const t=ofEvTxt(e),u=out.find(x=>x.t===t);if(u)u.n++;else out.push(Object.assign({t,n:1},e));});return out;}
 function ofAlerta(C){const ev=C.eventos||[],ban=(C.numero&&C.numero.status==='BANNED')||ev.some(e=>e.campo==='account_update'&&(e.valor||{}).event==='DISABLED_UPDATE'),vio=ev.find(e=>e.campo==='account_update'&&(e.valor||{}).event==='ACCOUNT_VIOLATION');
   if(!ban)return '';return `<div style="background:#fde8e8;border:1px solid #f5b5b5;color:#7a1414;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.45"><b>🚫 Número bloqueado pela Meta</b><br>${vio?'Motivo: '+esc(({SPAM:'spam (mensagens indesejadas)'})[(vio.valor.violation_info||{}).violation_type]||(vio.valor.violation_info||{}).violation_type||'não informado')+'.<br>':''}Enquanto estiver assim, nenhuma mensagem sai por esta conta. Peça revisão no Gerenciador do WhatsApp → Visão geral da conta.</div>`;}
-function ofRenderCx(){const C=(ofD&&ofD.conexao)||{},ok=C.tem_token&&C.phone_id,el=document.getElementById('ofCx');const nT=ofTpls().length;
-  if(!ofCxAberta&&ok){el.innerHTML=`<div class="of-cx">${ofAlerta(C)}<b>${ofAlerta(C)?'Conectado à Meta':'✅ Conectado à Meta'}</b><small>Número ${esc(C.phone_id)} · ${nT} mensagem(ns) modelo aprovada(s)${C.templates_em?' · atualizado '+new Date(C.templates_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}</small>${C.templates_erro?`<small style="color:#b42318">⚠️ ${esc(C.templates_erro)}</small>`:''}
-    ${C.numero?`<small>📱 ${esc(C.numero.telefone||'')} ${C.numero.nome?'· '+esc(C.numero.nome):''}<br>Qualidade do número: ${ofQ(C.numero.qualidade)} · Limite: ${C.numero.limite?ofLimite(C.numero.limite):'—'}${C.numero.nome_status&&!['APPROVED','AVAILABLE_WITHOUT_REVIEW'].includes(C.numero.nome_status)?'<br>Nome de exibição: '+(({DECLINED:'<b style="color:#b42318">recusado pela Meta</b>',PENDING_REVIEW:'em análise',EXPIRED:'expirado'})[C.numero.nome_status]||esc(C.numero.nome_status)):''}</small>`:''}
-    ${C.metricas_erro?`<small style="color:#8a6200">Totais das mensagens: ${esc(C.metricas_erro)}</small>`:''}
-    ${C.qualidade_numero?`<small>Último aviso de qualidade: ${ofEvTxt({campo:'phone_number_quality_update',valor:C.qualidade_numero})}</small>`:''}
-    <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="bt" onclick="ofCarregar('templates')">Atualizar mensagens modelo</button><button class="bt" onclick="ofCxAberta=true;ofRenderCx()">Editar conexão</button></span>
-    <details${ofEvVis(C.eventos).length?'':' hidden'}><summary style="cursor:pointer;font-weight:600">Avisos da Meta (${ofEvVis(C.eventos).length})</summary><div style="display:flex;flex-direction:column;gap:5px;margin-top:6px">${ofEvVis(C.eventos).map(e=>`<small>${ofEvTxt(e)}${e.n>1?' <span style="color:var(--tx3)">('+e.n+'x)</span>':''}<br><span style="color:var(--tx3)">${new Date(e.em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span></small>`).join('')}</div></details></div>`;return;}
-  el.innerHTML=`<div class="of-cx"><b>Conexão com a Meta</b>
-    <label>Phone Number ID<input id="ofPh" inputmode="numeric" value="${esc(C.phone_id||'')}" placeholder="Ex.: 123456789012345"></label>
-    <label>ID da conta do WhatsApp Business (WABA)<input id="ofWa" inputmode="numeric" value="${esc(C.waba_id||'')}" placeholder="Ex.: 109876543210987"></label>
-    <label>Token de acesso<input id="ofTk" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore style="-webkit-text-security:disc" placeholder="${C.tem_token?'•••• termina em '+esc(C.token_fim)+' (deixe vazio para manter)':'Cole o token permanente'}"></label>
-    <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="bt pri" onclick="ofSalvarCx()">Salvar e buscar mensagens</button>${ok?'<button class="bt" onclick="ofCxAberta=false;ofRenderCx()">Cancelar</button>':''}</span>
-    ${C.verify_token?`<small>Para ver entregue / lida: no app da Meta, em WhatsApp → Configuração → Webhook, cole<br>URL: <code>${esc(C.webhook_url)}</code><br>Token de verificação: <code>${esc(C.verify_token)}</code><br>e assine o campo <b>messages</b>.</small>`:''}</div>`;}
-function ofSalvarCx(){const v=id=>document.getElementById(id).value.trim();ofCarregar('conexao',{phone_id:v('ofPh'),waba_id:v('ofWa'),token:v('ofTk')});}
+function ofRenderCx(){const L=ofBms(),el=document.getElementById('ofCx');if(!el)return;
+  const ban=L.find(b=>b.numero&&b.numero.status==='BANNED');
+  el.innerHTML=!L.length?'<div class="of-cx"><b>Nenhuma BM cadastrada</b><small>Para disparar pela API oficial, cadastre uma conexão em <a onclick="irPara(\'bms\')" style="cursor:pointer;text-decoration:underline">Configurações › BMs Meta</a>.</small></div>'
+    :ban?'<div style="background:#fde8e8;border:1px solid #f5b5b5;color:#7a1414;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.45"><b>🚫 Número bloqueado pela Meta</b><br>A BM “'+esc(ban.nome)+'” está bloqueada: nenhuma mensagem sai por ela. Veja em <a onclick="irPara(\'bms\')" style="cursor:pointer;text-decoration:underline">Configurações › BMs Meta</a>.</div>':'';}
 function ofRender(){if(!ofD)return;ofRenderCx();const L=ofD.disparos||[],el=document.getElementById('ofLista');
   if(ofSel&&!L.some(d=>d.id===ofSel))ofSel=0;if(!ofSel&&L.length){ofSel=L[0].id;}
   el.innerHTML=L.length?L.map(d=>{const st=DP_ST[d.status]||DP_ST.rascunho,R=d.resumo||{},t=+R.total||0,env=+R.enviadas||0;return `<button class="dp-it ${d.id===ofSel?'on':''}" onclick="ofEscolher(${d.id})"><span class="dp-it-t"><b>${esc(d.nome)}</b><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span></span><small>${env} de ${t} enviadas · ${R.chamaram||0} chamaram</small><i style="width:${t?Math.round(env/t*100):0}%"></i></button>`;}).join(''):'<div class="vazio">Nenhum disparo ainda. Clique em “+ Novo”.</div>';
   const det=document.getElementById('ofDet'),d=ofAtual();
   if(!d){det.innerHTML='<div class="fbox"><div class="vazio">Crie um disparo para começar.</div></div>';return;}
   if(ofD.atual!==d.id&&!ofD.contatos){ofCarregar('ver');return;}
-  if(!ofEd||ofEd.id!==d.id)ofEd={id:d.id,nome:d.nome,template:d.template||'',idioma:d.idioma||'',corpo:(d.corpo||[]).map(v=>({tipo:v.tipo==='nome'?'nome':'texto',texto:v.texto||'',padrao:v.padrao||''})),cabecalho_imagem:d.cabecalho_imagem||'',botao_sufixo:d.botao_sufixo||'',botao_telefone:!!d.botao_telefone,por_minuto:d.por_minuto,hora_inicio:d.hora_inicio,hora_fim:d.hora_fim,sujo:false};
+  if(!ofEd||ofEd.id!==d.id)ofEd={id:d.id,bm_id:d.bm_id||null,nome:d.nome,template:d.template||'',idioma:d.idioma||'',corpo:(d.corpo||[]).map(v=>({tipo:v.tipo==='nome'?'nome':'texto',texto:v.texto||'',padrao:v.padrao||''})),cabecalho_imagem:d.cabecalho_imagem||'',botao_sufixo:d.botao_sufixo||'',botao_telefone:!!d.botao_telefone,por_minuto:d.por_minuto,hora_inicio:d.hora_inicio,hora_fim:d.hora_fim,sujo:false};
   if(ofEd.sujo&&det.contains(document.activeElement)){ofPintarKpi(d);return;}
   ofDesenhar(d);}
 function ofPintarKpi(d){const k=document.getElementById('ofKpi');if(!k)return;const R=d.resumo||{};
@@ -2064,12 +2069,14 @@ function ofDesenhar(d){const E=ofEd,det=document.getElementById('ofDet'),st=DP_S
   const TP=ofTpls(),T=TP.find(t=>t.nome===E.template&&t.idioma===E.idioma),C=ofD.contatos||[],R=d.resumo||{};
   let prev=T?String(T.corpo||''):'';E.corpo.forEach((v,i)=>{prev=prev.split('{{'+(i+1)+'}}').join(v.tipo==='nome'?'[primeiro nome]':(v.texto||'[texto]'));});
   det.innerHTML=`
-  <div class="fbox dp-cab"><div class="dp-cab-t"><input class="dp-nome" value="${esc(E.nome)}" maxlength="60" aria-label="Nome do disparo" oninput="ofEd.nome=this.value;ofMudou()"><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span>
+  <div class="fbox dp-cab"><div class="dp-cab-t"><input class="dp-nome" value="${esc(E.nome)}" maxlength="60" aria-label="Nome do disparo" oninput="ofEd.nome=this.value;document.getElementById('ofSt').textContent='nome não salvo (saia do campo ou aperte Enter)'" onchange="ofSalvarNome(this)" onkeydown="if(event.key==='Enter')this.blur()"><span class="cp-st" style="background:${st[1]};color:${st[2]}">${st[0]}</span>
     <span class="dp-acoes">${ativo?`<button class="bt" onclick="ofCarregar('pausar')">Pausar</button>`:fim?'':`<button class="bt pri" onclick="ofComecar()">${d.status==='pausado'?'Continuar':'Começar disparo'}</button>`}${!fim&&d.status!=='rascunho'?`<button class="bt" onclick="if(confirm('Encerrar este disparo? Quem ainda está na fila não recebe.'))ofCarregar('encerrar')">Encerrar</button>`:''}${!(+R.enviadas)?`<button class="bt" onclick="if(confirm('Apagar este disparo?'))ofCarregar('apagar')">Apagar</button>`:''}</span></div>
     <div class="cpe-h" id="ofSt" style="margin-top:6px">${esc(ofMsg)}</div>
     <div class="of-k" id="ofKpi"></div></div>
+  <div class="fbox"><h4>Enviar por</h4>
+    ${ofBms().length?`<select class="of-in" style="width:100%" onchange="ofEscolherBm(this.value)"><option value="">Escolha a BM (número de envio)…</option>${ofBms().map(b=>`<option value="${b.id}" ${+b.id===+E.bm_id?'selected':''} ${b.ativo?'':'disabled'}>${esc(ofBmNome(b))}</option>`).join('')}</select>`:'<div class="vazio">Nenhuma BM cadastrada. Cadastre em Configurações › BMs Meta.</div>'}</div>
   <div class="fbox"><h4>Mensagem modelo</h4>
-    ${TP.length?`<select class="of-in" style="width:100%" onchange="ofEscolherTpl(this.value)"><option value="">Escolha uma mensagem aprovada…</option>${TP.map(t=>`<option value="${esc(t.nome+'|'+t.idioma)}" ${t.nome===E.template&&t.idioma===E.idioma?'selected':''}>${esc(t.nome)} · ${esc(t.idioma)} · ${esc((t.categoria||'').toLowerCase())}${t.qualidade?' · qualidade '+esc((OF_Q[String(t.qualidade).toUpperCase()]||[t.qualidade])[0]):''}</option>`).join('')}</select>`:'<div class="vazio">Nenhuma mensagem modelo aprovada encontrada. Confira a conexão ao lado e clique em “Atualizar mensagens modelo”.</div>'}
+    ${!E.bm_id?'<div class="vazio">Escolha primeiro a BM de envio.</div>':TP.length?`<select class="of-in" style="width:100%" onchange="ofEscolherTpl(this.value)"><option value="">Escolha uma mensagem aprovada…</option>${TP.map(t=>`<option value="${esc(t.nome+'|'+t.idioma)}" ${t.nome===E.template&&t.idioma===E.idioma?'selected':''}>${esc(t.nome)} · ${esc(t.idioma)} · ${esc((t.categoria||'').toLowerCase())}${t.qualidade?' · qualidade '+esc((OF_Q[String(t.qualidade).toUpperCase()]||[t.qualidade])[0]):''}</option>`).join('')}</select>`:'<div class="vazio">Nenhuma mensagem modelo aprovada encontrada. Confira a BM em Configurações › BMs Meta e clique em “Atualizar modelos”.</div>'}
     ${T?`<small class="cpe-h" style="display:block;margin-top:8px">Qualidade desta mensagem na Meta: ${ofQ(T.qualidade||'UNKNOWN')}${T.motivo?' · '+esc(T.motivo):''}${T.metricas?`<br>Últimos 30 dias (Meta): <b>${T.metricas.enviadas}</b> enviadas · <b>${T.metricas.entregues}</b> entregues · <b>${T.metricas.lidas}</b> lidas · <b>${T.metricas.cliques}</b> cliques${T.metricas.enviadas?` (${Math.round(T.metricas.entregues/T.metricas.enviadas*100)}% entregues, ${Math.round(T.metricas.lidas/T.metricas.enviadas*100)}% lidas)`:''}<br>Hoje: ${T.metricas.hoje.enviadas} enviadas · ${T.metricas.hoje.entregues} entregues · ${T.metricas.hoje.lidas} lidas`:''}</small><div class="of-prev" id="ofPrev" style="margin-top:10px">${esc(prev)}${(T.botoes||[]).length?'\n\n'+T.botoes.map(b=>'🔘 '+esc(b.texto)).join('   '):''}</div>
       ${E.corpo.map((v,i)=>`<div class="of-var"><b>{{${i+1}}}</b><select onchange="ofEd.corpo[${i}].tipo=this.value;ofMudou(true)"><option value="nome" ${v.tipo==='nome'?'selected':''}>Primeiro nome do cliente</option><option value="texto" ${v.tipo!=='nome'?'selected':''}>Texto fixo</option></select>${v.tipo==='nome'?`<input placeholder="Se não tiver nome, usar…" value="${esc(v.padrao)}" oninput="ofEd.corpo[${i}].padrao=this.value;ofMudou()">`:`<input placeholder="Texto" value="${esc(v.texto)}" oninput="ofEd.corpo[${i}].texto=this.value;ofMudou();ofPrevMsg()">`}</div>`).join('')}
       ${T.cabecalho==='IMAGE'?`<div class="of-var"><b>Imagem</b><input style="flex:1" placeholder="https://… (link da imagem)" value="${esc(E.cabecalho_imagem)}" oninput="ofEd.cabecalho_imagem=this.value;ofMudou()"></div>`:''}
@@ -2081,18 +2088,64 @@ function ofDesenhar(d){const E=ofEd,det=document.getElementById('ofDet'),st=DP_S
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px"><input type="file" accept=".csv,.txt" onchange="ofArquivo(this)"><button class="bt pri" id="ofImpBt" disabled onclick="ofImportar()">Importar</button><span class="cpe-h" id="ofImpPrev"></span>${+R.na_fila?`<button class="bt" style="margin-left:auto" onclick="if(confirm('Tirar da fila os ${+R.na_fila} que ainda não receberam?'))ofCarregar('limpar_fila')">Limpar fila</button>`:''}</div></div>
   <div class="fbox"><h4>Contatos <small class="cpe-h">(últimos 300)</small></h4>${C.length?`<div style="overflow:auto"><table class="of-tab"><thead><tr><th>Telefone</th><th>Nome</th><th>Situação</th><th>Enviada</th><th>Clicou</th><th>Chamou o 6775</th><th>Resposta no oficial</th></tr></thead><tbody>${C.map(c=>{const s=OF_CT[c.lido_em?'read':c.entregue_em?'delivered':c.status]||[c.status,'#eef1f5','#5b6878'];const h=t=>t?new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';return `<tr><td>${fmtTel(c.telefone)}</td><td>${esc(c.nome||'—')}</td><td><span class="cp-st" style="background:${s[1]};color:${s[2]}">${s[0]}</span>${c.erro?`<br><small style="color:#b42318">${esc(c.erro)}</small>`:''}</td><td>${h(c.enviado_em)}</td><td>${c.clicou_em?'✅ '+h(c.clicou_em):'—'}</td><td>${c.lead_id?'✅':'—'}</td><td>${c.resposta?esc(c.resposta):'—'}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="vazio">Nenhum contato ainda.</div>'}</div>`;
   ofPintarKpi(d);ofPrevImp();}
+function ofEscolherBm(v){ofEd.bm_id=v?+v:null;ofEd.template='';ofEd.idioma='';ofEd.corpo=[];ofEd.cabecalho_imagem='';ofMudou(true);}
 function ofBotaoVar(T){return ((T&&T.botoes)||[]).find(b=>b.tipo==='URL'&&/\{\{\s*1\s*\}\}/.test(b.url||''))||null;}
 function ofPrevMsg(){const el=document.getElementById('ofPrev'),E=ofEd;if(!el||!E)return;const T=ofTpls().find(t=>t.nome===E.template&&t.idioma===E.idioma);if(!T)return;let p=String(T.corpo||'');E.corpo.forEach((v,i)=>{p=p.split('{{'+(i+1)+'}}').join(v.tipo==='nome'?'[primeiro nome]':(v.texto||'[texto]'));});el.textContent=p+((T.botoes||[]).length?'\n\n'+T.botoes.map(b=>'🔘 '+b.texto).join('   '):'');}
 function ofPrevImp(){const t=document.getElementById('ofTexto');if(!t)return;ofLinhas=cpLer(t.value);const b=document.getElementById('ofImpBt'),p=document.getElementById('ofImpPrev');if(b)b.disabled=!ofLinhas.length;if(p)p.textContent=ofLinhas.length?ofLinhas.length+' contato(s) prontos para importar':'';}
 function ofArquivo(inp){const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{document.getElementById('ofTexto').value=String(fr.result);ofPrevImp();};fr.readAsText(f);}
+async function ofSalvarNome(inp){const nome=(inp.value||'').trim();
+  if(!nome){inp.value=ofEd.nome=(ofAtual()||{}).nome||'';ofMsg='O nome não pode ficar vazio.';const s0=document.getElementById('ofSt');if(s0)s0.textContent=ofMsg;return;}
+  const keep=ofEd;ofEd.nome=nome;const r=await ofCarregar('salvar',{nome});ofEd=keep;
+  ofMsg=r&&!r.erro?'✅ Nome salvo':'⚠️ Não consegui salvar o nome';const st=document.getElementById('ofSt');if(st)st.textContent=ofMsg;}
 async function ofSalvar(){const E=ofEd;if(!E)return false;{const T=ofTpls().find(t=>t.nome===E.template&&t.idioma===E.idioma);if(ofBotaoVar(T)&&!E.botao_telefone&&!(E.botao_sufixo||'').trim()){ofMsg='⚠️ Preencha o final do link do botão: a Meta exige.';document.getElementById('ofSt').textContent=ofMsg;return false;}}if(+E.hora_fim<=+E.hora_inicio){ofMsg='⚠️ O horário de fim precisa ser depois do início.';document.getElementById('ofSt').textContent=ofMsg;return false;}
-  E.sujo=false;const r=await ofCarregar('salvar',{nome:E.nome.trim(),template:E.template,idioma:E.idioma,corpo:JSON.stringify(E.corpo),cabecalho_imagem:E.cabecalho_imagem.trim(),botao_telefone:String(!!E.botao_telefone),botao_sufixo:(E.botao_sufixo||'').trim(),hora_inicio:E.hora_inicio,hora_fim:E.hora_fim});
+  E.sujo=false;const r=await ofCarregar('salvar',{nome:E.nome.trim(),bm_id:E.bm_id||'',template:E.template,idioma:E.idioma,corpo:JSON.stringify(E.corpo),cabecalho_imagem:E.cabecalho_imagem.trim(),botao_telefone:String(!!E.botao_telefone),botao_sufixo:(E.botao_sufixo||'').trim(),hora_inicio:E.hora_inicio,hora_fim:E.hora_fim});
   if(r&&!r.erro){ofEd=null;ofRender();}return !!(r&&!r.erro);}
 async function ofTeste(){if(ofEd&&ofEd.sujo){if(!await ofSalvar())return;}const tel=(document.getElementById('ofTelTeste')||{}).value||'';ofMsg='Enviando teste…';const st=document.getElementById('ofSt');if(st)st.textContent=ofMsg;await ofCarregar('teste',{telefone:tel});}
 async function ofImportar(){if(!ofLinhas.length)return;if(ofEd&&ofEd.sujo){if(!await ofSalvar())return;}const b=document.getElementById('ofImpBt');if(b){b.disabled=true;b.textContent='Importando…';}
   await ofCarregar('importar',{linhas:JSON.stringify(ofLinhas.map(l=>({nome:l.nome||'',telefone:l.telefone||''})))});ofLinhas=[];}
 async function ofComecar(){if(ofEd&&ofEd.sujo){if(!await ofSalvar())return;}const d=ofAtual();if(!d)return;const R=d.resumo||{};
   if(!confirm(`Começar o disparo “${d.nome}” pela API oficial?\n\n${R.na_fila||0} contatos na fila · tudo de uma vez (das ${d.hora_inicio}h às ${d.hora_fim}h).\nA Meta cobra cada mensagem enviada.`))return;ofCarregar('ativar');}
+
+/* ===== BMs da Meta (Configurações) ===== */
+let bmD=null,bmEd=null,bmMsg='';
+async function bmCarregar(acao,extra){acao=acao||'ver';extra=extra||{};
+  if(demo){document.getElementById('bmLista').innerHTML='<div class="vazio">Disponível só com o sistema ligado.</div>';return null;}
+  if(!chave){pedirChave();return null;}
+  const bt=document.getElementById('bmMsg');if(bt&&acao!=='ver')bt.textContent=acao==='templates'||acao==='bm_salvar'?'Falando com a Meta…':'Salvando…';
+  try{const r=await fetch(BASE+'/escritorio/oficial',{method:'POST',body:new URLSearchParams({k:chave,acao,...extra})});
+    if(r.status===401){pedirChave('Chave inválida ou desativada.');return null;}if(!r.ok)throw new Error('HTTP '+r.status);bmD=await r.json();}
+  catch(e){bmMsg='⚠️ Não consegui falar com o servidor ('+e.message+').';bmRender();return null;}
+  if(ofD&&bmD.conexao)ofD.conexao=bmD.conexao;
+  if((acao==='bm_salvar'&&(bmD.aviso||!bmD.erro))||(acao==='bm_remover'&&!bmD.erro))bmEd=null;
+  bmMsg=bmD.erro?'⚠️ '+bmD.erro:(bmD.aviso?'✓ '+bmD.aviso:'');
+  bmRender();return bmD;}
+function bmNova(){bmEd={id:null};bmRender();}
+function bmEditar(id){bmEd={id};bmRender();}
+function bmSalvar(){const v=id=>document.getElementById(id).value.trim();
+  if(!bmEd.id&&(!v('bmPh')||!v('bmWa')||!v('bmTk'))){bmMsg='⚠️ Preencha o Phone Number ID, o ID do WABA e o token da nova BM.';bmRender();return;}
+  bmCarregar('bm_salvar',{bm_id:bmEd.id||'',nome:v('bmNome'),phone_id:v('bmPh'),waba_id:v('bmWa'),token:v('bmTk')});}
+function bmRemover(id,nome){if(confirm('Remover a BM “'+nome+'”? Os disparos que usam ela ficam sem BM até você escolher outra.'))bmCarregar('bm_remover',{bm_id:id});}
+function bmRender(){const el=document.getElementById('bmLista');if(!el)return;document.getElementById('bmMsg').textContent=bmMsg;
+  const C=(bmD&&bmD.conexao)||{},L=C.bms||[];
+  const dh=t=>t?new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+  el.innerHTML=!bmD?'<div class="vazio">Carregando…</div>':L.length?L.map(b=>{const n=b.numero||{},nT=(b.templates||[]).filter(t=>t.status==='APPROVED').length,ban=n.status==='BANNED';
+    return `<div class="of-cx" style="margin-bottom:10px"><b>${esc(b.nome)} ${b.ativo?'':'<span class="cp-st" style="background:#eef1f5;color:#5b6878">Desativada</span>'}</b>
+      <small>📱 ${esc(n.telefone||b.phone_id||'—')}${n.nome?' · '+esc(n.nome):''}<br>Phone ID ${esc(b.phone_id||'—')} · WABA ${esc(b.waba_id||'—')}<br>Qualidade do número: ${ofQ(n.qualidade)} · Limite: ${n.limite?ofLimite(n.limite):'—'}${n.nome_status&&!['APPROVED','AVAILABLE_WITHOUT_REVIEW'].includes(n.nome_status)?'<br>Nome de exibição: '+(({DECLINED:'<b style="color:#b42318">recusado pela Meta</b>',PENDING_REVIEW:'em análise',EXPIRED:'expirado'})[n.nome_status]||esc(n.nome_status)):''}<br>${b.tem_token?nT+' mensagem(ns) modelo aprovada(s)'+(b.templates_em?' · atualizado '+dh(b.templates_em):''):'⚠️ Sem token'}</small>
+      ${b.templates_erro?`<small style="color:#b42318">⚠️ ${esc(b.templates_erro)}</small>`:''}
+      ${ban?'<small style="color:#b42318"><b>🚫 Número bloqueado pela Meta</b>: nenhuma mensagem sai por esta BM.</small>':''}
+      <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="bt" onclick="bmCarregar('templates',{bm_id:${b.id}})">Atualizar modelos</button><button class="bt" onclick="bmEditar(${b.id})">Editar</button><button class="bt" onclick="bmCarregar('bm_salvar',{bm_id:${b.id},ativo:'${b.ativo?'false':'true'}'})">${b.ativo?'Desativar':'Ativar'}</button><button class="bt" onclick="bmRemover(${b.id},'${esc(b.nome).replace(/'/g,'')}')">Remover</button></span></div>`;}).join(''):'<div class="vazio">Nenhuma BM cadastrada. Clique em “+ Nova BM”.</div>';
+  const box=document.getElementById('bmEdBox');
+  if(bmEd){const b=bmEd.id?L.find(x=>+x.id===+bmEd.id)||{}:{};box.hidden=false;
+    box.innerHTML=`<h4>${bmEd.id?'Editar BM':'Nova BM'}</h4><div class="of-cx" style="gap:8px">
+      <label>Nome da BM<input id="bmNome" value="${esc(b.nome||'')}" placeholder="Ex.: BM Gustavo 01" maxlength="60"></label>
+      <label>Phone Number ID<input id="bmPh" inputmode="numeric" value="${esc(b.phone_id||'')}" placeholder="Ex.: 123456789012345"></label>
+      <label>ID da conta do WhatsApp Business (WABA)<input id="bmWa" inputmode="numeric" value="${esc(b.waba_id||'')}" placeholder="Ex.: 109876543210987"></label>
+      <label>Token de acesso<input id="bmTk" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore style="-webkit-text-security:disc" placeholder="${b.tem_token?'•••• termina em '+esc(b.token_fim)+' (deixe vazio para manter)':'Cole o token permanente'}"></label>
+      <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="bt pri" onclick="bmSalvar()">Salvar e buscar mensagens</button><button class="bt" onclick="bmEd=null;bmRender()">Cancelar</button></span></div>`;}
+  else{box.hidden=true;box.innerHTML='';}
+  const wb=document.getElementById('bmWebhook'),ev=ofEvVis(C.eventos);
+  wb.innerHTML=!bmD?'':`<h4>🔔 Entregue / lida e avisos da Meta</h4>${C.verify_token?`<small class="cpe-h" style="display:block;line-height:1.5">Para ver entregue / lida: no app da Meta, em WhatsApp → Configuração → Webhook, cole<br>URL: <code>${esc(C.webhook_url)}</code><br>Token de verificação: <code>${esc(C.verify_token)}</code><br>e assine o campo <b>messages</b>. A mesma URL serve para todas as BMs.</small>`:'<small class="cpe-h">Cadastre a primeira BM para gerar o token de verificação.</small>'}
+    <details${ev.length?'':' hidden'} style="margin-top:8px"><summary style="cursor:pointer;font-weight:600">Avisos da Meta (${ev.length})</summary><div style="display:flex;flex-direction:column;gap:5px;margin-top:6px">${ev.map(e=>`<small>${ofEvTxt(e)}${e.n>1?' <span style="color:var(--tx3)">('+e.n+'x)</span>':''}<br><span style="color:var(--tx3)">${dh(e.em)}</span></small>`).join('')}</div></details>`;}
 
 // ═════════════ FICHA DO CLIENTE E AÇÕES ═════════════
 async function carregarFicha(id){gTit.textContent='Carregando…';gSub.textContent='';gCorpo.innerHTML='<div class="vazio">Buscando conversa e histórico…</div>';
@@ -2370,11 +2423,11 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','v8','disparo','oficial','hoje','clientes','indicacoes','conversas','links','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','v8','disparo','oficial','hoje','clientes','indicacoes','conversas','links','numeros','bms','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
-const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['v8','links','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
-const PG={hoje:['Início','Resumo do dia em números'],v8:['Consulta V8, Unno e HUB','Margem e simulação direto nos bancos'],escritorio:['Escritório','Empresa virtual · agentes de IA'],links:['Links','Ferramentas e páginas da GM Cred'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+const GRUPO_WPP=['numeros','bms','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['v8','links','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
+const PG={hoje:['Início','Resumo do dia em números'],v8:['Consulta V8, Unno e HUB','Margem e simulação direto nos bancos'],escritorio:['Escritório','Empresa virtual · agentes de IA'],links:['Links','Ferramentas e páginas da GM Cred'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],bms:['BMs da Meta','Conexões da API oficial: número, WABA e token'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
 // o Chrome tratava qualquer campo do painel como "usuário" e ficava sugerindo/pedindo para salvar senha: só a tela de login fica com senha
 function semSenhaSalva(raiz){(raiz||document).querySelectorAll('input:not([type=password]):not([autocomplete=username]),textarea').forEach(e=>{if(e.getAttribute('autocomplete')!=='off')e.setAttribute('autocomplete','off');e.setAttribute('data-1p-ignore','');e.setAttribute('data-lpignore','true');e.setAttribute('data-form-type','other');});}
 semSenhaSalva();try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)semSenhaSalva(n.matches&&n.matches('input,textarea')?n.parentNode:n);}).observe(document.body,{childList:true,subtree:true});}catch(e){}
@@ -2623,7 +2676,7 @@ function irPara(v){telaAtual=TELAS.includes(v)?v:'escritorio';lsSet('escritorio_
   document.querySelectorAll('.nv').forEach(b=>{const on=b.dataset.v===telaAtual||(b.dataset.v==='config'&&ehWpp)||(b.dataset.v==='mais'&&ANALISE.includes(telaAtual));b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});
   fecharMais();
   {const t=PG[telaAtual]||PG.escritorio;document.getElementById('pgTit').textContent=t[0];document.getElementById('pgSub').textContent=t[1];}
-  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='disparo')dpCarregar();if(telaAtual==='oficial')ofCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
+  window.scrollTo(0,0);if(telaAtual==='escritorio')setTimeout(posicionarClientes,30);if(telaAtual==='mes')setTimeout(renderVendas,30);if(telaAtual==='clientes')renderCrm();if(telaAtual==='agentes')renderAgentes();if(!demo&&chave&&faltaParte())atualizar();if(telaAtual==='financeiro')finCarregar();if(telaAtual==='disparo')dpCarregar();if(telaAtual==='oficial')ofCarregar();if(telaAtual==='bms')bmCarregar();cvLigar(telaAtual==='conversas');if(telaAtual==='indicacoes')inCarregar();nmLigar(telaAtual==='numeros'||telaAtual==='maturador');}
 irPara(telaAtual);
 atualizar();agendar();
 </script>
