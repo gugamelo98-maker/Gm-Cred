@@ -2657,8 +2657,17 @@ function hubMostrar(d){
     const tabs=Array.isArray(d.tabelas)&&d.tabelas.length?d.tabelas:[];
     const nota=d.parcela_usada?'<small>Simulado com parcela de '+brlFull(d.parcela_usada)+(d.ajustada?' (limite da margem da HUB)':'')+'</small>':'';
     box.innerHTML='<div class="v8-card">'+quem+'<b>Ofertas da HUB</b>'+nota+'<small>'+tabs.length+' tabela'+(tabs.length>1?'s':'')+' · toque para ver as ofertas de cada uma</small></div>'+cardsTabelas(tabs);return;}
-  if(d.situacao==='precisa_dados'){v8PedeDados(true,(d.erro||'Faltam dados do cliente.')+' Preencha os campos e clique em Consultar de novo.');box.innerHTML='<div class="v8-lim">'+esc(d.erro||'')+'</div>';return;}
+  if(d.situacao==='precisa_dados'){const falta=d.falta||[];
+    box.innerHTML='<div class="v8-card">'+quem+'<b>A HUB precisa de mais dados</b><small>Preencha aqui e consulte. A parcela digitada em Simular parcela já vale para a HUB.</small>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
+      +(falta.includes('sexo')?'<select id="hubSexo2" style="padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2,#fff);color:var(--tx)"><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>':'')
+      +(falta.includes('cidade')?'<input id="hubCidade2" placeholder="Cidade do cliente" autocomplete="off" style="padding:8px;border:1px solid var(--bd);border-radius:8px;min-width:170px;background:var(--bg2,#fff);color:var(--tx)">':'')
+      +(falta.some(x=>!['sexo','cidade'].includes(x))?'<small>Também falta: '+esc(falta.filter(x=>!['sexo','cidade'].includes(x)).join(', '))+' (preencha acima e consulte de novo).</small>':'')
+      +'<button class="bt pri" onclick="hubDadosOk()">Consultar na HUB</button></div></div>';return;}
   box.innerHTML='<div class="v8-lim">⚠️ A HUB respondeu com erro'+(d.erro?' ('+esc(d.erro)+')':'')+'.</div>';}
+function hubDadosOk(){const s=document.getElementById('hubSexo2'),c=document.getElementById('hubCidade2');
+  if(s&&!s.value){v8$('hubMsg').textContent='Escolha o sexo do cliente.';return;}if(c&&!c.value.trim()){v8$('hubMsg').textContent='Digite a cidade do cliente.';return;}
+  if(s)v8$('hubSexo').value=s.value;if(c)v8$('hubCidade').value=c.value.trim();hubApp='';hubConsultar(hubAppCpf||v8$('v8Cpf').value.replace(/\D/g,''));}
 async function hubConsultar(cpf){
   const seq=++hubSeq,box=v8$('hubBox');box.hidden=false;v8$('hubRes').innerHTML='';
   const dados={nome:v8$('v8Nome').value.trim(),nascimento:v8$('v8Nasc').value.trim(),celular:v8$('unnoFone').value.trim(),email:v8$('unnoEmail').value.trim(),sexo:v8$('hubSexo').value,cidade:v8$('hubCidade').value.trim()};
