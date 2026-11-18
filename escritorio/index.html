@@ -400,6 +400,12 @@ button.mot:hover{background:var(--cf7f9fc)}button.mot b{color:var(--azul)}
 #v-v8 .ag-grid{align-items:start}
 .v8-col{display:grid;gap:12px;min-width:0;align-content:start}
 .v8-msg{font-size:12.5px;font-weight:600;color:var(--tx2)}.v8-msg.err{color:var(--vermelho)}.v8-msg:empty{display:none}
+.rs-prod{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rs-p{background:var(--cf6f8fb);border-radius:12px;padding:10px 12px;border-left:4px solid #2563eb;display:grid;gap:2px}
+.rs-p.rs-pf{border-left-color:#16a36a}
+.rs-p .rs-pt{font-size:11px;color:var(--tx3);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.rs-p b{font-size:17px;font-weight:800}.rs-p small{color:var(--tx2);font-size:12px}
+@media(max-width:600px){.rs-prod{grid-template-columns:1fr}}
 .lk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .lk-card{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit;border:1px solid var(--linha);border-radius:14px;padding:14px 16px;background:var(--cfff);transition:transform .12s,box-shadow .12s}
 .lk-card:hover{transform:translateY(-1px);box-shadow:var(--sombra)}
@@ -1450,7 +1456,7 @@ function renderVendas(){
     tip.style.display='block';const tw=tip.offsetWidth;let left=cx/esc+12;if(left+tw>rc.width)left=cx/esc-tw-12;tip.style.left=Math.max(0,left)+'px';tip.style.top='8px';};
   hit.addEventListener('mousemove',mover);hit.addEventListener('touchstart',mover,{passive:true});hit.addEventListener('touchmove',mover,{passive:true});
   hit.addEventListener('mouseleave',()=>{tip.style.display='none';cr.setAttribute('visibility','hidden');});
-  document.getElementById('vdTabela').innerHTML=`<table><thead><tr><th>Dia</th><th>Clientes</th><th>Digitados</th><th>Pagos</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>${S.ult.slice().reverse().map(x=>`<tr><td>${DSEM[diaDe(x.dia).getDay()]} ${fmtDia(x.dia)}</td><td>${x.clientes}</td><td>${x.digitados}</td><td>${x.pagos}</td><td>${brlFull(x.liberado)}</td><td>${brlFull(x.comissao)}</td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('vdTabela').innerHTML=`<table><thead><tr><th>Dia</th><th>Clientes</th><th>Digitados</th><th>Pagos</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>${S.ult.slice().reverse().map(x=>`<tr><td>${DSEM[diaDe(x.dia).getDay()]} ${fmtDia(x.dia)}</td><td>${x.clientes}</td><td>${x.digitados}</td><td>${x.pagos}${x.pagos_fgts!=null?`<small style="display:block;color:var(--tx3)">CLT ${+x.pagos_clt||0} · FGTS ${+x.pagos_fgts||0}</small>`:''}</td><td>${brlFull(x.liberado)}${x.liberado_fgts!=null?`<small style="display:block;color:var(--tx3)">CLT ${brlFull(+x.liberado_clt||0)} · FGTS ${brlFull(+x.liberado_fgts||0)}</small>`:''}</td><td>${brlFull(x.comissao)}${x.comissao_fgts!=null?`<small style="display:block;color:var(--tx3)">CLT ${brlFull(+x.comissao_clt||0)} · FGTS ${brlFull(+x.comissao_fgts||0)}</small>`:''}</td></tr>`).join('')}</tbody></table>`;
   renderCrescimento(S);
 }
 function metaDia(){return Number((estado.meta&&estado.meta.meta_valor)||(estado.simulacao&&estado.simulacao.meta_dia)||7000);}
@@ -2151,7 +2157,11 @@ function renderHoje(){
         <div><b>${N.assinaram||0}</b><span>Assinaram</span></div>
         <div><b style="color:var(--verde)">${N.pagos||0}</b><span>Contratos pagos</span></div>
         <div><b style="color:var(--verde)">${brlFull(N.comissao||0)}</b><span>Comissão · ${brl(N.liberado||0)} liberados</span></div>
-      </div></div>
+      </div>
+      ${(N.pagos_clt!=null||N.pagos_fgts!=null)?`<div class="rs-prod">
+        <div class="rs-p"><span class="rs-pt">CLT</span><b>${N.pagos_clt||0} pago${(N.pagos_clt||0)===1?'':'s'}</b><small>${brlFull(N.liberado_clt||0)} liberados · comissão ${brlFull(N.comissao_clt||0)}</small></div>
+        <div class="rs-p rs-pf"><span class="rs-pt">FGTS</span><b>${N.pagos_fgts||0} pago${(N.pagos_fgts||0)===1?'':'s'}</b><small>${brlFull(N.liberado_fgts||0)} liberados · comissão ${brlFull(N.comissao_fgts||0)}</small></div>
+      </div>`:''}</div>
     <div class="rs-grid">
       <div class="fbox"><h4>🏢 Quanto cada departamento converte</h4>${dep}
         <div class="rs-nota">% = avançaram ÷ (avançaram + perdidos). Quem ainda está em andamento não entra na conta.${pior?` <b style="color:#b42318">Em vermelho: o departamento que menos converte.</b>`:''}</div></div>
