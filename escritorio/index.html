@@ -400,6 +400,11 @@ button.mot:hover{background:var(--cf7f9fc)}button.mot b{color:var(--azul)}
 #v-v8 .ag-grid{align-items:start}
 .v8-col{display:grid;gap:12px;min-width:0;align-content:start}
 .v8-msg{font-size:12.5px;font-weight:600;color:var(--tx2)}.v8-msg.err{color:var(--vermelho)}.v8-msg:empty{display:none}
+.lk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lk-card{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit;border:1px solid var(--linha);border-radius:14px;padding:14px 16px;background:var(--cfff);transition:transform .12s,box-shadow .12s}
+.lk-card:hover{transform:translateY(-1px);box-shadow:var(--sombra)}
+.lk-ic{flex:0 0 40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(37,99,235,.1);color:#2563eb;font-size:19px}
+.lk-card b{display:block;font-size:14.5px}.lk-card small{display:block;color:var(--tx2);font-size:12px;margin-top:2px;overflow-wrap:anywhere}
 .bk-logo{width:18px;height:18px;border-radius:5px;vertical-align:-4px;margin-right:7px;object-fit:cover}
 #v8Salva a{color:var(--azul,#2563eb);cursor:pointer;font-weight:700;margin-left:6px}
 @media (max-width:1100px){.v8-col{display:contents}#v-v8 .v8-col:first-child>.fbox:first-child{order:0}#v8SimBox{order:1}#unnoBox{order:2}#v8Box{order:3}#melhorBox{order:4}}
@@ -744,6 +749,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <button class="nv" data-v="conversas" onclick="irPara('conversas')" title="Conversas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="lb">Conversas</span><b class="badge" id="cvBadge" hidden></b></button>
   <button class="nv" data-v="clientes" onclick="irPara('clientes')" title="Clientes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg><span class="lb">Clientes</span></button>
   <button class="nv nv-an" data-v="v8" onclick="irPara('v8')" title="Consulta V8 e Unno"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg><span class="lb">Consulta V8 / Unno</span></button>
+  <button class="nv nv-an" data-v="links" onclick="irPara('links')" title="Links"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg><span class="lb">Links</span></button>
   <button class="nv nv-an" data-v="disparo" onclick="irPara('disparo')" title="Disparo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg><span class="lb">Disparo</span></button>
   <button class="nv nv-an" data-v="oficial" onclick="irPara('oficial')" title="API oficial"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg><span class="lb">API oficial</span></button>
   <button class="nv nv-an" data-v="mes" onclick="irPara('mes')" title="Vendas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="lb">Vendas</span></button>
@@ -760,6 +766,7 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
   <h5>Operação</h5>
   <div class="mais-grid">
     <button data-v="v8" onclick="irPara('v8')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg>Consulta V8 / Unno</button>
+    <button data-v="links" onclick="irPara('links')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg>Links</button>
     <button data-v="disparo" onclick="irPara('disparo')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg>Disparo</button>
     <button data-v="oficial" onclick="irPara('oficial')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>API oficial</button>
     <button data-v="mes" onclick="irPara('mes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Vendas</button>
@@ -920,6 +927,15 @@ body.menu-mini #nav .sb-tema{justify-content:center;padding:10px 0}
     </form></div>
 </div></section>
 <section class="ag-sec"><div class="ag-grid"><div class="fbox" id="finLista"></div><div class="fbox" id="finHist"></div></div></section>
+</div>
+
+<div class="view" id="v-links" hidden>
+<section class="ag-sec"><div class="fbox"><h4>Links úteis</h4>
+  <div class="lk-grid">
+    <a class="lk-card" href="https://testeextrair.vercel.app/" target="_blank" rel="noopener"><span class="lk-ic">🧲</span><span><b>Extrair</b><small>Extração de dados · testeextrair.vercel.app</small></span></a>
+    <a class="lk-card" href="https://telefones-sable.vercel.app/" target="_blank" rel="noopener"><span class="lk-ic">📞</span><span><b>Telefones</b><small>Consulta de telefones · telefones-sable.vercel.app</small></span></a>
+    <a class="lk-card" href="https://escritorio.gmcredconsignado.com.br/fgts.html" target="_blank" rel="noopener"><span class="lk-ic">💰</span><span><b>FGTS</b><small>Simulação de FGTS · escritorio.gmcredconsignado.com.br/fgts.html</small></span></a>
+  </div></div></section>
 </div>
 
 <div class="view" id="v-v8" hidden>
@@ -2301,11 +2317,11 @@ function renderPainel(){
 let timer=null;
 function agendar(){clearTimeout(timer);if(document.hidden)return;timer=setTimeout(async()=>{await atualizar();agendar();},demo?DEMO_MS:POLL_MS);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){atualizar();}agendar();});
-const TELAS=['escritorio','v8','disparo','oficial','hoje','clientes','indicacoes','conversas','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
+const TELAS=['escritorio','v8','disparo','oficial','hoje','clientes','indicacoes','conversas','links','numeros','maturador','mes','funil','agentes','financeiro','simulacao'];
 let telaAtual=TELAS.find(t=>location.hash==='#tela-'+t)||'hoje';
 // menu em grupos: WhatsApp reúne Campanha, Números e Maturador; no celular, Análise fica em "Mais"
-const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['v8','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
-const PG={hoje:['Início','Resumo do dia em números'],v8:['Consulta V8 e Unno','Margem e simulação direto nos bancos'],escritorio:['Escritório','Empresa virtual · agentes de IA'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
+const GRUPO_WPP=['numeros','maturador','agentes','indicacoes','financeiro','simulacao'],ANALISE=['v8','links','disparo','oficial','mes','funil'].concat(GRUPO_WPP);
+const PG={hoje:['Início','Resumo do dia em números'],v8:['Consulta V8 e Unno','Margem e simulação direto nos bancos'],escritorio:['Escritório','Empresa virtual · agentes de IA'],links:['Links','Ferramentas e páginas da GM Cred'],conversas:['Conversas','WhatsApp de todos os números'],clientes:['Clientes','Todos que já entraram no escritório'],disparo:['Disparo','Envio em massa pelos números de disparo'],oficial:['API oficial','Disparo por mensagem modelo da Meta'],mes:['Vendas','Meta do mês e vendas por dia'],funil:['Funil','Onde os clientes avançam e onde param'],numeros:['Configurações','Números de WhatsApp'],maturador:['Configurações','Maturador'],agentes:['Configurações','Agentes de IA'],indicacoes:['Configurações','Indicações'],financeiro:['Configurações','Financeiro'],simulacao:['Configurações','Simulação']};
 // o Chrome tratava qualquer campo do painel como "usuário" e ficava sugerindo/pedindo para salvar senha: só a tela de login fica com senha
 function semSenhaSalva(raiz){(raiz||document).querySelectorAll('input:not([type=password]):not([autocomplete=username]),textarea').forEach(e=>{if(e.getAttribute('autocomplete')!=='off')e.setAttribute('autocomplete','off');e.setAttribute('data-1p-ignore','');e.setAttribute('data-lpignore','true');e.setAttribute('data-form-type','other');});}
 semSenhaSalva();try{new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1)semSenhaSalva(n.matches&&n.matches('input,textarea')?n.parentNode:n);}).observe(document.body,{childList:true,subtree:true});}catch(e){}
