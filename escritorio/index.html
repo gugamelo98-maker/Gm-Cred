@@ -2272,9 +2272,9 @@ function renderHoje(){
   const meta=metaDia(),feito=Number(M.valor_hoje||0),pv=Math.min(100,Math.round(feito/meta*100)),bateu=feito>=meta;
   const chips=[['hoje','Hoje'],['d7','7 dias'],['d30','30 dias']].map(([k,t])=>`<button class="chip ${resP===k?'on':''}" onclick="resPeriodo('${k}')">${t}</button>`).join('');
   // conversão por departamento
-  const linhas=RES_SET.map(([id,t,ok])=>{const x=S[id]||{},n=+x.atendidos||0,av=+x.avancaram||0,pe=+x.perderam||0,an=+x.andamento||0,fim=av+pe,pc=fim?Math.round(av/fim*100):null;return {id,t,ok,n,av,pe,an,pc};});
+  const linhas=RES_SET.map(([id,t,ok])=>{const x=S[id]||{},n=+x.atendidos||0,av=+x.avancaram||0,pe=+x.perderam||0,sm=+x.sem_margem||0,an=+x.andamento||0,fim=av+pe,pc=fim?Math.round(av/fim*100):null;return {id,t,ok,n,av,pe,sm,an,pc};});
   const comPc=linhas.filter(l=>l.pc!=null&&l.av+l.pe>=3),pior=comPc.length>1?comPc.reduce((a,b)=>b.pc<a.pc?b:a):null;
-  const dep=linhas.map(l=>`<div class="rs-dep ${pior&&pior.id===l.id?'pior':''}"><div class="rs-dn"><b>${l.t}</b><span>${l.n} atendido${l.n===1?'':'s'} · ${l.av} ${l.ok}${l.pe?` · ${l.pe} perdido${l.pe>1?'s':''}`:''}${l.an?` · ${l.an} em andamento`:''}</span></div>
+  const dep=linhas.map(l=>`<div class="rs-dep ${pior&&pior.id===l.id?'pior':''}"><div class="rs-dn"><b>${l.t}</b><span>${l.n} atendido${l.n===1?'':'s'} · ${l.av} ${l.ok}${l.pe?` · ${l.pe} perdido${l.pe>1?'s':''}`:''}${l.sm?` · ${l.sm} sem margem`:''}${l.an?` · ${l.an} em andamento`:''}</span></div>
       <div class="bar"><i style="width:${l.pc||0}%"></i></div><div class="rs-pc">${l.pc==null?'—':l.pc+'%'}</div></div>`).join('');
   // gargalos por agente
   const porSet={};A.forEach(a=>{(porSet[a.setor]=porSet[a.setor]||[]).push(a);});
