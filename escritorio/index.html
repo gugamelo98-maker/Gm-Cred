@@ -202,6 +202,10 @@ button{font:inherit;cursor:pointer}
 .linha div:before{content:'';position:absolute;left:-17px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--azul)}
 .ficha-acoes{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap;align-items:center}
 .ficha-acoes .bt{padding:9px 14px;font-size:13px}
+.ficha-margem{align-items:flex-start;border:1px solid var(--linha);border-radius:12px;padding:10px 12px}
+.fm-box{flex:1;min-width:220px;display:grid;gap:6px}.fm-box label{font-size:12px;font-weight:700;color:var(--tx2)}
+.fm-box textarea{width:100%;border:1px solid var(--linha);border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;background:var(--cfff);resize:vertical}
+.fm-bt{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .dados{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:12px;margin-bottom:6px}
 .dados span{color:var(--tx3)}.dados b{display:block;color:var(--tx);font-weight:600;font-size:13px}
 /* chave de acesso */
@@ -2081,6 +2085,10 @@ function renderFicha(f){const l=f&&f.lead;if(!l){gTit.textContent='Cliente não 
   gCorpo.innerHTML=`<div class="ficha-acoes">${humano
       ?`<button class="bt" onclick="acao('devolver',${l.id})">🤖 Devolver ao agente</button><span style="font-size:12.5px;color:var(--vermelho);font-weight:600">Agente pausado: você está atendendo</span>`
       :`<button class="bt pri" onclick="acao('assumir',${l.id})">🙋 Assumir atendimento</button><span style="font-size:12px;color:var(--tx3)">O agente para de responder este cliente</span>`}${l.status==='parou'?'':`<span style="display:inline-flex;gap:6px;align-items:center;margin-left:auto"><select id="fichaMotivo" style="border:1px solid #e3e8ef;border-radius:8px;padding:6px">${MOTIVOS_FIM.map(([v,t])=>`<option value="${esc(v)}">${t}</option>`).join('')}</select><button class="bt" onclick="fichaFinalizar(${l.id})">✔ Finalizar atendimento</button></span>`}</div>
+    ${(()=>{const cpfL=String(l.cpf||l.cpf_base||'').replace(/\D/g,''),m=Number(l.margem)||0,tx=m>0?'Você tem disponível até '+brlFull(m).replace(',00','')+' de parcela. Qual valor de parcela cabe melhor no seu bolso?':'';
+      return `<div class="ficha-acoes ficha-margem"><button class="bt" ${cpfL.length===11?'':'disabled title="Este cliente ainda não tem CPF"'} onclick="fichaSimular('${cpfL}')">🧮 Simular</button>
+        <div class="fm-box"><label>Mandar margem ao cliente</label><textarea id="fichaMargemTx" rows="3" placeholder="${m>0?'':'Margem ainda não consultada: use Simular primeiro, ou escreva a mensagem'}">${esc(tx)}</textarea>
+        <div class="fm-bt"><button class="bt pri" onclick="fichaMargemEnviar(${l.id})">Enviar</button><button class="bt" ${m>0?'':'disabled title="Sem margem registrada"'} onclick="fichaMargemIA(${l.id})">🤖 Pedir para a IA enviar</button><span id="fichaMargemSt" class="v8-msg"></span></div></div></div>`;})()}
     <div class="dados"><div><span>Telefone</span><b>${esc(l.telefone||'—')}</b></div><div><span>CPF</span><b>${esc(l.cpf||'—')}</b></div>
       <div><span>Produto</span><b>${esc((l.produto||'—').toUpperCase())}</b></div><div><span>Valor</span><b>${brlFull(l.valor)}</b></div>
       <div><span>Entrou em</span><b>${l.criado_em?new Date(l.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—'}</b></div><div><span>No setor há</span><b>${tempo(minDesde(l.entrou_setor_em))}</b></div>
@@ -2091,6 +2099,13 @@ function renderFicha(f){const l=f&&f.lead;if(!l){gTit.textContent='Cliente não 
     <div class="g-sec">Linha do tempo</div>
     ${evs.length?`<div class="linha">${evs.map(e=>`<div><b style="color:var(--tx)">${new Date(e.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</b> · ${esc(e.descricao)}</div>`).join('')}</div>`:'<div class="vazio">Sem eventos.</div>'}`;
   const cb=document.getElementById('chatBox');if(cb)cb.scrollTop=cb.scrollHeight;}
+function fichaSimular(cpf){if(!cpf)return;if(typeof fecharPainel==='function')fecharPainel();irPara('v8');const i=v8$('v8Cpf');i.value=v8FmtCpf(cpf);i.dispatchEvent(new Event('input'));if(!demo)v8Consultar(null);}
+async function fichaMargemEnviar(id){const t=document.getElementById('fichaMargemTx'),st=document.getElementById('fichaMargemSt');if(!t||!t.value.trim()){if(st)st.textContent='Escreva a mensagem.';return;}
+  if(demo){if(st)st.textContent='Disponível só com o sistema ligado.';return;}
+  if(st)st.textContent='Enviando…';const r=await cvApi('enviar',{id,texto:t.value.trim()});if(st)st.textContent=r&&r.ok?'✅ Mensagem enviada (a IA fica pausada até você devolver).':'⚠️ '+((r&&r.erro)||'Não consegui enviar.');}
+async function fichaMargemIA(id){const st=document.getElementById('fichaMargemSt');
+  if(demo){if(st)st.textContent='Disponível só com o sistema ligado.';return;}
+  if(st)st.textContent='Pedindo à IA…';const r=await cvApi('ia_margem',{id});if(st)st.textContent=r&&r.ok?'✅ A IA vai mandar a mensagem em até 1 minuto.':'⚠️ '+((r&&r.erro)||'Não consegui pedir.');}
 const MOTIVOS_FIM=[['sem interesse','Sem interesse'],['já tem empréstimo','Já tem empréstimo'],['número errado: não é o cliente','Número errado'],['não contatar: pediu para não chamar','Não contatar'],['sem margem: informado pelo atendente','Sem margem'],['atendimento concluído','Atendimento concluído']];
 async function fichaFinalizar(id){const m=document.getElementById('fichaMotivo').value;if(!confirm('Finalizar o atendimento deste cliente como "'+m+'"?'))return;
   const r=await cvApi('finalizar',{id,texto:m});if(!r||!r.ok){alert('Não consegui finalizar.');return;}fecharPainel&&fecharPainel();atualizar();}
@@ -2461,7 +2476,7 @@ async function unnoConsultar(cpf){
       if(d.situacao==='aguardando_termo'&&++semTermo>6){unnoMostrar({ok:false,situacao:'erro',erro:'Não consegui liberar a consulta automaticamente. Clique em Consultar de novo.'});return;}
       unnoMostrar(d);await new Promise(r=>setTimeout(r,5000));if(seq!==unnoSeq)return;
       d=await unnoApi('status',cpf,{application_id:unnoApp});if(seq!==unnoSeq)return;}
-    if(d.ok&&d.situacao==='ofertas'){d=await unnoApi('ofertas',cpf,{application_id:unnoApp,parcela:v8Num(v8$('v8Parc').value)||''});if(seq!==unnoSeq)return;if(d.situacao==='ofertas')salvaSet(cpf,{unnoApp,unnoD:d});}
+    if(d.ok&&d.situacao==='ofertas'){d=await unnoOfertasEspera(cpf,v8Num(v8$('v8Parc').value)||'',seq);if(!d||seq!==unnoSeq)return;if(d.situacao==='ofertas')salvaSet(cpf,{unnoApp,unnoD:d});}
     if(['sem_margem','sem_ofertas','erro'].includes(d.situacao)){unnoApp='';salvaSet(cpf,{unnoApp:''});}
     unnoMostrar(d);
   }catch(e){if(seq===unnoSeq)v8$('unnoMsg').textContent='⚠️ Não consegui consultar a Unno ('+e.message+').';}}
@@ -2485,10 +2500,16 @@ async function v8Simular(ev){if(ev)ev.preventDefault();if(!v8C)return;
     out.innerHTML=v8Cards(lista,parc,lim,erros,ajust);v8SimMsg('');v8Final=lista.slice();melhorRender();
     salvaSet(v8C.cpf,{v8Lim,v8Sim:{lista,parc,lim,erros,ajust}});
   }catch(e){if(seq===v8SimSeq){out.innerHTML='<div class="v8-lim">⚠️ Não consegui simular na V8 ('+esc(e.message)+'). Se a consulta for antiga, clique em Refazer consulta.</div>';}}}
+async function unnoOfertasEspera(cpf,parc,seq){
+  let d=await unnoApi('ofertas',cpf,{application_id:unnoApp,parcela:parc||''});
+  for(let i=0;i<40&&d&&(d.pendente===true||d.situacao==='processando');i++){
+    if(seq!==unnoSeq)return null;await new Promise(r=>setTimeout(r,4000));if(seq!==unnoSeq)return null;
+    d=await unnoApi('ofertas',cpf,{application_id:unnoApp});}
+  return d;}
 async function unnoSimular(parc){if(!unnoApp)return;const cpf=unnoAppCpf,seq=++unnoSeq;
   v8$('unnoBox').hidden=false;v8$('unnoRes').innerHTML='<div class="v8-card"><small>CPF '+esc(v8FmtCpf(cpf))+'</small><b>Simulando na Unno…</b></div>';
   try{
-    const d=await unnoApi('ofertas',cpf,{application_id:unnoApp,parcela:parc||''});if(seq!==unnoSeq)return;
+    const d=await unnoOfertasEspera(cpf,parc,seq);if(!d||seq!==unnoSeq)return;
     if(d.situacao==='ofertas'){salvaSet(cpf,{unnoApp,unnoD:d});}
     else if(d.situacao==='erro'){unnoApp='';salvaSet(cpf,{unnoApp:'',unnoD:null});v8$('unnoRes').innerHTML='<div class="v8-lim">⚠️ A consulta da Unno expirou. Clique em Refazer consulta.</div>';return;}
     unnoMostrar(d);
