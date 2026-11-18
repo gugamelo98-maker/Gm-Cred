@@ -2642,9 +2642,20 @@ async function unnoSimular(parc){if(!unnoApp)return;const cpf=unnoAppCpf,seq=++u
 /* ===== HUB (CLT, mesmo CPF da consulta) ===== */
 let hubSeq=0,hubApp='',hubAppCpf='';
 async function hubApi(acao,cpf,dados){
-  const r=await fetch(BASE+'/escritorio/hub',{method:'POST',body:new URLSearchParams({k:chave,acao,cpf:cpf||'',dados:JSON.stringify(dados||{})})});
-  if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
-  if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+  /* o servidor às vezes devolve corpo vazio (executor do n8n ocupado): tenta de novo até 3 vezes antes de desistir */
+  let ult='resposta vazia';
+  for(let t=0;t<3;t++){
+    let r;
+    try{r=await fetch(BASE+'/escritorio/hub',{method:'POST',body:new URLSearchParams({k:chave,acao,cpf:cpf||'',dados:JSON.stringify(dados||{})})});}
+    catch(e){ult=e.message||'sem conexão';await new Promise(x=>setTimeout(x,2500));continue;}
+    if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
+    if(r.ok){
+      const tx=await r.text();
+      if(tx){try{return JSON.parse(tx);}catch(e){ult='resposta inválida';}}
+      else ult='resposta vazia';
+    }else ult='HTTP '+r.status;
+    await new Promise(x=>setTimeout(x,2500));}
+  throw new Error(ult+' · tente de novo em instantes');}
 function hubMostrar(d){
   const box=v8$('hubRes'),msg=v8$('hubMsg');msg.textContent='';
   const quem='<small>CPF '+esc(v8FmtCpf(hubAppCpf))+'</small>';
