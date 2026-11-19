@@ -2490,10 +2490,22 @@ const v8Msg=t=>{v8$('v8Msg').textContent=t||'';},v8SimMsg=t=>{v8$('v8SimMsg').te
 function v8FmtCpf(c){c=String(c||'').replace(/\D/g,'').slice(0,11);return c.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2');}
 v8$('v8Cpf').addEventListener('input',e=>{e.target.value=v8FmtCpf(e.target.value);});
 v8$('v8Nasc').addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=v.replace(/^(\d{2})(\d)/,'$1/$2').replace(/^(\d{2})\/(\d{2})(\d)/,'$1/$2/$3');});
-async function v8Api(acao,cpf,dados){
-  const r=await fetch(BASE+'/escritorio/v8',{method:'POST',body:new URLSearchParams({k:chave,acao,cpf:cpf||'',dados:JSON.stringify(dados||{})})});
-  if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
-  if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+/* o servidor às vezes devolve corpo vazio (executor do n8n ocupado): tenta de novo até 3 vezes antes de desistir */
+async function apiTenta(rota,acao,cpf,dados){
+  let ult='resposta vazia';
+  for(let t=0;t<3;t++){
+    let r;
+    try{r=await fetch(BASE+rota,{method:'POST',body:new URLSearchParams({k:chave,acao,cpf:cpf||'',dados:JSON.stringify(dados||{})})});}
+    catch(e){ult=e.message||'sem conexão';await new Promise(x=>setTimeout(x,2500));continue;}
+    if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
+    if(r.ok){
+      const tx=await r.text();
+      if(tx){try{return JSON.parse(tx);}catch(e){ult='resposta inválida';}}
+      else ult='resposta vazia';
+    }else ult='HTTP '+r.status;
+    await new Promise(x=>setTimeout(x,2500));}
+  throw new Error(ult+' · tente de novo em instantes');}
+async function v8Api(acao,cpf,dados){return apiTenta('/escritorio/v8',acao,cpf,dados);}
 function v8PedeDados(on,txt){if(on){v8$('v8Extra').hidden=false;v8$('v8Dica').textContent=txt||'Não achei todos os dados desse CPF sozinho: preencha o que faltar e clique em Consultar de novo.';}}
 let v8CpfAnt='';
 v8$('v8Cpf').addEventListener('input',e=>{const c=e.target.value.replace(/\D/g,'');if(v8CpfAnt&&c!==v8CpfAnt){v8$('v8Extra').hidden=true;v8$('v8Salva').hidden=true;['v8Nome','v8Nasc','unnoFone','unnoEmail','hubSexo','hubCidade'].forEach(i=>{v8$(i).value='';});v8$('v8Dica').textContent='Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.';v8CpfAnt='';}});
@@ -2558,10 +2570,7 @@ async function melhorRender(){
    +'<table class="v8-tab"><thead><tr><th>Banco</th><th>Prazo</th><th>Liberado</th><th>Comissão</th></tr></thead><tbody>'+todas.map((o,i)=>'<tr><td>'+(i===0&&o.com!=null?'🏆 ':'')+'<img class="bk-logo" src="img/logo-'+o.logo+'.png" alt="" width="18" height="18">'+esc(o.banco)+'</td><td>'+o.prazo+'x'+(o.seg?'':' <small>sem seguro</small>')+'</td><td>'+brlFull(o.valor)+'</td><td><b>'+(o.com==null?'—':brlFull(o.com))+'</b></td></tr>').join('')+'</tbody></table>';}
 /* ===== Unno (mesmo CPF da consulta V8) ===== */
 let unnoSeq=0,unnoApp='',unnoAppCpf='';
-async function unnoApi(acao,cpf,dados){
-  const r=await fetch(BASE+'/escritorio/unno',{method:'POST',body:new URLSearchParams({k:chave,acao,cpf:cpf||'',dados:JSON.stringify(dados||{})})});
-  if(r.status===401){pedirChave('Chave inválida ou desativada.');throw new Error('sem acesso');}
-  if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+async function unnoApi(acao,cpf,dados){return apiTenta('/escritorio/unno',acao,cpf,dados);}
 v8$('unnoFone').addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,11);e.target.value=v.replace(/^(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d{1,4})$/,'$1-$2');});
 function cardsTabelas(tabs){
   const linha=(o,g)=>'<tr><td>'+(o.prazo?o.prazo+'x':'-')+(o.variante&&o.variante!==g.tabela?'<small>'+esc(o.variante)+'</small>':'')+'</td><td>'+(o.parcela?brlFull(o.parcela):'-')+'</td><td><b>'+brlFull(o.valor)+'</b></td></tr>';
