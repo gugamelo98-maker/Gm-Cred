@@ -73,6 +73,7 @@ a{color:var(--azul)}
       <div class="num"><b id="nSaldo" style="color:var(--verde)">0</b><span>Com saldo</span></div>
       <div class="num"><b id="nTel">0</b><span>Com telefone</span></div>
       <div class="num"><b id="nSem">0</b><span>Sem saldo</span></div>
+      <div class="num"><b id="nSemAdesao">0</b><span>Sem adesão</span></div>
       <div class="num"><b id="nNaoAut" style="color:var(--amarelo,#b7791f)">0</b><span>Não autorizado</span></div>
       <div class="num"><b id="nHubFila">0</b><span>Esperando BMP</span></div>
     </div>
@@ -86,13 +87,14 @@ a{color:var(--azul)}
         <button onclick="copiarCpfs()">Copiar CPFs com saldo</button>
         <button onclick="copiarTel()">Copiar telefones</button>
         <button onclick="juntarTelefones()">Juntar telefones com a base</button>
-        <select id="filtroGrupo" aria-label="Quais CPFs baixar"><option value="todos">Todos</option><option value="com_saldo">Só com saldo</option><option value="sem_saldo">Só sem saldo</option><option value="nao_autorizado">Só não autorizado</option></select>
+        <select id="filtroGrupo" aria-label="Quais CPFs baixar"><option value="todos">Todos</option><option value="com_saldo">Só com saldo</option><option value="sem_saldo">Só sem saldo</option><option value="sem_adesao">Só sem adesão</option><option value="nao_autorizado">Só não autorizado</option></select>
         <button onclick="baixar()">Baixar planilha</button>
       </span>
     </div>
     <div class="bts" style="margin-top:8px">
       <button onclick="verGrupo('com_saldo')">Ver com saldo</button>
       <button onclick="verGrupo('sem_saldo')">Ver sem saldo</button>
+      <button onclick="verGrupo('sem_adesao')">Ver sem adesão</button>
       <button onclick="verGrupo('nao_autorizado')">Ver não autorizado</button>
     </div>
     <div id="grupoCard" hidden style="margin-top:10px">
@@ -185,7 +187,7 @@ function mostrar(s) {
   if (s.pulados) txt += ' · ' + n(s.pulados) + ' pulados';
   $('estado').textContent = txt;
   $('nConc').textContent = n(conc); $('nSaldo').textContent = n(s.com_saldo); $('nTel').textContent = n(s.com_telefone);
-  $('nSem').textContent = n(s.sem_saldo); $('nHubFila').textContent = n(s.hub_na_fila); $('nNaoAut').textContent = n(s.nao_autorizado);
+  $('nSem').textContent = n(s.sem_saldo); $('nHubFila').textContent = n(s.hub_na_fila); $('nNaoAut').textContent = n(s.nao_autorizado); $('nSemAdesao').textContent = n(s.sem_adesao);
   $('hubEstado').textContent = (s.hub_token_ok ? '✓ Login da HUB automático, funcionando.' : '⏳ Entrando na HUB (o login é automático e renova sozinho).') + (s.erros ? ' · ' + n(s.erros) + ' com erro.' : '');
   const ativo = s.estado === 'rodando' || s.estado === 'pausado';
   $('btPausar').hidden = s.estado !== 'rodando'; $('btRetomar').hidden = s.estado !== 'pausado'; $('btEncerrar').hidden = !ativo;
@@ -289,7 +291,7 @@ async function baixar() {
   try {
     const d = await fila('planilha', { lote });
     const q = v => { v = String(v ?? ''); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    const hs = { com_saldo: 'Com saldo', sem_saldo: 'Sem saldo', nao_autorizado: 'Não autorizado', fila: 'Na fila' };
+    const hs = { com_saldo: 'Com saldo', sem_saldo: 'Sem saldo', sem_adesao: 'Sem adesão', nao_autorizado: 'Não autorizado', fila: 'Na fila' };
     const filtro = $('filtroGrupo') ? $('filtroGrupo').value : 'todos';
     const sel = (d.linhas || []).filter(x => filtro === 'todos' || x.grupo === filtro);
     const v = x => x == null ? '' : Number(x).toFixed(2).replace('.', ',');
@@ -304,7 +306,7 @@ async function baixar() {
 // lista na tela por grupo: com saldo, sem saldo ou não autorizado (até 300 linhas; a planilha traz todas)
 async function verGrupo(g) {
   if (!lote) return;
-  const nomes = { com_saldo: 'Com saldo', sem_saldo: 'Sem saldo', nao_autorizado: 'Não autorizado no BMP' };
+  const nomes = { com_saldo: 'Com saldo', sem_saldo: 'Sem saldo', sem_adesao: 'Sem adesão ao saque aniversário', nao_autorizado: 'Não autorizado no BMP' };
   $('grupoCard').hidden = false; $('grupoTit').textContent = nomes[g]; $('grupoMsg').textContent = 'Carregando…'; $('grupoLinhas').innerHTML = '';
   try {
     const d = await fila('planilha', { lote });
