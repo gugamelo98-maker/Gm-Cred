@@ -107,7 +107,7 @@ a{color:var(--azul)}
         <tbody id="grupoLinhas"></tbody>
       </table></div>
     </div>
-    <div class="tab-wrap"><table>
+    <div class="tab-wrap" id="tabComSaldo"><table>
       <thead><tr><th>CPF</th><th>Valor na HUB</th><th>Nome</th><th>Telefone</th></tr></thead>
       <tbody id="res"><tr><td colspan="4" class="vazio">Ainda nenhum com saldo.</td></tr></tbody>
     </table></div>
@@ -308,6 +308,9 @@ async function baixar() {
 // lista na tela por grupo: com saldo, sem saldo ou não autorizado (até 300 linhas; a planilha traz todas)
 async function verGrupo(g) {
   if (!lote) return;
+  // "Com saldo" volta a ser a tabela de sempre (com nome e telefone); os outros grupos usam a lista própria, uma de cada vez
+  if (g === 'com_saldo') { $('grupoCard').hidden = true; $('tabComSaldo').hidden = false; return; }
+  $('tabComSaldo').hidden = true;
   const nomes = { com_saldo: 'Com saldo', sem_saldo_bmp: 'Sem saldo no BMP (autorizado no BMP)', sem_saldo_j17: 'Sem saldo no J17 (autorizado no J17)', sem_adesao: 'Sem adesão ao saque aniversário', nao_autorizado: 'Não autorizado no BMP' };
   $('grupoCard').hidden = false; $('grupoTit').textContent = nomes[g]; $('grupoMsg').textContent = 'Carregando…'; $('grupoLinhas').innerHTML = '';
   try {
