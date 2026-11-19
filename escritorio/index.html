@@ -2227,7 +2227,7 @@ async function fichaMargemEnviar(id){const t=document.getElementById('fichaMarge
 async function fichaMargemIA(id){const st=document.getElementById('fichaMargemSt');
   if(demo){if(st)st.textContent='Disponível só com o sistema ligado.';return;}
   if(st)st.textContent='Pedindo à IA…';const r=await cvApi('ia_margem',{id});if(st)st.textContent=r&&r.ok?'✅ A IA vai mandar a mensagem em até 1 minuto.':'⚠️ '+((r&&r.erro)||'Não consegui pedir.');}
-const MOTIVOS_FIM=[['pago (confirmar contrato)','Pago'],['venda fechada','Venda fechada'],['sem interesse','Sem interesse'],['sem margem: informado pelo atendente','Sem margem'],['número errado: não é o cliente','Número errado'],['não contatar: pediu para não chamar','Não contatar'],['já tem empréstimo','Já tem crédito'],['atendimento concluído','Atendimento concluído'],['outro','Outro…']];
+const MOTIVOS_FIM=[['pago (confirmar contrato)','Pago'],['venda fechada','Venda fechada'],['sem interesse','Sem interesse'],['sem margem: informado pelo atendente','Sem margem'],['número errado: não é o cliente','Número errado'],['não contatar: pediu para não chamar','Não contatar'],['mensagem automática','Mensagem automática'],['já tem empréstimo','Já tem crédito'],['atendimento concluído','Atendimento concluído'],['outro','Outro…']];
 function motivoOpcoes(){return MOTIVOS_FIM.map(([v,t])=>`<option value="${esc(v)}">${t}</option>`).join('');}
 function motivoValor(selId,outroId){const m=document.getElementById(selId).value;if(m!=='outro')return m;const t=((document.getElementById(outroId)||{}).value||'').trim();if(!t){alert('Escreva o motivo.');return null;}return 'outro: '+t;}
 function motivoMudou(selId,outroId){const o=document.getElementById(outroId);if(o)o.hidden=document.getElementById(selId).value!=='outro';}
