@@ -2,13 +2,13 @@
 // Não fala com nenhum servidor, não manda mensagem e não consulta banco de verdade.
 import type { Api } from './contrato';
 import type {
-  Anexo, Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Mensagem, Numero, Oferta, Origem, ResultadoBanco, Usuario, RespostaPronta, TipoMidia,
+  Anexo, Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Mensagem, Numero, Oferta, Origem, ResultadoBanco, Usuario, RespostaPronta, TipoMidia, LeadDia,
 } from './tipos';
 import { soDigitos, validaCpf } from '@/util/formato';
 import { resolverMidia } from './demo-midia';
 
-const CHAVE = 'gm_painel_demo_v2';
-const CHAVE_CONVERSAS = 'gm_painel_demo_conversas_v2';
+const CHAVE = 'gm_painel_demo_v3';
+const CHAVE_CONVERSAS = 'gm_painel_demo_conversas_v3';
 const DIA = 86400000;
 
 // gerador pseudoaleatório com semente, para os dados de demonstração serem sempre os mesmos
@@ -37,6 +37,16 @@ function cpfValido(r: () => number): string {
   return n.join('');
 }
 
+function leadFicticio(r: () => number, por: string, em: number, chamadoEm: string | null): LeadDia {
+  const nome = `${NOMES[Math.floor(r() * NOMES.length)]} ${SOBRENOMES[Math.floor(r() * SOBRENOMES.length)]}`;
+  return {
+    id: 'ld' + Math.floor(r() * 1e9).toString(36), nome, cpf: cpfValido(r),
+    telefone: '55' + ['48', '11', '21', '41'][Math.floor(r() * 4)] + '90000' + String(1000 + Math.floor(r() * 8999)),
+    margem: Math.round(150 + r() * 650), banco: (['V8', 'V8', 'Unno', 'HUB'] as Banco[])[Math.floor(r() * 4)],
+    extraidoPor: por, extraidoEm: iso(em), chamadoEm,
+  };
+}
+
 function gerar(): Estado {
   const r = rng(20261124);
   const agora = Date.now();
@@ -56,8 +66,9 @@ function gerar(): Estado {
     { sessao: 'gmcred-4', telefone: '5548900000004', funcao: 'disparo', estado: 'caiu', aparelho: 'Redmi 13C' },
     { sessao: 'gmcred-5', telefone: '5548900000005', funcao: 'reserva', estado: 'conectado', aparelho: 'Redmi 13C' },
     { sessao: 'gmcred-6', telefone: '', funcao: 'disparo', estado: 'aguardando_qr', aparelho: 'Chip novo' },
+    { sessao: 'gmcred-bianca', telefone: '5548900000006', funcao: 'atendimento', estado: 'conectado', aparelho: 'Celular da Bianca', dono: 'u3' },
   ].map((n, i) => ({
-    id: 'n' + (i + 1), nomePerfil: 'Ana Gm Cred', maturar: i > 0 && i < 5, ...n, funcao: n.funcao as Numero['funcao'], estado: n.estado as Numero['estado'],
+    id: 'n' + (i + 1), dono: null as string | null, nomePerfil: 'Ana Gm Cred', maturar: i > 0 && i < 5, ...n, funcao: n.funcao as Numero['funcao'], estado: n.estado as Numero['estado'],
     enviadasHoje: n.estado === 'conectado' ? Math.floor(r() * 180) : 0, entreguesHoje: 0, falhasHoje: n.estado === 'caiu' ? 7 : Math.floor(r() * 3),
     travaAte: i === 3 ? iso(agora + 5 * 3600e3) : null, conectadoDesde: n.estado === 'conectado' ? iso(agora - Math.floor(r() * 20) * DIA) : null,
   }));
@@ -134,6 +145,7 @@ function gerar(): Estado {
 
   return {
     clientes, numeros, disparos, indicadores, gastos, usuarios,
+    leadsDia: Array.from({ length: 8 }, (_, i) => leadFicticio(r, 'u3', agora - (3 - i * 0.3) * 3600e3, i < 3 ? iso(agora - (2 - i * 0.4) * 3600e3) : null)),
     respostas: [
       { id: 'r1', atalho: 'cpf', titulo: 'Pedir CPF', texto: 'Oi {nome}! Pra eu ver quanto você consegue liberar, me manda o seu CPF, por favor?' },
       { id: 'r2', atalho: 'documentos', titulo: 'Pedir documentos', texto: '{nome}, pra seguir preciso de uma foto do seu documento com foto (RG ou CNH) e do último contracheque.' },
@@ -320,9 +332,10 @@ export const demoApi: Api = {
   async simular(cpf, parcela, prazo, bancos) { await espera(700); return motor(cpf, parcela, prazo, bancos); },
 
   async salvarNumero(p) { await espera(); const n = achar(db.numeros, p.id); Object.assign(n, p); gravar(); return copia(n); },
-  async novoNumero(sessao, funcao) {
+  async novoNumero(sessao, funcao, dono) {
     await espera();
-    const n: Numero = { id: 'n' + id(), sessao, telefone: '', nomePerfil: 'Ana Gm Cred', funcao, estado: 'aguardando_qr', aparelho: 'Chip novo', enviadasHoje: 0, entreguesHoje: 0, falhasHoje: 0, maturar: false, travaAte: null, conectadoDesde: null };
+    if (db.numeros.some(n => n.sessao === sessao)) throw new Error(`Já existe o número ${sessao}.`);
+    const n: Numero = { id: 'n' + id(), dono, sessao, telefone: '', nomePerfil: 'Ana Gm Cred', funcao, estado: 'aguardando_qr', aparelho: 'Chip novo', enviadasHoje: 0, entreguesHoje: 0, falhasHoje: 0, maturar: false, travaAte: null, conectadoDesde: null };
     db.numeros.push(n); gravar(); return copia(n);
   },
   async excluirNumero(nid) { await espera(); db.numeros = db.numeros.filter(n => n.id !== nid); gravar(); },
@@ -352,6 +365,20 @@ export const demoApi: Api = {
     db.disparos.unshift(d); gravar(); return copia(d);
   },
   async importarContatos(did, linhas) { await espera(); const d = achar(db.disparos, did); d.contatos += linhas.length; d.naFila += linhas.length; gravar(); return copia(d); },
+
+  async extrairLeads(quantidade, por) {
+    await espera(900);
+    const r = rng(Date.now() % 1e9);
+    const novos = Array.from({ length: Math.max(1, Math.min(100, quantidade)) }, () => leadFicticio(r, por, Date.now(), null));
+    db.leadsDia.push(...novos); gravar();
+    return copia(novos);
+  },
+  async marcarLeadChamado(lid, chamado) {
+    await espera(150);
+    const l = achar(db.leadsDia, lid);
+    l.chamadoEm = chamado ? new Date().toISOString() : null; gravar();
+    return copia(l);
+  },
 
   async salvarIndicador(p) {
     await espera();

@@ -15,10 +15,11 @@ import Maturador from '@/telas/maturador/Maturador';
 import Indicacoes from '@/telas/indicacoes/Indicacoes';
 import Financeiro from '@/telas/financeiro/Financeiro';
 import Usuarios from '@/telas/usuarios/Usuarios';
+import LeadsDoDia from '@/telas/leads/LeadsDoDia';
 
 const TELAS: [string, () => ReactElement][] = [
   ['/bi', () => <BI />], ['/pipeline', () => <Pipeline />], ['/clientes', () => <Clientes />], ['/conversas', () => <Conversas />],
-  ['/motor', () => <Motor />], ['/disparos', () => <Disparos />], ['/numeros', () => <Numeros />], ['/maturador', () => <Maturador />],
+  ['/motor', () => <Motor />], ['/leads', () => <LeadsDoDia />], ['/disparos', () => <Disparos />], ['/numeros', () => <Numeros />], ['/maturador', () => <Maturador />],
   ['/indicacoes', () => <Indicacoes />], ['/financeiro', () => <Financeiro />], ['/usuarios', () => <Usuarios />],
 ];
 

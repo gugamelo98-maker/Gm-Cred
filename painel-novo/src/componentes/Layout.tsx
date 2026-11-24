@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
-  BarChart3, Columns3, Users, MessageCircle, Calculator, Send, Smartphone, Flame, Gift, Wallet, UserCog, LogOut, Menu, Moon, Sun, X,
+  BarChart3, Magnet, Columns3, Users, MessageCircle, Calculator, Send, Smartphone, Flame, Gift, Wallet, UserCog, LogOut, Menu, Moon, Sun, X,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useDados } from '@/estado/Dados';
@@ -21,10 +21,11 @@ export const MENU: { grupo: string; itens: ItemMenu[] }[] = [
     { para: '/clientes', nome: 'Clientes', icone: Users, papeis: TODOS },
     { para: '/conversas', nome: 'Conversas', icone: MessageCircle, papeis: TODOS },
     { para: '/motor', nome: 'Motor de Crédito', icone: Calculator, papeis: TODOS },
+    { para: '/leads', nome: 'Leads do dia', icone: Magnet, papeis: TODOS },
   ] },
   { grupo: 'WhatsApp', itens: [
     { para: '/disparos', nome: 'Disparos', icone: Send, papeis: GESTAO },
-    { para: '/numeros', nome: 'Números', icone: Smartphone, papeis: GESTAO },
+    { para: '/numeros', nome: 'Números', icone: Smartphone, papeis: TODOS },
     { para: '/maturador', nome: 'Maturador', icone: Flame, papeis: GESTAO },
   ] },
   { grupo: 'Gestão', itens: [

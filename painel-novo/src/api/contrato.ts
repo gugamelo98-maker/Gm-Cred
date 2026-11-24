@@ -1,5 +1,5 @@
 import type {
-  Anexo, Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Maturador, Mensagem, Numero, RespostaPronta, ResultadoBanco, Usuario,
+  Anexo, Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, LeadDia, Maturador, Mensagem, Numero, RespostaPronta, ResultadoBanco, Usuario,
 } from './tipos';
 
 /**
@@ -43,7 +43,7 @@ export interface Api {
 
   // WhatsApp
   salvarNumero(n: Partial<Numero> & { id: string }): Promise<Numero>;
-  novoNumero(sessao: string, funcao: Numero['funcao']): Promise<Numero>;
+  novoNumero(sessao: string, funcao: Numero['funcao'], dono: string | null): Promise<Numero>;
   excluirNumero(id: string): Promise<void>;
   qrCode(id: string): Promise<string>;
   salvarMaturador(m: Partial<Maturador>): Promise<Maturador>;
@@ -51,6 +51,11 @@ export interface Api {
   mudarStatusDisparo(id: string, status: Disparo['status']): Promise<Disparo>;
   duplicarDisparo(id: string): Promise<Disparo>;
   importarContatos(id: string, linhas: { nome: string; telefone: string }[]): Promise<Disparo>;
+
+  // Leads do dia
+  /** separa até `quantidade` leads novos (com margem, ainda não chamados) para o usuário */
+  extrairLeads(quantidade: number, por: string): Promise<LeadDia[]>;
+  marcarLeadChamado(id: string, chamado: boolean): Promise<LeadDia>;
 
   // Gestão
   salvarIndicador(i: Partial<Indicador> & { id?: string }): Promise<Indicador>;

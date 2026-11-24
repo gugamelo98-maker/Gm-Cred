@@ -102,6 +102,8 @@ export interface Anexo {
 
 export interface Numero {
   id: string;
+  /** colaborador dono do chip (vê e conecta só o dele); null = número da empresa */
+  dono: string | null;
   /** nome da sessão no servidor de WhatsApp (Baileys), ex.: gmcred-3 */
   sessao: string;
   telefone: string;
@@ -204,6 +206,21 @@ export interface ResultadoBanco {
   ofertas: Oferta[];
 }
 
+/** Lead extraído no dia para o colaborador chamar no WhatsApp dele */
+export interface LeadDia {
+  id: string;
+  nome: string;
+  telefone: string;
+  cpf: string;
+  margem: number;
+  banco: Banco;
+  /** usuário que extraiu (o lead é dele no dia) */
+  extraidoPor: string;
+  extraidoEm: string;
+  /** quando o colaborador abriu o WhatsApp do cliente; null = ainda não chamou */
+  chamadoEm: string | null;
+}
+
 /** Tudo que o painel carrega de uma vez (equivalente ao /escritorio/estado de hoje) */
 export interface Estado {
   clientes: Cliente[];
@@ -214,4 +231,5 @@ export interface Estado {
   gastos: Gasto[];
   usuarios: Usuario[];
   respostas: RespostaPronta[];
+  leadsDia: LeadDia[];
 }

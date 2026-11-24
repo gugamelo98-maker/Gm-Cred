@@ -19,5 +19,5 @@ export const CATEGORIAS: Record<CategoriaGasto, string> = {
 export const PAPEIS: Record<Papel, { nome: string; desc: string }> = {
   admin: { nome: 'Administrador', desc: 'Tudo, inclusive usuários e financeiro' },
   gestor: { nome: 'Gestor', desc: 'Tudo, menos usuários' },
-  atendente: { nome: 'Atendente', desc: 'Pipeline, clientes, conversas e motor de crédito' },
+  atendente: { nome: 'Atendente', desc: 'Pipeline, clientes, conversas, motor de crédito, leads do dia e o próprio número (sem disparos)' },
 };
