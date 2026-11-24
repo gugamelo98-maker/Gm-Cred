@@ -2,11 +2,13 @@
 // Não fala com nenhum servidor, não manda mensagem e não consulta banco de verdade.
 import type { Api } from './contrato';
 import type {
-  Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Mensagem, Numero, Oferta, Origem, ResultadoBanco, Usuario,
+  Anexo, Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Mensagem, Numero, Oferta, Origem, ResultadoBanco, Usuario, RespostaPronta, TipoMidia,
 } from './tipos';
 import { soDigitos, validaCpf } from '@/util/formato';
+import { resolverMidia } from './demo-midia';
 
-const CHAVE = 'gm_painel_demo_v1';
+const CHAVE = 'gm_painel_demo_v2';
+const CHAVE_CONVERSAS = 'gm_painel_demo_conversas_v2';
 const DIA = 86400000;
 
 // gerador pseudoaleatório com semente, para os dados de demonstração serem sempre os mesmos
@@ -41,10 +43,10 @@ function gerar(): Estado {
   const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
 
   const usuarios: Usuario[] = [
-    { id: 'u1', nome: 'Dono', email: 'dono@gmcred.com.br', papel: 'admin', ativo: true, ultimoAcesso: iso(agora - 3600e3) },
-    { id: 'u2', nome: 'Larissa', email: 'larissa@gmcred.com.br', papel: 'gestor', ativo: true, ultimoAcesso: iso(agora - 2 * DIA) },
-    { id: 'u3', nome: 'Bianca', email: 'bianca@gmcred.com.br', papel: 'atendente', ativo: true, ultimoAcesso: iso(agora - 5 * 3600e3) },
-    { id: 'u4', nome: 'Rafael', email: 'rafael@gmcred.com.br', papel: 'atendente', ativo: false, ultimoAcesso: iso(agora - 20 * DIA) },
+    { id: 'u1', escopo: 'todos', nome: 'Dono', email: 'dono@gmcred.com.br', papel: 'admin', ativo: true, ultimoAcesso: iso(agora - 3600e3) },
+    { id: 'u2', escopo: 'todos', nome: 'Larissa', email: 'larissa@gmcred.com.br', papel: 'gestor', ativo: true, ultimoAcesso: iso(agora - 2 * DIA) },
+    { id: 'u3', escopo: 'proprios', nome: 'Bianca', email: 'bianca@gmcred.com.br', papel: 'atendente', ativo: true, ultimoAcesso: iso(agora - 5 * 3600e3) },
+    { id: 'u4', escopo: 'proprios', nome: 'Rafael', email: 'rafael@gmcred.com.br', papel: 'atendente', ativo: false, ultimoAcesso: iso(agora - 20 * DIA) },
   ];
 
   const numeros: Numero[] = [
@@ -108,7 +110,7 @@ function gerar(): Estado {
       cpf: mandouCpf ? cpfValido(r) : null, produto, origem, origemRef: origem === 'disparo' ? pick(disparos.slice(0, 3)).id : origem === 'indicacao' ? pick(indicadores).id : null,
       etapa, situacao, etiqueta, margem, banco: temMargem ? banco : null, valorLiberado: valor, parcela: proposta ? margem : null, prazo,
       comissao: pago && valor ? Math.round(valor * (banco === 'V8' ? 0.06 : 0.055)) : null,
-      atendente: r() < 0.12 && etapa !== 'perdido' ? 'u3' : 'ia', numeroId: 'n1', naoLidas: etapa !== 'perdido' && r() < 0.15 ? 1 + Math.floor(r() * 3) : 0,
+      ...(() => { const comBianca = r() < 0.12 && etapa !== 'perdido'; return { atendente: comBianca ? 'u3' : 'ia', responsavel: comBianca || r() < 0.3 ? 'u3' : null }; })(), numeroId: 'n1', naoLidas: etapa !== 'perdido' && r() < 0.15 ? 1 + Math.floor(r() * 3) : 0,
       entrouEm: iso(entrou), cpfEm: mandouCpf ? t(0.3 + r()) : null, margemEm: temMargem ? t(1.5) : null, propostaEm: proposta ? t(2 + r() * 10) : null, pagoEm: pago ? t(24 + r() * 40) : null,
       ultimaMsgEm: iso(ultima), historico: [{ em: iso(entrou), de: null, para: 'recepcao', por: 'ia' }],
     });
@@ -132,6 +134,13 @@ function gerar(): Estado {
 
   return {
     clientes, numeros, disparos, indicadores, gastos, usuarios,
+    respostas: [
+      { id: 'r1', atalho: 'cpf', titulo: 'Pedir CPF', texto: 'Oi {nome}! Pra eu ver quanto você consegue liberar, me manda o seu CPF, por favor?' },
+      { id: 'r2', atalho: 'documentos', titulo: 'Pedir documentos', texto: '{nome}, pra seguir preciso de uma foto do seu documento com foto (RG ou CNH) e do último contracheque.' },
+      { id: 'r3', atalho: 'pix', titulo: 'Chave PIX', texto: 'Qual é a sua chave PIX? Ela precisa estar no seu nome (CPF, celular ou e-mail).' },
+      { id: 'r4', atalho: 'assinatura', titulo: 'Lembrete de assinatura', texto: '{nome}, falta só assinar o contrato pelo link que te mandei. Leva menos de 2 minutinhos! Qualquer dúvida estou aqui.' },
+      { id: 'r5', atalho: 'retorno', titulo: 'Retornar depois', texto: 'Combinado, {nome}! Te chamo mais tarde para finalizarmos.' },
+    ],
     maturador: { ativo: true, intervaloMin: 8, horaInicio: 8, horaFim: 21, ultimas: Array.from({ length: 6 }, (_, i) => ({ em: iso(agora - i * 8 * 60e3), de: 'gmcred-' + (2 + (i % 3)), para: 'gmcred-' + (2 + ((i + 1) % 3)), texto: pick(['Bom dia! Tudo certo por aí?', 'Vou passar aí mais tarde', 'kkkk verdade', 'Me manda aquela foto depois', 'Ok, combinado 👍']) })) },
   };
 }
@@ -149,7 +158,7 @@ function gravar() {
   try { localStorage.setItem(CHAVE, JSON.stringify(db)); } catch { /* ignora */ }
 }
 export function resetarDemo() {
-  try { localStorage.removeItem(CHAVE); } catch { /* ignora */ }
+  try { localStorage.removeItem(CHAVE); localStorage.removeItem(CHAVE_CONVERSAS); } catch { /* ignora */ }
   db = gerar();
   conversas.clear();
 }
@@ -162,22 +171,41 @@ function achar<T extends { id: string }>(xs: T[], i: string): T {
   return x;
 }
 
-// conversas fictícias geradas sob demanda
-const conversas = new Map<string, Mensagem[]>();
+// conversas fictícias: geradas na primeira vez que abrem e guardadas neste navegador
+const conversas = new Map<string, Mensagem[]>((() => {
+  try { return JSON.parse(localStorage.getItem(CHAVE_CONVERSAS) || '[]'); } catch { return []; }
+})());
+function gravarConversas() {
+  try { localStorage.setItem(CHAVE_CONVERSAS, JSON.stringify([...conversas])); }
+  catch { /* sem espaço (mídias grandes): continua só na memória até recarregar */ }
+}
+const midiaDemo = (tipo: TipoMidia, url: string, nome: string, mime: string, tamanho: number, extra: { duracaoSeg?: number; voz?: boolean } = {}) => ({ tipo, url, nome, mime, tamanho, ...extra });
 function conversaDe(c: Cliente): Mensagem[] {
   const pronta = conversas.get(c.id);
   if (pronta) return pronta;
   const base = new Date(c.entrouEm).getTime();
-  const m = (de: Mensagem['de'], texto: string, min: number): Mensagem => ({ id: id(), clienteId: c.id, de, autor: null, texto, em: iso(base + min * 60e3), status: de === 'cliente' ? null : 'lida' });
+  const sorte = Number(c.id.replace(/\D/g, '')) % 5;
+  const m = (de: Mensagem['de'], texto: string, min: number, midia: Mensagem['midia'] = null): Mensagem => ({ id: id(), clienteId: c.id, de, autor: null, texto, midia, em: iso(base + min * 60e3), status: de === 'cliente' ? null : 'lida' });
   const L: Mensagem[] = [m('cliente', c.origem === 'disparo' ? 'Quero simular' : 'Olá! Vi o anúncio do empréstimo', 0), m('ia', `Oi ${c.nome.split(' ')[0]}, aqui é a Ana da GM Cred! Pra eu ver quanto você consegue, me manda o seu CPF?`, 1)];
   if (c.cpf) L.push(m('cliente', c.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'), 15), m('ia', 'Obrigada! Já estou consultando, só um minutinho 😉', 16));
   if (c.cpf && !c.margem) L.push(m('ia', 'Consultei aqui e, por enquanto, não apareceu margem disponível no seu CPF. Assim que liberar eu te aviso, combinado?', 20));
+  if (c.cpf && sorte < 2) L.push(m('cliente', '', 17, midiaDemo('audio', 'demo://audio', 'audio.ogg', 'audio/ogg', 21000, { duracaoSeg: 2, voz: true })));
   if (c.margem) L.push(m('ia', `Boa notícia! Você tem margem de R$ ${c.margem.toFixed(2).replace('.', ',')} por mês. Qual parcela cabe no seu bolso?`, 20), m('cliente', 'Quanto consigo em 36x?', 40));
   if (c.valorLiberado) L.push(m('ia', `Em ${c.prazo}x de R$ ${(c.parcela ?? 0).toFixed(2).replace('.', ',')} você recebe R$ ${c.valorLiberado.toLocaleString('pt-BR')} no PIX. Quer seguir?`, 42), m('cliente', 'Quero sim', 60));
+  if (c.propostaEm) L.push(
+    m('cliente', 'Segue meu contracheque', 70, midiaDemo('imagem', 'demo://contracheque', 'contracheque.jpg', 'image/svg+xml', 48000)),
+    ...(sorte % 2 ? [m('cliente', '', 72, midiaDemo('documento', 'demo://comprovante', 'comprovante-residencia.pdf', 'application/pdf', 1100))] : []),
+  );
   if (c.pagoEm) L.push(m('ia', 'Pronto! O valor caiu na sua conta. Qualquer coisa estou por aqui 💙', 60 * 30));
   if (c.naoLidas) L.push(m('cliente', 'Oi, alguém aí?', (new Date(c.ultimaMsgEm).getTime() - base) / 60e3));
   conversas.set(c.id, L);
+  gravarConversas();
   return L;
+}
+/** troca os endereços demo:// pelo conteúdo antes de entregar para a tela */
+const comMidia = (ms: Mensagem[]) => ms.map(x => (x.midia ? { ...x, midia: { ...x.midia, url: resolverMidia(x.midia.url) } } : x));
+function tipoDoMime(mime: string): TipoMidia {
+  return mime.startsWith('image/') ? 'imagem' : mime.startsWith('audio/') ? 'audio' : mime.startsWith('video/') ? 'video' : 'documento';
 }
 
 function fatorPrazo(prazo: number, taxa: number) {
@@ -231,16 +259,51 @@ export const demoApi: Api = {
   },
   async salvarCliente(p) { await espera(); const c = achar(db.clientes, p.id); Object.assign(c, p); gravar(); return copia(c); },
 
-  async mensagens(cid) { await espera(150); return copia(conversaDe(achar(db.clientes, cid))); },
+  async mensagens(cid) { await espera(150); return comMidia(copia(conversaDe(achar(db.clientes, cid)))); },
   async enviarMensagem(cid, texto, autor) {
     await espera(300);
     const c = achar(db.clientes, cid);
-    const msg: Mensagem = { id: id(), clienteId: cid, de: 'humano', autor, texto, em: new Date().toISOString(), status: 'entregue' };
-    conversaDe(c).push(msg);
+    const msg: Mensagem = { id: id(), clienteId: cid, de: 'humano', autor, texto, midia: null, em: new Date().toISOString(), status: 'entregue' };
+    conversaDe(c).push(msg); gravarConversas();
     c.ultimaMsgEm = msg.em; gravar();
     return copia(msg);
   },
-  async assumirConversa(cid, atendente) { await espera(); const c = achar(db.clientes, cid); c.atendente = atendente; gravar(); return copia(c); },
+  async enviarMidia(cid, anexo: Anexo, texto, autor) {
+    await espera(500);
+    if (anexo.tamanho > 16 * 1024 * 1024) throw new Error('Arquivo maior que 16 MB: o WhatsApp não aceita.');
+    const c = achar(db.clientes, cid);
+    const msg: Mensagem = {
+      id: id(), clienteId: cid, de: 'humano', autor, texto, em: new Date().toISOString(), status: 'entregue',
+      midia: { tipo: tipoDoMime(anexo.mime), url: anexo.dados, nome: anexo.nome, mime: anexo.mime, tamanho: anexo.tamanho, duracaoSeg: anexo.duracaoSeg, voz: anexo.voz },
+    };
+    conversaDe(c).push(msg); gravarConversas();
+    c.ultimaMsgEm = msg.em; gravar();
+    return copia(msg);
+  },
+  async adicionarNota(cid, texto, autor) {
+    await espera(200);
+    const c = achar(db.clientes, cid);
+    const msg: Mensagem = { id: id(), clienteId: cid, de: 'nota', autor, texto, midia: null, em: new Date().toISOString(), status: null };
+    conversaDe(c).push(msg); gravarConversas();
+    return copia(msg);
+  },
+  async definirResponsavel(cid, responsavel) { await espera(); const c = achar(db.clientes, cid); c.responsavel = responsavel; gravar(); return copia(c); },
+  async salvarResposta(p) {
+    await espera();
+    const atalho = (p.atalho ?? '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (p.atalho !== undefined && !atalho) throw new Error('O atalho precisa ter letras ou números.');
+    if (atalho && db.respostas.some(r => r.atalho === atalho && r.id !== p.id)) throw new Error(`Já existe a resposta /${atalho}.`);
+    if (p.id) { const r = achar(db.respostas, p.id); Object.assign(r, p, atalho ? { atalho } : {}); gravar(); return copia(r); }
+    const r: RespostaPronta = { id: 'r' + id(), titulo: '', texto: '', ...p, atalho } as RespostaPronta;
+    db.respostas.push(r); gravar(); return copia(r);
+  },
+  async apagarResposta(rid) { await espera(); db.respostas = db.respostas.filter(r => r.id !== rid); gravar(); },
+  async assumirConversa(cid, atendente) {
+    await espera(); const c = achar(db.clientes, cid);
+    c.atendente = atendente;
+    if (atendente !== 'ia' && !c.responsavel) c.responsavel = atendente;
+    gravar(); return copia(c);
+  },
   async finalizarConversa(cid, motivo, por) {
     await espera(); const c = achar(db.clientes, cid);
     c.historico.push({ em: new Date().toISOString(), de: c.etapa, para: 'perdido', por });
@@ -309,7 +372,7 @@ export const demoApi: Api = {
     await espera();
     if (p.email && db.usuarios.some(u => u.email.toLowerCase() === p.email!.toLowerCase() && u.id !== p.id)) throw new Error('Já existe um usuário com este e-mail.');
     if (p.id) { const u = achar(db.usuarios, p.id); Object.assign(u, p); gravar(); return copia(u); }
-    const u: Usuario = { id: 'u' + id(), nome: '', email: '', papel: 'atendente', ativo: true, ultimoAcesso: null, ...p } as Usuario;
+    const u: Usuario = { id: 'u' + id(), nome: '', email: '', papel: 'atendente', escopo: p.papel === 'atendente' || !p.papel ? 'proprios' : 'todos', ativo: true, ultimoAcesso: null, ...p } as Usuario;
     db.usuarios.push(u); gravar(); return copia(u);
   },
 };

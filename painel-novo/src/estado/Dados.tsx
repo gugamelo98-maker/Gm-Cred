@@ -50,8 +50,11 @@ export function DadosProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t);
   }, [usuario, recarregar]);
 
+  // usa sempre a versão mais nova do usuário (se o admin mudar o acesso dele, vale na hora)
+  const eu = useMemo(() => (usuario && estado?.usuarios.find(u => u.id === usuario.id)) || usuario, [usuario, estado]);
+
   const valor = useMemo<Ctx>(() => ({
-    estado, erro, usuario,
+    estado, erro, usuario: eu,
     async entrar(email, senha) {
       const u = await api.entrar(email, senha);
       try { localStorage.setItem(CHAVE_SESSAO, JSON.stringify(u)); } catch { /* ignora */ }
@@ -79,7 +82,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
     async executar(fn, ok) {
       try { const r = await fn(); if (ok) avisar(ok); return r; } catch (e) { avisar(String((e as Error).message || e), 'erro'); return undefined; }
     },
-  }), [estado, erro, usuario, recarregar, avisar]);
+  }), [estado, erro, eu, recarregar, avisar]);
 
   return (
     <C.Provider value={valor}>

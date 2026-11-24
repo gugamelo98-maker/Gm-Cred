@@ -1,11 +1,17 @@
 import type {
-  Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Maturador, Mensagem, Numero, ResultadoBanco, Usuario,
+  Anexo, Banco, Cliente, Disparo, Estado, Etapa, Gasto, Indicador, Maturador, Mensagem, Numero, RespostaPronta, ResultadoBanco, Usuario,
 } from './tipos';
 
 /**
  * Tudo que o painel pede ao backend. Hoje só existe a implementação de demonstração (demo.ts).
  * Para ligar no sistema de verdade, crie outra classe que implemente esta interface
  * chamando o backend novo e troque em api/index.ts — nenhuma tela precisa mudar.
+ *
+ * WhatsApp: o envio e o recebimento continuam no fluxo que já funciona no n8n com o Baileys próprio.
+ * enviarMensagem / enviarMidia chamam um webhook desse fluxo; o n8n manda pelo Baileys e devolve a Mensagem.
+ * Mídia recebida do cliente: o n8n baixa do Baileys, guarda num armazenamento e grava a Mensagem com midia.url.
+ * Áudio gravado no painel chega como webm/ogg (voz = true): o fluxo envia como mensagem de voz (ptt).
+ * Nota interna nunca passa pelo Baileys: é só gravada no banco.
  */
 export interface Api {
   entrar(email: string, senha: string): Promise<Usuario>;
@@ -18,6 +24,14 @@ export interface Api {
   // Conversas
   mensagens(clienteId: string): Promise<Mensagem[]>;
   enviarMensagem(clienteId: string, texto: string, autor: string): Promise<Mensagem>;
+  /** envia imagem, PDF, áudio ou vídeo para o cliente pelo WhatsApp; texto vira a legenda */
+  enviarMidia(clienteId: string, anexo: Anexo, texto: string, autor: string): Promise<Mensagem>;
+  /** nota interna: fica só no painel */
+  adicionarNota(clienteId: string, texto: string, autor: string): Promise<Mensagem>;
+  /** define o usuário responsável pelo cliente (null = sem responsável) */
+  definirResponsavel(clienteId: string, responsavel: string | null): Promise<Cliente>;
+  salvarResposta(r: Partial<RespostaPronta> & { id?: string }): Promise<RespostaPronta>;
+  apagarResposta(id: string): Promise<void>;
   /** humano assume a conversa (a IA para de responder) ou devolve para a IA */
   assumirConversa(clienteId: string, atendente: string): Promise<Cliente>;
   finalizarConversa(clienteId: string, motivo: string, por: string): Promise<Cliente>;

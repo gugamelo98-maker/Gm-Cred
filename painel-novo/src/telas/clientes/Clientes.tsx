@@ -6,13 +6,15 @@ import { Etiqueta, Titulo, Vazio } from '@/componentes/ui';
 import { brl, fmtCpf, fmtTel, tempoDesde } from '@/util/formato';
 import { ORIGENS, nomeEtapa } from '@/util/rotulos';
 import Ficha, { COR_ETAPA, nomeAtendente } from './Ficha';
+import { clientesVisiveis } from '@/util/permissoes';
 
-type Grupo = 'todos' | 'andamento' | 'com_margem' | 'humano' | 'pagos' | 'perdidos' | 'sem_margem';
+type Grupo = 'todos' | 'andamento' | 'com_margem' | 'humano' | 'sem_resp' | 'pagos' | 'perdidos' | 'sem_margem';
 const GRUPOS: { id: Grupo; nome: string; filtro: (c: Cliente) => boolean }[] = [
   { id: 'todos', nome: 'Todos', filtro: () => true },
   { id: 'andamento', nome: 'Em atendimento', filtro: c => c.etapa !== 'perdido' && c.etapa !== 'posvenda' },
   { id: 'com_margem', nome: 'Com margem', filtro: c => c.margem != null && c.etapa !== 'posvenda' },
   { id: 'humano', nome: 'Com humano', filtro: c => c.atendente !== 'ia' },
+  { id: 'sem_resp', nome: 'Sem responsável', filtro: c => !c.responsavel && c.etapa !== 'perdido' },
   { id: 'pagos', nome: 'Pagos', filtro: c => c.etapa === 'posvenda' },
   { id: 'sem_margem', nome: 'Sem margem', filtro: c => !!c.cpf && c.margem == null },
   { id: 'perdidos', nome: 'Perdidos', filtro: c => c.etapa === 'perdido' },
@@ -35,7 +37,8 @@ function baixarCsv(cs: Cliente[]) {
 }
 
 export default function Clientes() {
-  const { estado } = useDados();
+  const { estado, usuario } = useDados();
+  const visiveis = useMemo(() => clientesVisiveis(estado!, usuario!), [estado, usuario]);
   const [grupo, setGrupo] = useState<Grupo>('andamento');
   const [busca, setBusca] = useState('');
   const [origem, setOrigem] = useState<Origem | 'todas'>('todas');
@@ -45,19 +48,19 @@ export default function Clientes() {
 
   const base = useMemo(() => {
     const q = busca.trim().toLowerCase(), qd = q.replace(/\D/g, '');
-    return estado!.clientes.filter(c => (origem === 'todas' || c.origem === origem) && (produto === 'todos' || c.produto === produto)
+    return visiveis.filter(c => (origem === 'todas' || c.origem === origem) && (produto === 'todos' || c.produto === produto)
       && (!q || c.nome.toLowerCase().includes(q) || (qd.length >= 3 && (c.telefone.includes(qd) || (c.cpf ?? '').includes(qd)))));
-  }, [estado, busca, origem, produto]);
+  }, [visiveis, busca, origem, produto]);
   const filtro = GRUPOS.find(g => g.id === grupo)!.filtro;
   const lista = base.filter(filtro);
 
   return (
     <div>
-      <Titulo titulo="Clientes" sub={`${estado!.clientes.length} clientes no cadastro`}
+      <Titulo titulo="Clientes" sub={usuario!.escopo === 'proprios' ? `${visiveis.length} clientes sob sua responsabilidade` : `${visiveis.length} clientes no cadastro`}
         acoes={<button className="bt" onClick={() => baixarCsv(lista)} disabled={!lista.length}><Download size={16} /> Exportar CSV ({lista.length})</button>} />
 
       <div className="mb-3 flex flex-wrap gap-1.5">
-        {GRUPOS.map(g => (
+        {GRUPOS.filter(g => g.id !== 'sem_resp' || usuario!.escopo === 'todos').map(g => (
           <button key={g.id} onClick={() => { setGrupo(g.id); setLimite(PAGINA); }}
             className={`rounded-full border px-3 py-1 text-sm ${grupo === g.id ? 'border-marca bg-marca text-white' : 'border-borda bg-cartao text-suave hover:bg-fundo'}`}>
             {g.nome} <b className="num">{base.filter(g.filtro).length}</b>
@@ -95,7 +98,7 @@ export default function Clientes() {
         </ul>
         <div className="cartao hidden overflow-x-auto md:block">
           <table className="tabela">
-            <thead><tr><th>Cliente</th><th>Etapa</th><th>Situação</th><th>CPF</th><th className="text-right">Margem</th><th className="text-right">Proposta</th><th>Origem</th><th>Atendente</th><th>Última msg</th></tr></thead>
+            <thead><tr><th>Cliente</th><th>Etapa</th><th>Situação</th><th>CPF</th><th className="text-right">Margem</th><th className="text-right">Proposta</th><th>Origem</th><th>Responsável</th><th>Última msg</th></tr></thead>
             <tbody>
               {lista.slice(0, limite).map(c => (
                 <tr key={c.id} className="cursor-pointer" onClick={() => setAberto(c)}>
@@ -106,7 +109,7 @@ export default function Clientes() {
                   <td className="num text-right">{brl(c.margem)}</td>
                   <td className="num whitespace-nowrap text-right">{c.valorLiberado ? brl(c.valorLiberado) : '—'}</td>
                   <td className="whitespace-nowrap">{ORIGENS[c.origem]}</td>
-                  <td className="whitespace-nowrap">{nomeAtendente(c.atendente, estado!.usuarios)}</td>
+                  <td className="whitespace-nowrap">{c.responsavel ? nomeAtendente(c.responsavel, estado!.usuarios) : <span className="text-apagado">—</span>}</td>
                   <td className="whitespace-nowrap text-apagado">{tempoDesde(c.ultimaMsgEm)}</td>
                 </tr>
               ))}

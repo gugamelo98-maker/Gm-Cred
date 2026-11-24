@@ -8,6 +8,7 @@ import { useDados } from '@/estado/Dados';
 import { MODO_DEMO } from '@/api';
 import type { Papel } from '@/api/tipos';
 import { resetarDemo } from '@/api/demo';
+import { clientesVisiveis } from '@/util/permissoes';
 
 export interface ItemMenu { para: string; nome: string; icone: typeof BarChart3; papeis: Papel[] }
 const TODOS: Papel[] = ['admin', 'gestor', 'atendente'];
@@ -49,7 +50,7 @@ export default function Layout() {
   const [, forcar] = useState(0);
   const loc = useLocation();
   if (!usuario) return null;
-  const naoLidas = estado?.clientes.reduce((s, c) => s + (c.naoLidas ? 1 : 0), 0) ?? 0;
+  const naoLidas = estado ? clientesVisiveis(estado, usuario).reduce((s, c) => s + (c.naoLidas && c.etapa !== 'perdido' ? 1 : 0), 0) : 0;
   const escuro = document.documentElement.dataset.tema === 'escuro';
 
   const menu = (

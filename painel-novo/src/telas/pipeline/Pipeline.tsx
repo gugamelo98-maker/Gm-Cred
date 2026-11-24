@@ -11,6 +11,7 @@ import { Titulo } from '@/componentes/ui';
 import { brl, fmtTel, tempoDesde } from '@/util/formato';
 import { ETAPAS } from '@/util/rotulos';
 import Ficha, { MotivoPerda, nomeAtendente, useMoverCliente } from '@/telas/clientes/Ficha';
+import { clientesVisiveis } from '@/util/permissoes';
 
 const POR_COLUNA = 40;
 
@@ -30,7 +31,7 @@ function Cartao({ c, arrastando, abrir }: { c: Cliente; arrastando?: boolean; ab
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-suave">
         <span className="rounded bg-fundo px-1.5 py-0.5 font-medium">{c.produto}</span>
         {valor && <span className="num font-medium text-texto">{valor}</span>}
-        {c.atendente !== 'ia' && <span>👤 {nomeAtendente(c.atendente, estado!.usuarios).split(' ')[0]}</span>}
+        {c.responsavel && <span>👤 {nomeAtendente(c.responsavel, estado!.usuarios).split(' ')[0]}</span>}
       </div>
       <div className="mt-1 flex justify-between gap-2 text-xs text-apagado">
         <span className="truncate">{c.etiqueta && c.etapa === 'perdido' ? c.etiqueta : c.situacao}</span>
@@ -80,7 +81,7 @@ function Coluna({ etapa, nome, desc, clientes, abrir, aberta }: { etapa: Etapa; 
 }
 
 export default function Pipeline() {
-  const { estado } = useDados();
+  const { estado, usuario } = useDados();
   const mover = useMoverCliente();
   const [busca, setBusca] = useState('');
   const [produto, setProduto] = useState<'todos' | 'CLT' | 'FGTS'>('todos');
@@ -97,13 +98,13 @@ export default function Pipeline() {
 
   const porEtapa = useMemo(() => {
     const q = busca.trim().toLowerCase(), qd = q.replace(/\D/g, '');
-    const L = estado!.clientes.filter(c => (produto === 'todos' || c.produto === produto)
+    const L = clientesVisiveis(estado!, usuario!).filter(c => (produto === 'todos' || c.produto === produto)
       && (!q || c.nome.toLowerCase().includes(q) || (qd.length >= 3 && (c.telefone.includes(qd) || (c.cpf ?? '').includes(qd)))));
     const m = Object.fromEntries(ETAPAS.map(e => [e.id, [] as Cliente[]])) as Record<Etapa, Cliente[]>;
     L.forEach(c => m[c.etapa].push(c));
     Object.values(m).forEach(xs => xs.sort((a, b) => b.ultimaMsgEm.localeCompare(a.ultimaMsgEm)));
     return m;
-  }, [estado, busca, produto]);
+  }, [estado, usuario, busca, produto]);
 
   const inicio = (e: DragStartEvent) => setPegando(estado!.clientes.find(c => c.id === e.active.id) ?? null);
   const fim = (e: DragEndEvent) => {

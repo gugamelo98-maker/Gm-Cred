@@ -37,6 +37,8 @@ export interface Cliente {
   comissao: number | null;
   /** quem atende agora: 'ia' ou o id de um usuário */
   atendente: string;
+  /** usuário dono do cliente (o atendente com escopo 'proprios' só vê os clientes dele); null = sem responsável */
+  responsavel: string | null;
   numeroId: string;
   naoLidas: number;
   // marcos do funil (usados pelo BI)
@@ -49,15 +51,53 @@ export interface Cliente {
   historico: MudancaEtapa[];
 }
 
+export type TipoMidia = 'imagem' | 'documento' | 'audio' | 'video';
+
+export interface Midia {
+  tipo: TipoMidia;
+  /** endereço para abrir/baixar. No backend real: URL assinada do armazenamento */
+  url: string;
+  nome: string;
+  mime: string;
+  tamanho: number;
+  /** só áudio/vídeo */
+  duracaoSeg?: number;
+  /** áudio gravado no painel ou mensagem de voz do WhatsApp (o servidor converte para ogg/opus ao enviar) */
+  voz?: boolean;
+}
+
 export interface Mensagem {
   id: string;
   clienteId: string;
-  de: 'cliente' | 'ia' | 'humano';
-  /** id do usuário quando de = 'humano' */
+  /** 'nota' = nota interna: só a equipe vê, nunca vai para o WhatsApp */
+  de: 'cliente' | 'ia' | 'humano' | 'nota';
+  /** id do usuário quando de = 'humano' ou 'nota' */
   autor: string | null;
+  /** texto da mensagem, ou legenda quando tem mídia */
   texto: string;
+  midia: Midia | null;
   em: string;
   status: 'enviando' | 'enviada' | 'entregue' | 'lida' | 'erro' | null;
+}
+
+export interface RespostaPronta {
+  id: string;
+  /** digitado depois da barra, ex.: cpf → /cpf */
+  atalho: string;
+  titulo: string;
+  /** pode usar {nome} (primeiro nome do cliente) */
+  texto: string;
+}
+
+/** arquivo escolhido no painel para enviar */
+export interface Anexo {
+  nome: string;
+  mime: string;
+  tamanho: number;
+  /** conteúdo em data URL (base64) */
+  dados: string;
+  duracaoSeg?: number;
+  voz?: boolean;
 }
 
 export interface Numero {
@@ -140,6 +180,8 @@ export interface Usuario {
   nome: string;
   email: string;
   papel: Papel;
+  /** 'proprios' = só vê as conversas e os clientes em que é o responsável */
+  escopo: 'todos' | 'proprios';
   ativo: boolean;
   ultimoAcesso: string | null;
 }
@@ -171,4 +213,5 @@ export interface Estado {
   indicadores: Indicador[];
   gastos: Gasto[];
   usuarios: Usuario[];
+  respostas: RespostaPronta[];
 }

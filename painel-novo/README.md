@@ -23,14 +23,14 @@ Abra o endereço que aparecer (normalmente http://localhost:5173). Na demonstra�
 | **BI** | Quantos entraram, quantos mandaram CPF, com margem, propostas, pagos e comissão por período, produto e origem. Mostra funil, gráfico por dia, custo por lead/venda por origem e resultado de cada disparo. | Admin, Gestor |
 | **Pipeline** | Kanban por etapa (Recepção → Simulação → Vendas → Formalização → Pós-venda → Perdidos). **Arraste o cartão** para mudar o status. Soltar em Perdidos pede o motivo. Tudo fica no histórico do cliente. | Todos |
 | **Clientes** | Cadastro com filtros (em atendimento, com margem, com humano, pagos, sem margem, perdidos), busca, ficha e exportação CSV. | Todos |
-| **Conversas** | Atender pelo painel: assumir a conversa (a IA para de responder), devolver para a IA, finalizar. | Todos |
+| **Conversas** | Atender pelo painel: assumir/devolver para a IA, finalizar, enviar foto/PDF/vídeo (botão, arrastar ou colar), gravar áudio, ouvir e abrir as mídias do cliente, nota interna (só a equipe vê; Admin e Gestor escrevem), mensagens prontas com `/atalho`, responsável pelo cliente. | Todos |
 | **Motor de Crédito** | CPF → consulta V8, Unno e HUB juntos → simula a parcela → ranking das ofertas pela comissão. | Todos |
 | **Disparos** | Rodadas de disparo pelos chips (Baileys próprio + n8n): mensagens A/B com variações, rodapé e botões, números, ritmo, horário e importação de contatos. | Admin, Gestor |
 | **Números** | Chips: status, função (atendimento/disparo/reserva), QR para conectar, trava do WhatsApp, envios do dia. | Admin, Gestor |
 | **Maturador** | Liga/pausa, intervalo, horário, chips participantes e últimas mensagens trocadas. | Admin, Gestor |
 | **Indicações** | Indicadores, link próprio, indicações, vendas fechadas, saldo e pagamento. | Admin, Gestor |
 | **Financeiro** | Receita (comissão), gastos por categoria, lucro, retorno, custo por lead/venda e lançamentos. | Admin, Gestor |
-| **Usuários** *(nova)* | Quem entra no painel e o tipo de acesso (Administrador, Gestor, Atendente). | Admin |
+| **Usuários** *(nova)* | Quem entra no painel, o tipo de acesso (Administrador, Gestor, Atendente) e se o atendente vê **só as conversas e clientes dele** ou todos. | Admin |
 
 Ficaram de fora do painel antigo: Escritório (salas e avatares), Campanha, API oficial, Agentes A/B/C, Simulação "e se", Links e BMs Meta. Funil e Vendas viraram parte do BI.
 
@@ -61,5 +61,6 @@ Nenhuma tela precisa mudar. Pontos que o backend novo precisa ter e que o antigo
 
 ## Pendente de definição
 
-- **Conversas**, **Financeiro** e **Clientes**: estão na versão base (parecida com a atual). Faltam as mudanças que vocês querem.
+- **Financeiro** e **Clientes**: estão na versão base (parecida com a atual). Faltam as mudanças que vocês querem.
+- **Conversas no n8n**: o envio de mídia/áudio, o recebimento de mídia do cliente e a nota interna precisam de ajuste no fluxo de WhatsApp (Baileys próprio) que já roda no n8n. O que o painel espera está em `src/api/contrato.ts`.
 - **Motor de Crédito**: segue o fluxo da Consulta V8/Unno/HUB atual. Confirmar se é isso.

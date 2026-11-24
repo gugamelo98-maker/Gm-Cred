@@ -69,7 +69,7 @@ export default function Ficha({ cliente, fechar }: { cliente: Cliente | null; fe
         <span className="text-sm text-apagado">{c.situacao}</span>
       </div>
       <dl className="mb-5 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-        {L('Telefone', fmtTel(c.telefone))}{L('CPF', c.cpf ? fmtCpf(c.cpf) : null)}{L('Atendente', nomeAtendente(c.atendente, estado!.usuarios))}
+        {L('Telefone', fmtTel(c.telefone))}{L('CPF', c.cpf ? fmtCpf(c.cpf) : null)}{L('Responsável', c.responsavel ? nomeAtendente(c.responsavel, estado!.usuarios) : null)}{L('Atendendo agora', nomeAtendente(c.atendente, estado!.usuarios))}
         {L('Margem', c.margem != null ? brl(c.margem) : null)}{L('Banco', c.banco)}{L('Proposta', c.valorLiberado ? `${brl(c.valorLiberado)} · ${c.prazo}x de ${brl(c.parcela)}` : null)}
         {L('Comissão', c.comissao ? brl(c.comissao) : null)}{L('Entrou', dataHora(c.entrouEm))}{L('Última mensagem', dataHora(c.ultimaMsgEm))}
       </dl>
