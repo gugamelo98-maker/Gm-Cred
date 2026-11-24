@@ -41,18 +41,18 @@ function gerar(): Estado {
   const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
 
   const usuarios: Usuario[] = [
-    { id: 'u1', nome: 'Gustavo (dono)', email: 'dono@gmcred.com.br', papel: 'admin', ativo: true, ultimoAcesso: iso(agora - 3600e3) },
+    { id: 'u1', nome: 'Dono', email: 'dono@gmcred.com.br', papel: 'admin', ativo: true, ultimoAcesso: iso(agora - 3600e3) },
     { id: 'u2', nome: 'Larissa', email: 'larissa@gmcred.com.br', papel: 'gestor', ativo: true, ultimoAcesso: iso(agora - 2 * DIA) },
     { id: 'u3', nome: 'Bianca', email: 'bianca@gmcred.com.br', papel: 'atendente', ativo: true, ultimoAcesso: iso(agora - 5 * 3600e3) },
     { id: 'u4', nome: 'Rafael', email: 'rafael@gmcred.com.br', papel: 'atendente', ativo: false, ultimoAcesso: iso(agora - 20 * DIA) },
   ];
 
   const numeros: Numero[] = [
-    { sessao: 'gmcred-campanha', telefone: '5548991376775', funcao: 'atendimento', estado: 'conectado', aparelho: 'Moto G (escritório)' },
-    { sessao: 'gmcred-2', telefone: '5548991938293', funcao: 'disparo', estado: 'conectado', aparelho: 'Samsung A15' },
-    { sessao: 'gmcred-3', telefone: '5548992017764', funcao: 'disparo', estado: 'conectado', aparelho: 'Samsung A15' },
-    { sessao: 'gmcred-4', telefone: '5548991557310', funcao: 'disparo', estado: 'caiu', aparelho: 'Redmi 13C' },
-    { sessao: 'gmcred-5', telefone: '5548996611208', funcao: 'reserva', estado: 'conectado', aparelho: 'Redmi 13C' },
+    { sessao: 'gmcred-campanha', telefone: '5548900000001', funcao: 'atendimento', estado: 'conectado', aparelho: 'Moto G (escritório)' },
+    { sessao: 'gmcred-2', telefone: '5548900000002', funcao: 'disparo', estado: 'conectado', aparelho: 'Samsung A15' },
+    { sessao: 'gmcred-3', telefone: '5548900000003', funcao: 'disparo', estado: 'conectado', aparelho: 'Samsung A15' },
+    { sessao: 'gmcred-4', telefone: '5548900000004', funcao: 'disparo', estado: 'caiu', aparelho: 'Redmi 13C' },
+    { sessao: 'gmcred-5', telefone: '5548900000005', funcao: 'reserva', estado: 'conectado', aparelho: 'Redmi 13C' },
     { sessao: 'gmcred-6', telefone: '', funcao: 'disparo', estado: 'aguardando_qr', aparelho: 'Chip novo' },
   ].map((n, i) => ({
     id: 'n' + (i + 1), nomePerfil: 'Ana Gm Cred', maturar: i > 0 && i < 5, ...n, funcao: n.funcao as Numero['funcao'], estado: n.estado as Numero['estado'],
@@ -77,7 +77,7 @@ function gerar(): Estado {
 
   const indicadores: Indicador[] = ['Claudete Ramos', 'Jefferson Luz', 'Rosana Pires', 'Edson Melo', 'Tainá Rocha'].map((nome, i) => {
     const indicacoes = 2 + Math.floor(r() * 12), fechadas = Math.floor(indicacoes * r() * 0.6);
-    return { id: 'i' + (i + 1), nome, telefone: '55489' + String(91000000 + Math.floor(r() * 8999999)), codigo: nome.split(' ')[0].toUpperCase() + (10 + i), pix: nome.split(' ')[0].toLowerCase() + '@email.com', indicacoes, fechadas, premio: 50, pago: Math.floor(fechadas * r()) * 50 };
+    return { id: 'i' + (i + 1), nome, telefone: '5548900001' + String(100 + i), codigo: nome.split(' ')[0].toUpperCase() + (10 + i), pix: nome.split(' ')[0].toLowerCase() + '@email.com', indicacoes, fechadas, premio: 50, pago: Math.floor(fechadas * r()) * 50 };
   });
 
   // clientes: últimos 45 dias, com o funil tirado de proporções parecidas com as reais
@@ -104,7 +104,7 @@ function gerar(): Estado {
     const nome = `${pick(NOMES)} ${pick(SOBRENOMES)}`;
     const ultima = Math.min(agora - 60e3, entrou + (proposta ? 30 : 3) * 3600e3 * r() + 60e3);
     clientes.push({
-      id: 'c' + (i + 1), nome, telefone: '55' + pick(['48', '11', '21', '31', '41', '51']) + '9' + String(10000000 + Math.floor(r() * 89999999)),
+      id: 'c' + (i + 1), nome, telefone: '55' + pick(['48', '11', '21', '31', '41', '51']) + '90000' + String(1000 + Math.floor(r() * 8999)),
       cpf: mandouCpf ? cpfValido(r) : null, produto, origem, origemRef: origem === 'disparo' ? pick(disparos.slice(0, 3)).id : origem === 'indicacao' ? pick(indicadores).id : null,
       etapa, situacao, etiqueta, margem, banco: temMargem ? banco : null, valorLiberado: valor, parcela: proposta ? margem : null, prazo,
       comissao: pago && valor ? Math.round(valor * (banco === 'V8' ? 0.06 : 0.055)) : null,
