@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --fundo: #f4f5f7;
+  --cartao: #ffffff;
+  --borda: #e3e6eb;
+  --texto: #111827;
+  --suave: #4b5563;
+  --apagado: #6b7280;
+  --marca: #1f5fd6;
+  --marca-forte: #174aa8;
+  --marca-claro: #e8f0fd;
+  /* gráficos (paleta validada: slots 1–3 + status) */
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --serie-3: #1baf7a;
+  --serie-4: #eda100;
+  --grade: #e8e9ec;
+  --bom: #0ca30c;
+  --critico: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
+    --fundo: #121212; --cartao: #1c1c1b; --borda: #2e2e2c; --texto: #f0efec; --suave: #c3c2b7; --apagado: #9a998f;
+    --marca: #4b8af0; --marca-forte: #6a9ff3; --marca-claro: #1d2a42;
+    --serie-1: #3987e5; --serie-2: #d95926; --serie-3: #199e70; --serie-4: #c98500; --grade: #2a2a28;
+  }
+}
+:root[data-tema="escuro"] {
+  color-scheme: dark;
+  --fundo: #121212; --cartao: #1c1c1b; --borda: #2e2e2c; --texto: #f0efec; --suave: #c3c2b7; --apagado: #9a998f;
+  --marca: #4b8af0; --marca-forte: #6a9ff3; --marca-claro: #1d2a42;
+  --serie-1: #3987e5; --serie-2: #d95926; --serie-3: #199e70; --serie-4: #c98500; --grade: #2a2a28;
+}
+
+html, body, #root { height: 100%; }
+body { background: var(--fundo); color: var(--texto); font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+* { scrollbar-width: thin; }
+.num { font-variant-numeric: tabular-nums; }
+
+@layer components {
+  .cartao { @apply rounded-xl border border-borda bg-cartao; }
+  .campo { @apply w-full rounded-lg border border-borda bg-cartao px-3 py-2 text-sm text-texto outline-none focus:border-marca focus:ring-2 focus:ring-marca-claro disabled:opacity-60; }
+  .rotulo { @apply mb-1 block text-xs font-medium text-suave; }
+  .bt { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-borda bg-cartao px-3 py-2 text-sm font-medium text-texto transition hover:bg-fundo disabled:cursor-not-allowed disabled:opacity-50; }
+  .bt-pri { @apply border-marca bg-marca text-white hover:bg-marca-forte; }
+  .bt-perigo { @apply border-red-600 bg-red-600 text-white hover:bg-red-700; }
+  .bt-sm { @apply px-2 py-1 text-xs; }
+  .tabela { @apply w-full text-left text-sm; }
+  .tabela th { @apply whitespace-nowrap border-b border-borda px-3 py-2 text-xs font-medium text-apagado; }
+  .tabela td { @apply border-b border-borda px-3 py-2 align-middle; }
+  .tabela tbody tr:hover { @apply bg-fundo; }
+}

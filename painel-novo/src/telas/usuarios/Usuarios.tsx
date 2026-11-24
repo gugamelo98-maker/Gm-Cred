@@ -1,0 +1,63 @@
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
+import { useDados } from '@/estado/Dados';
+import { api } from '@/api';
+import type { Papel, Usuario } from '@/api/tipos';
+import { Etiqueta, Modal, Titulo } from '@/componentes/ui';
+import { tempoDesde } from '@/util/formato';
+import { PAPEIS } from '@/util/rotulos';
+
+export default function Usuarios() {
+  const { estado, usuario: eu, trocar, executar, avisar } = useDados();
+  const [editando, setEditando] = useState<Partial<Usuario> | null>(null);
+  const U = estado!.usuarios;
+  const atendendo = (id: string) => estado!.clientes.filter(c => c.atendente === id && c.etapa !== 'perdido').length;
+
+  async function salvar() {
+    const u = editando!;
+    if (!u.nome?.trim() || !/^\S+@\S+\.\S+$/.test(u.email ?? '')) return avisar('Preencha nome e um e-mail válido', 'erro');
+    if (u.id === eu!.id && (u.papel !== 'admin' || !u.ativo)) return avisar('Você não pode tirar o seu próprio acesso de administrador', 'erro');
+    const r = await executar(() => api.salvarUsuario(u), u.id ? 'Usuário atualizado' : 'Usuário criado — ele entra com este e-mail');
+    if (r) { trocar('usuarios', r); setEditando(null); }
+  }
+
+  return (
+    <div>
+      <Titulo titulo="Usuários" sub="Quem pode entrar no painel e o que cada um vê." acoes={<button className="bt bt-pri" onClick={() => setEditando({ papel: 'atendente', ativo: true })}><Plus size={16} /> Novo usuário</button>} />
+      <div className="mb-5 grid gap-3 md:grid-cols-3">
+        {(Object.keys(PAPEIS) as Papel[]).map(p => (
+          <div key={p} className="cartao p-4"><div className="font-medium">{PAPEIS[p].nome} <span className="num text-apagado">· {U.filter(u => u.papel === p && u.ativo).length}</span></div><p className="text-xs text-apagado">{PAPEIS[p].desc}</p></div>
+        ))}
+      </div>
+      <div className="cartao overflow-x-auto">
+        <table className="tabela">
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Situação</th><th className="text-right">Atendendo agora</th><th>Último acesso</th></tr></thead>
+          <tbody>{U.map(u => (
+            <tr key={u.id} className="cursor-pointer" onClick={() => setEditando(u)}>
+              <td className="font-medium">{u.nome}{u.id === eu!.id && <span className="text-apagado"> (você)</span>}</td><td>{u.email}</td>
+              <td>{PAPEIS[u.papel].nome}</td><td><Etiqueta cor={u.ativo ? 'verde' : 'cinza'}>{u.ativo ? 'Ativo' : 'Desativado'}</Etiqueta></td>
+              <td className="num text-right">{atendendo(u.id)}</td><td className="text-apagado">{u.ultimoAcesso ? tempoDesde(u.ultimoAcesso) : 'nunca'}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+      <Modal aberto={!!editando} fechar={() => setEditando(null)} titulo={editando?.id ? 'Editar usuário' : 'Novo usuário'} largura="max-w-md"
+        rodape={<><button className="bt" onClick={() => setEditando(null)}>Cancelar</button><button className="bt bt-pri" onClick={salvar}>Salvar</button></>}>
+        {editando && (
+          <div className="space-y-3">
+            <div><label className="rotulo" htmlFor="un">Nome</label><input id="un" className="campo" value={editando.nome ?? ''} onChange={e => setEditando({ ...editando, nome: e.target.value })} /></div>
+            <div><label className="rotulo" htmlFor="ue">E-mail (é o login)</label><input id="ue" type="email" className="campo" value={editando.email ?? ''} onChange={e => setEditando({ ...editando, email: e.target.value })} /></div>
+            <fieldset><legend className="rotulo">Tipo de acesso</legend>
+              {(Object.keys(PAPEIS) as Papel[]).map(p => (
+                <label key={p} className="flex items-start gap-2 py-1 text-sm"><input type="radio" className="mt-1" checked={editando.papel === p} onChange={() => setEditando({ ...editando, papel: p })} />
+                  <span><b className="font-medium">{PAPEIS[p].nome}</b><br /><span className="text-xs text-apagado">{PAPEIS[p].desc}</span></span></label>
+              ))}
+            </fieldset>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!editando.ativo} onChange={e => setEditando({ ...editando, ativo: e.target.checked })} /> Pode entrar no painel</label>
+            {!editando.id && <p className="text-xs text-apagado">No sistema de verdade, o usuário recebe um e-mail para criar a senha.</p>}
+          </div>
+        )}
+      </Modal>
+    </div>
+  );
+}
