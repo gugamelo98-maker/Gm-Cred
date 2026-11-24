@@ -1,0 +1,16 @@
+-- 096 · Robô FGTS Lotus (fila no servidor, com telefone)
+-- (já aplicado; registro)
+-- credito.lotus_lotes / credito.lotus_fila (cpf, status, sim_id, liberado, nome, telefone, mensagem).
+-- credito.lotus_fila_api(k, acao, p): criar (pula CPF simulado com resultado nos últimos 15 dias),
+--   status, pausar, retomar, encerrar, planilha.
+-- credito.lotus_tarefas(): por minuto até 15 envios + 30 conferências; devolve travados;
+--   fecha lotes concluídos.
+-- credito.lotus_gravar(id, tipo, http, body): envio -> sim_id; conferência -> com_saldo
+--   (totalTransfer, customer.name, customer.phone) / sem_saldo (motivo real da Lotus) / erro.
+--   401/403 (token vencido): devolve e pausa os lotes; ao salvar token novo a página retoma.
+-- n8n "[Escritório] 🟣 Lotus FGTS (fila)" (XfXGEUAtVBa2X1E3): POST /webhook/escritorio/lotus-fila;
+--   a cada 1 min: tarefas -> Lotus create-simulation / GET simulation/{id} (1 por segundo) -> gravar.
+-- Página escritorio/fgts.html reescrita para a fila (login do painel; pode fechar a página).
+-- V8 não é usada no FGTS (decisão do dono); HUB entra no mesmo robô quando houver acesso.
+-- 097 (a pedido do dono): 25 envios por minuto (era 15) + até 30 conferências; chamadas a cada
+--   0,6s (era 1s). ~1.500 CPFs por hora.

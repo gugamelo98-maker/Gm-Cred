@@ -1,0 +1,14 @@
+-- 095 · Higienização V8 em segundo plano (página testeextrair)
+-- (já aplicado; registro)
+-- Tabelas public.higienizacao_lotes, public.higienizacao_fila, public.higienizacao_cpfs.
+-- public.hig_api(acao, p): criar (pula CPF higienizado nos últimos 30 dias ou já em meus_leads),
+--   status, pausar, retomar, encerrar (descarta o que não foi enviado).
+-- public.hig_proximo(): pega 10 CPFs do lote mais antigo em andamento; um lote por vez
+--   (trava de 6 min; trava vencida devolve os CPFs para a fila).
+-- public.hig_resultado(lote, cpfs, resposta, ok): marca com_margem/processado/erro e
+--   registra em higienizacao_cpfs.
+-- n8n "V8 - Higienização (fila em segundo plano)" (65IDzUlwJhsm8fI4):
+--   POST /webhook/v8-hig-fila -> hig_api; a cada 1 min: hig_proximo -> POST
+--   /webhook/v8-higienizacao-clt (robô de sempre, sem mudança) -> hig_resultado.
+-- Limpeza a pedido do dono: apagados os 3.363 higienizacao_pendentes PENDENTE.
+-- Página: repo testeextrair, branch claude/focused-euler-pmxfmp, publicada em produção.

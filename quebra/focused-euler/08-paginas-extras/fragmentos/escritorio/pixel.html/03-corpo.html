@@ -1,0 +1,30 @@
+</head>
+<body>
+
+<header class="top">
+  <span class="logo" id="logoTxt">★ CLT &amp; FGTS</span>
+  <div class="hstats">
+    <div class="hsc"><span class="hsv" style="color:#00ccff" id="kAnd">0</span><span class="hsl">ATENDENDO</span></div>
+    <div class="hsc"><span class="hsv" style="color:#ff6644" id="kEnt">0</span><span class="hsl">ENTRARAM</span></div>
+    <div class="hsc"><span class="hsv" style="color:#ffcc00" id="kFec">0</span><span class="hsl">FECHARAM</span></div>
+    <div class="hsc"><span class="hsv" style="color:#cc44ff" id="kCom">R$0</span><span class="hsl">COMISSÃO</span></div>
+    <div class="hsc"><span class="hsv" style="color:#ff2244" id="kPar">0</span><span class="hsl">PARADOS</span></div>
+  </div>
+  <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração">...</button>
+</header>
+
+<nav class="sidebar" id="sidebar"></nav>
+<canvas id="c"></canvas>
+<div class="ticker" id="ticker" onclick="openFeed()"><span class="tk-l">▶ AO VIVO</span><span class="tk-t" id="tickerTxt">aguardando eventos...</span></div>
+<div class="banner" id="banner"></div>
+
+<div class="dash" id="dash">
+  <div class="dh">
+    <span class="dh-title" id="dashTitle">SETOR</span>
+    <button class="dh-close" onclick="closeDash()">✕ FECHAR</button>
+    <span class="dh-sub" id="dashSub"></span>
+  </div>
+  <div id="dashContent"></div>
+</div>
+<div class="tip" id="tip"></div>
+

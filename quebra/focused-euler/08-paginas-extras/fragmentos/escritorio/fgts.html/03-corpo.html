@@ -1,0 +1,85 @@
+</head>
+<body>
+<div class="wrap">
+  <h1>FGTS · Lotus</h1>
+  <p class="sub">Cole os CPFs (um por linha, pode vir do Excel sem o zero da frente). A lista vai para uma fila no servidor e o robô simula sozinho na Lotus, no ritmo que ela aguenta. <b>Pode fechar a página</b>: ao abrir de novo, ela mostra o andamento.</p>
+
+  <div class="card" id="semLogin" hidden>
+    <b>Entre no painel primeiro.</b> Esta página usa o mesmo login do escritório. <a href="index.html">Abrir o painel</a> e depois volte aqui.
+  </div>
+
+  <div class="card" id="tokcard">
+    <label for="tok">Token do painel Lotus</label>
+    <textarea id="tok" placeholder="Cole aqui o token do seu painel Lotus logado (começa com eyJ...). Ele fica guardado no servidor; você só cola de novo quando vencer." autocomplete="off" style="min-height:70px"></textarea>
+    <div class="bts"><button class="pri" id="btTok" onclick="salvarToken()">Salvar token</button><span class="msg" id="tokMsg"></span></div>
+  </div>
+
+  <div class="card" id="form">
+    <label for="cpfs">CPFs</label>
+    <textarea id="cpfs" placeholder="000.000.000-00&#10;11122233344" autocomplete="off" oninput="contar()"></textarea>
+    <div class="msg" id="qtd">Nenhum CPF detectado</div>
+    <div class="linha">
+      <div><label for="periodos">Anos antecipados</label><select id="periodos"><option>5</option><option>4</option><option>3</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+      <div><label for="seguro">Seguro</label><select id="seguro"><option value="true">Com seguro</option><option value="false">Sem seguro</option></select></div>
+      <div><label for="provider">Banco</label><select id="provider"><option>BMP</option><option>CARTOS</option></select></div>
+    </div>
+    <div class="bts">
+      <button class="pri" id="btIr" onclick="criar()">Mandar para a fila</button>
+      <span class="msg" id="msg" role="status"></span>
+    </div>
+  </div>
+
+  <div class="card" id="andamento" hidden>
+    <div class="bts" style="margin-top:0;justify-content:space-between">
+      <b id="titLote">Lote</b>
+      <span class="bts" style="margin-top:0">
+        <button id="btPausar" onclick="controle('pausar')">⏸ Pausar</button>
+        <button id="btRetomar" onclick="controle('retomar')" hidden>▶ Retomar</button>
+        <button id="btEncerrar" onclick="controle('encerrar')">⏹ Encerrar</button>
+      </span>
+    </div>
+    <div class="barra"><i id="barra"></i></div>
+    <div class="msg" id="estado" style="margin-top:6px"></div>
+    <div class="nums">
+      <div class="num"><b id="nConc">0</b><span>Simulados</span></div>
+      <div class="num"><b id="nSaldo" style="color:var(--verde)">0</b><span>Com saldo</span></div>
+      <div class="num"><b id="nTel">0</b><span>Com telefone</span></div>
+      <div class="num"><b id="nSem">0</b><span>Sem saldo</span></div>
+      <div class="num"><b id="nErro" style="color:var(--verm)">0</b><span>Erro</span></div>
+    </div>
+    <b style="display:block;margin-top:14px">HUB (J17 e BMP)</b>
+    <div class="msg" id="hubEstado" style="margin-top:4px"></div>
+    <div class="nums">
+      <div class="num"><b id="nHubFeitos">0</b><span>Consultados na HUB</span></div>
+      <div class="num"><b id="nHubSaldo" style="color:var(--verde)">0</b><span>Com saldo na HUB</span></div>
+      <div class="num"><b id="nHubFila">0</b><span>Esperando HUB</span></div>
+      <div class="num"><b id="nTelTot">0</b><span>Telefones achados</span></div>
+    </div>
+  </div>
+
+  <div class="card" id="resCard" hidden>
+    <div class="bts" style="margin-top:0;justify-content:space-between">
+      <b>Com saldo (maiores primeiro)</b>
+      <span class="bts" style="margin-top:0">
+        <button onclick="copiarCpfs()">Copiar CPFs com saldo</button>
+        <button onclick="copiarTel()">Copiar telefones</button>
+        <button onclick="juntarTelefones()">Juntar telefones com a base</button>
+        <button onclick="baixar()">Baixar planilha completa</button>
+      </span>
+    </div>
+    <div class="tab-wrap"><table>
+      <thead><tr><th>CPF</th><th>Lotus</th><th>HUB</th><th>Nome</th><th>Telefone</th></tr></thead>
+      <tbody id="res"><tr><td colspan="5" class="vazio">Ainda nenhum com saldo.</td></tr></tbody>
+    </table></div>
+    <div class="msg" id="limite" style="margin-top:6px"></div>
+    <div id="juntaCard" hidden style="margin-top:14px">
+      <b>Telefones para rodar (higienização + base)</b>
+      <div class="msg" id="juntaMsg" style="margin-top:4px"></div>
+      <textarea id="juntaTel" readonly style="margin-top:8px;min-height:140px"></textarea>
+      <div class="bts">
+        <button onclick="copiarCaixa('juntaTel')">Copiar telefones</button>
+        <button onclick="baixarJunta()">Baixar planilha (CPF e telefones)</button>
+      </div>
+    </div>
+  </div>
+</div>

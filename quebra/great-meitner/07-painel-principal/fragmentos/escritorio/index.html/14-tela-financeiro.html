@@ -1,0 +1,21 @@
+<div class="view" id="v-financeiro" hidden>
+<section class="ag-sec">
+  <div class="ag-barra"><h3>💰 Financeiro</h3><div class="chips"><button class="chip" onclick="finMes(-1)" aria-label="Mês anterior">‹</button><span class="fin-mes" id="finMesTxt"></span><button class="chip" id="finProx" onclick="finMes(1)" aria-label="Próximo mês">›</button></div></div>
+  <div class="ag-resumo" id="finResumo"></div>
+</section>
+<section class="ag-sec"><div class="fbox" id="finLead"></div></section>
+<section class="ag-sec"><div class="ag-grid">
+  <div class="fbox" id="finCat"></div>
+  <div class="fbox"><h4>➕ Lançar gasto</h4>
+    <form class="fin-form" id="finForm" onsubmit="finSalvar(event)">
+      <label>Categoria<select id="finCatIn" onchange="finAjustarForm()"><option value="disparos">📤 Disparos de WhatsApp</option><option value="numeros">📱 Números de WhatsApp</option><option value="trafego">📣 Tráfego pago</option><option value="bms">🧩 BMs</option><option value="outros">📎 Outros</option></select></label>
+      <label>Valor (R$)<input id="finValor" inputmode="decimal" placeholder="0,00" autocomplete="off" required></label>
+      <label>Data<input id="finData" type="date" required></label>
+      <label class="larg" id="finQtdLab">Quantos disparos foram feitos?<input id="finQtd" inputmode="numeric" placeholder="Ex.: 5000" autocomplete="off"></label>
+      <label class="larg">Descrição (opcional)<input id="finDesc" maxlength="200" placeholder="Ex.: 5.000 disparos, 3 chips novos, campanha Facebook, BM nova"></label>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="finBtn" type="submit" style="padding:9px 16px;font-size:13px">Salvar gasto</button><span class="fin-erro" id="finErro" role="alert"></span></div>
+    </form></div>
+</div></section>
+<section class="ag-sec"><div class="ag-grid"><div class="fbox" id="finLista"></div><div class="fbox" id="finHist"></div></div></section>
+</div>
+

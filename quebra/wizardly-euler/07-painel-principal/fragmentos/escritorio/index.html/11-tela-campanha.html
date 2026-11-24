@@ -1,0 +1,25 @@
+<div class="view" id="v-campanha" hidden>
+<section class="ag-sec">
+  <div class="cp-barra"><div class="ag-resumo" id="cpResumo"></div><button class="bt" id="cpBtn" onclick="cpAlternar()"></button></div>
+</section>
+<section class="ag-sec"><div class="fbox">
+  <div class="cp-cab"><div><h4>Mensagem de cada número</h4><p class="simtx">Texto, imagem, rodapé e até 3 botões. Use <b>{nome}</b> para o primeiro nome do cliente. Quando o cliente toca num botão de resposta, a Ana recebe o texto do botão e segue a conversa.</p></div></div>
+  <div class="cp-tabs" id="cpTabs" role="tablist" aria-label="Números da campanha"></div>
+  <div id="cpEditor"><div class="vazio">Carregando…</div></div>
+  <div id="cpPlacar" hidden></div>
+</div></section>
+<section class="ag-sec cp-extras">
+  <details class="fbox cp-dobra"><summary><h4>Importar clientes</h4><span class="cp-dica">cole da planilha ou envie um CSV</span></summary>
+    <p class="simtx">Cole as linhas da planilha (copie direto do Excel ou Google Sheets) ou escolha um arquivo CSV. Colunas: <b>nome, telefone, CPF, margem</b> (CPF e margem são opcionais). Se a primeira linha tiver os títulos, o sistema reconhece sozinho.</p>
+    <textarea id="cpTexto" rows="7" class="cp-txt" placeholder="João da Silva	48999998888	123.456.789-09	450,00"></textarea>
+    <div class="cp-linha"><label class="bt" style="cursor:pointer">📄 Escolher CSV<input type="file" id="cpArq" accept=".csv,.txt" hidden onchange="cpLerArquivo(this)"></label><span id="cpPrev" class="cp-prev"></span><button class="bt pri" id="cpImp" onclick="cpImportar()" disabled>Importar</button></div>
+    <div class="fin-erro" id="cpAviso" role="status" style="color:var(--tx2);margin-top:8px"></div>
+  </details>
+  <details class="fbox cp-dobra"><summary><h4>Mensagem padrão</h4><span class="cp-dica">usada se um número não tiver a dele</span></summary>
+    <textarea id="cpMsg" rows="3" class="cp-txt" maxlength="600"></textarea>
+    <div class="cp-linha"><button class="bt" onclick="cpSalvarMsg()">Salvar mensagem padrão</button><span class="cp-prev" id="cpMsgOk"></span></div>
+  </details>
+</section>
+<section class="ag-sec"><div class="fbox" id="cpLista"></div></section>
+</div>
+

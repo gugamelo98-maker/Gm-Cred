@@ -1,0 +1,1215 @@
+{
+ "ref": "origin/claude/focused-euler-pmxfmp",
+ "commit": "6e6553579287fd335fdcefa3f1bfa2caa475a4eb",
+ "arquivos": [
+  {
+   "caminho": ".gitignore",
+   "parte": "11-documentacao",
+   "arquivo": "11-documentacao/arquivos/.gitignore"
+  },
+  {
+   "caminho": "PENDENCIAS.md",
+   "parte": "11-documentacao",
+   "arquivo": "11-documentacao/arquivos/PENDENCIAS.md"
+  },
+  {
+   "caminho": "db/001_empresa_virtual.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/001_empresa_virtual.sql"
+  },
+  {
+   "caminho": "db/002_comissao_e_meta.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/002_comissao_e_meta.sql"
+  },
+  {
+   "caminho": "db/003_atencao_ficha_funil_saude.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/003_atencao_ficha_funil_saude.sql"
+  },
+  {
+   "caminho": "db/004_sessoes_vendas_diarias_ajustes.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/004_sessoes_vendas_diarias_ajustes.sql"
+  },
+  {
+   "caminho": "db/005_agentes_ab_v8.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/005_agentes_ab_v8.sql"
+  },
+  {
+   "caminho": "db/006_roteador_chat_teste.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/006_roteador_chat_teste.sql"
+  },
+  {
+   "caminho": "db/007_agentes_logica.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/007_agentes_logica.sql"
+  },
+  {
+   "caminho": "db/008_ajustes_agentes_placar.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/008_ajustes_agentes_placar.sql"
+  },
+  {
+   "caminho": "db/009_propostas_reais_no_teste.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/009_propostas_reais_no_teste.sql"
+  },
+  {
+   "caminho": "db/010_sem_ofertas_humano_apresentacao.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/010_sem_ofertas_humano_apresentacao.sql"
+  },
+  {
+   "caminho": "db/011_sem_repeticao_consulta_andamento.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/011_sem_repeticao_consulta_andamento.sql"
+  },
+  {
+   "caminho": "db/012_pix_ofertas_eventos.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/012_pix_ofertas_eventos.sql"
+  },
+  {
+   "caminho": "db/013_objecao_reabrir_conversa.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/013_objecao_reabrir_conversa.sql"
+  },
+  {
+   "caminho": "db/014_seguro_primeiro.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/014_seguro_primeiro.sql"
+  },
+  {
+   "caminho": "db/015_objecao_em_etapas.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/015_objecao_em_etapas.sql"
+  },
+  {
+   "caminho": "db/016_recuperacao_5_10_30.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/016_recuperacao_5_10_30.sql"
+  },
+  {
+   "caminho": "db/017_agrupar_mensagens.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/017_agrupar_mensagens.sql"
+  },
+  {
+   "caminho": "db/018_seguro_pergunta_falha_modelo.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/018_seguro_pergunta_falha_modelo.sql"
+  },
+  {
+   "caminho": "db/019_testes_estresse.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/019_testes_estresse.sql"
+  },
+  {
+   "caminho": "db/020_apresentacao_simulacao_2a_rodada.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/020_apresentacao_simulacao_2a_rodada.sql"
+  },
+  {
+   "caminho": "db/021_parcela_maxima_por_prazo.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/021_parcela_maxima_por_prazo.sql"
+  },
+  {
+   "caminho": "db/022_limites_por_prazo_na_conversa.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/022_limites_por_prazo_na_conversa.sql"
+  },
+  {
+   "caminho": "db/023_crm_clientes.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/023_crm_clientes.sql"
+  },
+  {
+   "caminho": "db/024_dados_agentes.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/024_dados_agentes.sql"
+  },
+  {
+   "caminho": "db/025_audios.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/025_audios.sql"
+  },
+  {
+   "caminho": "db/026_regras_unicas_painel.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/026_regras_unicas_painel.sql"
+  },
+  {
+   "caminho": "db/027_recuperacao.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/027_recuperacao.sql"
+  },
+  {
+   "caminho": "db/028_financeiro.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/028_financeiro.sql"
+  },
+  {
+   "caminho": "db/029_campanha.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/029_campanha.sql"
+  },
+  {
+   "caminho": "db/030_prospeccao_cpf_base_bloqueio.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/030_prospeccao_cpf_base_bloqueio.sql"
+  },
+  {
+   "caminho": "db/031_finalizado_etiquetas.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/031_finalizado_etiquetas.sql"
+  },
+  {
+   "caminho": "db/032_com_margem.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/032_com_margem.sql"
+  },
+  {
+   "caminho": "db/033_revisao_abas.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/033_revisao_abas.sql"
+  },
+  {
+   "caminho": "db/034_sem_whatsapp.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/034_sem_whatsapp.sql"
+  },
+  {
+   "caminho": "db/035_resumo_painel.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/035_resumo_painel.sql"
+  },
+  {
+   "caminho": "db/036_atividade_dia.sql",
+   "parte": "02-banco-crm-recuperacao-financeiro",
+   "arquivo": "02-banco-crm-recuperacao-financeiro/arquivos/db/036_atividade_dia.sql"
+  },
+  {
+   "caminho": "db/037_atendimento_numeros.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/037_atendimento_numeros.sql"
+  },
+  {
+   "caminho": "db/038_avisos_status.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/038_avisos_status.sql"
+  },
+  {
+   "caminho": "db/039_numeros_maturador.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/039_numeros_maturador.sql"
+  },
+  {
+   "caminho": "db/040_campanha_multi_reserva.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/040_campanha_multi_reserva.sql"
+  },
+  {
+   "caminho": "db/041_conversas_finalizar_lido.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/041_conversas_finalizar_lido.sql"
+  },
+  {
+   "caminho": "db/042_grupo_comandos.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/042_grupo_comandos.sql"
+  },
+  {
+   "caminho": "db/043_followup_objecoes.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/043_followup_objecoes.sql"
+  },
+  {
+   "caminho": "db/044_mensagem_por_numero.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/044_mensagem_por_numero.sql"
+  },
+  {
+   "caminho": "db/045_consulta_sem_cadastro_v8.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/045_consulta_sem_cadastro_v8.sql"
+  },
+  {
+   "caminho": "db/046_indicacoes.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/046_indicacoes.sql"
+  },
+  {
+   "caminho": "db/047_parcela_no_bolso.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/047_parcela_no_bolso.sql"
+  },
+  {
+   "caminho": "db/048_status_entrega.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/048_status_entrega.sql"
+  },
+  {
+   "caminho": "db/049_waha.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/049_waha.sql"
+  },
+  {
+   "caminho": "db/050_campanha_botoes.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/050_campanha_botoes.sql"
+  },
+  {
+   "caminho": "db/051_atendimento_disparo.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/051_atendimento_disparo.sql"
+  },
+  {
+   "caminho": "db/052_bloquear.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/052_bloquear.sql"
+  },
+  {
+   "caminho": "db/053_disparo.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/053_disparo.sql"
+  },
+  {
+   "caminho": "db/054_disparo_mensagens.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/054_disparo_mensagens.sql"
+  },
+  {
+   "caminho": "db/056_atendimento_avisos.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/056_atendimento_avisos.sql"
+  },
+  {
+   "caminho": "db/057_v8_412.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/057_v8_412.sql"
+  },
+  {
+   "caminho": "db/058_aviso_sem_margem.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/058_aviso_sem_margem.sql"
+  },
+  {
+   "caminho": "db/059_finalizar_sem_retomada.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/059_finalizar_sem_retomada.sql"
+  },
+  {
+   "caminho": "db/060_disparo_duplicar.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/060_disparo_duplicar.sql"
+  },
+  {
+   "caminho": "db/061_perfil_numero_novo.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/061_perfil_numero_novo.sql"
+  },
+  {
+   "caminho": "db/062_rotador.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/062_rotador.sql"
+  },
+  {
+   "caminho": "db/063_recusou_com_margem_saudacao.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/063_recusou_com_margem_saudacao.sql"
+  },
+  {
+   "caminho": "db/064_disparo_ate_22h.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/064_disparo_ate_22h.sql"
+  },
+  {
+   "caminho": "db/065_rotador_ola.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/065_rotador_ola.sql"
+  },
+  {
+   "caminho": "db/066_api_oficial.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/066_api_oficial.sql"
+  },
+  {
+   "caminho": "db/073_silencio_prazo_pix.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/073_silencio_prazo_pix.sql"
+  },
+  {
+   "caminho": "db/074_menos_emoji_mais_natural.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/074_menos_emoji_mais_natural.sql"
+  },
+  {
+   "caminho": "db/075_grupo_ve_disparos.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/075_grupo_ve_disparos.sql"
+  },
+  {
+   "caminho": "db/076_botoes_por_mensagem.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/076_botoes_por_mensagem.sql"
+  },
+  {
+   "caminho": "db/077_disparo_margem.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/077_disparo_margem.sql"
+  },
+  {
+   "caminho": "db/078_disparo_sem_nome_sem_margem.sql",
+   "parte": "03-banco-whatsapp-e-disparo",
+   "arquivo": "03-banco-whatsapp-e-disparo/arquivos/db/078_disparo_sem_nome_sem_margem.sql"
+  },
+  {
+   "caminho": "db/079_parcela_300_e_reenvio.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/079_parcela_300_e_reenvio.sql"
+  },
+  {
+   "caminho": "db/080_prazo_e_condicao_melhor.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/080_prazo_e_condicao_melhor.sql"
+  },
+  {
+   "caminho": "db/081_trava_de_valor.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/081_trava_de_valor.sql"
+  },
+  {
+   "caminho": "db/082_simular_maior_prazo.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/082_simular_maior_prazo.sql"
+  },
+  {
+   "caminho": "db/083_trava_sem_looping.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/083_trava_sem_looping.sql"
+  },
+  {
+   "caminho": "db/084_consulta_v8_painel.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/084_consulta_v8_painel.sql"
+  },
+  {
+   "caminho": "db/085_conversas_envio_waha.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/085_conversas_envio_waha.sql"
+  },
+  {
+   "caminho": "db/086_frase_pedir_cpf.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/086_frase_pedir_cpf.sql"
+  },
+  {
+   "caminho": "db/087_cpf_cadastrado_so_na_retomada.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/087_cpf_cadastrado_so_na_retomada.sql"
+  },
+  {
+   "caminho": "db/088_abertura_pelo_dinheiro_e_recusa.sql",
+   "parte": "04-banco-regras-da-ana",
+   "arquivo": "04-banco-regras-da-ana/arquivos/db/088_abertura_pelo_dinheiro_e_recusa.sql"
+  },
+  {
+   "caminho": "db/092_lotus_fgts_teste.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/092_lotus_fgts_teste.sql"
+  },
+  {
+   "caminho": "db/094_link_fgts_handoff.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/094_link_fgts_handoff.sql"
+  },
+  {
+   "caminho": "db/095_higienizacao_fila.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/095_higienizacao_fila.sql"
+  },
+  {
+   "caminho": "db/096_lotus_fgts_fila.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/096_lotus_fgts_fila.sql"
+  },
+  {
+   "caminho": "db/098_hub_fgts_na_fila_lotus.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/098_hub_fgts_na_fila_lotus.sql"
+  },
+  {
+   "caminho": "db/099_ana_fgts_hub.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/099_ana_fgts_hub.sql"
+  },
+  {
+   "caminho": "db/101_unno_ana.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/101_unno_ana.sql"
+  },
+  {
+   "caminho": "db/102_banco_escolhido_unno.sql",
+   "parte": "05-banco-fgts-hub-unno",
+   "arquivo": "05-banco-fgts-hub-unno/arquivos/db/102_banco_escolhido_unno.sql"
+  },
+  {
+   "caminho": "db/zerar_escritorio.sql",
+   "parte": "01-banco-fundacao-e-agentes",
+   "arquivo": "01-banco-fundacao-e-agentes/arquivos/db/zerar_escritorio.sql"
+  },
+  {
+   "caminho": "docs/contrato-servidor-whatsapp.md",
+   "parte": "11-documentacao",
+   "arquivo": "11-documentacao/arquivos/docs/contrato-servidor-whatsapp.md"
+  },
+  {
+   "caminho": "escritorio/assinar-demo.html",
+   "parte": "08-paginas-extras",
+   "arquivo": "08-paginas-extras/arquivos/escritorio/assinar-demo.html"
+  },
+  {
+   "caminho": "escritorio/chat.html",
+   "parte": "08-paginas-extras",
+   "fragmentos": [
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      7
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/02-estilo.css",
+     "linhas": [
+      8,
+      117
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/03-corpo.html",
+     "linhas": [
+      118,
+      178
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/04-script.js",
+     "linhas": [
+      179,
+      432
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/05-rodape.html",
+     "linhas": [
+      433,
+      434
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/fgts.html",
+   "parte": "08-paginas-extras",
+   "fragmentos": [
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      7
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/02-estilo.css",
+     "linhas": [
+      8,
+      39
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/03-corpo.html",
+     "linhas": [
+      40,
+      124
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/04-script.js",
+     "linhas": [
+      125,
+      324
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/05-rodape.html",
+     "linhas": [
+      325,
+      326
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/img/apple-touch-icon.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/apple-touch-icon.png"
+  },
+  {
+   "caminho": "escritorio/img/favicon-32.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/favicon-32.png"
+  },
+  {
+   "caminho": "escritorio/img/favicon-64.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/favicon-64.png"
+  },
+  {
+   "caminho": "escritorio/img/logo-circulo.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/logo-circulo.png"
+  },
+  {
+   "caminho": "escritorio/img/perfil-whatsapp.jpg",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/perfil-whatsapp.jpg"
+  },
+  {
+   "caminho": "escritorio/index.html",
+   "parte": "07-painel-principal",
+   "fragmentos": [
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      13
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/02-estilo.css",
+     "linhas": [
+      14,
+      707
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/03-corpo.html",
+     "linhas": [
+      708,
+      777
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/04-tela-escritorio.html",
+     "linhas": [
+      778,
+      790
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/05-tela-clientes.html",
+     "linhas": [
+      791,
+      800
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/06-tela-agentes.html",
+     "linhas": [
+      801,
+      809
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/07-tela-indicacoes.html",
+     "linhas": [
+      810,
+      817
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/08-tela-conversas.html",
+     "linhas": [
+      818,
+      824
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/09-tela-numeros.html",
+     "linhas": [
+      825,
+      825
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/10-tela-maturador.html",
+     "linhas": [
+      826,
+      827
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/11-tela-campanha.html",
+     "linhas": [
+      828,
+      852
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/12-tela-disparo.html",
+     "linhas": [
+      853,
+      859
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/13-tela-oficial.html",
+     "linhas": [
+      860,
+      866
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/14-tela-hoje.html",
+     "linhas": [
+      867,
+      871
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/15-tela-mes.html",
+     "linhas": [
+      872,
+      885
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/16-tela-funil.html",
+     "linhas": [
+      886,
+      889
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/17-tela-financeiro.html",
+     "linhas": [
+      890,
+      910
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/18-tela-v8.html",
+     "linhas": [
+      911,
+      942
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/19-tela-simulacao.html",
+     "linhas": [
+      943,
+      969
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/20-script.js",
+     "linhas": [
+      970,
+      970
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/21-js-config.js",
+     "linhas": [
+      971,
+      996
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/22-js-util.js",
+     "linhas": [
+      997,
+      1010
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/23-js-pessoas-em-vetor.js",
+     "linhas": [
+      1011,
+      1084
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/24-js-cenario-de-cada-sala.js",
+     "linhas": [
+      1085,
+      1117
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/25-js-modo-demo-dados-ficticios-no-mesmo-forma.js",
+     "linhas": [
+      1118,
+      1238
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/26-js-busca-de-dados.js",
+     "linhas": [
+      1239,
+      1275
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/27-js-renderizacao.js",
+     "linhas": [
+      1276,
+      1323
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/28-js-atencao-funil-e-saude.js",
+     "linhas": [
+      1324,
+      1355
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/29-js-vendas-por-dia-grafico-crescimento-e-pro.js",
+     "linhas": [
+      1356,
+      1430
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/30-js-simulacao.js",
+     "linhas": [
+      1431,
+      1479
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/31-js-agentes-versoes-a-b-c.js",
+     "linhas": [
+      1480,
+      1546
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/32-js-financeiro-gastos-lucro-e-retorno.js",
+     "linhas": [
+      1547,
+      1615
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/33-js-campanha-a-ia-chama-os-clientes-importad.js",
+     "linhas": [
+      1616,
+      1810
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/34-js-disparo.js",
+     "linhas": [
+      1811,
+      1918
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/35-js-api-oficial-mensagem-modelo-da-meta.js",
+     "linhas": [
+      1919,
+      2021
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/36-js-ficha-do-cliente-e-acoes.js",
+     "linhas": [
+      2022,
+      2059
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/37-js-comissao-e-meta.js",
+     "linhas": [
+      2060,
+      2137
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/38-js-clientes-cadastro-crm.js",
+     "linhas": [
+      2138,
+      2232
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/39-js-gaveta-detalhes.js",
+     "linhas": [
+      2233,
+      2274
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/40-js-inicio.js",
+     "linhas": [
+      2275,
+      2437
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/41-rodape.html",
+     "linhas": [
+      2438,
+      2439
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/pixel.html",
+   "parte": "08-paginas-extras",
+   "fragmentos": [
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      7
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/02-estilo.css",
+     "linhas": [
+      8,
+      65
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/03-corpo.html",
+     "linhas": [
+      66,
+      95
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/04-script.js",
+     "linhas": [
+      96,
+      96
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/05-js-config.js",
+     "linhas": [
+      97,
+      108
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/06-js-estado.js",
+     "linhas": [
+      109,
+      121
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/07-js-modo-demo-dados-ficticios-no-mesmo-forma.js",
+     "linhas": [
+      122,
+      168
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/08-js-busca-de-dados.js",
+     "linhas": [
+      169,
+      205
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/09-js-sidebar.js",
+     "linhas": [
+      206,
+      221
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/10-js-paineis.js",
+     "linhas": [
+      222,
+      265
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/11-js-canvas.js",
+     "linhas": [
+      266,
+      464
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/12-rodape.html",
+     "linhas": [
+      465,
+      466
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/vercel.json",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/vercel.json"
+  },
+  {
+   "caminho": "horizons-export-40204db1-6884-4f7d-9549-38a7e83d8909 (1).zip",
+   "parte": "99-legado-cpf-validator",
+   "arquivo": "99-legado-cpf-validator/arquivos/horizons-export-40204db1-6884-4f7d-9549-38a7e83d8909 (1).zip"
+  },
+  {
+   "caminho": "n8n/acoes.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/acoes.js"
+  },
+  {
+   "caminho": "n8n/acompanhamento.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/acompanhamento.js"
+  },
+  {
+   "caminho": "n8n/agente.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/agente.js"
+  },
+  {
+   "caminho": "n8n/gerar_agentes.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/gerar_agentes.js"
+  },
+  {
+   "caminho": "n8n/gerar_roteador.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/gerar_roteador.js"
+  },
+  {
+   "caminho": "n8n/gerar_v8.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/gerar_v8.js"
+  },
+  {
+   "caminho": "n8n/roteador.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/roteador.js"
+  },
+  {
+   "caminho": "n8n/unno_ana_codigo.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/unno_ana_codigo.js"
+  },
+  {
+   "caminho": "n8n/v8_ferramentas.js",
+   "parte": "06-n8n-fluxos",
+   "arquivo": "06-n8n-fluxos/arquivos/n8n/v8_ferramentas.js"
+  },
+  {
+   "caminho": "testes/estresse.py",
+   "parte": "10-testes",
+   "arquivo": "10-testes/arquivos/testes/estresse.py"
+  }
+ ],
+ "partes": [
+  {
+   "pasta": "01-banco-fundacao-e-agentes",
+   "titulo": "Banco · fundação, agentes e conversa (001–022)",
+   "arquivos": [
+    "db/001_empresa_virtual.sql",
+    "db/002_comissao_e_meta.sql",
+    "db/003_atencao_ficha_funil_saude.sql",
+    "db/004_sessoes_vendas_diarias_ajustes.sql",
+    "db/005_agentes_ab_v8.sql",
+    "db/006_roteador_chat_teste.sql",
+    "db/007_agentes_logica.sql",
+    "db/008_ajustes_agentes_placar.sql",
+    "db/009_propostas_reais_no_teste.sql",
+    "db/010_sem_ofertas_humano_apresentacao.sql",
+    "db/011_sem_repeticao_consulta_andamento.sql",
+    "db/012_pix_ofertas_eventos.sql",
+    "db/013_objecao_reabrir_conversa.sql",
+    "db/014_seguro_primeiro.sql",
+    "db/015_objecao_em_etapas.sql",
+    "db/016_recuperacao_5_10_30.sql",
+    "db/017_agrupar_mensagens.sql",
+    "db/018_seguro_pergunta_falha_modelo.sql",
+    "db/019_testes_estresse.sql",
+    "db/020_apresentacao_simulacao_2a_rodada.sql",
+    "db/021_parcela_maxima_por_prazo.sql",
+    "db/022_limites_por_prazo_na_conversa.sql",
+    "db/zerar_escritorio.sql"
+   ]
+  },
+  {
+   "pasta": "02-banco-crm-recuperacao-financeiro",
+   "titulo": "Banco · CRM, recuperação, financeiro, campanha e resumo (023–036)",
+   "arquivos": [
+    "db/023_crm_clientes.sql",
+    "db/024_dados_agentes.sql",
+    "db/025_audios.sql",
+    "db/026_regras_unicas_painel.sql",
+    "db/027_recuperacao.sql",
+    "db/028_financeiro.sql",
+    "db/029_campanha.sql",
+    "db/030_prospeccao_cpf_base_bloqueio.sql",
+    "db/031_finalizado_etiquetas.sql",
+    "db/032_com_margem.sql",
+    "db/033_revisao_abas.sql",
+    "db/034_sem_whatsapp.sql",
+    "db/035_resumo_painel.sql",
+    "db/036_atividade_dia.sql"
+   ]
+  },
+  {
+   "pasta": "03-banco-whatsapp-e-disparo",
+   "titulo": "Banco · números de WhatsApp, atendimento, disparo, rotador e API oficial (037–078)",
+   "arquivos": [
+    "db/037_atendimento_numeros.sql",
+    "db/038_avisos_status.sql",
+    "db/039_numeros_maturador.sql",
+    "db/040_campanha_multi_reserva.sql",
+    "db/041_conversas_finalizar_lido.sql",
+    "db/042_grupo_comandos.sql",
+    "db/043_followup_objecoes.sql",
+    "db/044_mensagem_por_numero.sql",
+    "db/045_consulta_sem_cadastro_v8.sql",
+    "db/046_indicacoes.sql",
+    "db/047_parcela_no_bolso.sql",
+    "db/048_status_entrega.sql",
+    "db/049_waha.sql",
+    "db/050_campanha_botoes.sql",
+    "db/051_atendimento_disparo.sql",
+    "db/052_bloquear.sql",
+    "db/053_disparo.sql",
+    "db/054_disparo_mensagens.sql",
+    "db/056_atendimento_avisos.sql",
+    "db/057_v8_412.sql",
+    "db/058_aviso_sem_margem.sql",
+    "db/059_finalizar_sem_retomada.sql",
+    "db/060_disparo_duplicar.sql",
+    "db/061_perfil_numero_novo.sql",
+    "db/062_rotador.sql",
+    "db/063_recusou_com_margem_saudacao.sql",
+    "db/064_disparo_ate_22h.sql",
+    "db/065_rotador_ola.sql",
+    "db/066_api_oficial.sql",
+    "db/075_grupo_ve_disparos.sql",
+    "db/076_botoes_por_mensagem.sql",
+    "db/077_disparo_margem.sql",
+    "db/078_disparo_sem_nome_sem_margem.sql"
+   ]
+  },
+  {
+   "pasta": "04-banco-regras-da-ana",
+   "titulo": "Banco · regras de conversa da Ana: silêncio, emoji, valores, prazos, CPF (073–091)",
+   "arquivos": [
+    "db/073_silencio_prazo_pix.sql",
+    "db/074_menos_emoji_mais_natural.sql",
+    "db/079_parcela_300_e_reenvio.sql",
+    "db/080_prazo_e_condicao_melhor.sql",
+    "db/081_trava_de_valor.sql",
+    "db/082_simular_maior_prazo.sql",
+    "db/083_trava_sem_looping.sql",
+    "db/084_consulta_v8_painel.sql",
+    "db/085_conversas_envio_waha.sql",
+    "db/086_frase_pedir_cpf.sql",
+    "db/087_cpf_cadastrado_so_na_retomada.sql",
+    "db/088_abertura_pelo_dinheiro_e_recusa.sql"
+   ]
+  },
+  {
+   "pasta": "05-banco-fgts-hub-unno",
+   "titulo": "Banco · FGTS (Lotus/HUB), higienização e Unno (092+)",
+   "arquivos": [
+    "db/092_lotus_fgts_teste.sql",
+    "db/094_link_fgts_handoff.sql",
+    "db/095_higienizacao_fila.sql",
+    "db/096_lotus_fgts_fila.sql",
+    "db/098_hub_fgts_na_fila_lotus.sql",
+    "db/099_ana_fgts_hub.sql",
+    "db/101_unno_ana.sql",
+    "db/102_banco_escolhido_unno.sql"
+   ]
+  },
+  {
+   "pasta": "06-n8n-fluxos",
+   "titulo": "n8n · geradores e fluxos (Roteador, Agente, Ações, V8, Acompanhamento, Unno)",
+   "arquivos": [
+    "n8n/acoes.js",
+    "n8n/acompanhamento.js",
+    "n8n/agente.js",
+    "n8n/gerar_agentes.js",
+    "n8n/gerar_roteador.js",
+    "n8n/gerar_v8.js",
+    "n8n/roteador.js",
+    "n8n/unno_ana_codigo.js",
+    "n8n/v8_ferramentas.js"
+   ]
+  },
+  {
+   "pasta": "07-painel-principal",
+   "titulo": "Painel · escritorio/index.html em fragmentos",
+   "arquivos": [
+    "escritorio/index.html"
+   ]
+  },
+  {
+   "pasta": "08-paginas-extras",
+   "titulo": "Painel · páginas extras (chat de teste, FGTS, pixel, assinatura demo)",
+   "arquivos": [
+    "escritorio/assinar-demo.html",
+    "escritorio/chat.html",
+    "escritorio/fgts.html",
+    "escritorio/pixel.html"
+   ]
+  },
+  {
+   "pasta": "09-imagens-e-deploy",
+   "titulo": "Painel · imagens e deploy na Vercel (vercel.json)",
+   "arquivos": [
+    "escritorio/img/apple-touch-icon.png",
+    "escritorio/img/favicon-32.png",
+    "escritorio/img/favicon-64.png",
+    "escritorio/img/logo-circulo.png",
+    "escritorio/img/perfil-whatsapp.jpg",
+    "escritorio/vercel.json"
+   ]
+  },
+  {
+   "pasta": "10-testes",
+   "titulo": "Testes de estresse da IA",
+   "arquivos": [
+    "testes/estresse.py"
+   ]
+  },
+  {
+   "pasta": "11-documentacao",
+   "titulo": "Documentação e pendências",
+   "arquivos": [
+    ".gitignore",
+    "PENDENCIAS.md",
+    "docs/contrato-servidor-whatsapp.md"
+   ]
+  },
+  {
+   "pasta": "99-legado-cpf-validator",
+   "titulo": "Legado · zip do projeto antigo (CPF Validator Pro, Horizons)",
+   "arquivos": [
+    "horizons-export-40204db1-6884-4f7d-9549-38a7e83d8909 (1).zip"
+   ]
+  }
+ ]
+}

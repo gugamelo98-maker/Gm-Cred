@@ -1,0 +1,21 @@
+<div class="view" id="v-campanha" hidden>
+<section class="ag-sec">
+  <div class="ag-barra"><h3>📤 Campanha · a IA chama os clientes</h3><button class="bt" id="cpBtn" onclick="cpAlternar()" style="padding:8px 14px"></button></div>
+  <div class="ag-resumo" id="cpResumo"></div>
+</section>
+<section class="ag-sec"><div class="ag-grid">
+  <div class="fbox"><h4>➕ Importar clientes</h4>
+    <p class="simtx">Cole as linhas da planilha (copie direto do Excel ou Google Sheets) ou escolha um arquivo CSV. Colunas: <b>nome, telefone, CPF, margem</b> (CPF e margem são opcionais). Se a primeira linha tiver os títulos, o sistema reconhece sozinho.</p>
+    <textarea id="cpTexto" rows="7" class="cp-txt" placeholder="João da Silva	48999998888	123.456.789-09	450,00"></textarea>
+    <div class="cp-linha"><label class="bt" style="cursor:pointer">📄 Escolher CSV<input type="file" id="cpArq" accept=".csv,.txt" hidden onchange="cpLerArquivo(this)"></label><span id="cpPrev" class="cp-prev"></span><button class="bt pri" id="cpImp" onclick="cpImportar()" disabled>Importar</button></div>
+    <div class="fin-erro" id="cpAviso" role="status" style="color:var(--tx2);margin-top:8px"></div>
+  </div>
+  <div class="fbox"><h4>💬 Primeira mensagem</h4>
+    <p class="simtx">É o que o cliente recebe primeiro. Use <b>{nome}</b> para o primeiro nome. Quando ele responder, a Ana assume a conversa.</p>
+    <textarea id="cpMsg" rows="5" class="cp-txt" maxlength="600"></textarea>
+    <div class="cp-linha"><button class="bt" onclick="cpSalvarMsg()">Salvar mensagem</button><span class="cp-prev" id="cpMsgOk"></span></div>
+  </div>
+</div></section>
+<section class="ag-sec"><div class="fbox" id="cpLista"></div></section>
+</div>
+

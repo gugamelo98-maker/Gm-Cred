@@ -1,0 +1,10 @@
+<div class="view" id="v-clientes" hidden>
+<section class="crm" aria-label="Cadastro de clientes">
+  <div class="fbox">
+    <div class="crm-topo"><h4>👥 Clientes · todos que já entraram no escritório</h4><button class="bt" onclick="crmCsv()">⬇ Baixar planilha</button></div>
+    <div class="crm-filtros"><input id="crmBusca" type="search" placeholder="Buscar por nome, telefone ou CPF" oninput="crmF.busca=this.value;crmF.motivo='';crmF.cat='';renderCrm()" aria-label="Buscar cliente"><div class="chips" id="crmChips"></div></div>
+    <div id="crmLista"></div>
+  </div>
+</section>
+</div>
+

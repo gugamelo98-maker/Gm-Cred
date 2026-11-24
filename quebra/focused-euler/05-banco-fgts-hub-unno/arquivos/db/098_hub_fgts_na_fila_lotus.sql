@@ -1,0 +1,24 @@
+-- 098–101 (aplicadas direto no banco via MCP): HUB no robô FGTS da Lotus
+--
+-- 098  Lotus: limite de 7 simulações simultâneas por usuário.
+--      lotus_tarefas confere antes de enviar e só envia até (7 - em andamento);
+--      lotus_gravar trata 403 "já possui 7 simulações em andamento" como "volta pra fila" (não pausa).
+--      Tick do n8n: 10 s.
+-- 099  Colunas HUB em credito.lotus_fila (hub_status, hub_banc, hub_liberado, hub_tabela, hub_msg, hub_em, email);
+--      credito.hub_token (id=1) + hub_salvar_token(token).
+-- 100  credito.hub_tarefas() / credito.hub_gravar(id, st_dados, dados, st_sim, sim). Regras do dono:
+--        * Lotus com saldo        -> HUB BMP; se a BMP não tiver saldo -> HUB J17 (j17_pendente).
+--        * Lotus "não autorizou"  -> HUB J17.
+--        * Cadastro na HUB (obter-dados-cliente) -> grava nome, telefone e e-mail.
+--        * 401 -> marca token inválido (o n8n faz login de novo).
+--        * 429/5xx/"limite de requisições (1 por segundo)" -> volta pra fila, não conta como sem saldo.
+--      hub_tarefas entrega uma leva por vez (nada em "enviando"), até 5 CPFs; n8n espaça 1,5 s entre chamadas.
+-- 101  credito.hub_precisa_token(): sem token, inválido ou com mais de 6 h -> o n8n entra na HUB sozinho
+--      (mesmo login automático do testeextrair, workflow "Hub Crédito - Webhook Frontend").
+--
+-- n8n: XfXGEUAtVBa2X1E3 "[Escritório] 🟣 Lotus FGTS (fila)"
+--   * "HUB: a cada 5 min"      -> Precisa token HUB? -> login HUB -> Salvar token HUB
+--   * "HUB: a cada 15 segundos" -> HUB tarefas -> dados cliente -> simular -> HUB gravar
+--
+-- Painel: lotus_fila_api('status') devolve hub_feitos, hub_na_fila, hub_com_saldo, hub_token_ok,
+--         com_telefone_total; 'planilha' traz as colunas da HUB.

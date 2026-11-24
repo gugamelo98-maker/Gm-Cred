@@ -1,0 +1,32 @@
+-- Empresa virtual CLT — "qual parcela cabe no seu bolso?" antes de simular
+-- Aplicado em 2026-11-11 (banco + n8n).
+--  * Consulta aprovada com margem >= R$ 300: a Ana NÃO simula sozinha. Ela diz
+--    "Você tem disponível até R$ X de parcela. Dentro desse valor, o que cabe melhor no seu bolso?
+--     Geralmente os clientes pegam de R$ 300 a R$ 600 por mês de parcela." (se a margem < 600, a faixa vai até a margem)
+--    e simula com a parcela que o cliente disser (ou o máximo, se ele pedir).
+--  * Margem < R$ 300: segue como antes (simula com o máximo e apresenta as ofertas).
+--  banco: credito.texto_margem(m); acao_agente(aplicar_consulta) devolve pedir_parcela=true + texto;
+--         contexto_agente lembra a margem enquanto não houver ofertas; prompt da Recepção ajustado.
+--  n8n "GM Cred · Ações": "Com margem?" só simula se não for pedir_parcela; "Resultado simulação" — 1ª simulação feita a
+--         partir da Recepção não mostra valores (as ofertas são apresentadas na sequência, sem duplicar).
+--  n8n "GM Cred · Acompanhamento": consulta que aprova depois -> "Pedir parcela?" -> Agente modo aviso com o texto da margem.
+
+-- 11/11 (v2): formato da simulação
+--  * Valor único ("uns 300") -> mensagem no formato da proposta da Vitória:
+--      ✅ *Simulação pronta!*
+--      📅 36x de R$ 300 → *R$ X* na sua conta
+--      📅 24x de R$ 300 → *R$ Y* na sua conta
+--      Qual prazo fica melhor pra você?
+--  * Faixa ("200 a 400") -> tabela de R$ 50 em R$ 50 (máx. 5 linhas, nunca acima da margem), colunas 24x e 36x.
+--  * Só tabela COM seguro. Prazos 36x e 24x; se a V8 recusar esses prazos para o cliente, usa os 2 maiores aceitos (ex.: 18x/12x).
+--  n8n: "GM Cred · Agente" (simular aceita faixa), "GM Cred · Ações" (lê faixa; passa a mensagem), "GM Cred · V8 Ferramentas"
+--       ("Montar simulações", "Oferta", "Resultado simulação" montam as ofertas e a mensagem pronta).
+--  banco: leads.ofertas_msg; salvar_ofertas guarda a mensagem e manda a Ana enviá-la EXATAMENTE; contexto (modo apresentar)
+--         usa a mensagem pronta.
+alter table credito.leads add column if not exists ofertas_msg text;
+
+-- 11/11 (v3): formato aprovado pelo dono (teste 5 no grupo)
+--  Faixa: "✅ *Simulação pronta!*" + blocos "💰 *Parcela de R$ X*" / "📅 18x · *APROVADO R$ Y*" (R$ 100 em R$ 100,
+--         R$ 50 se a faixa for de até R$ 100; máx. 4 blocos).
+--  Valor único: "📅 18x de R$ 300" / "*APROVADO R$ 2.980,73*" separados por linha em branco.
+--  n8n "GM Cred · Agente", nó "Dividir em balões": a simulação pronta sai inteira em 1 balão (não quebra nas linhas em branco).

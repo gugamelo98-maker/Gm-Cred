@@ -1,0 +1,4 @@
+-- 059: "Finalizar" pelo painel encerra de verdade: sem_followup = true (sai das mensagens de retomada) e não troca
+-- um motivo que já existia (ex.: "sem margem") pelo padrão "sem interesse". Se o cliente voltar a escrever,
+-- receber_wpp_v2 libera a retomada de novo (sem_followup = false). Aplicado via credito.mig059().
+-- Dados: lead 302 (55 51 3358-4770, robô de banco) marcado "não contatar"; lead 299 (Ezequiel) voltou a "sem margem".

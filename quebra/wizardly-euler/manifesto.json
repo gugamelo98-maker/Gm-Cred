@@ -1,0 +1,588 @@
+{
+ "ref": "origin/claude/wizardly-euler-e7soqw",
+ "commit": "344edb4c837b2ecf2d992e9f6fdb78a170bfe96f",
+ "arquivos": [
+  {
+   "caminho": "escritorio/assinar-demo.html",
+   "parte": "08-paginas-extras",
+   "arquivo": "08-paginas-extras/arquivos/escritorio/assinar-demo.html"
+  },
+  {
+   "caminho": "escritorio/chat.html",
+   "parte": "08-paginas-extras",
+   "fragmentos": [
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      7
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/02-estilo.css",
+     "linhas": [
+      8,
+      117
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/03-corpo.html",
+     "linhas": [
+      118,
+      178
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/04-script.js",
+     "linhas": [
+      179,
+      432
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/chat.html/05-rodape.html",
+     "linhas": [
+      433,
+      434
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/fgts.html",
+   "parte": "08-paginas-extras",
+   "fragmentos": [
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      7
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/02-estilo.css",
+     "linhas": [
+      8,
+      39
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/03-corpo.html",
+     "linhas": [
+      40,
+      125
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/04-script.js",
+     "linhas": [
+      126,
+      328
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/fgts.html/05-rodape.html",
+     "linhas": [
+      329,
+      330
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/img/apple-touch-icon.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/apple-touch-icon.png"
+  },
+  {
+   "caminho": "escritorio/img/favicon-32.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/favicon-32.png"
+  },
+  {
+   "caminho": "escritorio/img/favicon-64.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/favicon-64.png"
+  },
+  {
+   "caminho": "escritorio/img/logo-circulo.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/logo-circulo.png"
+  },
+  {
+   "caminho": "escritorio/img/logo-hub.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/logo-hub.png"
+  },
+  {
+   "caminho": "escritorio/img/logo-unno.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/logo-unno.png"
+  },
+  {
+   "caminho": "escritorio/img/logo-v8.png",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/logo-v8.png"
+  },
+  {
+   "caminho": "escritorio/img/perfil-whatsapp.jpg",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/img/perfil-whatsapp.jpg"
+  },
+  {
+   "caminho": "escritorio/index.html",
+   "parte": "07-painel-principal",
+   "fragmentos": [
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      13
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/02-estilo.css",
+     "linhas": [
+      14,
+      743
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/03-corpo.html",
+     "linhas": [
+      744,
+      816
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/04-tela-escritorio.html",
+     "linhas": [
+      817,
+      829
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/05-tela-clientes.html",
+     "linhas": [
+      830,
+      839
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/06-tela-agentes.html",
+     "linhas": [
+      840,
+      848
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/07-tela-indicacoes.html",
+     "linhas": [
+      849,
+      856
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/08-tela-conversas.html",
+     "linhas": [
+      857,
+      863
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/09-tela-numeros.html",
+     "linhas": [
+      864,
+      864
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/10-tela-maturador.html",
+     "linhas": [
+      865,
+      866
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/11-tela-campanha.html",
+     "linhas": [
+      867,
+      891
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/12-tela-disparo.html",
+     "linhas": [
+      892,
+      898
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/13-tela-oficial.html",
+     "linhas": [
+      899,
+      905
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/14-tela-pipeline.html",
+     "linhas": [
+      906,
+      907
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/15-tela-bms.html",
+     "linhas": [
+      908,
+      917
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/16-tela-hoje.html",
+     "linhas": [
+      918,
+      922
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/17-tela-mes.html",
+     "linhas": [
+      923,
+      936
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/18-tela-funil.html",
+     "linhas": [
+      937,
+      940
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/19-tela-financeiro.html",
+     "linhas": [
+      941,
+      961
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/20-tela-links.html",
+     "linhas": [
+      962,
+      970
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/21-tela-v8.html",
+     "linhas": [
+      971,
+      1018
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/22-tela-simulacao.html",
+     "linhas": [
+      1019,
+      1045
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/23-script.js",
+     "linhas": [
+      1046,
+      1046
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/24-js-config.js",
+     "linhas": [
+      1047,
+      1072
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/25-js-util.js",
+     "linhas": [
+      1073,
+      1086
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/26-js-pessoas-em-vetor.js",
+     "linhas": [
+      1087,
+      1160
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/27-js-cenario-de-cada-sala.js",
+     "linhas": [
+      1161,
+      1193
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/28-js-modo-demo-dados-ficticios-no-mesmo-forma.js",
+     "linhas": [
+      1194,
+      1314
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/29-js-busca-de-dados.js",
+     "linhas": [
+      1315,
+      1351
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/30-js-renderizacao.js",
+     "linhas": [
+      1352,
+      1399
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/31-js-atencao-funil-e-saude.js",
+     "linhas": [
+      1400,
+      1452
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/32-js-vendas-por-dia-grafico-crescimento-e-pro.js",
+     "linhas": [
+      1453,
+      1527
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/33-js-simulacao.js",
+     "linhas": [
+      1528,
+      1576
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/34-js-agentes-versoes-a-b-c.js",
+     "linhas": [
+      1577,
+      1643
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/35-js-financeiro-gastos-lucro-e-retorno.js",
+     "linhas": [
+      1644,
+      1712
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/36-js-campanha-a-ia-chama-os-clientes-importad.js",
+     "linhas": [
+      1713,
+      1907
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/37-js-disparo.js",
+     "linhas": [
+      1908,
+      2034
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/38-js-api-oficial-mensagem-modelo-da-meta.js",
+     "linhas": [
+      2035,
+      2192
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/39-js-ficha-do-cliente-e-acoes.js",
+     "linhas": [
+      2193,
+      2244
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/40-js-comissao-e-meta.js",
+     "linhas": [
+      2245,
+      2326
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/41-js-clientes-cadastro-crm.js",
+     "linhas": [
+      2327,
+      2421
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/42-js-gaveta-detalhes.js",
+     "linhas": [
+      2422,
+      2463
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/43-js-inicio.js",
+     "linhas": [
+      2464,
+      2775
+     ]
+    },
+    {
+     "arquivo": "07-painel-principal/fragmentos/escritorio/index.html/44-rodape.html",
+     "linhas": [
+      2776,
+      2777
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/pixel.html",
+   "parte": "08-paginas-extras",
+   "fragmentos": [
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/01-cabecalho.html",
+     "linhas": [
+      1,
+      7
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/02-estilo.css",
+     "linhas": [
+      8,
+      65
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/03-corpo.html",
+     "linhas": [
+      66,
+      95
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/04-script.js",
+     "linhas": [
+      96,
+      96
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/05-js-config.js",
+     "linhas": [
+      97,
+      108
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/06-js-estado.js",
+     "linhas": [
+      109,
+      121
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/07-js-modo-demo-dados-ficticios-no-mesmo-forma.js",
+     "linhas": [
+      122,
+      168
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/08-js-busca-de-dados.js",
+     "linhas": [
+      169,
+      205
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/09-js-sidebar.js",
+     "linhas": [
+      206,
+      221
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/10-js-paineis.js",
+     "linhas": [
+      222,
+      265
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/11-js-canvas.js",
+     "linhas": [
+      266,
+      464
+     ]
+    },
+    {
+     "arquivo": "08-paginas-extras/fragmentos/escritorio/pixel.html/12-rodape.html",
+     "linhas": [
+      465,
+      466
+     ]
+    }
+   ]
+  },
+  {
+   "caminho": "escritorio/vercel.json",
+   "parte": "09-imagens-e-deploy",
+   "arquivo": "09-imagens-e-deploy/arquivos/escritorio/vercel.json"
+  },
+  {
+   "caminho": "horizons-export-40204db1-6884-4f7d-9549-38a7e83d8909 (1).zip",
+   "parte": "99-legado-cpf-validator",
+   "arquivo": "99-legado-cpf-validator/arquivos/horizons-export-40204db1-6884-4f7d-9549-38a7e83d8909 (1).zip"
+  }
+ ],
+ "partes": [
+  {
+   "pasta": "07-painel-principal",
+   "titulo": "Painel · escritorio/index.html em fragmentos",
+   "arquivos": [
+    "escritorio/index.html"
+   ]
+  },
+  {
+   "pasta": "08-paginas-extras",
+   "titulo": "Painel · páginas extras (chat de teste, FGTS, pixel, assinatura demo)",
+   "arquivos": [
+    "escritorio/assinar-demo.html",
+    "escritorio/chat.html",
+    "escritorio/fgts.html",
+    "escritorio/pixel.html"
+   ]
+  },
+  {
+   "pasta": "09-imagens-e-deploy",
+   "titulo": "Painel · imagens e deploy na Vercel (vercel.json)",
+   "arquivos": [
+    "escritorio/img/apple-touch-icon.png",
+    "escritorio/img/favicon-32.png",
+    "escritorio/img/favicon-64.png",
+    "escritorio/img/logo-circulo.png",
+    "escritorio/img/logo-hub.png",
+    "escritorio/img/logo-unno.png",
+    "escritorio/img/logo-v8.png",
+    "escritorio/img/perfil-whatsapp.jpg",
+    "escritorio/vercel.json"
+   ]
+  },
+  {
+   "pasta": "99-legado-cpf-validator",
+   "titulo": "Legado · zip do projeto antigo (CPF Validator Pro, Horizons)",
+   "arquivos": [
+    "horizons-export-40204db1-6884-4f7d-9549-38a7e83d8909 (1).zip"
+   ]
+  }
+ ]
+}

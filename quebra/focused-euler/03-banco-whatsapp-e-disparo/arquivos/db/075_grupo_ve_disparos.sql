@@ -1,0 +1,6 @@
+-- 075 (aplicado em 13/11): o grupo respondia "campanha PAUSADA" com o disparo rodando — só conhecia a Campanha antiga.
+--  * credito.contexto_disparos(): disparos dos chips (status, enviadas, entregues, responderam, fila, horário, números),
+--    API oficial (e se a conta foi desativada) e leads de hoje por origem. contexto_gestor() = base + disparos + campanha + números.
+--  * resumo_grupo(): linha "• Disparo: N enviadas hoje · N na fila · <disparo ativo>"; a outra virou "Campanha (antiga)".
+--  * oficial_ligar_leads(): não liga mais lead que veio do disparo dos chips (origem 'disparo…'); 15 ligações erradas desfeitas
+--    (a API oficial mostrava 17 "chamaram o atendimento"; o certo são 2).

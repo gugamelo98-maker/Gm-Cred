@@ -1,0 +1,32 @@
+<div class="view" id="v-v8" hidden>
+<section class="ag-sec"><div class="ag-grid">
+  <div class="fbox"><h4>🔎 Consultar CPF (V8 e Unno)</h4>
+    <form class="fin-form" onsubmit="v8Consultar(event)" autocomplete="off">
+      <label class="larg">CPF<input id="v8Cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required></label>
+      <label class="larg" id="v8NomeLab">Nome completo<input id="v8Nome" autocomplete="off" placeholder="Como está no documento"></label>
+      <label>Data de nascimento<input id="v8Nasc" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off"></label>
+      <label>Celular (Unno)<input id="unnoFone" inputmode="numeric" placeholder="(00) 00000-0000" maxlength="15" autocomplete="off"></label>
+      <label class="larg">E-mail (Unno)<input id="unnoEmail" type="email" placeholder="cliente@email.com" autocomplete="off"></label>
+      <div class="larg v8-lim" id="v8Dica">A V8 só precisa do CPF (pede nome e nascimento se não achar). A Unno precisa de todos os campos e o cliente assina o termo pelo link.</div>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8Btn" type="submit" style="padding:9px 16px;font-size:13px">Consultar</button><span class="fin-erro" id="v8Msg" role="status"></span></div>
+    </form>
+    <div class="v8-res" id="v8Res"></div>
+  </div>
+  <div class="fbox" id="unnoBox" hidden><h4>🏦 Unno</h4>
+    <div class="fin-erro" id="unnoMsg" role="status"></div>
+    <div class="v8-res" id="unnoRes"></div>
+  </div>
+  <div class="fbox" id="melhorBox" hidden><h4>🏆 Melhor proposta (por comissão)</h4>
+    <div id="melhorRes"></div>
+  </div>
+  <div class="fbox" id="v8SimBox" hidden><h4>💰 Simular</h4>
+    <form class="fin-form" onsubmit="v8Simular(event)" autocomplete="off">
+      <label>Parcela (R$)<input id="v8Parc" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+      <label style="grid-column:span 2">Prazo<select id="v8Prazo"></select></label>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8SimBtn" type="submit" style="padding:9px 16px;font-size:13px">Simular</button><span class="fin-erro" id="v8SimMsg" role="status"></span></div>
+    </form>
+    <div id="v8Ofertas"></div>
+  </div>
+</div></section>
+</div>
+

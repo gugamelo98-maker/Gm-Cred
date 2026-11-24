@@ -1,0 +1,14 @@
+<div class="view" id="v-mes" hidden>
+<section class="metas" id="mesBox" aria-label="Meta do mês"></section>
+<section class="vendas" aria-label="Vendas por dia">
+  <div class="fbox">
+    <div class="vd-topo"><h4>📈 Vendas por dia · últimos 30 dias</h4>
+      <div class="seg" role="tablist" aria-label="Medida do gráfico"><button class="on" data-m="liberado" onclick="vdMedida('liberado')">Liberado</button><button data-m="pagos" onclick="vdMedida('pagos')">Contratos pagos</button><button data-m="comissao" onclick="vdMedida('comissao')">Comissão</button></div></div>
+    <div class="vd-leg" id="vdLeg"></div>
+    <div class="vd-chart" id="vdChart"></div>
+    <p class="vd-resumo" id="vdResumo"></p>
+    <details class="vd-tab"><summary>Ver como tabela</summary><div id="vdTabela"></div></details>
+  </div>
+</section>
+</div>
+

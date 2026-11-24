@@ -1,0 +1,6 @@
+-- 048 · Status de entrega das mensagens (já aplicado no banco)
+-- conversas.wpp_msg_id / wpp_status; credito.wpp_marcar2(id, msgid) grava o id da Evolution ao enviar;
+-- credito.wpp_status(msgid, status) recebe MESSAGES_UPDATE: SERVER_ACK (✓) < DELIVERY_ACK (✓✓) < READ/PLAYED (✓✓ azul),
+-- só sobe de nível; ERROR marca falha (se ainda não entregue).
+-- wpp_numeros: entregues_hoje e falhas_hoje; atendimento_api: campo st em cada mensagem.
+-- Webhook das 7 instâncias: MESSAGES_UPSERT, CONNECTION_UPDATE, MESSAGES_UPDATE.

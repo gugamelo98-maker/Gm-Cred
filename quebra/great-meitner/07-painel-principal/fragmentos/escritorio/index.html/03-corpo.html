@@ -1,0 +1,56 @@
+</head>
+<body>
+
+<header class="top">
+  <div class="marca"><div class="logo">GM</div><div><h1>Escritório CLT</h1><p>Empresa virtual · agentes de IA</p></div></div>
+  <div class="kpis">
+    <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
+    <div class="kpi"><b id="kPag" style="color:var(--verde)">0</b><span>Pagos hoje</span></div>
+    <div class="kpi"><b id="kPar" style="color:var(--vermelho)">0</b><span>Parados</span></div>
+  </div>
+  <button class="tst" id="tstBtn" onclick="alternarTestes()" title="Mostrar ou esconder os clientes criados no Chat teste em todo o painel" hidden></button>
+  <div class="saude" id="saude" aria-label="Status do sistema"></div>
+  <span class="upd" id="upd"></span>
+  <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração"><i></i><span>...</span></button>
+</header>
+<div class="aviso" id="aviso"></div>
+<nav class="nav" aria-label="Telas do painel">
+  <span class="nv-sep nv-sep1">Operação</span>
+  <button class="nv" data-v="escritorio" onclick="irPara('escritorio')"><span class="ico">🏢</span>Escritório<b class="badge" id="navBadge" hidden></b></button>
+  <button class="nv" data-v="conversas" onclick="irPara('conversas')"><span class="ico">💬</span>Conversas<b class="badge" id="cvBadge" hidden></b></button>
+  <button class="nv" data-v="clientes" onclick="irPara('clientes')"><span class="ico">👥</span>Clientes</button>
+  <button class="nv" data-v="whatsapp" onclick="irPara(ultimaWpp)" title="Campanha, números e maturador"><span class="ico">📱</span>WhatsApp<b class="badge" id="nmBadge" hidden></b></button>
+  <span class="nv-sep">Análise</span>
+  <button class="nv nv-an" data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
+  <button class="nv nv-an" data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
+  <button class="nv nv-an" data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
+  <button class="nv nv-an" data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
+  <button class="nv nv-an" data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
+  <button class="nv nv-an" data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
+  <span class="nv-sep"></span>
+  <a class="nv nv-an" href="chat.html" style="text-decoration:none" title="Conversar com os agentes como se fosse um cliente"><span class="ico">🧪</span>Chat teste</a>
+  <button class="nv nv-mais" data-v="mais" onclick="abrirMais()" aria-haspopup="dialog"><span class="ico">☰</span>Mais</button>
+</nav>
+<div class="mais-veu" id="maisVeu" onclick="if(event.target===this)fecharMais()" role="dialog" aria-modal="true" aria-label="Mais telas"><div class="mais-sheet">
+  <h5>Análise</h5>
+  <div class="mais-grid">
+    <button data-v="hoje" onclick="irPara('hoje')"><span class="ico">📊</span>Resumo</button>
+    <button data-v="mes" onclick="irPara('mes')"><span class="ico">📈</span>Vendas</button>
+    <button data-v="funil" onclick="irPara('funil')"><span class="ico">📉</span>Funil</button>
+    <button data-v="agentes" onclick="irPara('agentes')"><span class="ico">🤖</span>Agentes</button>
+    <button data-v="financeiro" onclick="irPara('financeiro')"><span class="ico">💰</span>Financeiro</button>
+    <button data-v="simulacao" onclick="irPara('simulacao')"><span class="ico">🔮</span>Simulação</button>
+  </div>
+  <h5>Testes</h5>
+  <div class="mais-grid"><a href="chat.html"><span class="ico">🧪</span>Chat teste</a></div>
+  <button class="bt mais-fechar" onclick="fecharMais()">Fechar</button>
+</div></div>
+<div class="subnav" id="wppTabs" hidden>
+  <h3>📱 WhatsApp</h3>
+  <div class="wseg" role="tablist" aria-label="Telas do WhatsApp">
+    <button data-w="campanha" onclick="irPara('campanha')">📤 Campanha</button>
+    <button data-w="numeros" onclick="irPara('numeros')">📱 Números</button>
+    <button data-w="maturador" onclick="irPara('maturador')">🔄 Maturador</button>
+  </div>
+</div>
+

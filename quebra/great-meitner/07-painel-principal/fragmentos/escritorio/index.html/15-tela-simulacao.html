@@ -1,0 +1,26 @@
+<div class="view" id="v-simulacao" hidden>
+<section class="sim" id="simPrev" aria-label="Previsão com dados reais"></section>
+<section class="sim" aria-label="Simulador e se">
+  <div class="fbox">
+    <h4>🧪 Simulador "e se…"</h4>
+    <p class="simtx">Mexa nos números e veja quanto rende no mês. <span id="simOrigem"></span></p>
+    <div class="sim-grid" id="simCampos"></div>
+    <details class="sim-av"><summary>Ajustes avançados</summary><div class="sim-grid" id="simAv"></div></details>
+    <div class="sim-cards" id="simRes"></div>
+    <div class="sim-bts"><button class="bt" id="btReais" onclick="simUsarReais()">↺ Voltar aos meus números</button><button class="bt" onclick="simExemplo()">Valores de exemplo</button></div>
+  </div>
+</section>
+</div>
+
+<div class="ticker" onclick="abrirPainel('feed')"><span class="ao"><i></i>AO VIVO</span><span class="tx" id="tickerTxt">Aguardando acontecimentos…</span><span class="bt">ver tudo</span></div>
+<div class="veu" id="veu" onclick="fecharPainel()"></div>
+<aside class="gaveta" id="gaveta" aria-hidden="true"><div class="g-topo"><div><h3 id="gTit"></h3><p id="gSub"></p></div><button onclick="fecharPainel()" aria-label="Fechar">✕</button></div><div class="g-corpo" id="gCorpo"></div></aside>
+<div class="tip" id="tip"></div>
+<div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="loginTit"><div class="login-box">
+  <h3 id="loginTit">🔒 Chave de acesso</h3>
+  <p>Os dados reais do escritório (clientes, conversas e comissões) são protegidos. Digite a chave de acesso para entrar.</p>
+  <input id="chaveIn" type="password" placeholder="gm-…" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()">
+  <div class="err" id="chaveErr"></div>
+  <div class="bts2"><button class="bt" onclick="verDemo()">Ver demonstração</button><button class="bt pri" onclick="entrar()">Entrar</button></div>
+</div></div>
+

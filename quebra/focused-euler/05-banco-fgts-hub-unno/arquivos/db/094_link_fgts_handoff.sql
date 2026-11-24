@@ -1,0 +1,10 @@
+-- 094 · Link FGTS + encaminhar FGTS direto para o humano
+-- (já aplicado; registro)
+-- * Link wa.me FGTS (número de atendimento):
+--     https://wa.me/554899996775?text=Ol%C3%A1!%20Quero%20*simular*%20meu%20FGTS
+--   (rotador 'fgts' também criado, texto "Olá! Quero *simular* meu FGTS", para um link
+--    rotativo do site no futuro, se quiser.)
+-- * receber_wpp_v2: se o cliente (sem CPF e ainda não em humano) manda mensagem com
+--   "fgts"/"saque-aniversário", o lead vai para aguardando='humano', cria alerta
+--   prioridade 1 e avisa no grupo; r.responder=false (a Ana não atende).
+-- * regras_gerais: regra FGTS -> pedir_humano (reforço, caso chegue na Ana).

@@ -1,0 +1,48 @@
+<div class="view" id="v-v8" hidden>
+<section class="ag-sec"><div class="ag-grid v8-cols">
+<div class="v8-col">
+  <div class="fbox"><h4>🔎 Consultar CPF (V8, Unno e HUB)</h4>
+    <form class="fin-form" onsubmit="v8Consultar(event)" autocomplete="off">
+      <label class="larg">CPF<input id="v8Cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required></label>
+      <div class="larg v8-extra" id="v8Extra" hidden>
+        <label class="larg" id="v8NomeLab">Nome completo<input id="v8Nome" autocomplete="off" placeholder="Como está no documento"></label>
+        <label>Data de nascimento<input id="v8Nasc" inputmode="numeric" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off"></label>
+        <label>Celular (Unno)<input id="unnoFone" inputmode="numeric" placeholder="(00) 00000-0000" maxlength="15" autocomplete="off"></label>
+        <label>E-mail (Unno)<input id="unnoEmail" type="email" placeholder="cliente@email.com" autocomplete="off"></label>
+        <label>Sexo (HUB)<select id="hubSexo"><option value="">Escolha</option><option value="M">Masculino</option><option value="F">Feminino</option></select></label>
+        <label>Cidade (HUB)<input id="hubCidade" placeholder="Cidade do cliente" autocomplete="off"></label>
+      </div>
+      <div class="larg v8-lim" id="v8Dica">Digite só o CPF. Nome, nascimento, celular e e-mail são buscados sozinhos; se faltar algum, os campos aparecem aqui. O termo da Unno é assinado automaticamente.</div>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8Btn" type="submit" style="padding:9px 16px;font-size:13px">Consultar</button><span class="v8-msg" id="v8Msg" role="status"></span></div>
+    </form>
+    <div class="v8-lim" id="v8Salva" hidden></div>
+    <div class="v8-res" id="v8Res"></div>
+  </div>
+  <div class="fbox" id="v8SimBox" hidden><h4>💰 Simular parcela (V8, Unno e HUB)</h4>
+    <form class="fin-form" onsubmit="simularAmbos(event)" autocomplete="off">
+      <label>Parcela desejada (R$)<input id="v8Parc" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+      <label style="grid-column:span 2">Prazo (V8)<select id="v8Prazo"></select></label>
+      <div class="larg v8-lim" id="v8ParcDica">Vazio = a margem de cada banco. A mesma parcela é simulada em todos os bancos.</div>
+      <div class="larg" style="display:flex;gap:10px;align-items:center"><button class="bt pri" id="v8SimBtn" type="submit" style="padding:9px 16px;font-size:13px">Simular em todos</button><span class="v8-msg" id="v8SimMsg" role="status"></span></div>
+    </form>
+  </div>
+  <div class="fbox" id="melhorBox" hidden><h4>🏆 Melhor proposta (por comissão)</h4>
+    <div id="melhorRes"></div>
+  </div>
+</div>
+<div class="v8-col">
+  <div class="fbox" id="unnoBox" hidden><h4><img class="bk-logo" src="img/logo-unno.png" alt="" width="18" height="18">Unno</h4>
+    <div class="v8-msg" id="unnoMsg" role="status"></div>
+    <div class="v8-res" id="unnoRes"></div>
+  </div>
+  <div class="fbox" id="hubBox" hidden><h4><img class="bk-logo" src="img/logo-hub.png" alt="" width="18" height="18">HUB</h4>
+    <div class="v8-msg" id="hubMsg" role="status"></div>
+    <div class="v8-res" id="hubRes"></div>
+  </div>
+  <div class="fbox" id="v8Box" hidden><h4><img class="bk-logo" src="img/logo-v8.png" alt="" width="18" height="18">V8</h4>
+    <div id="v8Ofertas"></div>
+  </div>
+</div>
+</div></section>
+</div>
+

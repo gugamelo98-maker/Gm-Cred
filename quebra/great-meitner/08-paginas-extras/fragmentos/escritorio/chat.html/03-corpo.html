@@ -1,0 +1,61 @@
+</head>
+<body>
+<header class="topo">
+  <a href="index.html">← Escritório</a>
+  <div><h1>Chat de teste</h1><div class="sub">Converse como se fosse um cliente no WhatsApp</div></div>
+  <div class="esp"></div>
+  <div class="estado" id="estado"><i></i><span>Conectando…</span></div>
+</header>
+
+<div class="grade">
+  <section class="chat" aria-label="Conversa">
+    <div class="chat-topo">
+      <div class="av">A</div>
+      <div><b>Ana · GM Cred</b><span>Como o cliente vê a conversa · as etiquetas coloridas só aparecem para você</span></div>
+    </div>
+    <div class="msgs" id="msgs" aria-live="polite">
+      <div class="vazio" id="vazio"><b>Comece a conversa</b>Escreva como se fosse um cliente. Em cada setor o cliente é sorteado para um dos 3 agentes (A, B ou C) e fica com ele.<br><br>Para testar a jornada inteira, use o CPF de demonstração <code>111.444.777-35</code>. Ele simula um cliente com margem e não cria nada na V8.<br><br>Com um <b>CPF real com saldo</b>, a consulta, a simulação e a <b>proposta são reais na V8</b> (com dados de contato e cadastro de teste). Cancele a proposta no fim do teste.</div>
+      <div class="digitando" id="digitando" aria-label="digitando"><span></span><span></span><span></span></div>
+    </div>
+    <div class="atalhos" id="atalhos"></div>
+    <form class="enviar" id="form">
+      <textarea id="txt" placeholder="Escreva como o cliente…" rows="1" aria-label="Mensagem"></textarea>
+      <button id="mic" class="mic" type="button" title="Gravar áudio (como o cliente no WhatsApp)" aria-label="Gravar áudio">🎤</button>
+      <button id="btn" type="submit">Enviar</button>
+    </form>
+  </section>
+
+  <aside class="lado">
+    <div class="card">
+      <h2>Bastidores</h2>
+      <div id="bast"></div>
+    </div>
+    <div class="card">
+      <h2>Teste</h2>
+      <div class="acoes">
+        <div class="duas">
+          <button type="button" id="bAssinou" onclick="evento('assinou')" disabled>✍️ Simular assinatura<small>Cliente assinou</small></button>
+          <button type="button" id="bPagou" onclick="evento('pagou')" disabled>💸 Simular pagamento<small>Dinheiro caiu</small></button>
+        </div>
+        <button type="button" id="bCancelar" class="perigo" onclick="cancelarProposta()" hidden>⛔ Cancelar proposta na V8<small>Cancela de verdade a proposta criada no teste</small></button>
+        <button type="button" onclick="novoCliente()">🔄 Novo cliente<small>Começa do zero, com novo sorteio de agentes</small></button>
+        <button type="button" class="perigo" onclick="limparTestes()">🗑️ Apagar clientes de teste<small>Remove do painel todos os clientes criados aqui</small></button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Placar A/B/C <span id="plNota">inclui testes</span></h2>
+      <div class="placar" id="placar"><p class="nota">Aparece depois da primeira conversa.</p></div>
+    </div>
+  </aside>
+</div>
+
+<div class="login" id="login">
+  <form onsubmit="entrar();return false;">
+    <h3>Entrar</h3>
+    <p>Use a mesma chave de acesso do Escritório.</p>
+    <input id="chaveIn" type="password" autocomplete="current-password" placeholder="Chave de acesso" aria-label="Chave de acesso">
+    <button type="submit">Entrar</button>
+    <div class="err" id="chaveErr"></div>
+  </form>
+</div>
+

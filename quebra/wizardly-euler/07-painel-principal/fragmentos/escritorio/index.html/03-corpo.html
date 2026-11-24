@@ -1,0 +1,73 @@
+</head>
+<body>
+
+<header class="top">
+  <div class="marca pg"><div><h1 id="pgTit">Escritório</h1><p id="pgSub">Empresa virtual · agentes de IA</p></div></div>
+  <div class="kpis">
+    <div class="kpi"><b id="kAnd" style="color:var(--azul)">0</b><span>Atendendo</span></div>
+    <div class="kpi"><b id="kPag" style="color:var(--verde)">0</b><span>Pagos hoje</span></div>
+    <div class="kpi"><b id="kPar" style="color:var(--vermelho)">0</b><span>Parados</span></div>
+  </div>
+  <button class="tst" id="tstBtn" onclick="alternarTestes()" title="Mostrar ou esconder os clientes criados no Chat teste em todo o painel" hidden></button>
+  <div class="saude" id="saude" aria-label="Status do sistema"></div>
+  <span class="upd" id="upd"></span>
+  <button class="conn" id="connBtn" onclick="toggleDemo()" title="Alternar modo demonstração"><i></i><span>...</span></button>
+</header>
+<div class="aviso" id="aviso"></div>
+<nav class="nav" id="nav" aria-label="Telas do painel">
+  <div class="sb-marca"><img class="logo-img" src="img/logo-circulo.png" alt="GM Cred" width="36" height="36"><div class="sb-txt"><b>GM Cred</b><small>Escritório CLT</small></div></div>
+  <button class="nv" data-v="hoje" onclick="irPara('hoje')" title="Início"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/></svg><span class="lb">Início</span></button>
+  <button class="nv" data-v="escritorio" onclick="irPara('escritorio')" title="Escritório"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/></svg><span class="lb">Escritório</span><b class="badge" id="navBadge" hidden></b></button>
+  <button class="nv" data-v="pipeline" onclick="irPara('pipeline')" title="Pipeline"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.2"/><rect x="9.5" y="4" width="5" height="10" rx="1.2"/><rect x="16" y="4" width="5" height="13" rx="1.2"/></svg><span class="lb">Pipeline</span></button>
+  <button class="nv" data-v="conversas" onclick="irPara('conversas')" title="Conversas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="lb">Conversas</span><b class="badge" id="cvBadge" hidden></b></button>
+  <button class="nv" data-v="clientes" onclick="irPara('clientes')" title="Clientes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg><span class="lb">Clientes</span></button>
+  <button class="nv nv-an" data-v="v8" onclick="irPara('v8')" title="Consulta V8, Unno e HUB"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg><span class="lb">Consulta V8 / Unno / HUB</span></button>
+  <button class="nv nv-an" data-v="links" onclick="irPara('links')" title="Links"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg><span class="lb">Links</span></button>
+  <button class="nv nv-an" data-v="disparo" onclick="irPara('disparo')" title="Disparo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg><span class="lb">Disparo</span></button>
+  <button class="nv nv-an" data-v="oficial" onclick="irPara('oficial')" title="API oficial"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg><span class="lb">API oficial</span></button>
+  <button class="nv nv-an" data-v="mes" onclick="irPara('mes')" title="Vendas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="lb">Vendas</span></button>
+  <button class="nv nv-an" data-v="funil" onclick="irPara('funil')" title="Funil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg><span class="lb">Funil</span></button>
+  <div class="sb-fim">
+  <a class="nv nv-an" href="chat.html" title="Conversar com os agentes como se fosse um cliente"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.6 9.6A1.6 1.6 0 0 0 5.8 21h12.4a1.6 1.6 0 0 0 1.4-2.4L14 9V3"/><path d="M7.5 15h9"/></svg><span class="lb">Chat teste</span></a>
+  <button class="nv nv-an" data-v="config" onclick="irPara(ultimaWpp)" title="Configurações"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/><circle cx="12" cy="12" r="7"/></svg><span class="lb">Configurações</span><b class="badge" id="nmBadge" hidden></b></button>
+  <button class="nv nv-mais" data-v="mais" onclick="abrirMais()" aria-haspopup="dialog"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="lb">Mais</span></button>
+  <button class="sb-tema" onclick="alternarTema()" title="Mudar para tema claro ou escuro" aria-label="Mudar tema claro ou escuro"><span class="so-claro"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span><span class="so-escuro"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><span class="lb"><span class="so-claro">Tema escuro</span><span class="so-escuro">Tema claro</span></span></button>
+  <button class="sb-recolher" onclick="alternarMenu()" title="Recolher ou abrir o menu" aria-label="Recolher ou abrir o menu"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="lb">Recolher menu</span></button>
+  </div>
+</nav>
+<div class="mais-veu" id="maisVeu" onclick="if(event.target===this)fecharMais()" role="dialog" aria-modal="true" aria-label="Mais telas"><div class="mais-sheet">
+  <h5>Operação</h5>
+  <div class="mais-grid">
+    <button data-v="v8" onclick="irPara('v8')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M8 10.5h5M10.5 8v5"/></svg>Consulta V8 / Unno / HUB</button>
+    <button data-v="links" onclick="irPara('links')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg>Links</button>
+    <button data-v="disparo" onclick="irPara('disparo')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/></svg>Disparo</button>
+    <button data-v="oficial" onclick="irPara('oficial')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>API oficial</button>
+    <button data-v="mes" onclick="irPara('mes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Vendas</button>
+    <button data-v="funil" onclick="irPara('funil')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>Funil</button>
+  </div>
+  <h5>Configurações</h5>
+  <div class="mais-grid">
+    <button data-v="numeros" onclick="irPara('numeros')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Números</button>
+    <button data-v="bms" onclick="irPara('bms')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>BMs Meta</button>
+    <button data-v="maturador" onclick="irPara('maturador')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></svg>Maturador</button>
+    <button data-v="agentes" onclick="irPara('agentes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>Agentes</button>
+    <button data-v="indicacoes" onclick="irPara('indicacoes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3.5 8 4.2 9 8 12 8zm0 0s1.5-4.5 4-3.8S15 8 12 8z"/></svg>Indicações</button>
+    <button data-v="financeiro" onclick="irPara('financeiro')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 9.5h.01M18 15.5h.01"/></svg>Financeiro</button>
+    <button data-v="simulacao" onclick="irPara('simulacao')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg>Simulação</button>
+    <a href="chat.html"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.6 9.6A1.6 1.6 0 0 0 5.8 21h12.4a1.6 1.6 0 0 0 1.4-2.4L14 9V3"/><path d="M7.5 15h9"/></svg>Chat teste</a>
+  </div>
+  <button class="bt mais-fechar" style="margin-bottom:8px" onclick="alternarTema()">Mudar tema claro / escuro</button>
+  <button class="bt mais-fechar" onclick="fecharMais()">Fechar</button>
+</div></div>
+<div class="subnav" id="wppTabs" hidden>
+  <div class="wseg" role="tablist" aria-label="Configurações">
+    <button data-w="numeros" onclick="irPara('numeros')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Números</button>
+    <button data-w="bms" onclick="irPara('bms')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.9-2.5-1.7 1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/><path d="M8.5 12l2.4 2.4 4.6-4.8"/></svg>BMs Meta</button>
+    <button data-w="maturador" onclick="irPara('maturador')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5"/><path d="M5 3v4h4M19 21v-4h-4"/></svg>Maturador</button>
+    <button data-w="agentes" onclick="irPara('agentes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>Agentes</button>
+    <button data-w="indicacoes" onclick="irPara('indicacoes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10.5 3.5 8 4.2 9 8 12 8zm0 0s1.5-4.5 4-3.8S15 8 12 8z"/></svg>Indicações</button>
+    <button data-w="financeiro" onclick="irPara('financeiro')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 9.5h.01M18 15.5h.01"/></svg>Financeiro</button>
+    <button data-w="simulacao" onclick="irPara('simulacao')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.4 5 5.6.8-4 3.9 1 5.5-5-2.7-5 2.7 1-5.5-4-3.9 5.6-.8z"/></svg>Simulação</button>
+  </div>
+</div>
+
