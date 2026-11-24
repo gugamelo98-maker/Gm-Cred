@@ -53,9 +53,12 @@ export interface Api {
   importarContatos(id: string, linhas: { nome: string; telefone: string }[]): Promise<Disparo>;
 
   // Leads do dia
-  /** separa até `quantidade` leads novos (com margem, ainda não chamados) para o usuário */
-  extrairLeads(quantidade: number, por: string): Promise<LeadDia[]>;
-  marcarLeadChamado(id: string, chamado: boolean): Promise<LeadDia>;
+  /** entrega ao colaborador o que falta da cota de hoje (Usuario.leadsPorDia menos o que já extraiu hoje).
+   *  A cota é conferida no backend; o admin define a cota com salvarUsuario({ id, leadsPorDia }). */
+  extrairLeads(por: string): Promise<LeadDia[]>;
+  /** manda a primeira mensagem pelo número do colaborador (Numero.dono = por) e cria a conversa,
+   *  que aparece em Conversas com o colaborador como responsável e atendente (a IA não responde) */
+  chamarLead(id: string, texto: string, por: string): Promise<{ lead: LeadDia; cliente: Cliente; mensagem: Mensagem }>;
 
   // Gestão
   salvarIndicador(i: Partial<Indicador> & { id?: string }): Promise<Indicador>;

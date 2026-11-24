@@ -3,7 +3,7 @@
 // Datas são sempre ISO 8601 (string). Valores em reais (number).
 
 export type Etapa = 'recepcao' | 'simulacao' | 'vendas' | 'formalizacao' | 'posvenda' | 'perdido';
-export type Origem = 'disparo' | 'trafego' | 'indicacao' | 'organico';
+export type Origem = 'disparo' | 'trafego' | 'indicacao' | 'organico' | 'leads_dia';
 export type Produto = 'CLT' | 'FGTS';
 export type Banco = 'V8' | 'Unno' | 'HUB';
 export type Papel = 'admin' | 'gestor' | 'atendente';
@@ -184,6 +184,8 @@ export interface Usuario {
   papel: Papel;
   /** 'proprios' = só vê as conversas e os clientes em que é o responsável */
   escopo: 'todos' | 'proprios';
+  /** quantos leads o admin liberou para este colaborador extrair por dia (0 = nenhum) */
+  leadsPorDia: number;
   ativo: boolean;
   ultimoAcesso: string | null;
 }
@@ -217,8 +219,10 @@ export interface LeadDia {
   /** usuário que extraiu (o lead é dele no dia) */
   extraidoPor: string;
   extraidoEm: string;
-  /** quando o colaborador abriu o WhatsApp do cliente; null = ainda não chamou */
+  /** quando a primeira mensagem foi enviada pelo painel; null = ainda não chamou */
   chamadoEm: string | null;
+  /** cliente criado na aba Conversas quando o lead foi chamado */
+  clienteId: string | null;
 }
 
 /** Tudo que o painel carrega de uma vez (equivalente ao /escritorio/estado de hoje) */

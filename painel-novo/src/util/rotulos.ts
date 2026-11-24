@@ -10,7 +10,7 @@ export const ETAPAS: { id: Etapa; nome: string; desc: string }[] = [
 ];
 export const nomeEtapa = (e: Etapa) => ETAPAS.find(x => x.id === e)?.nome ?? e;
 
-export const ORIGENS: Record<Origem, string> = { disparo: 'Disparo', trafego: 'Tráfego pago', indicacao: 'Indicação', organico: 'Orgânico' };
+export const ORIGENS: Record<Origem, string> = { disparo: 'Disparo', trafego: 'Tráfego pago', indicacao: 'Indicação', organico: 'Orgânico', leads_dia: 'Leads do dia' };
 
 export const CATEGORIAS: Record<CategoriaGasto, string> = {
   disparos: 'Disparos / servidor', numeros: 'Números (chips)', trafego: 'Tráfego pago', bms: 'BMs Meta', equipe: 'Equipe', outros: 'Outros',

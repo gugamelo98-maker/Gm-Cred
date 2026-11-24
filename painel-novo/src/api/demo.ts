@@ -7,8 +7,8 @@ import type {
 import { soDigitos, validaCpf } from '@/util/formato';
 import { resolverMidia } from './demo-midia';
 
-const CHAVE = 'gm_painel_demo_v3';
-const CHAVE_CONVERSAS = 'gm_painel_demo_conversas_v3';
+const CHAVE = 'gm_painel_demo_v5';
+const CHAVE_CONVERSAS = 'gm_painel_demo_conversas_v5';
 const DIA = 86400000;
 
 // gerador pseudoaleatório com semente, para os dados de demonstração serem sempre os mesmos
@@ -43,7 +43,7 @@ function leadFicticio(r: () => number, por: string, em: number, chamadoEm: strin
     id: 'ld' + Math.floor(r() * 1e9).toString(36), nome, cpf: cpfValido(r),
     telefone: '55' + ['48', '11', '21', '41'][Math.floor(r() * 4)] + '90000' + String(1000 + Math.floor(r() * 8999)),
     margem: Math.round(150 + r() * 650), banco: (['V8', 'V8', 'Unno', 'HUB'] as Banco[])[Math.floor(r() * 4)],
-    extraidoPor: por, extraidoEm: iso(em), chamadoEm,
+    extraidoPor: por, extraidoEm: iso(em), chamadoEm, clienteId: null,
   };
 }
 
@@ -53,10 +53,10 @@ function gerar(): Estado {
   const pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
 
   const usuarios: Usuario[] = [
-    { id: 'u1', escopo: 'todos', nome: 'Dono', email: 'dono@gmcred.com.br', papel: 'admin', ativo: true, ultimoAcesso: iso(agora - 3600e3) },
-    { id: 'u2', escopo: 'todos', nome: 'Larissa', email: 'larissa@gmcred.com.br', papel: 'gestor', ativo: true, ultimoAcesso: iso(agora - 2 * DIA) },
-    { id: 'u3', escopo: 'proprios', nome: 'Bianca', email: 'bianca@gmcred.com.br', papel: 'atendente', ativo: true, ultimoAcesso: iso(agora - 5 * 3600e3) },
-    { id: 'u4', escopo: 'proprios', nome: 'Rafael', email: 'rafael@gmcred.com.br', papel: 'atendente', ativo: false, ultimoAcesso: iso(agora - 20 * DIA) },
+    { id: 'u1', leadsPorDia: 0, escopo: 'todos', nome: 'Dono', email: 'dono@gmcred.com.br', papel: 'admin', ativo: true, ultimoAcesso: iso(agora - 3600e3) },
+    { id: 'u2', leadsPorDia: 0, escopo: 'todos', nome: 'Larissa', email: 'larissa@gmcred.com.br', papel: 'gestor', ativo: true, ultimoAcesso: iso(agora - 2 * DIA) },
+    { id: 'u3', leadsPorDia: 30, escopo: 'proprios', nome: 'Bianca', email: 'bianca@gmcred.com.br', papel: 'atendente', ativo: true, ultimoAcesso: iso(agora - 5 * 3600e3) },
+    { id: 'u4', leadsPorDia: 20, escopo: 'proprios', nome: 'Rafael', email: 'rafael@gmcred.com.br', papel: 'atendente', ativo: false, ultimoAcesso: iso(agora - 20 * DIA) },
   ];
 
   const numeros: Numero[] = [
@@ -145,7 +145,7 @@ function gerar(): Estado {
 
   return {
     clientes, numeros, disparos, indicadores, gastos, usuarios,
-    leadsDia: Array.from({ length: 8 }, (_, i) => leadFicticio(r, 'u3', agora - (3 - i * 0.3) * 3600e3, i < 3 ? iso(agora - (2 - i * 0.4) * 3600e3) : null)),
+    leadsDia: Array.from({ length: 8 }, (_, i) => leadFicticio(r, 'u3', agora - (3 - i * 0.3) * 3600e3, null)),
     respostas: [
       { id: 'r1', atalho: 'cpf', titulo: 'Pedir CPF', texto: 'Oi {nome}! Pra eu ver quanto você consegue liberar, me manda o seu CPF, por favor?' },
       { id: 'r2', atalho: 'documentos', titulo: 'Pedir documentos', texto: '{nome}, pra seguir preciso de uma foto do seu documento com foto (RG ou CNH) e do último contracheque.' },
@@ -366,18 +366,44 @@ export const demoApi: Api = {
   },
   async importarContatos(did, linhas) { await espera(); const d = achar(db.disparos, did); d.contatos += linhas.length; d.naFila += linhas.length; gravar(); return copia(d); },
 
-  async extrairLeads(quantidade, por) {
+  async extrairLeads(por) {
     await espera(900);
+    const u = achar(db.usuarios, por);
+    const hoje = new Date().toDateString();
+    const jaHoje = db.leadsDia.filter(l => l.extraidoPor === por && new Date(l.extraidoEm).toDateString() === hoje).length;
+    const falta = Math.max(0, (u.leadsPorDia || 0) - jaHoje);
+    if (!falta) throw new Error(u.leadsPorDia ? 'Você já extraiu todos os leads liberados para hoje.' : 'O administrador ainda não liberou leads para você hoje.');
     const r = rng(Date.now() % 1e9);
-    const novos = Array.from({ length: Math.max(1, Math.min(100, quantidade)) }, () => leadFicticio(r, por, Date.now(), null));
+    const novos = Array.from({ length: falta }, () => leadFicticio(r, por, Date.now(), null));
     db.leadsDia.push(...novos); gravar();
     return copia(novos);
   },
-  async marcarLeadChamado(lid, chamado) {
-    await espera(150);
+  async chamarLead(lid, texto, por) {
+    await espera(600);
     const l = achar(db.leadsDia, lid);
-    l.chamadoEm = chamado ? new Date().toISOString() : null; gravar();
-    return copia(l);
+    if (l.extraidoPor !== por) throw new Error('Este lead é de outro colaborador.');
+    const numero = db.numeros.find(n => n.dono === por && n.estado === 'conectado');
+    if (!numero) throw new Error('Conecte o seu número em Números antes de chamar os leads.');
+    if (!texto.trim()) throw new Error('A mensagem está vazia.');
+    const agora = new Date().toISOString();
+    let c = db.clientes.find(x => x.id === l.clienteId) ?? db.clientes.find(x => x.telefone === l.telefone);
+    if (!c) {
+      c = {
+        id: 'c' + id(), nome: l.nome, telefone: l.telefone, cpf: l.cpf, produto: 'CLT', origem: 'leads_dia', origemRef: l.id,
+        etapa: 'recepcao', situacao: 'Mensagem enviada, aguardando resposta', etiqueta: null, margem: l.margem, banco: l.banco,
+        valorLiberado: null, parcela: null, prazo: null, comissao: null, atendente: por, responsavel: por, numeroId: numero.id, naoLidas: 0,
+        entrouEm: agora, cpfEm: agora, margemEm: agora, propostaEm: null, pagoEm: null, ultimaMsgEm: agora,
+        historico: [{ em: agora, de: null, para: 'recepcao', por }],
+      };
+      db.clientes.unshift(c);
+      conversas.set(c.id, []);
+    }
+    const mensagem: Mensagem = { id: id(), clienteId: c.id, de: 'humano', autor: por, texto: texto.trim(), midia: null, em: agora, status: 'entregue' };
+    conversaDe(c).push(mensagem); gravarConversas();
+    c.ultimaMsgEm = agora;
+    l.chamadoEm = l.chamadoEm ?? agora; l.clienteId = c.id;
+    gravar();
+    return copia({ lead: l, cliente: c, mensagem });
   },
 
   async salvarIndicador(p) {
@@ -399,7 +425,7 @@ export const demoApi: Api = {
     await espera();
     if (p.email && db.usuarios.some(u => u.email.toLowerCase() === p.email!.toLowerCase() && u.id !== p.id)) throw new Error('Já existe um usuário com este e-mail.');
     if (p.id) { const u = achar(db.usuarios, p.id); Object.assign(u, p); gravar(); return copia(u); }
-    const u: Usuario = { id: 'u' + id(), nome: '', email: '', papel: 'atendente', escopo: p.papel === 'atendente' || !p.papel ? 'proprios' : 'todos', ativo: true, ultimoAcesso: null, ...p } as Usuario;
+    const u: Usuario = { id: 'u' + id(), nome: '', email: '', papel: 'atendente', leadsPorDia: 0, escopo: p.papel === 'atendente' || !p.papel ? 'proprios' : 'todos', ativo: true, ultimoAcesso: null, ...p } as Usuario;
     db.usuarios.push(u); gravar(); return copia(u);
   },
 };

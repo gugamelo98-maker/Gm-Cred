@@ -46,7 +46,7 @@ export default function BI() {
   const custoOrigem: Record<Origem, number> = {
     trafego: gastos.filter(g => g.categoria === 'trafego' || g.categoria === 'bms').reduce((s, g) => s + g.valor, 0),
     disparo: gastos.filter(g => g.categoria === 'disparos' || g.categoria === 'numeros').reduce((s, g) => s + g.valor, 0),
-    indicacao: 0, organico: 0,
+    indicacao: 0, organico: 0, leads_dia: 0,
   };
   const porOrigem = (Object.keys(ORIGENS) as Origem[]).map(o => ({ o, ...funil(base.filter(c => dentro(c.entrouEm, faixa) && c.origem === o)) }));
 
