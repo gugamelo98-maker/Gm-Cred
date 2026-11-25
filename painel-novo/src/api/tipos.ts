@@ -108,7 +108,7 @@ export interface Numero {
   sessao: string;
   telefone: string;
   nomePerfil: string;
-  funcao: 'atendimento' | 'disparo' | 'reserva';
+  funcao: 'atendimento' | 'disparo' | 'reserva' | 'colaborador';
   /** marcado para a campanha (disparo) */
   campanha?: boolean;
   /** quando caiu (desconectou) */

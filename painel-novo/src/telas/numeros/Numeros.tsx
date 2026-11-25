@@ -8,7 +8,7 @@ import { dataHora, fmtTel, num } from '@/util/formato';
 import { numerosVisiveis } from '@/util/permissoes';
 
 export const ESTADO_NUM: Record<Numero['estado'], [string, Cor]> = { conectado: ['Conectado', 'verde'], aguardando_qr: ['Aguardando QR', 'amarelo'], caiu: ['Caiu', 'vermelho'], parado: ['Parado', 'cinza'] };
-const FUNCOES: Record<Numero['funcao'], string> = { atendimento: 'Atendimento (recebe as conversas)', disparo: 'Disparo', reserva: 'Reserva (entra se o de atendimento cair)' };
+const FUNCOES: Record<Numero['funcao'], string> = { atendimento: 'Atendimento (recebe as conversas)', disparo: 'Disparo', reserva: 'Reserva (entra se o de atendimento cair)', colaborador: 'Colaborador (número da pessoa, fora de tudo automático)' };
 
 function JanelaQr({ n, fechar }: { n: Numero; fechar: () => void }) {
   const [img, setImg] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export default function Numeros() {
   }
   async function criarNumero() {
     const prox = Math.max(1, ...estado!.numeros.map(n => Number(n.sessao.replace(/\D/g, '')) || 1)) + 1;
-    const r = await executar(() => api.novoNumero(`gmcred-${prox}`, colaborador ? 'atendimento' : 'disparo', colaborador ? usuario!.id : null), 'Número criado: leia o QR para conectar');
+    const r = await executar(() => api.novoNumero(`gmcred-${prox}`, colaborador ? 'colaborador' : 'disparo', colaborador ? usuario!.id : null), 'Número criado: leia o QR para conectar');
     if (r) { trocar('numeros', r); setQr(r); }
   }
   async function excluir(n: Numero) {
@@ -98,7 +98,7 @@ export default function Numeros() {
               <p className="mt-2 text-xs text-apagado">{num(n.enviadasHoje)} enviadas · {num(n.entreguesHoje)} entregues hoje{n.falhasHoje ? <> · <span className="text-red-600">{num(n.falhasHoje)} falhas</span></> : null}</p>
               {!colaborador && <>
                 <label className="rotulo mt-3" htmlFor={'d' + n.id}>Dono</label>
-                <select id={'d' + n.id} className="campo mb-2" value={n.dono ?? ''} onChange={e => salvar(n, { dono: e.target.value || null })}>
+                <select id={'d' + n.id} className="campo mb-2" value={n.dono ?? ''} onChange={e => salvar(n, e.target.value ? { dono: e.target.value, funcao: 'colaborador' } : { dono: null })}>
                   <option value="">Empresa (sem dono)</option>
                   {estado!.usuarios.filter(u => u.ativo).map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
                 </select>

@@ -1,0 +1,6 @@
+-- 123 · Número de colaborador tem função própria 'colaborador' (fora de atendimento, disparo, reserva e campanha).
+--   numeros_api aceita funcao 'colaborador'; números com painel_dono foram migrados para 'colaborador'.
+--   No painel, número criado/conectado por colaborador nasce 'colaborador'; escolher um dono também marca 'colaborador'.
+-- LP sempre no número configurado em configuracoes 'lp_numero' (hoje gmcred-17), nunca no "atendimento" do momento.
+-- lp_auto_proximos sem limite; lp_auto_salvar classifica o FGTS pelo texto de cada banco:
+--   'saldo' ou 'andamento' em algum -> sem proposta; todos 'autoriz' -> pede autorizar BMP e Girotech; senão revisar.
