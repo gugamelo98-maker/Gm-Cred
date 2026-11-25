@@ -1,5 +1,5 @@
 -- 110 · Leads do dia: saem de public.meus_leads (higienizados em lote no testeextrair), por cota de cada colaborador.
--- O celular vem da V8 na hora da extração (fluxo n8n "[Painel] 🧲 Leads do dia").
+-- O celular vem do fluxo 'consulta telefone' (/webhook/consulta-cpf, mesmo do site telefones) na hora da extração (fluxo n8n "[Painel] 🧲 Leads do dia").
 
 alter table public.meus_leads add column if not exists telefone text;
 alter table public.meus_leads add column if not exists painel_usuario bigint;
@@ -61,9 +61,19 @@ begin
   return jsonb_build_object('ok', false, 'codigo', 400, 'erro', 'Ação inválida.');
 end $$;
 
--- CPFs do usuário que ainda estão sem celular (o n8n busca na V8)
-create or replace function credito.leads_dia_sem_tel(k text) returns table (cpf text, token text) language sql as $$
-  select m.cpf, (select t.token from credito.v8_token t where t.id = 1)
+-- CPFs do usuário que ainda estão sem celular (o n8n consulta no fluxo de telefones)
+create or replace function credito.leads_dia_sem_tel(k text) returns jsonb language sql as $$
+  select jsonb_build_object('cpfs', coalesce(jsonb_agg(m.cpf), '[]'))
     from public.meus_leads m where m.painel_usuario = (credito.painel_sessao(k)).id and m.telefone is null
-     and m.painel_extraido_em > now() - interval '1 day' limit 100
+     and m.painel_extraido_em > now() - interval '1 day'
+$$;
+
+-- grava os telefones que o fluxo de telefones devolveu: [{cpf, telefone, encontrado}]
+create or replace function credito.leads_dia_telefones(k text, res jsonb) returns int language sql as $$
+  with t as (select lpad(regexp_replace(x->>'cpf', '\D', '', 'g'), 11, '0') cpf, regexp_replace(coalesce(x->>'telefone', ''), '\D', '', 'g') tel
+               from jsonb_array_elements(case when jsonb_typeof(res) = 'array' then res else coalesce(res->'resultados', '[]') end) x)
+  , u as (update public.meus_leads m set telefone = t.tel from t
+   where m.cpf = t.cpf and length(t.tel) >= 10 and m.painel_usuario = (credito.painel_sessao(k)).id and m.telefone is null
+  returning 1)
+  select count(*)::int from u
 $$;
