@@ -97,7 +97,7 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
                   <ul className="divide-y divide-borda border-t border-borda bg-fundo/50">
                     {g.ofertas.map((o, i) => (
                       <li key={i}>
-                        <button className="flex w-full items-center gap-2 px-4 py-1.5 text-left text-xs hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} disabled={id === 'v8_fgts'} title="Digitar esta oferta">
+                        <button className="flex w-full items-center gap-2 px-4 py-1.5 text-left text-xs hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} title="Digitar esta oferta">
                           <span className="num w-8 shrink-0 font-medium">{o.prazo}x</span>
                           {o.parcela ? <span className="num w-16 shrink-0 text-suave">{brl(o.parcela)}</span> : null}
                           <span className="num flex-1 font-semibold">{brl(o.valor)}</span>
@@ -133,7 +133,8 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
     try { setRes(await motor.digitar(consulta.id, alvo.parte, o, d, enviar)); } catch (x) { setErro((x as Error).message); }
     setIndo(null);
   }
-  const prontoEnviar = d.mae.trim().length > 3 && d.pix_chave.trim().length > 3;
+  const porConta = alvo.parte === 'hub_fgts' || alvo.parte === 'unno_fgts';
+  const prontoEnviar = d.mae.trim().length > 3 && (porConta ? !!(d.banco && d.agencia && d.conta && d.conta_digito) : d.pix_chave.trim().length > 3);
   return (
     <Modal aberto fechar={fechar} titulo={`Digitar · ${info.banco} ${info.produto}`} largura="max-w-2xl"
       rodape={res?.enviado && res.ok ? <button className="bt" onClick={fechar}>Fechar</button> : (
@@ -151,11 +152,21 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2"><label className="rotulo" htmlFor="mae">Nome da mãe *</label><input id="mae" className="campo" value={d.mae} onChange={e => muda('mae', e.target.value)} /></div>
+        {porConta ? (<>
+          <div><label className="rotulo" htmlFor="bco">Banco (código) *</label><input id="bco" className="campo num" inputMode="numeric" placeholder="ex.: 260" value={d.banco ?? ''} onChange={e => muda('banco', e.target.value.replace(/\D/g, ''))} /></div>
+          <div><label className="rotulo" htmlFor="tpc">Tipo de conta *</label>
+            <select id="tpc" className="campo" value={d.conta_tipo ?? 'corrente'} onChange={e => muda('conta_tipo', e.target.value)}><option value="corrente">Corrente</option><option value="poupanca">Poupança</option></select></div>
+          <div className="grid grid-cols-[1fr_70px] gap-2"><div><label className="rotulo" htmlFor="ag">Agência *</label><input id="ag" className="campo num" inputMode="numeric" value={d.agencia ?? ''} onChange={e => muda('agencia', e.target.value.replace(/\D/g, ''))} /></div>
+            <div><label className="rotulo" htmlFor="agd">Dígito</label><input id="agd" className="campo num" value={d.agencia_digito ?? ''} onChange={e => muda('agencia_digito', e.target.value)} /></div></div>
+          <div className="grid grid-cols-[1fr_70px] gap-2"><div><label className="rotulo" htmlFor="cc">Conta *</label><input id="cc" className="campo num" inputMode="numeric" value={d.conta ?? ''} onChange={e => muda('conta', e.target.value.replace(/\D/g, ''))} /></div>
+            <div><label className="rotulo" htmlFor="ccd">Dígito *</label><input id="ccd" className="campo num" value={d.conta_digito ?? ''} onChange={e => muda('conta_digito', e.target.value)} /></div></div>
+        </>) : (<>
         <div><label className="rotulo" htmlFor="pixt">Tipo da chave PIX *</label>
           <select id="pixt" className="campo" value={d.pix_tipo} onChange={e => muda('pix_tipo', e.target.value)}>
             <option value="cpf">CPF</option><option value="phone">Celular</option><option value="email">E-mail</option><option value="random">Aleatória</option>
           </select></div>
         <div><label className="rotulo" htmlFor="pixc">Chave PIX *</label><input id="pixc" className="campo" value={d.pix_chave} onChange={e => muda('pix_chave', e.target.value)} /></div>
+        </>)}
         <div className="sm:col-span-2"><label className="rotulo" htmlFor="em">E-mail do cliente</label><input id="em" className="campo" value={d.email} onChange={e => muda('email', e.target.value)} /></div>
       </div>
       <p className="mt-3 text-xs text-apagado">Preenchido automaticamente: nome, nascimento e celular (V8); RG 0000000/SSP/SP; endereço Servidão Unidos 654, Tapera da Base, Florianópolis/SC; solteiro; pai "NÃO CONSTA"; RH rh@gmail.com e DDD do cliente{info.banco === 'HUB' ? '; CPF do atendente da HUB' : ''}.</p>
@@ -268,7 +279,7 @@ export default function Motor() {
                 <div><div className="text-xs text-apagado">Cliente recebe</div><div className="num text-xl font-semibold">{brl(melhor.valor)}</div></div>
                 <div><div className="text-xs text-apagado">Prazo</div><div className="num text-xl font-semibold">{melhor.prazo}x{melhor.parcela ? ` ${brl(melhor.parcela)}` : ''}</div></div>
                 <div><div className="text-xs text-apagado">Comissão</div><div className="num text-xl font-semibold">{brl(melhor.comissao)} <span className="text-sm font-normal text-apagado">({melhor.comissao_pct?.toLocaleString('pt-BR')}%)</span></div></div>
-                <button className="bt bt-pri ml-auto" onClick={() => setAlvo({ parte: melhor.parte, oferta: melhor })} disabled={melhor.parte === 'v8_fgts'}>Digitar esta</button>
+                <button className="bt bt-pri ml-auto" onClick={() => setAlvo({ parte: melhor.parte, oferta: melhor })}>Digitar esta</button>
               </div>
             </section>
           )}

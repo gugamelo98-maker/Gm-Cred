@@ -51,7 +51,12 @@ const end = { cep: so(val('cep')), cidade: val('cidade'), uf: val('uf'), bairro:
 const rhTel = ddd + val('rh_telefone_fim');
 const falta = [];
 if (!nome) falta.push('nome'); if (!/^\d{4}-\d{2}-\d{2}$/.test(nasc)) falta.push('nascimento'); if (fone.length < 10) falta.push('celular');
-if (!mae) falta.push('nome da mãe'); if (!pixChave) falta.push('chave PIX');
+// HUB e Unno FGTS só pagam em conta bancária
+const porConta = parte === 'hub_fgts' || parte === 'unno_fgts';
+const conta = { banco: so(d.banco), agencia: so(d.agencia), agencia_dig: String(d.agencia_digito || '').trim(), numero: so(d.conta), digito: String(d.conta_digito || '').trim(), poupanca: d.conta_tipo === 'poupanca' };
+if (!mae) falta.push('nome da mãe');
+if (porConta) { if (!conta.banco || !conta.agencia || !conta.numero || !conta.digito) falta.push('conta bancária (banco, agência, conta e dígito)'); }
+else if (!pixChave) falta.push('chave PIX');
 
 const resposta = (x) => [{ json: Object.assign({ id: c.id, parte, enviado: false, faltando: falta }, x) }];
 if (!parte || !Object.keys(o).length) return resposta({ ok: false, erro: 'Escolha uma oferta para digitar' });
@@ -89,7 +94,9 @@ if (parte === 'unno_clt' || parte === 'unno_fgts') {
   const nosso = { name: nome, birth_date: nasc, phone: fone, email, rg_number: val('rg'), rg_organ: val('rg_orgao'), rg_uf: val('rg_uf'), rg_issue_date: val('rg_emissao'),
     civil_status: 'SINGLE', politically_exposed_person: false, nationality: 'BRASIL', mothers_name: mae, gender: mulher ? 'FEMALE' : 'MALE',
     address: { zip_code: end.cep, uf: end.uf, city: end.cidade, district: end.bairro, street: end.logradouro, number: end.numero, complement: end.complemento },
-    bank: { disbursement_method: 'PIX', pix_key: pixChave, pix_type: PIX_U[pixTipo] || 'CPF' } };
+    bank: porConta
+      ? { disbursement_method: 'BANK_ACCOUNT', bank_code: conta.banco, agency: conta.agencia, agency_digit: conta.agencia_dig || undefined, account_number: conta.numero, account_digit: conta.digito, account_type: conta.poupanca ? 'SAVINGS' : 'CHECKING' }
+      : { disbursement_method: 'PIX', pix_key: pixChave, pix_type: PIX_U[pixTipo] || 'CPF' } };
   // empregador / RH: preenche só os campos que a Unno trouxer no rascunho
   if (draft.employer && typeof draft.employer === 'object') {
     nosso.employer = {};
@@ -137,7 +144,7 @@ if (parte === 'hub_clt' || parte === 'hub_fgts') {
     lojaId: num(cfg.hub_loja) || 9562, cpfAtendente: val('hub_cpf_atendente'), cpfCliente: cpf, dataPrimeiraParcela: hoje30,
     valorBruto: num(o.bruto), valorVista: num(o.valor), tabelaComercial: num(o.tabela_cod), plano: num(o.prazo), valorParcela: o.prazo ? Math.round(num(o.valor) / num(o.prazo) * 100) / 100 : num(o.valor),
     SimulacaoId: String(o.sim_id || ''), percentualTac: 0, percentualComissao: 0, valorTac: num(o.tac), valorComissao: 0, valorProduto: 0,
-    chavePix: { tipoChave: PIX_H[pixTipo] || 'NaturalRegistrationNumber', valorChave: pixChave }, cliente };
+    contaBancaria: { banco: num(conta.banco), agencia: num(conta.agencia), digitoAgencia: conta.agencia_dig || '0', conta: num(conta.numero), digitoConta: conta.digito, tipoContaBancaria: conta.poupanca ? 2 : 1 }, cliente };
   if (!o.sim_id) return resposta({ ok: false, erro: 'Essa oferta da HUB não tem o número da simulação. Consulte de novo.', payload });
   if (!enviar) return resposta({ ok: true, previa: true, banco: 'HUB', payload });
   if (falta.length) return resposta({ ok: false, erro: 'Falta: ' + falta.join(', '), payload });
