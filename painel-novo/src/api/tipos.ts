@@ -230,6 +230,8 @@ export interface LeadDia {
   chamadoEm: string | null;
   /** cliente criado na aba Conversas quando o lead foi chamado */
   clienteId: string | null;
+  /** margem = leads com margem (meus_leads); frio = planilha BANCO DE DADOS */
+  tipo?: 'margem' | 'frio';
 }
 
 /** Tudo que o painel carrega de uma vez (equivalente ao /escritorio/estado de hoje) */

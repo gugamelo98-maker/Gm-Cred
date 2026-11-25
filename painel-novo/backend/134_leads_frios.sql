@@ -1,0 +1,11 @@
+-- 134 · Leads frios: planilha BANCO DE DADOS (aba "cpf alidar saldo - 18.03.26", sheetId 1694196652) no banco
+-- credito.leads_frios(linha pk = linha da planilha, cpf, nome, email, telefone, nascimento, genero, tel_chave,
+--                     status null|liberado|disparado|respondeu, status_em, usuario, cor_aplicada)
+-- credito.tel_chave(t): DDD + últimos 8 dígitos (ignora 55 e o 9 extra) para cruzar telefones
+-- credito.frios_importar(p {values:[[cpf,nome,email,tel,nasc,gen],...]}) — chamado pelo n8n (webhook frios/importar)
+-- credito.frios_cruzar(): marca respondeu (lead com mensagem de entrada, por telefone/CPF) e disparado (disparo_contatos enviado)
+-- credito.frios_a_colorir() / frios_cores_ok(p): n8n a cada 2 min pinta na planilha (amarelo liberado, azul disparado, verde respondeu)
+-- credito.frios_separar(u): extrai a cota do dia alternando final / início / meio do que está livre; pula quem já é cliente
+-- painel_usuarios.frios_por_dia; leads_dia_api: 'separar_frios', 'frios_cota' {usuario, qtd} (admin), listar traz frios_cota/hoje/disponiveis/por_usuario
+-- leads_dia_json devolve tipo 'frio' | 'margem'; ao chamar, o lead nasce com origem 'lead_frio'
+-- n8n: "[Leads frios] Planilha ↔ banco" (6mkvkHtJA0D1jmOb), credencial Google Drive account (OAuth do projeto n8n-gm-cred)
