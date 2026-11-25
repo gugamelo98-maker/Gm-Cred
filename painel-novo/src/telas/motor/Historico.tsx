@@ -24,7 +24,7 @@ export default function Historico() {
   return (
     <section className="cartao mt-6 overflow-x-auto">
       <div className="flex flex-wrap items-center gap-2 border-b border-borda px-4 py-3">
-        <h2 className="font-semibold">Consultas da equipe <span className="text-sm font-normal text-apagado">({itens?.length ?? '…'})</span></h2>
+        <h2 className="font-semibold">Consultas no Motor <span className="text-sm font-normal text-apagado">({itens?.length ?? '…'})</span></h2>
         <select className="campo ml-auto w-auto" value={quem} onChange={e => setQuem(e.target.value)} aria-label="Quem consultou">
           <option value="">Todos</option>
           {(estado?.usuarios ?? []).map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}

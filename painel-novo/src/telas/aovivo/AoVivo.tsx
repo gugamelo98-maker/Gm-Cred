@@ -6,6 +6,7 @@ import { aoVivo, type Membro } from '@/api/aoVivo';
 import { Kpi, Titulo, Vazio } from '@/componentes/ui';
 import { MENU } from '@/componentes/Layout';
 import { num, tempoDesde } from '@/util/formato';
+import Historico from '@/telas/motor/Historico';
 
 const ST: Record<Membro['status'], [string, string]> = { '1_online': ['Online', 'bg-green-500'], '2_ausente': ['Ausente', 'bg-amber-400'], '3_offline': ['Offline', 'bg-gray-400'] };
 const nomeAba = (a: string | null) => MENU.flatMap(g => g.itens).find(i => a?.startsWith(i.para))?.nome ?? (a || '—');
@@ -59,6 +60,7 @@ export default function AoVivo() {
         </div>
       )}
       <p className="mt-3 text-xs text-apagado">Online: painel aberto no último 2 min. Ausente: até 15 min. Leads do dia: chamados/extraídos hoje.</p>
+      <Historico />
     </div>
   );
 }
