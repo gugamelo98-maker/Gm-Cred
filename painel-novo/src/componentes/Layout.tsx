@@ -99,7 +99,7 @@ export default function Layout() {
 
   const marca = (
     <div className="flex items-center gap-2 px-5 py-4">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-marca text-sm font-bold text-white">GM</div>
+      <img src="/simbolo.png" alt="" className="h-8 w-8 rounded-lg" />
       <div className="leading-tight"><div className="text-sm font-semibold">GM Cred</div><div className="text-[11px] text-apagado">Painel</div></div>
     </div>
   );
