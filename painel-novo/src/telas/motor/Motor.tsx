@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, KeyRound, Loader2, LogOut, Send, Trophy, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Loader2, Send, Trophy, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 import { Etiqueta, Modal, Titulo, Vazio, type Cor } from '@/componentes/ui';
+import { useDados } from '@/estado/Dados';
+import { painel, type RegrasComissao } from '@/api/painel';
 import { brl, mascaraCpf, soDigitos, validaCpf } from '@/util/formato';
 import {
-  motor, sessao, SemAcesso, PARTES, PENDENTE,
+  motor, SemAcesso, PARTES, PENDENTE,
   type ConsultaMotor, type DadosDigitacao, type OfertaMotor, type Parte, type ParteId, type ResultadoDigitacao, type Situacao,
 } from '@/api/motor';
 
@@ -47,27 +49,6 @@ function agrupar(p: Parte | undefined): Grupo[] {
   const lista = Object.values(g);
   lista.forEach(x => x.ofertas.sort((a, b) => (b.comissao ?? -1) - (a.comissao ?? -1) || b.valor - a.valor));
   return lista.sort((a, b) => b.maxComissao - a.maxComissao || b.maxValor - a.maxValor);
-}
-
-function Entrar({ pronto }: { pronto: () => void }) {
-  const [chave, setChave] = useState('');
-  const [erro, setErro] = useState('');
-  const [indo, setIndo] = useState(false);
-  async function entrar(e: FormEvent) {
-    e.preventDefault(); setIndo(true); setErro('');
-    try { await motor.entrar(chave); pronto(); } catch (x) { setErro((x as Error).message); }
-    setIndo(false);
-  }
-  return (
-    <form onSubmit={entrar} className="cartao mx-auto max-w-md p-6">
-      <div className="mb-3 flex items-center gap-2 font-semibold"><KeyRound size={18} /> Ligar o motor de verdade</div>
-      <p className="mb-4 text-sm text-suave">O Motor consulta os bancos de verdade pelo n8n. Entre com a mesma chave de acesso do painel do escritório.</p>
-      <label className="rotulo" htmlFor="chave">Chave de acesso</label>
-      <input id="chave" type="password" className="campo mb-3" value={chave} onChange={e => setChave(e.target.value)} autoComplete="current-password" />
-      {erro && <p className="mb-3 text-sm text-red-600">{erro}</p>}
-      <button className="bt bt-pri w-full" disabled={chave.trim().length < 8 || indo}>{indo && <Loader2 size={16} className="animate-spin" />} Entrar</button>
-    </form>
-  );
 }
 
 function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undefined; digitar: (p: ParteId, o: OfertaMotor) => void }) {
@@ -213,12 +194,28 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
 
 export default function Motor() {
   const [params] = useSearchParams();
-  const [logado, setLogado] = useState(!!sessao.ler());
+  const logado = true;
+  const setLogado = (_: boolean) => { /* sessão é a do painel */ };
+  const { usuario } = useDados();
+  const [regras, setRegras] = useState<RegrasComissao | null>(null);
+  useEffect(() => { painel.eu().then(r => setRegras(r.comissao)).catch(() => {}); }, []);
   const [cpf, setCpf] = useState(mascaraCpf(params.get('cpf') ?? ''));
   const [consulta, setConsulta] = useState<ConsultaMotor | null>(null);
   const [consultando, setConsultando] = useState(false);
   const [erro, setErro] = useState('');
   const [alvo, setAlvo] = useState<{ parte: ParteId; oferta: OfertaMotor } | null>(null);
+  // colaborador vê a comissão DELE: % sobre o que a GM Cred recebe (CLT pela faixa inicial do mês, FGTS fixo)
+  const ehAdmin = usuario?.papel === 'admin';
+  const pctEquipe = (prod: 'CLT' | 'FGTS') => (prod === 'CLT' ? regras?.clt?.[0]?.pct ?? 30 : regras?.fgts ?? 35);
+  const vista = useMemo(() => {
+    if (!consulta || ehAdmin) return consulta;
+    const partes = Object.fromEntries(Object.entries(consulta.partes).map(([k, p]) => {
+      const pct = pctEquipe(PARTES.find(x => x.id === k)?.produto ?? 'CLT');
+      return [k, p && { ...p, ofertas: p.ofertas.map(o => ({ ...o, comissao: o.comissao == null ? null : Math.round(o.comissao * pct) / 100, comissao_pct: o.comissao_pct == null ? null : Math.round(o.comissao_pct * pct) / 100 })) }];
+    }));
+    return { ...consulta, partes } as ConsultaMotor;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consulta, ehAdmin, regras]);
   const rodada = useRef(0);
   const cpfOk = validaCpf(cpf);
 
@@ -243,7 +240,7 @@ export default function Motor() {
         setConsulta(c);
       }
     } catch (x) {
-      if (x instanceof SemAcesso) { sessao.sair(); setLogado(false); }
+      if (x instanceof SemAcesso) setLogado(false);
       if (minha === rodada.current) setErro((x as Error).message);
     }
     if (minha === rodada.current) setConsultando(false);
@@ -260,12 +257,11 @@ export default function Motor() {
   }, [consulta]);
 
 
-  if (!logado) return (<div><Titulo titulo="Motor de Crédito" sub="CLT e FGTS em todos os bancos, ordenado pela maior comissão." /><Entrar pronto={() => setLogado(true)} /></div>);
 
   return (
     <div>
       <Titulo titulo="Motor de Crédito" sub="Cola o CPF: consulta CLT e FGTS na V8, Unno e HUB e mostra primeiro o que mais comissiona."
-        acoes={<button className="bt bt-sm" onClick={() => { sessao.sair(); setLogado(false); }}><LogOut size={14} /> Sair do motor</button>} />
+/>
 
       <form onSubmit={consultar} className="cartao mb-5 flex flex-wrap items-end gap-3 p-4">
         <div className="min-w-[220px] flex-1">
@@ -288,16 +284,16 @@ export default function Motor() {
               <h2 className="mb-2 text-sm font-semibold text-suave">{prod}</h2>
               {(() => {
                 // maior comissão deste produto (CLT ou FGTS)
-                const m = PARTES.filter(p => p.produto === prod).flatMap(p => (consulta.partes[p.id]?.ofertas ?? []).map(o => ({ o, p })))
+                const m = PARTES.filter(p => p.produto === prod).flatMap(p => (vista!.partes[p.id]?.ofertas ?? []).map(o => ({ o, p })))
                   .filter(x => x.o.comissao != null).sort((a, b) => (b.o.comissao ?? 0) - (a.o.comissao ?? 0))[0];
                 if (!m) return null;
                 return (
                   <section className="cartao mb-3 flex items-center gap-3 border-marca px-4 py-2.5">
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-1">
-                    <div className="flex items-center gap-1.5 text-sm font-semibold text-marca"><Trophy size={16} /> Maior comissão {prod}</div>
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-marca"><Trophy size={16} /> {ehAdmin ? 'Maior comissão' : 'Sua maior comissão'} {prod}</div>
                     <div className="text-sm"><b>{m.p.banco}</b> · {m.o.tabela}{m.o.banco && m.o.banco !== m.p.banco ? ` · ${m.o.banco}` : ''}</div>
                     <div className="text-sm">Cliente recebe <b className="num">{brl(m.o.valor)}</b> · {m.o.prazo}x{m.o.parcela ? ` ${brl(m.o.parcela)}` : ''}</div>
-                    <div className="text-sm text-green-700 dark:text-green-400">Comissão <b className="num">{brl(m.o.comissao)}</b> ({m.o.comissao_pct?.toLocaleString('pt-BR')}%)</div>
+                    <div className="text-sm text-green-700 dark:text-green-400">{ehAdmin ? 'Comissão' : 'Sua comissão'} <b className="num">{brl(m.o.comissao)}</b> ({m.o.comissao_pct?.toLocaleString('pt-BR')}%)</div>
                     </div>
                     <div className="flex shrink-0 items-center gap-1"><BotaoCopiar texto={textoCliente(prod, m.o)} />
                     <button className="bt bt-pri bt-sm" onClick={() => setAlvo({ parte: m.p.id, oferta: m.o })}>Digitar esta</button></div>
@@ -305,7 +301,7 @@ export default function Motor() {
                 );
               })()}
               <div className="grid gap-4 lg:grid-cols-3">
-                {PARTES.filter(p => p.produto === prod).map(p => <CartaoBanco key={p.id} id={p.id} parte={consulta.partes[p.id]} digitar={(parte, oferta) => setAlvo({ parte, oferta })} />)}
+                {PARTES.filter(p => p.produto === prod).map(p => <CartaoBanco key={p.id} id={p.id} parte={vista!.partes[p.id]} digitar={(parte, oferta) => setAlvo({ parte, oferta })} />)}
               </div>
             </div>
           ))}

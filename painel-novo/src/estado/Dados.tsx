@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { api, type Estado, type Usuario } from '@/api';
+import { painel, token, SessaoExpirada } from '@/api/painel';
 
 type Aviso = { id: number; texto: string; tipo: 'ok' | 'erro' };
 
@@ -23,6 +24,7 @@ const C = createContext<Ctx | null>(null);
 const CHAVE_SESSAO = 'gm_painel_usuario';
 
 function lerSessao(): Usuario | null {
+  if (!token.ler()) return null;
   try { const s = localStorage.getItem(CHAVE_SESSAO); return s ? JSON.parse(s) : null; } catch { return null; }
 }
 
@@ -40,7 +42,10 @@ export function DadosProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const recarregar = useCallback(async () => {
-    try { setEstado(await api.estado()); setErro(null); } catch (e) { setErro(String((e as Error).message || e)); }
+    try { setEstado(await api.estado()); setErro(null); } catch (e) {
+      if (e instanceof SessaoExpirada) { try { localStorage.removeItem(CHAVE_SESSAO); } catch { /* ignora */ } token.apagar(); setUsuario(null); setEstado(null); return; }
+      setErro(String((e as Error).message || e));
+    }
   }, []);
 
   useEffect(() => {
@@ -61,6 +66,7 @@ export function DadosProvider({ children }: { children: ReactNode }) {
       setUsuario(u);
     },
     sair() {
+      painel.sair();
       try { localStorage.removeItem(CHAVE_SESSAO); } catch { /* ignora */ }
       setUsuario(null); setEstado(null);
     },

@@ -9,15 +9,16 @@ import { PAPEIS } from '@/util/rotulos';
 
 export default function Usuarios() {
   const { estado, usuario: eu, trocar, executar, avisar } = useDados();
-  const [editando, setEditando] = useState<Partial<Usuario> | null>(null);
+  const [editando, setEditando] = useState<(Partial<Usuario> & { senha?: string }) | null>(null);
   const U = estado!.usuarios;
   const atendendo = (id: string) => estado!.clientes.filter(c => c.atendente === id && c.etapa !== 'perdido').length;
 
   async function salvar() {
     const u = editando!;
     if (!u.nome?.trim() || !/^\S+@\S+\.\S+$/.test(u.email ?? '')) return avisar('Preencha nome e um e-mail válido', 'erro');
+    if (!u.id && (u.senha ?? '').length < 6) return avisar('Defina uma senha com pelo menos 6 caracteres', 'erro');
     if (u.id === eu!.id && (u.papel !== 'admin' || !u.ativo)) return avisar('Você não pode tirar o seu próprio acesso de administrador', 'erro');
-    const r = await executar(() => api.salvarUsuario(u), u.id ? 'Usuário atualizado' : 'Usuário criado — ele entra com este e-mail');
+    const r = await executar(() => api.salvarUsuario(u), u.id ? 'Usuário atualizado' : 'Usuário criado — ele entra com este e-mail e a senha definida');
     if (r) { trocar('usuarios', r); setEditando(null); }
   }
 
@@ -33,7 +34,7 @@ export default function Usuarios() {
         <table className="tabela">
           <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Vê</th><th>Situação</th><th className="text-right">Clientes dele</th><th className="text-right">Atendendo agora</th><th>Último acesso</th></tr></thead>
           <tbody>{U.map(u => (
-            <tr key={u.id} className="cursor-pointer" onClick={() => setEditando(u)}>
+            <tr key={u.id} className="cursor-pointer" onClick={() => setEditando({ ...u, senha: '' })}>
               <td className="font-medium">{u.nome}{u.id === eu!.id && <span className="text-apagado"> (você)</span>}</td><td>{u.email}</td>
               <td>{PAPEIS[u.papel].nome}</td><td className="whitespace-nowrap">{u.escopo === 'proprios' ? 'Só os dele' : 'Tudo'}</td><td><Etiqueta cor={u.ativo ? 'verde' : 'cinza'}>{u.ativo ? 'Ativo' : 'Desativado'}</Etiqueta></td>
               <td className="num text-right">{estado!.clientes.filter(c => c.responsavel === u.id && c.etapa !== 'perdido').length}</td><td className="num text-right">{atendendo(u.id)}</td><td className="text-apagado">{u.ultimoAcesso ? tempoDesde(u.ultimoAcesso) : 'nunca'}</td>
@@ -61,7 +62,8 @@ export default function Usuarios() {
               {editando.papel !== 'atendente' && <p className="text-xs text-apagado">Administrador e Gestor sempre veem tudo.</p>}
             </fieldset>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!editando.ativo} onChange={e => setEditando({ ...editando, ativo: e.target.checked })} /> Pode entrar no painel</label>
-            {!editando.id && <p className="text-xs text-apagado">No sistema de verdade, o usuário recebe um e-mail para criar a senha.</p>}
+            <div><label className="rotulo" htmlFor="us">{editando.id ? 'Nova senha (deixe em branco para manter)' : 'Senha (mínimo 6 caracteres)'}</label>
+              <input id="us" type="text" autoComplete="new-password" className="campo" value={editando.senha ?? ''} onChange={e => setEditando({ ...editando, senha: e.target.value })} /></div>
           </div>
         )}
       </Modal>

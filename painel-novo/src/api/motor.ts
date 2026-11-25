@@ -5,7 +5,8 @@
  *   POST /webhook/motor/digitar      { k, id, parte, oferta, dados, enviar }
  */
 const BASE = (import.meta.env.VITE_N8N_WEBHOOK as string | undefined) || 'https://rarelookingorca-n8n.cloudfy.live/webhook';
-const CHAVE = 'gm_motor_sessao';
+const CHAVE = 'gm_painel_token';
+import { token } from './painel';
 
 export type ParteId = 'v8_clt' | 'unno_clt' | 'hub_clt' | 'v8_fgts' | 'unno_fgts' | 'hub_fgts';
 export type Situacao = 'iniciando' | 'processando' | 'simulando' | 'aguardando_termo' | 'aguardando_autorizacao'
@@ -36,8 +37,9 @@ export interface ResultadoDigitacao {
 
 export class SemAcesso extends Error {}
 
+// o Motor usa a mesma sessão do login do painel
 export const sessao = {
-  ler: () => { try { return localStorage.getItem(CHAVE) || ''; } catch { return ''; } },
+  ler: () => token.ler(),
   gravar: (t: string) => { try { localStorage.setItem(CHAVE, t); } catch { /* sem storage */ } },
   sair: () => { try { localStorage.removeItem(CHAVE); } catch { /* sem storage */ } },
 };

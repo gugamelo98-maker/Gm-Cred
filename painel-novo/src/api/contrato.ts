@@ -65,5 +65,5 @@ export interface Api {
   pagarIndicador(id: string, valor: number): Promise<Indicador>;
   salvarGasto(g: Partial<Gasto> & { id?: string }): Promise<Gasto>;
   apagarGasto(id: string): Promise<void>;
-  salvarUsuario(u: Partial<Usuario> & { id?: string }): Promise<Usuario>;
+  salvarUsuario(u: Partial<Usuario> & { id?: string; senha?: string }): Promise<Usuario>;
 }
