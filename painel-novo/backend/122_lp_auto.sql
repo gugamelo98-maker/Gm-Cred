@@ -1,0 +1,12 @@
+-- 122 · LP: simulação automática no Motor (separada da Ana) e mensagem pronta no WhatsApp.
+-- credito.lp_lead coloca cada lead novo em credito.lp_auto (e deixa aguardando = 'humano', sem IA).
+-- n8n "[LP] 🤖 Simulação automática (Motor)" (rKINZ6fjJ9CB0mj6), a cada minuto:
+--   credito.lp_auto_proximos() -> POST /webhook/motor/credito (consultar/atualizar, chave de serviço em configuracoes 'lp_auto')
+--   -> credito.lp_auto_salvar(lead_id, resposta).
+-- Quando todos os bancos respondem (ou 15 min), escolhe a mensagem:
+--   CLT com oferta (maior comissão p/ GM)  -> "Olá {nome}! Seu crédito CLT foi aprovado: você pode receber até R$ {valor} em {prazo}x de R$ {parcela}. Como deseja prosseguir?"
+--   FGTS com saldo                         -> "No momento o crédito CLT não foi aprovado, mas você tem R$ {valor} disponível para antecipar do FGTS. Quer seguir?"
+--   algum banco FGTS "sem saldo"           -> "No momento não temos proposta para você. Avisamos se algo mudar."
+--   todos FGTS "sem autorização"           -> pede autorizar BMP SOCIEDADE DE CREDITO e GIROTECH SOCIEDADE DE CREDITO
+--   outro (erro/misto)                     -> 'revisar' (sem mensagem; fica para o atendente)
+-- Não manda nada se o cliente já recebeu qualquer mensagem nossa. Liga/desliga: configuracoes 'lp_auto'.ligado.
