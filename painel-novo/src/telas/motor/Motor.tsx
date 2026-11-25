@@ -193,6 +193,10 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
   );
 }
 
+// última consulta só em memória: sobrevive à troca de aba, some no F5 (não consulta de novo sozinho)
+let memoria: ConsultaMotor | null = null;
+try { localStorage.removeItem('gm_motor_ultima'); } catch { /* sem storage */ }
+
 export default function Motor() {
   const [params, setParams] = useSearchParams();
   const logado = true;
@@ -222,8 +226,6 @@ export default function Motor() {
 
   useEffect(() => () => { rodada.current++; }, []);
 
-  // guarda a última consulta: sair da aba e voltar não perde o resultado (e continua acompanhando o que faltava)
-  const ULTIMA = 'gm_motor_ultima';
   async function acompanhar(cInicial: ConsultaMotor | null, cpfNovo: string | null, idSalvo?: number) {
     const minha = ++rodada.current;
     setConsultando(true); setErro('');
@@ -231,14 +233,14 @@ export default function Motor() {
     try {
       let c = cInicial ?? (cpfNovo ? await motor.consultar(cpfNovo) : await motor.atualizar(idSalvo!));
       if (minha !== rodada.current) return;
-      setConsulta(c); try { localStorage.setItem(ULTIMA, String(c.id)); } catch { /* sem storage */ }
+      setConsulta(c); memoria = c;
       const inicio = Date.now();
       while (c.pendentes > 0 && Date.now() - inicio < 6 * 60_000) {
         await new Promise(r => setTimeout(r, 3500));
         if (minha !== rodada.current) return;
         c = await motor.atualizar(c.id);
         if (minha !== rodada.current) return;
-        setConsulta(c);
+        setConsulta(c); memoria = c;
       }
     } catch (x) {
       if (x instanceof SemAcesso) setLogado(false);
@@ -251,8 +253,8 @@ export default function Motor() {
     if (!logado) return;
     // CPF vindo de outra aba (link): consulta uma vez e tira da URL, para atualizar a página não simular de novo
     if (params.get('cpf') && cpfOk) { setParams({}, { replace: true }); consultar(); return; }
-    let id = 0; try { id = Number(localStorage.getItem(ULTIMA)) || 0; } catch { /* sem storage */ }
-    if (id) acompanhar(null, null, id).then(() => setCpf(c => c));
+    // volta da outra aba: mostra a última consulta da memória (F5 limpa) e só segue acompanhando se ainda faltava banco
+    if (memoria) { if (memoria.pendentes > 0) acompanhar(memoria, null); else setConsulta(memoria); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logado]);
   useEffect(() => { if (consulta && !soDigitos(cpf)) setCpf(mascaraCpf(consulta.cpf)); // eslint-disable-next-line react-hooks/exhaustive-deps
