@@ -188,9 +188,16 @@ const unnoclt = async (p) => {
     p.margem = num(emps[0].available_margin);
     // igual à Ana: margem abaixo de R$ 50 simula com parcela de R$ 300 e a Unno decide
     p.parcela_simulada = p.margem >= 50 ? Math.floor(p.margem * 100) / 100 : 300;
-    const sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.parcela_simulada }, 'motor-sim-' + p.application_id);
-    if (sm.s >= 200 && sm.s < 300) p.simulou = true;
-    p.situacao = 'simulando'; p.mensagem = 'Simulando na Unno'; return p;
+    let sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.parcela_simulada }, 'motor-sim-' + p.application_id + '-' + p.parcela_simulada);
+    if (!(sm.s >= 200 && sm.s < 300) && p.parcela_simulada !== Math.floor(p.margem * 100) / 100) {
+      p.sim_erro = erroDe(sm); p.parcela_simulada = Math.floor(p.margem * 100) / 100;
+      sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.parcela_simulada }, 'motor-sim-' + p.application_id + '-' + p.parcela_simulada);
+    }
+    if (sm.s >= 200 && sm.s < 300) { p.simulou = true; p.situacao = 'simulando'; p.mensagem = 'Simulando na Unno'; return p; }
+    p.sim_erro = erroDe(sm); p.passo = 'fim';
+    p.situacao = p.margem < MARGEM_MIN ? 'sem_margem' : 'erro';
+    p.mensagem = (p.margem < MARGEM_MIN ? 'Margem de R$ ' + p.margem.toFixed(2).replace('.', ',') + ' na Unno; a simulação foi recusada: ' : 'A Unno recusou a simulação: ') + p.sim_erro;
+    return p;
   }
   const pronto = st === 'OFFERS_AVAILABLE' && num(s.b.quotes_pending) === 0 && num(s.b.offers_count) > 0;
   if (!pronto) {

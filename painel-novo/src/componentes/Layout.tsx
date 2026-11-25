@@ -122,11 +122,15 @@ export default function Layout() {
           <button className="rounded p-1" onClick={() => setAberto(true)} aria-label="Abrir menu"><Menu size={20} /></button>
           <span className="font-semibold">{MENU.flatMap(g => g.itens).find(i => loc.pathname.startsWith(i.para))?.nome ?? 'GM Cred'}</span>
         </header>
-        {MODO_DEMO && (
+        {MODO_DEMO && (loc.pathname.startsWith('/motor') ? (
+          <div className="border-b border-red-300/50 bg-red-50 px-4 py-1.5 text-center text-xs text-red-800 dark:bg-red-500/10 dark:text-red-200">
+            Motor de Crédito REAL: as consultas vão para V8, Unno e HUB de verdade, e “Enviar proposta” cria a proposta no banco.
+          </div>
+        ) : (
           <div className="border-b border-amber-300/50 bg-amber-50 px-4 py-1.5 text-center text-xs text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
             Modo demonstração: dados fictícios, nada é enviado de verdade. O painel antigo continua funcionando normalmente.
           </div>
-        )}
+        ))}
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6"><Outlet /></div>
         </main>
