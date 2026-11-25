@@ -46,10 +46,11 @@ export default function Conversas() {
 
   const passa = (c: Cliente, f: Filtro) => f === 'todas' || (f === 'nao_lidas' && c.naoLidas > 0) || (f === 'minhas' && c.responsavel === eu.id)
     || (f === 'sem_resp' && !c.responsavel) || (f === 'humano' && c.atendente !== 'ia') || (f === 'ia' && c.atendente === 'ia');
-  const ativas = useMemo(() => visiveis.filter(c => c.etapa !== 'perdido' && (!resp || c.responsavel === resp)), [visiveis, resp]);
+  // pagos e perdidos saem da lista de conversas (só voltam se o cliente mandar mensagem nova)
+  const ativas = useMemo(() => visiveis.filter(c => (!['perdido', 'posvenda'].includes(c.etapa) || c.naoLidas > 0) && (!resp || c.responsavel === resp)), [visiveis, resp]);
   const lista = useMemo(() => {
     const q = busca.trim().toLowerCase(), qd = q.replace(/\D/g, '');
-    return [...ativas, ...(atual && atual.etapa === 'perdido' ? [atual] : [])]
+    return [...ativas, ...(atual && !ativas.includes(atual) ? [atual] : [])]
       .filter(c => passa(c, filtro))
       .filter(c => !q || c.nome.toLowerCase().includes(q) || (qd.length >= 3 && c.telefone.includes(qd)))
       .sort((a, b) => (b.naoLidas > 0 ? 1 : 0) - (a.naoLidas > 0 ? 1 : 0) || b.ultimaMsgEm.localeCompare(a.ultimaMsgEm));

@@ -1,0 +1,4 @@
+-- 120 · Clientes dos contratos pagos nos bancos viram "Pago" no painel.
+-- credito.bi_marcar_pagos(): casa bi_contratos (pagos, mês atual e anterior) com credito.leads pelo CPF (ou pelo nome, quando o banco
+-- não manda CPF, ex.: V8 FGTS) e grava dt_fechou, valor, comissão, banco_escolhido, painel_etapa = 'posvenda' (rótulo "Pago").
+-- É chamada no fim de credito.bi_salvar (coleta do BI, de hora em hora). Pagos saem da lista de Conversas.

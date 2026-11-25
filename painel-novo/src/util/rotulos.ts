@@ -5,7 +5,7 @@ export const ETAPAS: { id: Etapa; nome: string; desc: string }[] = [
   { id: 'simulacao', nome: 'Simulação', desc: 'Mandou o CPF, consultando' },
   { id: 'vendas', nome: 'Vendas', desc: 'Tem margem, negociando' },
   { id: 'formalizacao', nome: 'Formalização', desc: 'Proposta feita, falta assinar' },
-  { id: 'posvenda', nome: 'Pós-venda', desc: 'Pago' },
+  { id: 'posvenda', nome: 'Pago', desc: 'Contrato pago no banco' },
   { id: 'perdido', nome: 'Perdidos', desc: 'Finalizados sem venda' },
 ];
 export const nomeEtapa = (e: Etapa) => ETAPAS.find(x => x.id === e)?.nome ?? e;
