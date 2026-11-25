@@ -17,6 +17,20 @@ const SITUACAO: Record<Situacao, [string, Cor]> = {
 };
 const corOk = (c: string): Cor => (['cinza', 'verde', 'amarelo', 'vermelho', 'roxo'].includes(c) ? (c as Cor) : 'cinza');
 
+/** texto para mandar ao cliente: CLT = prazo, parcela e liberado; FGTS = só o liberado */
+const textoCliente = (produto: 'CLT' | 'FGTS', o: OfertaMotor) =>
+  produto === 'CLT' ? `${o.prazo}x de ${brl(o.parcela ?? 0)}\nValor liberado: ${brl(o.valor)}` : `Valor liberado: ${brl(o.valor)}`;
+
+function BotaoCopiar({ texto }: { texto: string }) {
+  const [ok, setOk] = useState(false);
+  return (
+    <button className="shrink-0 px-3 py-1.5 text-apagado hover:text-texto" title="Copiar para mandar ao cliente" aria-label="Copiar"
+      onClick={() => { navigator.clipboard?.writeText(texto).then(() => { setOk(true); setTimeout(() => setOk(false), 1200); }); }}>
+      {ok ? <CheckCircle2 size={14} className="text-green-600" /> : <Copy size={14} />}
+    </button>
+  );
+}
+
 type Grupo = { chave: string; tabela: string; banco: string; ofertas: OfertaMotor[]; maxComissao: number; minParcela: number; maxValor: number };
 
 /** junta as ofertas de um banco por tabela; a tabela que mais comissiona vem primeiro */
@@ -96,14 +110,15 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
                 {ab && (
                   <ul className="divide-y divide-borda border-t border-borda bg-fundo/50">
                     {g.ofertas.map((o, i) => (
-                      <li key={i}>
-                        <button className="flex w-full items-center gap-2 px-4 py-1.5 text-left text-xs hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} title="Digitar esta oferta">
+                      <li key={i} className="flex items-center">
+                        <button className="flex min-w-0 flex-1 items-center gap-2 px-4 py-1.5 text-left text-xs hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} title="Digitar esta oferta">
                           <span className="num w-8 shrink-0 font-medium">{o.prazo}x</span>
                           {o.parcela ? <span className="num w-16 shrink-0 text-suave">{brl(o.parcela)}</span> : null}
                           <span className="num flex-1 font-semibold">{brl(o.valor)}</span>
                           {info.produto === 'CLT' && <span className="w-7 shrink-0 text-apagado">{o.seguro === false ? 'sem' : 'seg'}</span>}
                           <span className="num w-24 shrink-0 text-right text-green-700 dark:text-green-400">{o.comissao != null ? <>com. {brl(o.comissao)}</> : '—'}</span>
                         </button>
+                        <BotaoCopiar texto={textoCliente(info.produto, o)} />
                       </li>
                     ))}
                   </ul>
@@ -282,7 +297,8 @@ export default function Motor() {
                     <div className="text-sm"><b>{m.p.banco}</b> · {m.o.tabela}{m.o.banco && m.o.banco !== m.p.banco ? ` · ${m.o.banco}` : ''}</div>
                     <div className="text-sm">Cliente recebe <b className="num">{brl(m.o.valor)}</b> · {m.o.prazo}x{m.o.parcela ? ` ${brl(m.o.parcela)}` : ''}</div>
                     <div className="text-sm text-green-700 dark:text-green-400">Comissão <b className="num">{brl(m.o.comissao)}</b> ({m.o.comissao_pct?.toLocaleString('pt-BR')}%)</div>
-                    <button className="bt bt-pri bt-sm ml-auto" onClick={() => setAlvo({ parte: m.p.id, oferta: m.o })}>Digitar esta</button>
+                    <div className="ml-auto flex items-center gap-1"><BotaoCopiar texto={textoCliente(prod, m.o)} />
+                    <button className="bt bt-pri bt-sm" onClick={() => setAlvo({ parte: m.p.id, oferta: m.o })}>Digitar esta</button></div>
                   </section>
                 );
               })()}
