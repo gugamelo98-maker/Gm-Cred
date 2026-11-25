@@ -15,3 +15,11 @@ export interface Membro {
   abertas: number; naoLidas: number; enviadasHoje: number; atendidosHoje: number; leadsHoje: number; chamadosHoje: number;
 }
 export const aoVivo = () => dadosPost<{ equipe: Membro[]; agora: string }>('ao_vivo');
+
+/** contratos pagos nos bancos (V8, Unno, HUB) entre ini e fim — mesma fonte do BI */
+export async function dadosBi(ini: string, fim: string) {
+  const r = await fetch(BASE + '/painel/bi', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ k: token.ler(), dados: { ini, fim } }) });
+  const b = await r.json().catch(() => ({}));
+  if (!b.ok) throw new Error(b.erro || 'Falha no BI');
+  return (b.pagos ?? []) as { banco: 'V8' | 'Unno' | 'HUB'; produto: string; valor: number; comissao: number | null }[];
+}

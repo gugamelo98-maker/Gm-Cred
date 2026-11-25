@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { dadosBi } from '@/api/aoVivo';
 import { Plus, Trash2 } from 'lucide-react';
 import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
@@ -30,13 +31,19 @@ export default function Financeiro() {
   const [editando, setEditando] = useState<Partial<Gasto> | null>(null);
   const faixa = useMemo(() => intervalo(periodo), [periodo]);
 
-  const pagos = estado!.clientes.filter(c => dentro(c.pagoEm, faixa));
-  const receita = pagos.reduce((s, c) => s + (c.comissao ?? 0), 0);
+  // receita = contratos pagos nos bancos (V8, Unno, HUB) no período, mesma fonte do BI
+  const [pagos, setPagos] = useState<{ banco: Banco; valor: number; comissao: number | null }[]>([]);
+  useEffect(() => {
+    let vivo = true;
+    dadosBi(new Date(faixa[0]).toISOString(), new Date(faixa[1]).toISOString()).then(r => vivo && setPagos(r)).catch(() => vivo && setPagos([]));
+    return () => { vivo = false; };
+  }, [faixa]);
+  const receita = pagos.reduce((s, c) => s + Number(c.comissao || 0), 0);
   const gastos = estado!.gastos.filter(g => dentro(g.data + 'T12:00:00', faixa)).sort((a, b) => b.data.localeCompare(a.data));
   const totalGastos = gastos.reduce((s, g) => s + g.valor, 0);
   const lucro = receita - totalGastos;
   const porCategoria = (Object.keys(CATEGORIAS) as CategoriaGasto[]).map(c => ({ nome: CATEGORIAS[c], valor: gastos.filter(g => g.categoria === c).reduce((s, g) => s + g.valor, 0) })).filter(x => x.valor > 0).sort((a, b) => b.valor - a.valor);
-  const porBanco = (['V8', 'Unno', 'HUB'] as Banco[]).map(b => ({ nome: b, valor: pagos.filter(c => c.banco === b).reduce((s, c) => s + (c.comissao ?? 0), 0) })).filter(x => x.valor > 0);
+  const porBanco = (['V8', 'Unno', 'HUB'] as Banco[]).map(b => ({ nome: b, valor: pagos.filter(c => c.banco === b).reduce((s, c) => s + Number(c.comissao || 0), 0) })).filter(x => x.valor > 0);
   const entraram = estado!.clientes.filter(c => dentro(c.entrouEm, faixa)).length;
 
   async function salvar() {
@@ -56,7 +63,7 @@ export default function Financeiro() {
         acoes={<button className="bt bt-pri" onClick={() => setEditando({ data: new Date().toISOString().slice(0, 10), categoria: 'outros' })}><Plus size={16} /> Lançar gasto</button>} />
       <div className="mb-5"><Abas valor={periodo} mudar={setPeriodo} opcoes={[{ id: 'mes', nome: 'Este mês' }, { id: 'mes_passado', nome: 'Mês passado' }, { id: '30d', nome: '30 dias' }, { id: '7d', nome: '7 dias' }]} /></div>
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Kpi rotulo="Receita (comissão)" valor={brl(receita)} detalhe={`${num(pagos.length)} vendas pagas`} destaque />
+        <Kpi rotulo="Receita (comissão)" valor={brl(receita)} detalhe={`${num(pagos.length)} contratos pagos nos bancos`} destaque />
         <Kpi rotulo="Gastos" valor={brl(totalGastos)} detalhe={`${gastos.length} lançamentos`} />
         <Kpi rotulo="Lucro" valor={<span className={lucro < 0 ? 'text-red-600' : ''}>{brl(lucro)}</span>} destaque />
         <Kpi rotulo="Retorno" valor={totalGastos ? pct(lucro / totalGastos) : '—'} detalhe="lucro ÷ gastos" />
