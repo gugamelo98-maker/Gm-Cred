@@ -1,168 +1,285 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { AlertTriangle, CheckCircle2, Loader2, Trophy, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, KeyRound, Loader2, LogOut, Send, Trophy, XCircle } from 'lucide-react';
 import clsx from 'clsx';
-import { useDados } from '@/estado/Dados';
-import { api } from '@/api';
-import type { Banco, Oferta, ResultadoBanco } from '@/api/tipos';
-import { Etiqueta, Titulo, Vazio } from '@/componentes/ui';
+import { Etiqueta, Modal, Titulo, Vazio, type Cor } from '@/componentes/ui';
 import { brl, mascaraCpf, soDigitos, validaCpf } from '@/util/formato';
+import {
+  motor, sessao, SemAcesso, PARTES, PENDENTE,
+  type ConsultaMotor, type DadosDigitacao, type OfertaMotor, type Parte, type ParteId, type ResultadoDigitacao, type Situacao,
+} from '@/api/motor';
 
-const BANCOS: Banco[] = ['V8', 'Unno', 'HUB'];
-type Melhor = Oferta & { banco: Banco; comissaoValor: number };
+const SITUACAO: Record<Situacao, [string, Cor]> = {
+  iniciando: ['Consultando', 'roxo'], processando: ['Consultando', 'roxo'], simulando: ['Simulando', 'roxo'],
+  aguardando_termo: ['Aguardando termo', 'amarelo'], aguardando_autorizacao: ['Aguardando autorização', 'amarelo'],
+  ofertas: ['Com ofertas', 'verde'], sem_ofertas: ['Sem ofertas', 'cinza'], sem_margem: ['Sem margem', 'cinza'],
+  sem_saldo: ['Sem saldo', 'cinza'], sem_autorizacao: ['Sem autorização', 'amarelo'], sem_adesao: ['Sem adesão', 'amarelo'], erro: ['Erro', 'vermelho'],
+};
+const corOk = (c: string): Cor => (['cinza', 'verde', 'amarelo', 'vermelho', 'roxo'].includes(c) ? (c as Cor) : 'cinza');
 
-function melhores(rs: ResultadoBanco[], seguro: 'todos' | 'com' | 'sem'): Melhor[] {
-  return rs.flatMap(r => r.ofertas.map(o => ({ ...o, banco: r.banco, comissaoValor: (o.valorLiberado * o.comissaoPct) / 100 })))
-    .filter(o => seguro === 'todos' || (seguro === 'com') === o.comSeguro)
-    .sort((a, b) => b.comissaoValor - a.comissaoValor);
+type Grupo = { chave: string; tabela: string; banco: string; ofertas: OfertaMotor[]; maxComissao: number; minParcela: number; maxValor: number };
+
+/** junta as ofertas de um banco por tabela; a tabela que mais comissiona vem primeiro */
+function agrupar(p: Parte | undefined): Grupo[] {
+  const g: Record<string, Grupo> = {};
+  for (const o of p?.ofertas ?? []) {
+    const k = o.banco + '|' + o.tabela;
+    const x = g[k] ?? (g[k] = { chave: k, tabela: o.tabela || 'Tabela', banco: o.banco, ofertas: [], maxComissao: 0, minParcela: Infinity, maxValor: 0 });
+    x.ofertas.push(o);
+    x.maxComissao = Math.max(x.maxComissao, o.comissao ?? 0);
+    if (o.parcela) x.minParcela = Math.min(x.minParcela, o.parcela);
+    x.maxValor = Math.max(x.maxValor, o.valor);
+  }
+  const lista = Object.values(g);
+  lista.forEach(x => x.ofertas.sort((a, b) => (b.comissao ?? -1) - (a.comissao ?? -1) || b.valor - a.valor));
+  return lista.sort((a, b) => b.maxComissao - a.maxComissao || b.maxValor - a.maxValor);
 }
 
-function StatusBanco({ r }: { r: ResultadoBanco }) {
-  const s = {
-    ok: [<CheckCircle2 key="i" size={16} className="text-green-600" />, 'verde', 'Com margem'],
-    sem_margem: [<XCircle key="i" size={16} className="text-apagado" />, 'cinza', 'Sem margem'],
-    erro: [<AlertTriangle key="i" size={16} className="text-red-600" />, 'vermelho', 'Erro'],
-    precisa_dados: [<AlertTriangle key="i" size={16} className="text-amber-600" />, 'amarelo', 'Faltam dados'],
-  } as const;
-  const [icone, cor, nome] = s[r.status];
-  return <span className="inline-flex items-center gap-1.5">{icone}<Etiqueta cor={cor}>{nome}</Etiqueta></span>;
+function Entrar({ pronto }: { pronto: () => void }) {
+  const [chave, setChave] = useState('');
+  const [erro, setErro] = useState('');
+  const [indo, setIndo] = useState(false);
+  async function entrar(e: FormEvent) {
+    e.preventDefault(); setIndo(true); setErro('');
+    try { await motor.entrar(chave); pronto(); } catch (x) { setErro((x as Error).message); }
+    setIndo(false);
+  }
+  return (
+    <form onSubmit={entrar} className="cartao mx-auto max-w-md p-6">
+      <div className="mb-3 flex items-center gap-2 font-semibold"><KeyRound size={18} /> Ligar o motor de verdade</div>
+      <p className="mb-4 text-sm text-suave">O Motor consulta os bancos de verdade pelo n8n. Entre com a mesma chave de acesso do painel do escritório.</p>
+      <label className="rotulo" htmlFor="chave">Chave de acesso</label>
+      <input id="chave" type="password" className="campo mb-3" value={chave} onChange={e => setChave(e.target.value)} autoComplete="current-password" />
+      {erro && <p className="mb-3 text-sm text-red-600">{erro}</p>}
+      <button className="bt bt-pri w-full" disabled={chave.trim().length < 8 || indo}>{indo && <Loader2 size={16} className="animate-spin" />} Entrar</button>
+    </form>
+  );
+}
+
+function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undefined; digitar: (p: ParteId, o: OfertaMotor) => void }) {
+  const info = PARTES.find(x => x.id === id)!;
+  const [aberto, setAberto] = useState<string | null>(null);
+  const grupos = useMemo(() => agrupar(parte), [parte]);
+  const sit = parte?.situacao ?? 'iniciando';
+  const [nome, cor] = SITUACAO[sit] ?? ['—', 'cinza'];
+  const pendente = PENDENTE.includes(sit);
+  return (
+    <section className="cartao overflow-hidden">
+      <div className="flex items-center justify-between gap-2 border-b border-borda px-4 py-3">
+        <div className="font-semibold">{info.banco} <span className="text-xs font-normal text-apagado">{info.produto}</span></div>
+        <span className="inline-flex items-center gap-1.5">
+          {pendente ? <Loader2 size={14} className="animate-spin text-apagado" /> : sit === 'ofertas' ? <CheckCircle2 size={14} className="text-green-600" /> : sit === 'erro' ? <AlertTriangle size={14} className="text-red-600" /> : <XCircle size={14} className="text-apagado" />}
+          <Etiqueta cor={corOk(cor)}>{nome}</Etiqueta>
+        </span>
+      </div>
+      {parte?.mensagem && <p className="px-4 pt-3 text-sm text-suave">{parte.mensagem}</p>}
+      {parte?.detalhe && parte.detalhe.length > 0 && sit !== 'ofertas' && (
+        <ul className="px-4 pt-2 text-xs text-apagado">{parte.detalhe.map(d => <li key={d.banco}>• <b>{d.banco}</b>: {SITUACAO[d.situacao]?.[0] ?? d.situacao}</li>)}</ul>
+      )}
+      {parte?.link_termo && <a className="mx-4 mt-2 inline-flex items-center gap-1 text-sm text-marca underline" href={parte.link_termo} target="_blank" rel="noreferrer">Link do termo <ExternalLink size={12} /></a>}
+      {parte?.margem != null && <p className="px-4 pt-2 text-xs text-apagado">Margem: <span className="num">{brl(parte.margem)}</span>{parte.limites ? ` · ${parte.limites}` : ''}</p>}
+      {grupos.length > 0 && (
+        <ul className="mt-2">
+          {grupos.map(g => {
+            const ab = aberto === g.chave;
+            return (
+              <li key={g.chave} className="border-t border-borda">
+                <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-fundo" onClick={() => setAberto(ab ? null : g.chave)} aria-expanded={ab}>
+                  {ab ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{g.tabela} {info.produto === 'FGTS' || g.banco !== info.banco ? <span className="text-xs font-normal text-apagado">· {g.banco}</span> : null}</div>
+                    <div className="text-xs text-apagado">
+                      {Number.isFinite(g.minParcela) ? <>a partir de <span className="num">{brl(g.minParcela)}</span>/mês · </> : null}até <span className="num">{brl(g.maxValor)}</span> · {g.ofertas.length} {g.ofertas.length === 1 ? 'oferta' : 'ofertas'}
+                    </div>
+                  </div>
+                  {g.maxComissao > 0 && <span className="num shrink-0 text-sm font-semibold text-marca">{brl(g.maxComissao)}</span>}
+                </button>
+                {ab && (
+                  <div className="overflow-x-auto bg-fundo/50 pb-2">
+                    <table className="tabela">
+                      <thead><tr><th>Prazo</th>{info.produto === 'CLT' && <th className="text-right">Parcela</th>}<th className="text-right">Valor liberado</th>{info.produto === 'CLT' && <th>Seguro</th>}<th className="text-right">Comissão</th><th /></tr></thead>
+                      <tbody>
+                        {g.ofertas.map((o, i) => (
+                          <tr key={i}>
+                            <td className="num">{o.prazo}x</td>
+                            {info.produto === 'CLT' && <td className="num text-right">{brl(o.parcela ?? 0)}</td>}
+                            <td className="num text-right font-medium">{brl(o.valor)}</td>
+                            {info.produto === 'CLT' && <td>{o.seguro === false ? 'Sem' : 'Com'}</td>}
+                            <td className="num text-right">{o.comissao != null ? <>{brl(o.comissao)} <span className="text-xs text-apagado">{o.comissao_pct?.toLocaleString('pt-BR')}%</span></> : <span className="text-xs text-apagado">sem tabela</span>}</td>
+                            <td className="text-right"><button className="bt bt-sm" onClick={() => digitar(id, o)} disabled={id === 'v8_fgts'} title={id === 'v8_fgts' ? 'Digitação do FGTS V8 ainda não disponível' : undefined}>Digitar</button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {!grupos.length && !parte?.mensagem && <p className="px-4 py-3 text-sm text-apagado">{pendente ? 'Aguardando o banco…' : '—'}</p>}
+      <div className="h-2" />
+    </section>
+  );
+}
+
+function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: { parte: ParteId; oferta: OfertaMotor }; fechar: () => void }) {
+  const info = PARTES.find(x => x.id === alvo.parte)!;
+  const [d, setD] = useState<DadosDigitacao>({ mae: '', pix_tipo: 'cpf', pix_chave: consulta.cpf, email: consulta.cliente.email ?? '' });
+  const [indo, setIndo] = useState<'previa' | 'envio' | null>(null);
+  const [res, setRes] = useState<ResultadoDigitacao | null>(null);
+  const [erro, setErro] = useState('');
+  const [confirmar, setConfirmar] = useState(false);
+  const muda = (k: keyof DadosDigitacao, v: string) => setD(x => ({ ...x, [k]: v }));
+  const o = alvo.oferta;
+  async function vai(enviar: boolean) {
+    setIndo(enviar ? 'envio' : 'previa'); setErro(''); setConfirmar(false);
+    try { setRes(await motor.digitar(consulta.id, alvo.parte, o, d, enviar)); } catch (x) { setErro((x as Error).message); }
+    setIndo(null);
+  }
+  const prontoEnviar = d.mae.trim().length > 3 && d.pix_chave.trim().length > 3;
+  return (
+    <Modal aberto fechar={fechar} titulo={`Digitar · ${info.banco} ${info.produto}`} largura="max-w-2xl"
+      rodape={res?.enviado && res.ok ? <button className="bt" onClick={fechar}>Fechar</button> : (
+        <>
+          <button className="bt" onClick={() => vai(false)} disabled={!!indo}>{indo === 'previa' && <Loader2 size={14} className="animate-spin" />} Ver o que vai para o banco</button>
+          {confirmar
+            ? <button className="bt bt-perigo" onClick={() => vai(true)} disabled={!!indo}>{indo === 'envio' && <Loader2 size={14} className="animate-spin" />} Confirmar: criar proposta de verdade</button>
+            : <button className="bt bt-pri" onClick={() => setConfirmar(true)} disabled={!prontoEnviar || !!indo}><Send size={14} /> Enviar proposta</button>}
+        </>
+      )}>
+      <div className="mb-4 rounded-lg bg-fundo p-3 text-sm">
+        <div className="font-medium">{consulta.cliente.nome ?? 'Cliente'} · <span className="num">{mascaraCpf(consulta.cpf)}</span></div>
+        <div className="text-suave">{o.tabela}{o.banco ? ` · ${o.banco}` : ''} · {o.prazo}x{o.parcela ? ` de ${brl(o.parcela)}` : ''} · libera <b className="num">{brl(o.valor)}</b>{o.comissao != null ? <> · comissão <b className="num">{brl(o.comissao)}</b></> : null}</div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="sm:col-span-2"><label className="rotulo" htmlFor="mae">Nome da mãe *</label><input id="mae" className="campo" value={d.mae} onChange={e => muda('mae', e.target.value)} /></div>
+        <div><label className="rotulo" htmlFor="pixt">Tipo da chave PIX *</label>
+          <select id="pixt" className="campo" value={d.pix_tipo} onChange={e => muda('pix_tipo', e.target.value)}>
+            <option value="cpf">CPF</option><option value="phone">Celular</option><option value="email">E-mail</option><option value="random">Aleatória</option>
+          </select></div>
+        <div><label className="rotulo" htmlFor="pixc">Chave PIX *</label><input id="pixc" className="campo" value={d.pix_chave} onChange={e => muda('pix_chave', e.target.value)} /></div>
+        <div className="sm:col-span-2"><label className="rotulo" htmlFor="em">E-mail do cliente</label><input id="em" className="campo" value={d.email} onChange={e => muda('email', e.target.value)} /></div>
+      </div>
+      <p className="mt-3 text-xs text-apagado">Preenchido automaticamente: nome, nascimento e celular (V8); RG 0000000/SSP/SP; endereço Servidão Unidos 654, Tapera da Base, Florianópolis/SC; solteiro; pai "NÃO CONSTA"; RH rh@gmail.com e DDD do cliente{info.banco === 'HUB' ? '; CPF do atendente da HUB' : ''}.</p>
+      {erro && <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-300">{erro}</p>}
+      {res && (
+        <div className={clsx('mt-3 rounded-lg p-3 text-sm', res.ok ? 'bg-green-50 text-green-800 dark:bg-green-500/15 dark:text-green-300' : 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300')}>
+          {res.previa && res.ok && <div className="font-medium">Prévia montada — nada foi enviado ao banco.{res.faltando?.length ? ` Falta: ${res.faltando.join(', ')}.` : ''}</div>}
+          {res.enviado && res.ok && <div className="font-medium">Proposta criada{res.proposta ? ` (${res.proposta})` : ''}.</div>}
+          {!res.ok && <div className="font-medium">{res.erro}</div>}
+          {res.link && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <a className="inline-flex items-center gap-1 underline" href={res.link} target="_blank" rel="noreferrer">Link de assinatura <ExternalLink size={12} /></a>
+              <button className="bt bt-sm" onClick={() => navigator.clipboard?.writeText(res.link!)}><Copy size={12} /> Copiar</button>
+            </div>
+          )}
+        </div>
+      )}
+      {res && (res.payload || res.rascunho_unno || res.resposta_banco) ? (
+        <details className="mt-3 text-xs">
+          <summary className="cursor-pointer text-apagado">Detalhes técnicos</summary>
+          {res.rascunho_unno && <><div className="mt-2 font-medium">O que a Unno já tem do cliente</div><pre className="max-h-48 overflow-auto rounded bg-fundo p-2">{res.rascunho_unno}</pre></>}
+          {res.payload ? <><div className="mt-2 font-medium">O que vai para o banco</div><pre className="max-h-64 overflow-auto rounded bg-fundo p-2">{JSON.stringify(res.payload, null, 2)}</pre></> : null}
+          {res.resposta_banco && <><div className="mt-2 font-medium">Resposta do banco</div><pre className="max-h-48 overflow-auto rounded bg-fundo p-2">{res.resposta_banco}</pre></>}
+        </details>
+      ) : null}
+    </Modal>
+  );
 }
 
 export default function Motor() {
-  const { executar } = useDados();
   const [params] = useSearchParams();
+  const [logado, setLogado] = useState(!!sessao.ler());
   const [cpf, setCpf] = useState(mascaraCpf(params.get('cpf') ?? ''));
+  const [consulta, setConsulta] = useState<ConsultaMotor | null>(null);
   const [consultando, setConsultando] = useState(false);
-  const [resultado, setResultado] = useState<ResultadoBanco[] | null>(null);
-  const [parcela, setParcela] = useState('');
-  const [prazo, setPrazo] = useState('');
-  const [simulando, setSimulando] = useState(false);
-  const [seguro, setSeguro] = useState<'todos' | 'com' | 'sem'>('todos');
+  const [erro, setErro] = useState('');
+  const [alvo, setAlvo] = useState<{ parte: ParteId; oferta: OfertaMotor } | null>(null);
+  const rodada = useRef(0);
   const cpfOk = validaCpf(cpf);
+
+  useEffect(() => () => { rodada.current++; }, []);
 
   async function consultar(e?: FormEvent) {
     e?.preventDefault();
     if (!cpfOk) return;
-    setConsultando(true); setResultado(null);
-    const r = await executar(() => api.consultarCpf(cpf));
-    if (r) setResultado(r);
-    setConsultando(false);
+    const minha = ++rodada.current;
+    setConsultando(true); setConsulta(null); setErro('');
+    try {
+      let c = await motor.consultar(soDigitos(cpf));
+      if (minha !== rodada.current) return;
+      setConsulta(c);
+      const inicio = Date.now();
+      // vai perguntando ao motor até todos os bancos responderem (no máximo 6 minutos)
+      while (c.pendentes > 0 && Date.now() - inicio < 6 * 60_000) {
+        await new Promise(r => setTimeout(r, 3500));
+        if (minha !== rodada.current) return;
+        c = await motor.atualizar(c.id);
+        if (minha !== rodada.current) return;
+        setConsulta(c);
+      }
+    } catch (x) {
+      if (x instanceof SemAcesso) { sessao.sair(); setLogado(false); }
+      if (minha === rodada.current) setErro((x as Error).message);
+    }
+    if (minha === rodada.current) setConsultando(false);
   }
-  useEffect(() => { if (params.get('cpf') && cpfOk) consultar(); /* consulta direto quando vem da ficha */ // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { if (logado && params.get('cpf') && cpfOk) consultar(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logado]);
 
-  async function simular(e: FormEvent) {
-    e.preventDefault();
-    if (!resultado) return;
-    const comMargem = resultado.filter(r => r.status === 'ok').map(r => r.banco);
-    if (!comMargem.length) return;
-    setSimulando(true);
-    const novos = await executar(() => api.simular(cpf, parcela ? Number(parcela.replace(',', '.')) : null, prazo ? Number(prazo) : null, comMargem));
-    if (novos) setResultado(rs => rs!.map(r => novos.find(n => n.banco === r.banco) ?? r));
-    setSimulando(false);
-  }
+  const melhor = consulta?.melhor ?? null;
+  const infoMelhor = melhor ? PARTES.find(p => p.id === melhor.parte) : null;
 
-  const ranking = resultado ? melhores(resultado, seguro) : [];
-  const top = ranking[0];
+  if (!logado) return (<div><Titulo titulo="Motor de Crédito" sub="CLT e FGTS em todos os bancos, ordenado pela maior comissão." /><Entrar pronto={() => setLogado(true)} /></div>);
 
   return (
     <div>
-      <Titulo titulo="Motor de Crédito" sub="Consulta o CPF na V8, na Unno e na HUB ao mesmo tempo e mostra qual proposta dá mais comissão." />
+      <Titulo titulo="Motor de Crédito" sub="Cola o CPF: consulta CLT e FGTS na V8, Unno e HUB e mostra primeiro o que mais comissiona."
+        acoes={<button className="bt bt-sm" onClick={() => { sessao.sair(); setLogado(false); }}><LogOut size={14} /> Sair do motor</button>} />
 
-      <div className="mb-5 grid gap-4 lg:grid-cols-2">
-        <form onSubmit={consultar} className="cartao p-5">
-          <h2 className="mb-3 font-semibold">1. Consultar CPF</h2>
+      <form onSubmit={consultar} className="cartao mb-5 flex flex-wrap items-end gap-3 p-4">
+        <div className="min-w-[220px] flex-1">
           <label className="rotulo" htmlFor="cpf">CPF do cliente</label>
-          <div className="flex gap-2">
-            <input id="cpf" className="campo num text-lg" inputMode="numeric" placeholder="000.000.000-00" value={cpf} onChange={e => setCpf(mascaraCpf(e.target.value))} />
-            <button className="bt bt-pri shrink-0" disabled={!cpfOk || consultando}>{consultando ? <Loader2 size={16} className="animate-spin" /> : null} Consultar</button>
-          </div>
-          {soDigitos(cpf).length === 11 && !cpfOk && <p className="mt-1 text-xs text-red-600">CPF inválido (dígito verificador não confere).</p>}
-          <p className="mt-2 text-xs text-apagado">Nome, nascimento, celular e e-mail são buscados sozinhos pelo backend. Se algum banco pedir dados a mais, ele aparece abaixo.</p>
-        </form>
+          <input id="cpf" className="campo num text-lg" inputMode="numeric" placeholder="000.000.000-00" value={cpf}
+            onChange={e => setCpf(mascaraCpf(e.target.value))}
+            onPaste={e => { const t = soDigitos(e.clipboardData.getData('text')); if (t.length === 11) { e.preventDefault(); setCpf(mascaraCpf(t)); } }} />
+          {soDigitos(cpf).length === 11 && !cpfOk && <p className="mt-1 text-xs text-red-600">CPF inválido.</p>}
+        </div>
+        <button className="bt bt-pri" disabled={!cpfOk || consultando}>{consultando && <Loader2 size={16} className="animate-spin" />} {consultando ? 'Consultando…' : 'Consultar'}</button>
+        {consulta && <div className="w-full text-sm text-suave">{consulta.cliente.nome ?? '—'}{consulta.cliente.nascimento ? ` · nasc. ${consulta.cliente.nascimento.split('-').reverse().join('/')}` : ''}{consulta.pendentes > 0 ? ` · faltam ${consulta.pendentes} bancos responderem` : ' · todos os bancos responderam'}</div>}
+      </form>
 
-        <form onSubmit={simular} className={clsx('cartao p-5', !resultado?.some(r => r.status === 'ok') && 'opacity-60')}>
-          <h2 className="mb-3 font-semibold">2. Simular parcela</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className="rotulo" htmlFor="parcela">Parcela desejada (R$)</label><input id="parcela" className="campo num" inputMode="decimal" placeholder="vazio = margem" value={parcela} onChange={e => setParcela(e.target.value)} /></div>
-            <div><label className="rotulo" htmlFor="prazo">Prazo</label>
-              <select id="prazo" className="campo" value={prazo} onChange={e => setPrazo(e.target.value)}><option value="">Todos</option>{[12, 18, 24, 36, 48].map(p => <option key={p} value={p}>{p}x</option>)}</select>
-            </div>
-          </div>
-          <button className="bt bt-pri mt-3 w-full" disabled={!resultado?.some(r => r.status === 'ok') || simulando}>{simulando && <Loader2 size={16} className="animate-spin" />} Simular nos bancos com margem</button>
-        </form>
-      </div>
+      {erro && <div className="cartao mb-5 border-red-300 p-4 text-sm text-red-700">{erro}</div>}
 
-      {consultando && <div className="cartao flex items-center justify-center gap-2 p-10 text-sm text-apagado"><Loader2 className="animate-spin" size={18} /> Consultando V8, Unno e HUB…</div>}
-
-      {resultado && (
+      {consulta && (
         <>
-          {top && (
+          {melhor && infoMelhor && (
             <section className="cartao mb-5 border-marca p-5">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-marca"><Trophy size={18} /> Melhor proposta (maior comissão)</div>
-              <div className="flex flex-wrap items-baseline gap-x-8 gap-y-2">
-                <div><div className="text-xs text-apagado">Banco</div><div className="text-xl font-semibold">{top.banco}</div></div>
-                <div><div className="text-xs text-apagado">Cliente recebe</div><div className="num text-xl font-semibold">{brl(top.valorLiberado)}</div></div>
-                <div><div className="text-xs text-apagado">Parcela</div><div className="num text-xl font-semibold">{top.prazo}x {brl(top.parcela)}</div></div>
-                <div><div className="text-xs text-apagado">Comissão</div><div className="num text-xl font-semibold">{brl(top.comissaoValor)} <span className="text-sm font-normal text-apagado">({top.comissaoPct.toLocaleString('pt-BR')}%)</span></div></div>
-                <div><div className="text-xs text-apagado">Seguro</div><div className="text-xl font-semibold">{top.comSeguro ? 'Com' : 'Sem'}</div></div>
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-marca"><Trophy size={18} /> Maior comissão</div>
+              <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
+                <div><div className="text-xs text-apagado">Banco</div><div className="text-xl font-semibold">{infoMelhor.banco} {infoMelhor.produto}</div></div>
+                <div><div className="text-xs text-apagado">Tabela</div><div className="text-xl font-semibold">{melhor.tabela}{melhor.banco && melhor.banco !== infoMelhor.banco ? <span className="text-sm font-normal text-apagado"> · {melhor.banco}</span> : null}</div></div>
+                <div><div className="text-xs text-apagado">Cliente recebe</div><div className="num text-xl font-semibold">{brl(melhor.valor)}</div></div>
+                <div><div className="text-xs text-apagado">Prazo</div><div className="num text-xl font-semibold">{melhor.prazo}x{melhor.parcela ? ` ${brl(melhor.parcela)}` : ''}</div></div>
+                <div><div className="text-xs text-apagado">Comissão</div><div className="num text-xl font-semibold">{brl(melhor.comissao)} <span className="text-sm font-normal text-apagado">({melhor.comissao_pct?.toLocaleString('pt-BR')}%)</span></div></div>
+                <button className="bt bt-pri ml-auto" onClick={() => setAlvo({ parte: melhor.parte, oferta: melhor })} disabled={melhor.parte === 'v8_fgts'}>Digitar esta</button>
               </div>
             </section>
           )}
-
-          <div className="mb-5 grid gap-4 md:grid-cols-3">
-            {BANCOS.map(b => {
-              const r = resultado.find(x => x.banco === b)!;
-              return (
-                <section key={b} className="cartao p-4">
-                  <div className="mb-2 flex items-center justify-between"><h3 className="font-semibold">{b}</h3><StatusBanco r={r} /></div>
-                  {r.status === 'ok' ? (
-                    <>
-                      <div className="text-xs text-apagado">Margem disponível</div>
-                      <div className="num mb-1 text-2xl font-semibold">{brl(r.margem)}</div>
-                      <div className="text-xs text-apagado">{r.ofertas.length} ofertas · até {brl(Math.max(...r.ofertas.map(o => o.valorLiberado)))}</div>
-                    </>
-                  ) : <p className="text-sm text-suave">{r.mensagem}</p>}
-                  {r.status === 'precisa_dados' && (
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <select className="campo" aria-label="Sexo"><option>Sexo</option><option>Masculino</option><option>Feminino</option></select>
-                      <input className="campo" placeholder="Cidade" aria-label="Cidade" />
-                      <button className="bt col-span-2" onClick={() => consultar()}>Consultar de novo</button>
-                    </div>
-                  )}
-                </section>
-              );
-            })}
-          </div>
-
-          <section className="cartao overflow-x-auto">
-            <div className="flex flex-wrap items-center justify-between gap-2 px-5 pb-3 pt-4">
-              <h2 className="font-semibold">Todas as ofertas</h2>
-              <select className="campo w-auto" value={seguro} onChange={e => setSeguro(e.target.value as typeof seguro)} aria-label="Seguro">
-                <option value="todos">Com e sem seguro</option><option value="com">Só com seguro</option><option value="sem">Só sem seguro</option>
-              </select>
+          {(['CLT', 'FGTS'] as const).map(prod => (
+            <div key={prod} className="mb-5">
+              <h2 className="mb-2 text-sm font-semibold text-suave">{prod}</h2>
+              <div className="grid gap-4 lg:grid-cols-3">
+                {PARTES.filter(p => p.produto === prod).map(p => <CartaoBanco key={p.id} id={p.id} parte={consulta.partes[p.id]} digitar={(parte, oferta) => setAlvo({ parte, oferta })} />)}
+              </div>
             </div>
-            {!ranking.length ? <div className="p-5"><Vazio>Nenhum banco liberou oferta para este CPF.</Vazio></div> : (
-              <table className="tabela">
-                <thead><tr><th>#</th><th>Banco</th><th className="text-right">Prazo</th><th className="text-right">Parcela</th><th className="text-right">Cliente recebe</th><th className="text-right">Taxa a.m.</th><th>Seguro</th><th className="text-right">Comissão</th></tr></thead>
-                <tbody>
-                  {ranking.map((o, i) => (
-                    <tr key={i} className={clsx(i === 0 && 'bg-marca-claro')}>
-                      <td className="num text-apagado">{i + 1}</td><td className="font-medium">{o.banco}</td>
-                      <td className="num text-right">{o.prazo}x</td><td className="num text-right">{brl(o.parcela)}</td>
-                      <td className="num text-right font-medium">{brl(o.valorLiberado)}</td>
-                      <td className="num text-right">{(o.taxaMes * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%</td>
-                      <td>{o.comSeguro ? 'Com' : 'Sem'}</td>
-                      <td className="num text-right">{brl(o.comissaoValor)} <span className="text-xs text-apagado">{o.comissaoPct.toLocaleString('pt-BR')}%</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
+          ))}
         </>
       )}
-      {!resultado && !consultando && <Vazio>Digite um CPF e clique em Consultar.</Vazio>}
+      {!consulta && !consultando && !erro && <Vazio>Cole um CPF e clique em Consultar.</Vazio>}
+      {consulta && alvo && <Digitacao consulta={consulta} alvo={alvo} fechar={() => setAlvo(null)} />}
     </div>
   );
 }

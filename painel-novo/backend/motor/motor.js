@@ -170,7 +170,7 @@ const unnoclt = async (p) => {
   if (s.s !== 200 || !s.b) { if (p.tentativas > 40) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'Unno: ' + erroDe(s); } return p; }
   const st = String(s.b.status || ''); p.status_unno = st;
   if (st === 'NO_MARGIN') { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = 'Sem margem na Unno'; return p; }
-  if (st === 'NO_OFFERS') { p.situacao = 'sem_ofertas'; p.passo = 'fim'; p.mensagem = 'A Unno não liberou oferta para este CPF'; return p; }
+  if (st === 'NO_OFFERS') { p.passo = 'fim'; if (p.margem != null && p.margem < MARGEM_MIN) { p.situacao = 'sem_margem'; p.mensagem = 'Margem de R$ ' + num(p.margem).toFixed(2).replace('.', ',') + ' na Unno; simulei com R$ ' + p.parcela_simulada + ' e não veio oferta'; } else { p.situacao = 'sem_ofertas'; p.mensagem = 'A Unno não liberou oferta para este CPF'; } return p; }
   if (st === 'FAILED' || st === 'AUTHORIZATION_UNAVAILABLE' || st === 'EXPIRED') { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'A Unno não conseguiu consultar (' + st + ')'; return p; }
   if (st === 'AWAITING_AUTHORIZATION') {
     p.sem_termo = (p.sem_termo || 0) + 1; p.situacao = 'processando'; p.mensagem = 'Assinando o termo na Unno';
@@ -186,8 +186,9 @@ const unnoclt = async (p) => {
     if (m.s === 200 && !emps.length) { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = 'Sem margem na Unno'; return p; }
     if (!emps.length) { p.situacao = 'processando'; p.mensagem = 'A Unno está consultando a margem'; return p; }
     p.margem = num(emps[0].available_margin);
-    if (p.margem < MARGEM_MIN) { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = 'Margem de R$ ' + p.margem.toFixed(2).replace('.', ',') + ', pequena demais para oferta'; return p; }
-    const sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.margem }, 'motor-sim-' + p.application_id);
+    // igual à Ana: margem abaixo de R$ 50 simula com parcela de R$ 300 e a Unno decide
+    p.parcela_simulada = p.margem >= 50 ? Math.floor(p.margem * 100) / 100 : 300;
+    const sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.parcela_simulada }, 'motor-sim-' + p.application_id);
     if (sm.s >= 200 && sm.s < 300) p.simulou = true;
     p.situacao = 'simulando'; p.mensagem = 'Simulando na Unno'; return p;
   }
@@ -204,7 +205,15 @@ const unnoclt = async (p) => {
 };
 
 // ===================== CLT HUB (API oficial) =====================
-const hubCall = (method, path, body) => http(method, HUB + path, { headers: { Authorization: 'Bearer ' + tk.hub, 'Content-Type': 'application/json' }, body, timeout: 30000 });
+// se a HUB recusar o token (outro login derruba a sessão), renova uma vez e repete
+let renovando = null;
+const renovarHub = () => renovando || (renovando = http('POST', 'https://rarelookingorca-n8n.cloudfy.live/webhook/motor/renovar', { body: { k: cfg.sessao }, timeout: 20000 }).then(r => { if (r.s === 200 && r.b && r.b.hub) tk.hub = r.b.hub; if (r.b && r.b.unno) tk.unno = r.b.unno; if (r.b && r.b.v8_fgts) tk.v8_fgts = r.b.v8_fgts; return tk.hub; }));
+const hubCall = async (method, path, body) => {
+  const vai = () => http(method, HUB + path, { headers: { Authorization: 'Bearer ' + tk.hub, 'Content-Type': 'application/json' }, body, timeout: 30000 });
+  let r = await vai();
+  if (r.s === 401) { await renovarHub(); r = await vai(); }
+  return r;
+};
 const hubStatus = async (id) => {
   const r = await hubCall('GET', '/presimulacao/' + id);
   if (r.s !== 200 || !r.b || !r.b.value) return { situacao: 'erro', mensagem: 'HUB: ' + erroDe(r) };
@@ -222,6 +231,7 @@ const hubStatus = async (id) => {
   return Object.assign(base, { situacao: 'erro', mensagem: (v.statusDescricao || 'Erro') + (msg ? ' · ' + msg.slice(0, 160) : '') });
 };
 const hubclt = async (p) => {
+  if (!tk.hub) await renovarHub();
   if (!tk.hub) { p.situacao = 'erro'; p.mensagem = 'Sem acesso à HUB no momento (renovando). Consulte de novo em 1 minuto.'; p.passo = 'fim'; return p; }
   if (!p.passo) {
     let fone = String(cliente.telefone || '').replace(/\D/g, ''); if (fone.length > 11 && fone.startsWith('55')) fone = fone.slice(2);
@@ -247,7 +257,7 @@ const hubclt = async (p) => {
     const res = await Promise.all([48, 36, 24, 18, 12].map(pz => hubCall('POST', '/Clt/simular', montar(pz))));
     let lista = [], erros = [];
     res.forEach(r => {
-      if (r.s === 200 && r.b && r.b.hasSuccess !== false && Array.isArray(r.b.value)) r.b.value.forEach(x => { const o = x.opcaoProposta || {}, t = x.tabelaFinanciamento || {}; lista.push({ tabela: String(t.descricao || 'Tabela CLT').trim(), banco: p.bancarizador || 'HUB', seguro: o.comSeguro == null ? true : !!o.comSeguro, prazo: num(o.numeroParcelas), parcela: num(o.valorParcela), valor: num(o.valorDesembolsoTrabalhador) || num(o.valorDesembolsoTotal), taxa: num(o.taxaJuros) }); });
+      if (r.s === 200 && r.b && r.b.hasSuccess !== false && Array.isArray(r.b.value)) r.b.value.forEach(x => { const o = x.opcaoProposta || {}, t = x.tabelaFinanciamento || {}; lista.push({ tabela: String(t.descricao || 'Tabela CLT').trim(), banco: p.bancarizador || 'HUB', seguro: o.comSeguro == null ? true : !!o.comSeguro, prazo: num(o.numeroParcelas), parcela: num(o.valorParcela), valor: num(o.valorDesembolsoTrabalhador) || num(o.valorDesembolsoTotal), taxa: num(o.taxaJuros), sim_id: x.simulacaoId || '', tabela_id: t.id || '', tac: num(t.tac), vencimento: String(o.dataDeVencimento || '').slice(0, 10), expira: o.dataDeExpiracao || '' }); });
       else erros.push(erroDe(r));
     });
     const vis = {}; lista = lista.filter(o => { const k = o.tabela + '|' + o.prazo + '|' + o.parcela + '|' + o.seguro; if (vis[k] || !(o.valor > 0 && o.prazo > 0)) return false; vis[k] = 1; return true; });
@@ -269,13 +279,14 @@ const fechaFgts = (p, det) => {
   return p;
 };
 const hubfgts = async (p) => {
+  if (!tk.hub) await renovarHub();
   if (!tk.hub) { p.situacao = 'erro'; p.mensagem = 'Sem acesso à HUB no momento (renovando). Consulte de novo em 1 minuto.'; p.passo = 'fim'; return p; }
   const bzs = ['BMP', 'J17'];
   const res = await Promise.all(bzs.map(bz => hubCall('POST', '/proposta/simulacaoFGTSBancarizador', { cpfCliente: cpf, lojaId: num(cfg.hub_loja) || 9562, bancarizador: bz })));
   let lista = [], det = [];
   res.forEach((r, i) => {
     const antes = lista.length;
-    if (r.s === 200 && r.b && Array.isArray(r.b.value)) r.b.value.forEach(x => { if (num(x.valorCliente) > 0) lista.push({ tabela: String(x.nomeTabela || '').trim(), tabela_cod: x.tabelaComercial, banco: bzs[i], prazo: num(x.quantidadeParcelas), valor: num(x.valorCliente), bruto: num(x.valorbruto) }); });
+    if (r.s === 200 && r.b && Array.isArray(r.b.value)) r.b.value.forEach(x => { if (num(x.valorCliente) > 0) lista.push({ tabela: String(x.nomeTabela || '').trim(), tabela_cod: x.tabelaComercial, banco: bzs[i], prazo: num(x.quantidadeParcelas), valor: num(x.valorCliente), bruto: num(x.valorbruto), sim_id: x.simulacaoId || '', tac: num(x.valorTac) }); });
     det.push({ banco: bzs[i], ofertas: lista.length > antes, motivo: lista.length > antes ? '' : (r.s === 200 ? 'sem oferta' : erroDe(r)) });
   });
   p.ofertas = lista; p.passo = 'fim';
@@ -371,7 +382,7 @@ const unnofgts = async (p) => {
   const rd = await unnoCall('GET', '/' + p.application_id);
   const a = rd.b || {};
   const motivos = (a.quotes || []).map(q => ({ banco: String(q.source || '').toUpperCase(), motivo: String(q.reason || q.status || '') }));
-  p.ofertas = (a.offers || []).filter(o => num(o.net_amount) > 0 && (!o.status || o.status === 'AVAILABLE')).map(o => ({ tabela: o.table_name || '', tabela_id: o.table_id || '', banco: o.source || '', prazo: (o.installments || []).length, valor: num(o.net_amount), bruto: num(o.gross_amount || o.total_amount), taxa: num(o.monthly_interest_rate), expira: o.expires_at || '' }));
+  p.ofertas = (a.offers || []).filter(o => num(o.net_amount) > 0 && (!o.status || o.status === 'AVAILABLE')).map(o => ({ tabela: o.table_name || '', tabela_id: o.table_id || '', offer_id: o.offer_id || '', banco: o.source || '', prazo: (o.installments || []).length, valor: num(o.net_amount), bruto: num(o.gross_amount || o.total_amount), taxa: num(o.monthly_interest_rate), expira: o.expires_at || '' }));
   if (st === 'OFFERS_AVAILABLE' && num(a.quotes_pending) > 0 && p.tentativas < 30) { p.situacao = 'simulando'; p.mensagem = 'Chegando mais ofertas da Unno'; return p; }
   p.passo = 'fim';
   if (st === 'EXPIRED' && !p.ofertas.length) { p.situacao = 'erro'; p.mensagem = 'As ofertas da Unno expiraram. Consulte de novo.'; return p; }
