@@ -28,7 +28,7 @@ begin
     if falta = 0 then return jsonb_build_object('ok', false, 'codigo', 400, 'erro', 'Você já extraiu todos os leads liberados para hoje.'); end if;
     update public.meus_leads x set painel_usuario = u.id, painel_extraido_em = now()
      where x.cpf in (select cpf from public.meus_leads where painel_extraido_em is null and coalesce(margem, 0) > 0
-                      order by margem desc nulls last limit falta for update skip locked);
+                      order by random() limit falta for update skip locked);
     -- telefone que já existe na base de clientes
     update public.meus_leads x set telefone = l.telefone from credito.leads l
      where x.painel_usuario = u.id and x.telefone is null and regexp_replace(coalesce(l.cpf_informado, l.cpf_base, ''), '\D', '', 'g') = x.cpf and coalesce(l.telefone, '') <> '';

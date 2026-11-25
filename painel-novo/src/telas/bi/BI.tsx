@@ -6,6 +6,7 @@ import { brl, brlCurto, dataCurta, num, pct } from '@/util/formato';
 import { ORIGENS } from '@/util/rotulos';
 import { PERIODOS, dentro, dias, intervalo, type Periodo } from '@/util/periodo';
 import type { Cliente, Origem, Produto } from '@/api/tipos';
+import PagosBancos from './PagosBancos';
 
 /** Conta o funil de um grupo de clientes (todos que ENTRARAM no período). */
 function funil(cs: Cliente[]) {
@@ -52,7 +53,8 @@ export default function BI() {
 
   return (
     <div>
-      <Titulo titulo="BI" sub="Todos os números contam os clientes que entraram no período e até onde cada um chegou." />
+      <Titulo titulo="BI" sub="Contratos pagos lidos direto dos bancos e o funil dos clientes que entraram no período." />
+      <PagosBancos />
 
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Abas valor={periodo} mudar={setPeriodo} opcoes={PERIODOS.map(p => ({ id: p.id, nome: p.nome }))} />
