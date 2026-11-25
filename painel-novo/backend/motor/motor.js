@@ -141,7 +141,7 @@ const v8clt = async (p) => {
 };
 
 // ===================== CLT Unno (API direta; o endpoint do painel disputava o executor de código do n8n) =====================
-const unnoC = (method, path, body, idem) => http(method, cfg.unno_base + '/api/v1/clt/applications' + path, { headers: Object.assign({ Authorization: 'Bearer ' + tk.unno, 'Content-Type': 'application/json' }, idem ? { 'Idempotency-Key': idem } : {}), body, timeout: 20000 });
+const unnoC = (method, path, body, idem) => http(method, cfg.unno_base + '/api/v1/clt/applications' + path, { headers: Object.assign({ Authorization: 'Bearer ' + tk.unno, 'Content-Type': 'application/json' }, idem ? { 'Idempotency-Key': idem } : {}), body, timeout: 35000 });
 const unnoAssina = async (consent) => {
   const partes = String(consent || '').split('?')[0].split('/'); const termo = partes[partes.length - 1];
   if (!termo || termo.length < 8) return false;
@@ -180,6 +180,7 @@ const unnoclt = async (p) => {
     if (p.sem_termo > 8) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'A Unno não liberou a consulta (termo). Consulte de novo.'; }
     return p;
   }
+  if (p.simulou && st === 'AWAITING_SIMULATION' && p.tentativas - (p.sim_em || 0) > 12) p.simulou = false;
   if (st === 'AWAITING_SIMULATION' && !(num(s.b.offers_count) > 0) && !p.simulou) {
     const m = await unnoC('GET', '/' + p.application_id + '/margin');
     const emps = ((m.b && m.b.employments) || []).filter(e => num(e.available_margin) > 0 && (!e.eligibility || e.eligibility === 'ELIGIBLE')).sort((x, y) => num(y.available_margin) - num(x.available_margin));
@@ -189,11 +190,17 @@ const unnoclt = async (p) => {
     // igual à Ana: margem abaixo de R$ 50 simula com parcela de R$ 300 e a Unno decide
     p.parcela_simulada = p.margem >= 50 ? Math.floor(p.margem * 100) / 100 : 300;
     let sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.parcela_simulada }, 'motor-sim-' + p.application_id + '-' + p.parcela_simulada);
-    if (!(sm.s >= 200 && sm.s < 300) && p.parcela_simulada !== Math.floor(p.margem * 100) / 100) {
+    if (sm.s >= 400 && sm.s < 500 && sm.s !== 409 && sm.s !== 429 && p.parcela_simulada !== Math.floor(p.margem * 100) / 100) {
       p.sim_erro = erroDe(sm); p.parcela_simulada = Math.floor(p.margem * 100) / 100;
       sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.parcela_simulada }, 'motor-sim-' + p.application_id + '-' + p.parcela_simulada);
     }
-    if (sm.s >= 200 && sm.s < 300) { p.simulou = true; p.situacao = 'simulando'; p.mensagem = 'Simulando na Unno'; return p; }
+    if (sm.s >= 200 && sm.s < 300) { p.simulou = true; p.sim_em = p.tentativas; p.situacao = 'simulando'; p.mensagem = 'Simulando na Unno'; return p; }
+    // lentidão/queda da Unno (timeout, 5xx, 409 em andamento) não é recusa: tenta de novo na próxima rodada (mesma Idempotency-Key)
+    if (sm.s === 0 || sm.s >= 500 || sm.s === 409 || sm.s === 429) {
+      p.sim_falhas = (p.sim_falhas || 0) + 1; p.situacao = 'simulando'; p.mensagem = 'A Unno está lenta, tentando de novo';
+      if (p.sim_falhas > 15) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'A Unno não respondeu a simulação. Consulte de novo.'; }
+      return p;
+    }
     p.sim_erro = erroDe(sm); p.passo = 'fim';
     p.situacao = p.margem < MARGEM_MIN ? 'sem_margem' : 'erro';
     p.mensagem = (p.margem < MARGEM_MIN ? 'Margem de R$ ' + p.margem.toFixed(2).replace('.', ',') + ' na Unno; a simulação foi recusada: ' : 'A Unno recusou a simulação: ') + p.sim_erro;
