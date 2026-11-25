@@ -19,7 +19,7 @@ export default function Login() {
     <div className="flex min-h-full items-center justify-center p-4">
       <form onSubmit={enviar} className="cartao w-full max-w-sm p-6">
         <div className="mb-6 flex items-center gap-2">
-          <img src="/simbolo.png" alt="" className="h-12 w-12 rounded-lg" />
+          <img src="/simbolo.png" alt="" className="h-12 w-12" />
           <div><div className="font-semibold">GM Cred</div><div className="text-xs text-apagado">Entrar no painel</div></div>
         </div>
         <label className="rotulo" htmlFor="email">E-mail</label>
