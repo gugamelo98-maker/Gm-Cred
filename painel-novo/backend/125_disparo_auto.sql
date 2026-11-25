@@ -1,0 +1,7 @@
+-- 125 · Resposta automática a disparo (mesmo motor/mensagens da LP, sem a Ana).
+-- Trigger credito.resposta_auto (AFTER INSERT em credito.conversas, mensagens de entrada):
+--   * "BLOQUEAR" (botão do disparo)            -> cliente finalizado (perdido, etiqueta 'Bloqueou'), sem simular.
+--   * CPF na mensagem, diferente do cadastrado -> grava cpf_informado e roda o Motor de novo (fila credito.lp_auto).
+--   * "não é meu CPF" / "CPF errado"           -> pede o CPF certo + autorização BMP e Girotech (uma vez).
+--   * 1ª resposta de cliente de disparo com CPF da lista (cpf_base) -> aguardando 'humano' e entra na fila do Motor.
+-- lp_auto_salvar: trava "já atendido" = para LP qualquer mensagem nossa; para disparo, mensagem nossa depois de entrar na fila.
