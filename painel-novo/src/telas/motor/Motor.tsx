@@ -58,6 +58,7 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
   const sit = parte?.situacao ?? 'iniciando';
   const [nome, cor] = SITUACAO[sit] ?? ['—', 'cinza'];
   const pendente = PENDENTE.includes(sit);
+  const semMargem = sit === 'sem_margem';
   return (
     <section className="cartao overflow-hidden">
       <div className="flex items-center justify-between gap-2 border-b border-borda px-4 py-3">
@@ -67,8 +68,8 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
           <Etiqueta cor={corOk(cor)}>{nome}</Etiqueta>
         </span>
       </div>
-      {parte?.mensagem && <p className="px-4 pt-3 text-sm text-suave">{parte.mensagem}</p>}
-      {parte?.detalhe && parte.detalhe.length > 0 && sit !== 'ofertas' && (
+      {parte?.mensagem && !semMargem && <p className="px-4 pt-3 text-sm text-suave">{parte.mensagem}</p>}
+      {parte?.detalhe && parte.detalhe.length > 0 && sit !== 'ofertas' && !semMargem && (
         <ul className="px-4 pt-2 text-xs text-apagado">{parte.detalhe.map(d => <li key={d.banco}>• <b>{d.banco}</b>: {SITUACAO[d.situacao]?.[0] ?? d.situacao}</li>)}</ul>
       )}
       {parte?.link_termo && <a className="mx-4 mt-2 inline-flex items-center gap-1 text-sm text-marca underline" href={parte.link_termo} target="_blank" rel="noreferrer">Link do termo <ExternalLink size={12} /></a>}
@@ -109,7 +110,7 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
           })}
         </ul>
       )}
-      {!grupos.length && !parte?.mensagem && <p className="px-4 py-3 text-sm text-apagado">{pendente ? 'Aguardando o banco…' : '—'}</p>}
+      {!grupos.length && !parte?.mensagem && !semMargem && <p className="px-4 py-3 text-sm text-apagado">{pendente ? 'Aguardando o banco…' : '—'}</p>}
       <div className="h-2" />
     </section>
   );
