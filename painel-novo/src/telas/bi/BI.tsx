@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { token } from '@/api/painel';
 import { useDados } from '@/estado/Dados';
 import { Abas, Kpi, Titulo } from '@/componentes/ui';
 import { Funil, Linhas } from '@/componentes/graficos';
@@ -17,7 +18,7 @@ function funil(cs: Cliente[]) {
     proposta: cs.filter(c => c.propostaEm).length,
     pagos: cs.filter(c => c.pagoEm).length,
     liberado: cs.reduce((s, c) => s + (c.pagoEm ? c.valorLiberado ?? 0 : 0), 0),
-    comissao: cs.reduce((s, c) => s + (c.comissao ?? 0), 0),
+    comissao: cs.reduce((s, c) => s + (c.pagoEm ? c.comissao ?? 0 : 0), 0),
   };
 }
 
@@ -31,9 +32,23 @@ export default function BI() {
   const [verTabela, setVerTabela] = useState(false);
 
   const faixa = useMemo(() => intervalo(periodo, de, ate), [periodo, de, ate]);
+  // pagos e comissão vêm dos bancos (mesma fonte do quadro de cima), no período escolhido
+  const [banco, setBanco] = useState<{ produto: string; valor: number; comissao: number | null }[] | null>(null);
+  useEffect(() => {
+    const base = (import.meta.env.VITE_N8N_WEBHOOK as string | undefined) || 'https://rarelookingorca-n8n.cloudfy.live/webhook';
+    let vivo = true;
+    fetch(base + '/painel/bi', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ k: token.ler(), dados: { ini: new Date(faixa[0]).toISOString(), fim: new Date(faixa[1]).toISOString() } }) })
+      .then(r => r.json()).then(r => { if (vivo) setBanco(r.ok ? r.pagos : null); }).catch(() => vivo && setBanco(null));
+    return () => { vivo = false; };
+  }, [faixa]);
   const base = useMemo(() => estado!.clientes.filter(c => (produto === 'todos' || c.produto === produto)), [estado, produto]);
   const doPeriodo = useMemo(() => base.filter(c => dentro(c.entrouEm, faixa) && (origem === 'todas' || c.origem === origem)), [base, faixa, origem]);
   const f = funil(doPeriodo);
+  const peloBanco = !!banco && origem === 'todas';
+  if (banco && peloBanco) {
+    const b = banco.filter(x => produto === 'todos' || x.produto === produto);
+    f.pagos = b.length; f.liberado = b.reduce((t, x) => t + Number(x.valor || 0), 0); f.comissao = b.reduce((t, x) => t + Number(x.comissao || 0), 0);
+  }
 
   const porDia = useMemo(() => {
     const ds = dias(faixa);
@@ -79,7 +94,7 @@ export default function BI() {
         <Kpi rotulo="Mandaram CPF" valor={num(f.cpf)} detalhe={`${pct(f.entraram ? f.cpf / f.entraram : NaN)} de quem entrou`} destaque />
         <Kpi rotulo="Com margem" valor={num(f.margem)} detalhe={`${pct(f.cpf ? f.margem / f.cpf : NaN)} de quem mandou CPF`} />
         <Kpi rotulo="Propostas" valor={num(f.proposta)} detalhe={`${pct(f.margem ? f.proposta / f.margem : NaN)} de quem tinha margem`} />
-        <Kpi rotulo="Pagos" valor={num(f.pagos)} detalhe={`${brlCurto(f.liberado)} liberados`} />
+        <Kpi rotulo="Pagos" valor={num(f.pagos)} detalhe={`${brlCurto(f.liberado)} liberados${peloBanco ? ' · pelos bancos' : ''}`} />
         <Kpi rotulo="Comissão" valor={brlCurto(f.comissao)} detalhe={gastoTotal ? `gastos ${brlCurto(gastoTotal)} · lucro ${brlCurto(f.comissao - gastoTotal)}` : 'sem gastos lançados'} />
       </div>
 
