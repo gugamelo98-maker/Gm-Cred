@@ -92,7 +92,8 @@ begin
   for k, v in select * from jsonb_each(c.partes) loop
     select coalesce(jsonb_agg(x order by (x->>'comissao')::numeric desc nulls last, (x->>'valor')::numeric desc), '[]') into ofs
       from (select o || jsonb_build_object('comissao_pct', pct, 'comissao', round(coalesce((o->>'valor')::numeric, 0) * pct / 100, 2)) as x
-              from jsonb_array_elements(coalesce(v->'ofertas', '[]')) o, lateral (select credito.motor_pct(k, o) as pct) p) t;
+              from jsonb_array_elements(coalesce(v->'ofertas', '[]')) o, lateral (select credito.motor_pct(k, o) as pct) p
+             where not (k = 'v8_clt' and coalesce((o->>'seguro')::boolean, true) = false)) t;  -- V8: só com seguro
     saida := saida || jsonb_build_object(k, v || jsonb_build_object('ofertas', ofs));
     todas := todas || (select coalesce(jsonb_agg(x || jsonb_build_object('parte', k)), '[]') from jsonb_array_elements(ofs) x);
     if coalesce(v->>'situacao', 'processando') in ('iniciando', 'processando', 'aguardando_termo', 'aguardando_autorizacao', 'simulando') then pend := pend + 1; end if;

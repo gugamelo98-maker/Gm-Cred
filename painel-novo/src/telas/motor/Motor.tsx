@@ -198,17 +198,17 @@ export default function Motor() {
 
   useEffect(() => () => { rodada.current++; }, []);
 
-  async function consultar(e?: FormEvent) {
-    e?.preventDefault();
-    if (!cpfOk) return;
+  // guarda a última consulta: sair da aba e voltar não perde o resultado (e continua acompanhando o que faltava)
+  const ULTIMA = 'gm_motor_ultima';
+  async function acompanhar(cInicial: ConsultaMotor | null, cpfNovo: string | null, idSalvo?: number) {
     const minha = ++rodada.current;
-    setConsultando(true); setConsulta(null); setErro('');
+    setConsultando(true); setErro('');
+    if (cpfNovo) setConsulta(null);
     try {
-      let c = await motor.consultar(soDigitos(cpf));
+      let c = cInicial ?? (cpfNovo ? await motor.consultar(cpfNovo) : await motor.atualizar(idSalvo!));
       if (minha !== rodada.current) return;
-      setConsulta(c);
+      setConsulta(c); try { localStorage.setItem(ULTIMA, String(c.id)); } catch { /* sem storage */ }
       const inicio = Date.now();
-      // vai perguntando ao motor até todos os bancos responderem (no máximo 6 minutos)
       while (c.pendentes > 0 && Date.now() - inicio < 6 * 60_000) {
         await new Promise(r => setTimeout(r, 3500));
         if (minha !== rodada.current) return;
@@ -222,8 +222,16 @@ export default function Motor() {
     }
     if (minha === rodada.current) setConsultando(false);
   }
-  useEffect(() => { if (logado && params.get('cpf') && cpfOk) consultar(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  function consultar(e?: FormEvent) { e?.preventDefault(); if (cpfOk) acompanhar(null, soDigitos(cpf)); }
+  useEffect(() => {
+    if (!logado) return;
+    if (params.get('cpf') && cpfOk) { consultar(); return; }
+    let id = 0; try { id = Number(localStorage.getItem(ULTIMA)) || 0; } catch { /* sem storage */ }
+    if (id) acompanhar(null, null, id).then(() => setCpf(c => c));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logado]);
+  useEffect(() => { if (consulta && !soDigitos(cpf)) setCpf(mascaraCpf(consulta.cpf)); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consulta]);
 
   const melhor = consulta?.melhor ?? null;
   const infoMelhor = melhor ? PARTES.find(p => p.id === melhor.parte) : null;
