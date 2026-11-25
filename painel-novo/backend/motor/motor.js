@@ -1,7 +1,6 @@
 // Motor de crédito (separado da Ana). Avança cada banco+produto um passo por chamada.
 const H = this.helpers;
 const ctx = $('Contexto').first().json.c;
-const N8N = 'https://rarelookingorca-n8n.cloudfy.live/webhook';
 const V8_DADOS = 'https://v2-bff-prod-front.yellowisland-b252a8a0.eastus.azurecontainerapps.io/private-consignment/consult/client-data/basic/';
 const HUB = 'https://api.hubcredito.com.br/api';
 const V8F = 'https://bff.v8sistema.com';
@@ -66,47 +65,77 @@ const garantirCliente = async () => {
   if (!cliente.cidade) cliente.cidade = 'Florianópolis';
 };
 
-// ---------- endpoints do painel (V8 e Unno CLT), chamados com o acesso interno do motor ----------
-const painel = async (ep, acao, dados) => {
-  let ult = 'sem resposta';
-  for (let t = 0; t < 3; t++) {
-    const r = await http('POST', N8N + '/escritorio/' + ep, { body: { k: cfg.sessao, acao, cpf, dados: JSON.stringify(dados || {}) }, timeout: 55000 });
-    if (r.s === 401) return { ok: false, situacao: 'erro', erro: 'O motor está sem acesso ao painel' };
-    if (r.s === 200 && r.b && typeof r.b === 'object') return r.b;
-    ult = erroDe(r); if (resta() < 8000) throw new Tempo(); await sleep(1500);
-  }
-  return { ok: false, situacao: 'erro', erro: ult };
+// ===================== CLT V8 (API direta, sem passar pelos fluxos da Ana) =====================
+const V8C = 'https://ca-bff-rebranding-prod.yellowisland-b252a8a0.eastus.azurecontainerapps.io/private-consignment';
+const v8c = (method, path, body) => http(method, V8C + path, { headers: { Authorization: 'Bearer ' + tk.v8_clt, Origin: 'https://new.v8sistema.com', 'Content-Type': 'application/json' }, body, timeout: 25000 });
+const V8_DISP = { operationalSystem: 'Windows', deviceType: 'desktop', deviceModel: 'Windows', deviceName: 'Chrome 156.0.0.0', deviceApp: 'unknown' };
+const V8_RODANDO = ['WAITING_CONSENT', 'WAITING_CONSULT', 'WAITING_CREDIT_ANALYSIS', 'CONSENT_APPROVED', 'PROCESSING', 'PENDING'];
+const MARGEM_MIN = 20;
+const v8lista = async () => {
+  const r = await v8c('POST', '/consult/list', { page: 1, limit: 20, search: cpf, startDate: '2025-01-01T03:00:00.000Z', endDate: new Date(Date.now() + 86400000).toISOString() });
+  if (r.s >= 400 || r.s === 0) return { erro: 'V8: ' + erroDe(r) };
+  return { recs: ((r.b && r.b.data) || []).slice().sort((x, y) => String(y.createdAt || '').localeCompare(String(x.createdAt || ''))) };
 };
-
-// ===================== CLT V8 =====================
 const v8clt = async (p) => {
-  if (!p.passo || p.passo === 'status') {
-    const d = p.passo === 'status' ? await painel('v8', 'status', {}) : await painel('v8', 'consultar_cpf', {});
-    if (d.situacao === 'processando' || d.situacao === 'sem_consulta') {
-      p.passo = 'status'; p.situacao = 'processando'; p.mensagem = 'A V8 está processando a consulta';
-      if (p.tentativas > 45) { p.situacao = 'erro'; p.mensagem = 'A V8 demorou demais. Consulte de novo.'; }
+  if (!tk.v8_clt) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'Sem acesso à V8 no momento (renovando). Consulte de novo em 1 minuto.'; return p; }
+  if (!p.passo) {
+    const l = await v8lista(); if (l.erro) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = l.erro; return p; }
+    const rodando = l.recs.find(x => V8_RODANDO.includes(x.status));
+    if (rodando) {
+      p.consult_id = rodando.id; p.passo = 'status'; p.situacao = 'processando'; p.mensagem = 'A V8 está processando a consulta';
+      if (rodando.status === 'WAITING_CONSENT') await v8c('POST', '/consult/' + rodando.id + '/authorize', V8_DISP);
       return p;
     }
-    if (d.situacao === 'com_margem') {
-      p.margem = num(d.margem); p.consult_id = d.consult_id;
-      if (!(p.margem > 0) || !p.consult_id) { p.situacao = 'sem_margem'; p.mensagem = 'Sem margem na V8'; return p; }
+    let fone = String(cliente.telefone || '').replace(/\D/g, ''); if (fone.length > 11 && fone.startsWith('55')) fone = fone.slice(2);
+    const cr = await v8c('POST', '/consult', { borrowerDocumentNumber: cpf, signerName: String(cliente.nome || '').toUpperCase(), birthDate: cliente.nascimento, gender: cliente.sexo === 'F' ? 'female' : 'male', signerEmail: cliente.email || 'sem@email.com', signerPhone: { countryCode: '55', areaCode: fone.slice(0, 2) || '48', phoneNumber: fone.slice(2) || '999999999' } });
+    if (cr.s < 400 && cr.b && cr.b.id) {
+      p.consult_id = cr.b.id; await sleep(3000);
+      await v8c('GET', '/consult/' + cr.b.id + '/unprotected/' + cpf);
+      await v8c('POST', '/consult/' + cr.b.id + '/authorize', V8_DISP);
+      p.passo = 'status'; p.situacao = 'processando'; p.mensagem = 'A V8 está processando a consulta'; return p;
+    }
+    const msg = String((cr.b && (cr.b.message || cr.b.description || cr.b.title)) || erroDe(cr));
+    if (String((cr.b && cr.b.type) || '').includes('consult_already_exists')) { p.passo = 'status'; p.situacao = 'processando'; p.mensagem = 'A V8 está processando a consulta'; return p; }
+    p.passo = 'fim'; p.situacao = /quota|cota/i.test(msg) || cr.s === 0 || cr.s >= 500 ? 'erro' : 'sem_margem'; p.mensagem = 'V8: ' + msg; return p;
+  }
+  if (p.passo === 'status') {
+    const l = await v8lista(); if (l.erro) { if (p.tentativas > 40) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = l.erro; } return p; }
+    const u = l.recs.find(x => p.consult_id && x.id === p.consult_id) || l.recs[0];
+    if (!u) { if (p.tentativas > 10) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'A V8 não abriu a consulta'; } return p; }
+    p.consult_id = u.id; p.status_v8 = u.status;
+    if (u.status === 'SUCCESS' && u.availableMarginValue != null) {
+      p.margem = num(u.availableMarginValue);
+      if (p.margem < MARGEM_MIN) { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = p.margem > 0 ? 'Margem de R$ ' + p.margem.toFixed(2).replace('.', ',') + ', pequena demais para oferta' : 'Sem margem na V8'; return p; }
       p.passo = 'simular';
-    } else if (d.situacao === 'sem_margem') { p.situacao = 'sem_margem'; p.mensagem = d.descricao || 'Sem margem na V8'; return p; }
-    else { p.situacao = 'erro'; p.mensagem = d.situacao === 'precisa_dados' ? 'A V8 não achou os dados desse CPF' : (d.erro || 'A V8 respondeu com erro'); return p; }
+    } else if (u.status === 'REJECTED') { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = u.description || 'Sem margem na V8'; return p; }
+    else if (/quota|cota/i.test(String(u.description || ''))) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'V8: ' + u.description; return p; }
+    else {
+      if (u.status === 'WAITING_CONSENT' && !p.reautorizou) { p.reautorizou = true; await v8c('POST', '/consult/' + u.id + '/authorize', V8_DISP); }
+      p.situacao = 'processando'; p.mensagem = 'A V8 está processando a consulta';
+      if (p.tentativas > 45) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'A V8 demorou demais. Consulte de novo.'; }
+      return p;
+    }
   }
   if (p.passo === 'simular') {
-    const base = { consult_id: p.consult_id, margem: p.margem, parcela: p.margem };
-    const roda = (pz) => painel('v8', 'simular', Object.assign({}, base, { prazo: String(pz) }));
-    const d0 = await roda('');
-    let lista = (d0.ofertas || []).slice();
-    const prazos = [...new Set([...String(d0.limites || '').matchAll(/(\d+)x/g)].map(m => +m[1]))].filter(x => !lista.some(o => num(o.prazo) === x)).slice(0, 6);
-    (await Promise.all(prazos.map(roda))).forEach(d => (d.ofertas || []).forEach(o => lista.push(o)));
-    const vis = {};
-    lista = lista.filter(o => { const k = o.prazo + '|' + o.parcela + '|' + o.seguro; if (vis[k] || !(num(o.valor) > 0)) return false; vis[k] = 1; return true; });
-    p.ofertas = lista.map(o => ({ tabela: 'CLT Acelera', banco: 'V8', seguro: o.seguro !== false, prazo: num(o.prazo), parcela: num(o.parcela), valor: num(o.valor) }));
-    p.margem_texto = String(d0.limites || '');
-    p.situacao = p.ofertas.length ? 'ofertas' : 'sem_ofertas'; p.passo = 'fim';
-    p.mensagem = p.ofertas.length ? '' : ((d0.erros || [])[0] || d0.erro || 'A V8 não liberou oferta');
+    const rc = await v8c('GET', '/simulation/configs-with-pre-calc?consultId=' + p.consult_id);
+    const cfgs = ((rc.b && rc.b.data) || []).map(c => ({ id: c.id, seguro: /seguro/i.test(c.slug || ''), nome: c.name || c.slug || '', prazos: (c.numberOfInstallments || []).map(Number) }));
+    if (!cfgs.length) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'V8 sem tabelas: ' + erroDe(rc); return p; }
+    const com = cfgs.find(c => c.seguro) || cfgs[0];
+    const pre = await v8c('POST', '/simulation/pre-calculate-installments', { consult_id: p.consult_id, config_id: com.id });
+    const maxPor = {}; ((pre.b && pre.b.installments) || []).forEach(i => { maxPor[Number(i.installmentNumbers)] = num(i.maxInstallmentValue); });
+    p.limites = Object.keys(maxPor).map(Number).sort((x, y) => y - x).map(pz => pz + 'x até R$ ' + maxPor[pz].toFixed(2).replace('.', ',')).join('; ');
+    const reqs = [];
+    cfgs.forEach(c => { const pzs = c.prazos.filter(pz => !Object.keys(maxPor).length || maxPor[pz] > 0).sort((x, y) => y - x).slice(0, 6); pzs.forEach(pz => reqs.push({ c, pz, parcela: Math.floor(Math.min(p.margem, maxPor[pz] || p.margem) * 100) / 100 })); });
+    const ofertas = [], erros = [];
+    for (let i = 0; i < reqs.length; i += 6) {
+      const lote = reqs.slice(i, i + 6);
+      const rs = await Promise.all(lote.map(q => v8c('POST', '/simulation', { consult_id: p.consult_id, config_id: q.c.id, installment_face_value: q.parcela, number_of_installments: q.pz })));
+      rs.forEach((r, j) => { const b = r.b || {}, op = b.disbursement_option || {}; const valor = num(op.final_disbursement_amount || b.disbursed_issue_amount || b.disbursement_amount);
+        if (r.s < 400 && b.id_simulation && valor > 0) ofertas.push({ tabela: 'CLT Acelera', banco: 'V8', seguro: lote[j].c.seguro, prazo: num(b.number_of_installments) || lote[j].pz, parcela: num(b.installment_value) || lote[j].parcela, valor, sim_id: b.id_simulation, config_id: lote[j].c.id });
+        else erros.push(b.detail || b.title || b.message || ('HTTP ' + r.s)); });
+    }
+    p.ofertas = ofertas; p.passo = 'fim'; p.situacao = ofertas.length ? 'ofertas' : 'sem_ofertas';
+    p.mensagem = ofertas.length ? '' : ([...new Set(erros)].join(' · ').slice(0, 300) || 'A V8 não liberou oferta');
   }
   return p;
 };
@@ -157,6 +186,7 @@ const unnoclt = async (p) => {
     if (m.s === 200 && !emps.length) { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = 'Sem margem na Unno'; return p; }
     if (!emps.length) { p.situacao = 'processando'; p.mensagem = 'A Unno está consultando a margem'; return p; }
     p.margem = num(emps[0].available_margin);
+    if (p.margem < MARGEM_MIN) { p.situacao = 'sem_margem'; p.passo = 'fim'; p.mensagem = 'Margem de R$ ' + p.margem.toFixed(2).replace('.', ',') + ', pequena demais para oferta'; return p; }
     const sm = await unnoC('POST', '/' + p.application_id + '/simulations', { employment_id: emps[0].employment_id, basis: 'INSTALLMENT', installment_amount: p.margem }, 'motor-sim-' + p.application_id);
     if (sm.s >= 200 && sm.s < 300) p.simulou = true;
     p.situacao = 'simulando'; p.mensagem = 'Simulando na Unno'; return p;
@@ -229,19 +259,27 @@ const hubclt = async (p) => {
 
 // ===================== FGTS HUB (BMP e J17) =====================
 const classificaFgts = (txt) => /ades[aã]o|saque[- ]anivers/i.test(txt) ? 'sem_adesao' : /autoriza/i.test(txt) ? 'sem_autorizacao' : /saldo/i.test(txt) ? 'sem_saldo' : 'erro';
+// cada bancarizadora tem o seu motivo; o resultado geral só é "sem autorização" (ou adesão/saldo) se TODAS disserem isso
+const fechaFgts = (p, det) => {
+  p.detalhe = det.map(d => ({ banco: d.banco, situacao: d.ofertas ? 'ofertas' : classificaFgts(d.motivo || ''), motivo: String(d.motivo || '').slice(0, 200) }));
+  if (p.ofertas.length) { p.situacao = 'ofertas'; p.mensagem = p.detalhe.filter(d => d.situacao !== 'ofertas').map(d => d.banco + ': ' + d.motivo).join(' · ').slice(0, 300); return p; }
+  const sits = [...new Set(p.detalhe.map(d => d.situacao))];
+  p.situacao = sits.length === 1 && sits[0] !== 'erro' ? sits[0] : 'sem_ofertas';
+  p.mensagem = p.detalhe.map(d => d.banco + ': ' + (d.motivo || 'sem oferta')).join(' · ').slice(0, 300) || 'Sem oferta';
+  return p;
+};
 const hubfgts = async (p) => {
   if (!tk.hub) { p.situacao = 'erro'; p.mensagem = 'Sem acesso à HUB no momento (renovando). Consulte de novo em 1 minuto.'; p.passo = 'fim'; return p; }
   const bzs = ['BMP', 'J17'];
   const res = await Promise.all(bzs.map(bz => hubCall('POST', '/proposta/simulacaoFGTSBancarizador', { cpfCliente: cpf, lojaId: num(cfg.hub_loja) || 9562, bancarizador: bz })));
-  let lista = [], erros = [];
+  let lista = [], det = [];
   res.forEach((r, i) => {
-    if (r.s === 200 && r.b && Array.isArray(r.b.value)) r.b.value.forEach(x => lista.push({ tabela: String(x.nomeTabela || '').trim(), tabela_cod: x.tabelaComercial, banco: bzs[i], prazo: num(x.quantidadeParcelas), valor: num(x.valorCliente), bruto: num(x.valorbruto) }));
-    else erros.push(bzs[i] + ': ' + erroDe(r));
+    const antes = lista.length;
+    if (r.s === 200 && r.b && Array.isArray(r.b.value)) r.b.value.forEach(x => { if (num(x.valorCliente) > 0) lista.push({ tabela: String(x.nomeTabela || '').trim(), tabela_cod: x.tabelaComercial, banco: bzs[i], prazo: num(x.quantidadeParcelas), valor: num(x.valorCliente), bruto: num(x.valorbruto) }); });
+    det.push({ banco: bzs[i], ofertas: lista.length > antes, motivo: lista.length > antes ? '' : (r.s === 200 ? 'sem oferta' : erroDe(r)) });
   });
-  p.ofertas = lista.filter(o => o.valor > 0); p.passo = 'fim';
-  if (p.ofertas.length) { p.situacao = 'ofertas'; p.mensagem = ''; }
-  else { const txt = erros.join(' · '); p.situacao = classificaFgts(txt); p.mensagem = txt.slice(0, 300) || 'A HUB não liberou oferta'; }
-  return p;
+  p.ofertas = lista; p.passo = 'fim';
+  return fechaFgts(p, det);
 };
 
 // ===================== FGTS V8 (saldo em BMS e Girotech, todas as tabelas) =====================
@@ -272,18 +310,16 @@ const v8fgts = async (p) => {
       const info = String(x.statusInfo || x.errorMessage || x.message || '');
       if ((periods && periods.length) || amount > 0) saldos.push({ provider: pv || 'bms', balanceId: x.balanceId || x.id, amount, periods });
       else if (/pend|process|wait|aguard|queue/.test(st) || (!info && !/error|fail|reject|success|done|finish/.test(st))) pendente = true;
-      else motivos.push(info || st);
+      else motivos.push({ banco: BZ_V8[pv] || pv.toUpperCase(), motivo: info || st });
     });
-    if (saldos.length) { p.saldos = saldos; p.passo = 'simular'; }
+    if (saldos.length) { p.saldos = saldos; p.passo = 'simular'; p.semSaldo = motivos.map(m => ({ banco: m.banco, situacao: classificaFgts(m.motivo), motivo: String(m.motivo).slice(0, 200) })); }
     else if (pendente || !Object.keys(porProv).length) {
       p.situacao = 'processando'; p.mensagem = 'A V8 ainda está consultando o saldo';
       if (p.tentativas > 36) { p.situacao = 'erro'; p.passo = 'fim'; p.mensagem = 'A V8 não respondeu o saldo a tempo. Consulte de novo.'; }
       return p;
     } else {
-      const txt = [...new Set(motivos)].join(' · '); p.passo = 'fim';
-      p.situacao = /autoriza/i.test(txt) ? 'sem_autorizacao' : /ades[aã]o|anivers/i.test(txt) ? 'sem_adesao' : 'sem_saldo';
-      p.mensagem = p.situacao === 'sem_autorizacao' ? 'O cliente precisa autorizar a V8 no app do FGTS' : (txt.slice(0, 300) || 'Sem saldo de FGTS');
-      return p;
+      p.passo = 'fim'; p.ofertas = [];
+      return fechaFgts(p, motivos);
     }
   }
   if (p.passo === 'simular') {
@@ -312,6 +348,7 @@ const v8fgts = async (p) => {
     const melhor = {}; ofertas.forEach(o => { const k = o.banco + '|' + o.tabela.toUpperCase(); if (!melhor[k] || o.valor > melhor[k].valor) melhor[k] = o; });
     p.ofertas = Object.values(melhor); p.passo = 'fim'; delete p.parcial;
     p.situacao = p.ofertas.length ? 'ofertas' : 'sem_ofertas'; p.mensagem = p.ofertas.length ? '' : ([...new Set(erros)].join(' · ').slice(0, 300) || 'Saldo encontrado, mas a V8 não simulou');
+    p.detalhe = p.saldos.map(sd => ({ banco: BZ_V8[sd.provider] || sd.provider.toUpperCase(), situacao: p.ofertas.some(o => o.banco === (BZ_V8[sd.provider] || sd.provider.toUpperCase())) ? 'ofertas' : 'sem_ofertas', motivo: 'saldo R$ ' + num(sd.amount).toFixed(2) })).concat(p.semSaldo || []);
   }
   return p;
 };
@@ -333,15 +370,13 @@ const unnofgts = async (p) => {
   if (st === 'AWAITING_AUTHORIZATION') { p.situacao = 'aguardando_autorizacao'; p.mensagem = 'O cliente precisa autorizar no app do FGTS'; return p; }
   const rd = await unnoCall('GET', '/' + p.application_id);
   const a = rd.b || {};
-  const motivos = (a.quotes || []).map(q => [q.source, q.reason].filter(Boolean).join(': ')).filter(Boolean);
+  const motivos = (a.quotes || []).map(q => ({ banco: String(q.source || '').toUpperCase(), motivo: String(q.reason || q.status || '') }));
   p.ofertas = (a.offers || []).filter(o => num(o.net_amount) > 0 && (!o.status || o.status === 'AVAILABLE')).map(o => ({ tabela: o.table_name || '', tabela_id: o.table_id || '', banco: o.source || '', prazo: (o.installments || []).length, valor: num(o.net_amount), bruto: num(o.gross_amount || o.total_amount), taxa: num(o.monthly_interest_rate), expira: o.expires_at || '' }));
   if (st === 'OFFERS_AVAILABLE' && num(a.quotes_pending) > 0 && p.tentativas < 30) { p.situacao = 'simulando'; p.mensagem = 'Chegando mais ofertas da Unno'; return p; }
   p.passo = 'fim';
-  if (p.ofertas.length) { p.situacao = 'ofertas'; p.mensagem = ''; return p; }
-  const txt = motivos.join(' · ');
-  p.situacao = st === 'EXPIRED' ? 'erro' : classificaFgts(txt) === 'erro' ? 'sem_ofertas' : classificaFgts(txt);
-  p.mensagem = st === 'EXPIRED' ? 'As ofertas da Unno expiraram. Consulte de novo.' : (txt.slice(0, 300) || 'A Unno não liberou oferta');
-  return p;
+  if (st === 'EXPIRED' && !p.ofertas.length) { p.situacao = 'erro'; p.mensagem = 'As ofertas da Unno expiraram. Consulte de novo.'; return p; }
+  const bancos = [...new Set(motivos.map(m => m.banco).concat(p.ofertas.map(o => String(o.banco).toUpperCase())))];
+  return fechaFgts(p, bancos.map(bz => { const tem = p.ofertas.some(o => String(o.banco).toUpperCase() === bz); const m = motivos.find(x => x.banco === bz); return { banco: bz, ofertas: tem, motivo: tem ? '' : ((m && m.motivo) || 'sem oferta') }; }));
 };
 
 // ===================== roda tudo em paralelo =====================
