@@ -1,0 +1,4 @@
+-- 126 · Funil/Clientes: "Com margem" = oferta real do Motor (CLT ou FGTS) para o CPF do cliente.
+-- credito.motor_oferta_cpf(cpf) -> {em, valor} da última consulta do Motor com oferta.
+-- painel_cliente: margemEm = quando o Motor achou oferta (ou simulação antiga real fora de Leads do dia);
+-- a margem da lista higienizada (Leads do dia) deixa de aparecer como margem.
