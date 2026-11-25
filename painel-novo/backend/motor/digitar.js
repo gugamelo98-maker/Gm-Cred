@@ -158,4 +158,38 @@ if (parte === 'hub_clt' || parte === 'hub_fgts') {
   return resposta({ ok: !!ok, enviado: true, banco: 'HUB', proposta: String(v.id || v.propostaId || v.numeroProposta || ''), link: achaLink(r.b), erro: ok ? '' : 'HUB: ' + erroDe(r), resposta_banco: curto(r.b), payload });
 }
 
-return resposta({ ok: false, erro: parte === 'v8_fgts' ? 'A digitação do FGTS da V8 ainda não está no motor.' : 'Banco desconhecido: ' + parte });
+// ===================== V8 FGTS (mesmo formato do app da V8) =====================
+if (parte === 'v8_fgts') {
+  const payload = { simulationFeesId: o.fee_id || '', fgtsSimulationId: o.sim_id || '', provider: o.provider || '',
+    name: nome.toUpperCase(), individualDocumentNumber: cpf, motherName: mae, nationality: 'Brasileiro(a)', isPEP: false, email, birthDate: nasc,
+    personType: 'natural', phone: numFone, phoneCountryCode: '55', phoneRegionCode: ddd,
+    postalCode: end.cep, state: end.uf, neighborhood: end.bairro, addressNumber: end.numero, city: end.cidade, street: end.logradouro,
+    formalizationLink: '', maritalStatus: 'single', gender: mulher ? 'female' : 'male', payment: { type: 'pix', data: { pix: pixChave } } };
+  if (!enviar) return resposta({ ok: true, previa: true, banco: 'V8', payload });
+  if (falta.length) return resposta({ ok: false, erro: 'Falta: ' + falta.join(', '), payload });
+  if (!tk.v8_fgts) return resposta({ ok: false, erro: 'Sem acesso à V8 agora (renovando). Tente em 1 minuto.' });
+  // a oferta do Motor não guarda o id da simulação: refaz a simulação da tabela escolhida (igual ao app da V8)
+  if (!payload.fgtsSimulationId) {
+    const HV = { Authorization: 'Bearer ' + tk.v8_fgts, Origin: 'https://app.v8sistema.com' };
+    const prov = ({ BMP: 'bms', GIRO: 'girotech' })[String(o.banco || '').toUpperCase()] || String(o.banco || '').toLowerCase();
+    const sd = (((c.partes || {}).v8_fgts || {}).saldos || []).find(x => x.provider === prov);
+    if (!sd || !sd.balanceId) return resposta({ ok: false, erro: 'Não achei o saldo FGTS da V8 dessa consulta. Consulte o CPF de novo e digite.', payload });
+    const rf = await http('GET', 'https://bff.v8sistema.com/fgts/simulations/fees/new?provider=' + prov, HV);
+    let fees = Array.isArray(rf.b) ? rf.b : ((rf.b && (rf.b.data || rf.b.items)) || []);
+    fees = fees.map(f => ({ id: (f.simulation_fees && f.simulation_fees.id_simulation_fees) || f.id_simulation_fees || f.id, label: (f.simulation_fees && f.simulation_fees.label) || f.label || f.visible_name || f.name || '' }));
+    const fee = fees.find(f => f.label.trim().toUpperCase() === String(o.tabela || '').trim().toUpperCase());
+    if (!fee) return resposta({ ok: false, erro: 'A tabela ' + (o.tabela || '') + ' não está mais disponível na V8 (' + erroDe(rf) + ')', payload });
+    const desired = (sd.periods || []).map(x => ({ totalAmount: num(x.amount || x.totalAmount), dueDate: x.dueDate || x.date })).filter(x => x.dueDate);
+    let usado = prov;
+    let rs = await http('POST', 'https://bff.v8sistema.com/fgts/simulations', HV, { balanceId: sd.balanceId, targetAmount: 0, documentNumber: cpf, desiredInstallments: desired, provider: prov, simulationFeesId: fee.id });
+    if (!(rs.s < 300 && rs.b && rs.b.id)) { const r2 = await http('POST', 'https://bff.v8sistema.com/fgts/simulations', HV, { balanceId: sd.balanceId, targetAmount: 0, documentNumber: cpf, desiredInstallments: desired, provider: 'qi', simulationFeesId: fee.id }); if (r2.s < 300 && r2.b && r2.b.id) { rs = r2; usado = 'qi'; } }
+    if (!(rs.s < 300 && rs.b && rs.b.id)) return resposta({ ok: false, enviado: true, banco: 'V8', etapa: 'simulação', erro: 'V8 (simulação): ' + erroDe(rs), resposta_banco: curto(rs.b), payload });
+    payload.fgtsSimulationId = rs.b.id; payload.simulationFeesId = fee.id; payload.provider = usado;
+  }
+  const r = await http('POST', 'https://bff.v8sistema.com/fgts/proposal', { Authorization: 'Bearer ' + tk.v8_fgts, Origin: 'https://app.v8sistema.com' }, payload);
+  const b = r.b || {};
+  const ok = r.s < 400 && (b.id || b.proposalId || b.formalizationLink);
+  return resposta({ ok: !!ok, enviado: true, banco: 'V8', proposta: ok ? (b.id || b.proposalId || '') : '', link: ok ? (b.formalizationLink || achaLink(b)) : '', erro: ok ? '' : 'V8: ' + erroDe(r), resposta_banco: curto(r.b), payload });
+}
+
+return resposta({ ok: false, erro: 'Banco desconhecido: ' + parte });
