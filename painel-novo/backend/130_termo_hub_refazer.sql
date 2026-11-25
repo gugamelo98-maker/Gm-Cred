@@ -1,0 +1,6 @@
+-- 130 · Motor / simulação automática
+-- credito.motor_salvar: HUB CLT 'aguardando_termo' (pediu link do termo) => situacao 'sem_margem', passo 'fim', termo=true.
+--   Não segura mais a consulta como pendente.
+-- credito.lp_auto_salvar: erro passageiro de banco (timeout, rate limit CEF, limite de simulações por minuto,
+--   provedor falhou, banco demorou) => refaz a consulta inteira até 2 vezes (~2 min entre elas).
+--   Depois disso decide só com os bancos que responderam (erro não impede pedir autorização).
