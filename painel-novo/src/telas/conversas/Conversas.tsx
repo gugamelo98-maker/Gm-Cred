@@ -87,6 +87,7 @@ export default function Conversas() {
     setUltimas(u => ({ ...u, [atual.id]: m }));
   }
 
+  const numeroDe = (c: Cliente) => { const n = estado!.numeros.find(x => x.id === c.numeroId); return n ? (n.telefone ? fmtTel(n.telefone) : n.sessao) : ''; };
   const FILTROS: [Filtro, string][] = [['todas', 'Todas'], ['nao_lidas', 'Não lidas'], ['minhas', 'Minhas'], ...(eu.escopo === 'todos' ? [['sem_resp', 'Sem responsável'] as [Filtro, string]] : []), ['humano', 'Com humano'], ['ia', 'Com IA']];
   const atendentes = estado!.usuarios.filter(u => u.ativo);
 
@@ -119,7 +120,7 @@ export default function Conversas() {
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-fundo text-sm font-semibold text-suave">{c.nome[0]}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className={clsx('truncate text-sm', c.naoLidas ? 'font-semibold' : 'font-medium')}>{c.nome}</span>
+                    <span className="flex min-w-0 items-baseline gap-1.5"><span className={clsx('truncate text-sm', c.naoLidas ? 'font-semibold' : 'font-medium')}>{c.nome}</span>{numeroDe(c) && <span className="num shrink-0 text-[10px] text-apagado" title="Número que está atendendo">📱 {numeroDe(c)}</span>}</span>
                     <span className="shrink-0 text-[11px] text-apagado">{tempoDesde(c.ultimaMsgEm)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
@@ -149,7 +150,7 @@ export default function Conversas() {
             <header className="flex flex-wrap items-center gap-2 border-b border-borda bg-cartao px-3 py-2">
               <button className="rounded p-1 md:hidden" onClick={() => setParams({})} aria-label="Voltar"><ArrowLeft size={18} /></button>
               <button className="min-w-0 flex-1 text-left" onClick={() => setFicha(true)} title="Abrir ficha do cliente">
-                <div className="truncate font-medium">{atual.nome}</div>
+                <div className="flex min-w-0 items-baseline gap-2"><span className="truncate font-medium">{atual.nome}</span>{numeroDe(atual) && <span className="num shrink-0 rounded-full bg-marca-claro px-2 py-0.5 text-[11px] font-semibold text-marca" title="Número que está atendendo este cliente">📱 {numeroDe(atual)}</span>}</div>
                 <div className="num truncate text-xs text-apagado">{fmtTel(atual.telefone)} · {atual.produto}</div>
               </button>
               <Etiqueta cor={COR_ETAPA[atual.etapa]}>{nomeEtapa(atual.etapa)}</Etiqueta>
