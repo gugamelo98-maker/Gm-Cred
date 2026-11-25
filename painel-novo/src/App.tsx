@@ -15,12 +15,13 @@ import Maturador from '@/telas/maturador/Maturador';
 import Indicacoes from '@/telas/indicacoes/Indicacoes';
 import Financeiro from '@/telas/financeiro/Financeiro';
 import Usuarios from '@/telas/usuarios/Usuarios';
+import Comissoes from '@/telas/comissoes/Comissoes';
 import LeadsDoDia from '@/telas/leads/LeadsDoDia';
 
 const TELAS: [string, () => ReactElement][] = [
   ['/bi', () => <BI />], ['/pipeline', () => <Pipeline />], ['/clientes', () => <Clientes />], ['/conversas', () => <Conversas />],
   ['/motor', () => <Motor />], ['/leads', () => <LeadsDoDia />], ['/disparos', () => <Disparos />], ['/numeros', () => <Numeros />], ['/maturador', () => <Maturador />],
-  ['/indicacoes', () => <Indicacoes />], ['/financeiro', () => <Financeiro />], ['/usuarios', () => <Usuarios />],
+  ['/indicacoes', () => <Indicacoes />], ['/financeiro', () => <Financeiro />], ['/usuarios', () => <Usuarios />], ['/comissoes', () => <Comissoes />],
 ];
 
 function Rotas() {

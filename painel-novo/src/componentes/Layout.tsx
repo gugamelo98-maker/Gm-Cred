@@ -21,6 +21,7 @@ export const MENU: { grupo: string; itens: ItemMenu[] }[] = [
     { para: '/clientes', nome: 'Clientes', icone: Users, papeis: TODOS },
     { para: '/conversas', nome: 'Conversas', icone: MessageCircle, papeis: TODOS },
     { para: '/motor', nome: 'Motor de Crédito', icone: Calculator, papeis: TODOS },
+    { para: '/comissoes', nome: 'Comissões', icone: Wallet, papeis: TODOS },
     { para: '/leads', nome: 'Leads do dia', icone: Magnet, papeis: TODOS },
   ] },
   { grupo: 'WhatsApp', itens: [
