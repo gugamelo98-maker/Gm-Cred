@@ -77,3 +77,11 @@ create or replace function credito.leads_dia_telefones(k text, res jsonb) return
   returning 1)
   select count(*)::int from u
 $$;
+
+-- Operador não vê CPF nem telefone (evita levar o cliente para fora). O id vira md5(cpf) e o 'chamar' aceita os dois.
+-- Aplicado no banco: leads_dia_api usa credito.leads_dia_vis(x, u.papel) no lugar de leads_dia_json e
+-- o 'chamar' busca por (cpf = p->>'cpf' or md5(cpf) = p->>'cpf').
+create or replace function credito.leads_dia_vis(m public.meus_leads, p_papel text) returns jsonb language sql stable as $$
+  select case when p_papel = 'admin' then credito.leads_dia_json(m)
+              else credito.leads_dia_json(m) || jsonb_build_object('id', md5(m.cpf), 'cpf', '', 'telefone', case when coalesce(m.telefone, '') <> '' then 'oculto' else '' end) end
+$$;
