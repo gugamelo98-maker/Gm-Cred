@@ -1,0 +1,4 @@
+-- 118 · Motor: "Simular parcela" (CLT). O painel chama os endpoints do painel antigo (/escritorio/v8 simular, /escritorio/unno ofertas,
+-- /escritorio/hub simular) com os ids que a consulta do Motor já abriu (consult_id, application_id, presim_id) e grava o resultado:
+-- painel_dados_api acao 'motor_simulado' -> credito.painel_motor_simulado(u, {id, parte, ofertas, parcela, mensagem})
+-- que chama credito.motor_salvar (mesmo cálculo de comissão do Motor).

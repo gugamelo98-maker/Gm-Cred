@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Etiqueta, Modal, Titulo, Vazio, type Cor } from '@/componentes/ui';
 import { useDados } from '@/estado/Dados';
 import { painel, type RegrasComissao } from '@/api/painel';
+import { simularParcela, temSimulacao } from '@/api/simular';
 import { brl, mascaraCpf, soDigitos, validaCpf } from '@/util/formato';
 import {
   motor, SemAcesso, PARTES, PENDENTE,
@@ -51,24 +52,24 @@ function agrupar(p: Parte | undefined): Grupo[] {
   return lista.sort((a, b) => b.maxComissao - a.maxComissao || b.maxValor - a.maxValor);
 }
 
-function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undefined; digitar: (p: ParteId, o: OfertaMotor) => void }) {
+function CartaoBanco({ id, parte, digitar, ocupado }: { id: ParteId; parte: Parte | undefined; digitar: (p: ParteId, o: OfertaMotor) => void; ocupado?: boolean }) {
   const info = PARTES.find(x => x.id === id)!;
   const [aberto, setAberto] = useState<string | null>(null);
   const grupos = useMemo(() => agrupar(parte), [parte]);
-  const sit = parte?.situacao ?? 'iniciando';
+  const sit = ocupado ? 'simulando' : parte?.situacao ?? 'iniciando';
   const [nome, cor] = SITUACAO[sit] ?? ['—', 'cinza'];
   const pendente = PENDENTE.includes(sit);
   const semMargem = sit === 'sem_margem';
   return (
     <section className="cartao overflow-hidden">
       <div className="flex items-center justify-between gap-2 border-b border-borda px-4 py-3">
-        <div className="font-semibold">{info.banco} <span className="text-xs font-normal text-apagado">{info.produto}</span></div>
+        <div className="text-lg font-bold">{info.banco} <span className="text-sm font-normal text-apagado">{info.produto}</span></div>
         <span className="inline-flex items-center gap-1.5">
           {pendente ? <Loader2 size={14} className="animate-spin text-apagado" /> : sit === 'ofertas' ? <CheckCircle2 size={14} className="text-green-600" /> : sit === 'erro' ? <AlertTriangle size={14} className="text-red-600" /> : <XCircle size={14} className="text-apagado" />}
           <Etiqueta cor={corOk(cor)}>{nome}</Etiqueta>
         </span>
       </div>
-      {parte?.mensagem && !semMargem && <p className="px-4 pt-3 text-sm text-suave">{parte.mensagem}</p>}
+      {parte?.mensagem && !semMargem && !ocupado && <p className="px-4 pt-3 text-sm text-suave">{parte.mensagem}</p>}
       {parte?.detalhe && parte.detalhe.length > 0 && sit !== 'ofertas' && !semMargem && (
         <ul className="px-4 pt-2 text-xs text-apagado">{parte.detalhe.map(d => <li key={d.banco}>• <b>{d.banco}</b>: {SITUACAO[d.situacao]?.[0] ?? d.situacao}</li>)}</ul>
       )}
@@ -79,26 +80,28 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
             const ab = aberto === g.chave;
             return (
               <li key={g.chave} className="border-t border-borda">
-                <button className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-fundo" onClick={() => setAberto(ab ? null : g.chave)} aria-expanded={ab}>
+                <button className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-fundo" onClick={() => setAberto(ab ? null : g.chave)} aria-expanded={ab}>
                   {ab ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{g.tabela} {info.produto === 'FGTS' || g.banco !== info.banco ? <span className="text-xs font-normal text-apagado">· {g.banco}</span> : null}</div>
-                    <div className="text-xs text-apagado">
-                      {Number.isFinite(g.minParcela) ? <>a partir de <span className="num">{brl(g.minParcela)}</span>/mês · </> : null}até <span className="num">{brl(g.maxValor)}</span> · {g.ofertas.length} {g.ofertas.length === 1 ? 'oferta' : 'ofertas'}
+                    <div className="truncate text-base font-bold">{g.tabela} {info.produto === 'FGTS' || g.banco !== info.banco ? <span className="text-xs font-normal text-apagado">· {g.banco}</span> : null}</div>
+                    <div className="mt-0.5 flex flex-wrap items-baseline gap-x-4 gap-y-0.5 text-sm text-suave">
+                      {Number.isFinite(g.minParcela) ? <span>a partir de <b className="num text-base text-green-700 dark:text-green-400">{brl(g.minParcela)}/mês</b></span> : null}
+                      <span>até <b className="num text-base text-green-700 dark:text-green-400">{brl(g.maxValor)}</b></span>
+                      <span className="rounded-full bg-fundo px-2 py-0.5 text-xs font-semibold">{g.ofertas.length} {g.ofertas.length === 1 ? 'oferta' : 'ofertas'}</span>
                     </div>
                   </div>
-                  {g.maxComissao > 0 && <span className="shrink-0 text-right text-xs text-green-700 dark:text-green-400">comissão<br /><b className="num text-sm">{brl(g.maxComissao)}</b></span>}
+                  {g.maxComissao > 0 && <span className="shrink-0 text-right text-xs text-green-700 dark:text-green-400">comissão<br /><b className="num text-base">{brl(g.maxComissao)}</b></span>}
                 </button>
                 {ab && (
                   <ul className="divide-y divide-borda border-t border-borda bg-fundo/50">
                     {g.ofertas.map((o, i) => (
                       <li key={i} className="flex items-center">
-                        <button className="flex min-w-0 flex-1 items-center gap-2 px-4 py-1.5 text-left text-xs hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} title="Digitar esta oferta">
-                          <span className="num w-8 shrink-0 font-medium">{o.prazo}x</span>
-                          {o.parcela ? <span className="num w-16 shrink-0 text-suave">{brl(o.parcela)}</span> : null}
+                        <button className="flex min-w-0 flex-1 items-center gap-2 px-4 py-2 text-left text-sm hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} title="Digitar esta oferta">
+                          <span className="num w-10 shrink-0 font-semibold">{o.prazo}x</span>
+                          {o.parcela ? <span className="num w-24 shrink-0 text-suave">{brl(o.parcela)}</span> : null}
                           <span className="num flex-1 font-semibold">{brl(o.valor)}</span>
                           {info.produto === 'CLT' && <span className="w-7 shrink-0 text-apagado">{o.seguro === false ? 'sem' : 'seg'}</span>}
-                          <span className="num w-24 shrink-0 text-right text-green-700 dark:text-green-400">{o.comissao != null ? <>com. {brl(o.comissao)}</> : '—'}</span>
+                          <span className="num w-28 shrink-0 text-right text-green-700 dark:text-green-400">{o.comissao != null ? <>com. {brl(o.comissao)}</> : '—'}</span>
                         </button>
                         <BotaoCopiar texto={textoCliente(info.produto, o)} />
                       </li>
@@ -110,7 +113,7 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
           })}
         </ul>
       )}
-      {!grupos.length && !parte?.mensagem && !semMargem && <p className="px-4 py-3 text-sm text-apagado">{pendente ? 'Aguardando o banco…' : '—'}</p>}
+      {(ocupado || (!grupos.length && !parte?.mensagem && !semMargem)) && <p className="px-4 py-3 text-sm text-apagado">{ocupado ? 'Simulando a parcela…' : pendente ? 'Aguardando o banco…' : '—'}</p>}
       <div className="h-2" />
     </section>
   );
@@ -209,6 +212,9 @@ export default function Motor() {
   const [consultando, setConsultando] = useState(false);
   const [erro, setErro] = useState('');
   const [alvo, setAlvo] = useState<{ parte: ParteId; oferta: OfertaMotor } | null>(null);
+  const [parcela, setParcela] = useState('');
+  const [prazo, setPrazo] = useState('');
+  const [simulando, setSimulando] = useState<ParteId[]>([]);
   // colaborador vê a comissão DELE: % sobre o que a GM Cred recebe (CLT pela faixa inicial do mês, FGTS fixo)
   const ehAdmin = usuario?.papel === 'admin';
   const pctEquipe = (prod: 'CLT' | 'FGTS') => (prod === 'CLT' ? regras?.clt?.[0]?.pct ?? 30 : regras?.fgts ?? 35);
@@ -249,6 +255,22 @@ export default function Motor() {
     if (minha === rodada.current) setConsultando(false);
   }
   function consultar(e?: FormEvent) { e?.preventDefault(); if (cpfOk) acompanhar(null, soDigitos(cpf)); }
+  const margemV8 = Number(consulta?.partes.v8_clt?.margem) || 0, margemUnno = Number(consulta?.partes.unno_clt?.margem) || 0;
+  const margemMax = Math.max(margemV8, margemUnno);
+  const limitesV8 = [...new Set([...(consulta?.partes.v8_clt?.limites ?? '').matchAll(/(\d+)x/g)].map(m => +m[1]))].sort((a, b) => b - a);
+  async function simular(e: FormEvent) {
+    e.preventDefault();
+    if (!consulta || consultando || simulando.length) return;
+    const v = Number(parcela.replace(/\./g, '').replace(',', '.')) || margemMax;
+    if (!(v >= 20)) { setErro('Informe a parcela (mínimo R$ 20).'); return; }
+    setErro('');
+    const partes = (['v8_clt', 'unno_clt', 'hub_clt'] as ParteId[]).filter(k => { const p = consulta.partes[k] as Record<string, unknown> | undefined; return !!(p && (p.consult_id || p.application_id || p.presim_id)); });
+    setSimulando(partes);
+    await simularParcela(consulta, v, prazo,
+      c => { setConsulta(c); memoria = c; },
+      (parte, msg) => setErro(`${PARTES.find(x => x.id === parte)?.banco}: ${msg}`));
+    setSimulando([]);
+  }
   useEffect(() => {
     if (!logado) return;
     // CPF vindo de outra aba (link): consulta uma vez e tira da URL, para atualizar a página não simular de novo
@@ -267,25 +289,59 @@ export default function Motor() {
       <Titulo titulo="Motor de Crédito" sub="Cola o CPF: consulta CLT e FGTS na V8, Unno e HUB e mostra primeiro o que mais comissiona."
 />
 
-      <form onSubmit={consultar} className="cartao mb-5 flex flex-wrap items-end gap-3 p-4">
-        <div className="min-w-[220px] flex-1">
-          <label className="rotulo" htmlFor="cpf">CPF do cliente</label>
-          <input id="cpf" className="campo num text-lg" inputMode="numeric" placeholder="000.000.000-00" value={cpf}
-            onChange={e => setCpf(mascaraCpf(e.target.value))}
-            onPaste={e => { const t = soDigitos(e.clipboardData.getData('text')); if (t.length === 11) { e.preventDefault(); setCpf(mascaraCpf(t)); } }} />
-          {soDigitos(cpf).length === 11 && !cpfOk && <p className="mt-1 text-xs text-red-600">CPF inválido.</p>}
+      <div className="cartao mb-5 p-4">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <form onSubmit={consultar} className="flex items-end gap-2">
+            <div className="min-w-0 flex-1">
+              <label className="rotulo" htmlFor="cpf">CPF do cliente</label>
+              <input id="cpf" className="campo num text-lg" inputMode="numeric" placeholder="000.000.000-00" value={cpf}
+                onChange={e => setCpf(mascaraCpf(e.target.value))}
+                onPaste={e => { const t = soDigitos(e.clipboardData.getData('text')); if (t.length === 11) { e.preventDefault(); setCpf(mascaraCpf(t)); } }} />
+              {soDigitos(cpf).length === 11 && !cpfOk && <p className="mt-1 text-xs text-red-600">CPF inválido.</p>}
+            </div>
+            <button className="bt bt-pri" disabled={!cpfOk || consultando}>{consultando && <Loader2 size={16} className="animate-spin" />} {consultando ? 'Consultando…' : 'Consultar'}</button>
+          </form>
+          <form onSubmit={simular} className="flex flex-wrap items-end gap-2 lg:border-l lg:border-borda lg:pl-4">
+            <div className="w-36">
+              <label className="rotulo" htmlFor="parcela">Parcela desejada (R$)</label>
+              <input id="parcela" className="campo num text-lg" inputMode="decimal" placeholder={margemMax ? `até ${brl(margemMax).replace('R$', '').trim()}` : '0,00'} value={parcela} onChange={e => setParcela(e.target.value.replace(/[^\d,.]/g, ''))} />
+            </div>
+            <div className="min-w-[150px] flex-1">
+              <label className="rotulo" htmlFor="prazo">Prazo (V8)</label>
+              <select id="prazo" className="campo" value={prazo} onChange={e => setPrazo(e.target.value)}>
+                <option value="">36x e 24x (padrão)</option>
+                <option value="todos">Todos os prazos liberados</option>
+                {limitesV8.map(p => <option key={p} value={String(p)}>{p}x</option>)}
+              </select>
+            </div>
+            <button className="bt bt-pri" disabled={!temSimulacao(consulta) || consultando || simulando.length > 0} title={temSimulacao(consulta) ? 'Simula a mesma parcela na V8, Unno e HUB (CLT)' : 'Consulte o CPF primeiro'}>
+              {simulando.length > 0 && <Loader2 size={16} className="animate-spin" />} {simulando.length ? 'Simulando…' : 'Simular em todos'}
+            </button>
+          </form>
         </div>
-        <button className="bt bt-pri" disabled={!cpfOk || consultando}>{consultando && <Loader2 size={16} className="animate-spin" />} {consultando ? 'Consultando…' : 'Consultar'}</button>
-        {consulta && <div className="w-full text-sm text-suave">{consulta.cliente.nome ?? '—'}{consulta.cliente.nascimento ? ` · nasc. ${consulta.cliente.nascimento.split('-').reverse().join('/')}` : ''}{consulta.pendentes > 0 ? ` · faltam ${consulta.pendentes} bancos responderem` : ' · todos os bancos responderam'}</div>}
-      </form>
+        {consulta && (
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-4 border-t border-borda pt-4">
+            <div className="min-w-0">
+              <div className="truncate text-xl font-bold">{consulta.cliente.nome ?? 'Cliente'}</div>
+              <div className="text-sm text-suave">CPF {mascaraCpf(consulta.cpf)}{consulta.cliente.nascimento ? ` · nasc. ${consulta.cliente.nascimento.split('-').reverse().join('/')}` : ''}{consulta.pendentes > 0 ? ` · faltam ${consulta.pendentes} bancos responderem` : ' · todos os bancos responderam'}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-suave">Margem disponível (parcela máxima por mês)</div>
+              <div className="num text-3xl font-extrabold">{margemMax ? brl(margemMax) : '—'}</div>
+              {(margemV8 > 0 || margemUnno > 0) && <div className="text-xs text-apagado">{[margemV8 > 0 && `V8 ${brl(margemV8)}`, margemUnno > 0 && `Unno ${brl(margemUnno)}`].filter(Boolean).join(' · ')}</div>}
+            </div>
+          </div>
+        )}
+      </div>
 
       {erro && <div className="cartao mb-5 border-red-300 p-4 text-sm text-red-700">{erro}</div>}
 
       {consulta && (
         <>
-          {(['CLT', 'FGTS'] as const).map(prod => (
-            <div key={prod} className="mb-5">
-              <h2 className="mb-2 text-sm font-semibold text-suave">{prod}</h2>
+          <div className="grid items-start gap-5 lg:grid-cols-2">
+          {(['FGTS', 'CLT'] as const).map(prod => (
+            <div key={prod} className="min-w-0">
+              <h2 className="mb-2 text-base font-bold text-suave">{prod}</h2>
               {(() => {
                 // maior comissão deste produto (CLT ou FGTS)
                 const m = PARTES.filter(p => p.produto === prod).flatMap(p => (vista!.partes[p.id]?.ofertas ?? []).map(o => ({ o, p })))
@@ -304,11 +360,12 @@ export default function Motor() {
                   </section>
                 );
               })()}
-              <div className="grid gap-4 lg:grid-cols-3">
-                {PARTES.filter(p => p.produto === prod).map(p => <CartaoBanco key={p.id} id={p.id} parte={vista!.partes[p.id]} digitar={(parte, oferta) => setAlvo({ parte, oferta })} />)}
+              <div className="flex flex-col gap-4">
+                {(prod === 'FGTS' ? ['hub_fgts', 'v8_fgts', 'unno_fgts'] as ParteId[] : ['v8_clt', 'unno_clt', 'hub_clt'] as ParteId[]).map(id => <CartaoBanco key={id} id={id} parte={vista!.partes[id]} ocupado={simulando.includes(id)} digitar={(parte, oferta) => setAlvo({ parte, oferta })} />)}
               </div>
             </div>
           ))}
+          </div>
         </>
       )}
       {!consulta && !consultando && !erro && <Vazio>Cole um CPF e clique em Consultar.</Vazio>}
