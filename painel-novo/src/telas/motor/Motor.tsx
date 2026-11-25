@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import Historico from './Historico';
 import { useSearchParams } from 'react-router-dom';
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Loader2, Send, Trophy, XCircle } from 'lucide-react';
 import clsx from 'clsx';
@@ -311,6 +312,7 @@ export default function Motor() {
       )}
       {!consulta && !consultando && !erro && <Vazio>Cole um CPF e clique em Consultar.</Vazio>}
       {consulta && alvo && <Digitacao consulta={consulta} alvo={alvo} fechar={() => setAlvo(null)} />}
+      {usuario && usuario.papel !== 'atendente' && <Historico />}
     </div>
   );
 }
