@@ -242,7 +242,7 @@ fbq('init','1332795695611880');fbq('track','PageView');
         if (!wa) throw new Error('Nosso WhatsApp está indisponível agora. Tente de novo em alguns minutos.');
         $('abrirWa').href = wa;
         mostrar('fim');
-        if (window.fbq) try { fbq('track', 'Lead'); } catch (x) {}
+        if (window.fbq) try { if (produto === 'clt') fbq('track', 'Lead', { content_name: 'CLT' }); else fbq('trackCustom', 'LeadFGTS'); } catch (x) {}
         setTimeout(function () { window.location.href = wa; }, 900);
       })
       .catch(function (x) { erro('eGeral', x.message || 'Falha de conexão. Tente de novo.'); bt.disabled = false; bt.textContent = produto === 'fgts' ? 'Simular meu FGTS no WhatsApp' : 'Falar com especialista no WhatsApp'; });
