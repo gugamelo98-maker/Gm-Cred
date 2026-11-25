@@ -77,14 +77,13 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
         <ul className="px-4 pt-2 text-xs text-apagado">{parte.detalhe.map(d => <li key={d.banco}>• <b>{d.banco}</b>: {SITUACAO[d.situacao]?.[0] ?? d.situacao}</li>)}</ul>
       )}
       {parte?.link_termo && <a className="mx-4 mt-2 inline-flex items-center gap-1 text-sm text-marca underline" href={parte.link_termo} target="_blank" rel="noreferrer">Link do termo <ExternalLink size={12} /></a>}
-      {parte?.margem != null && <p className="px-4 pt-2 text-xs text-apagado">Margem: <span className="num">{brl(parte.margem)}</span>{parte.limites ? ` · ${parte.limites}` : ''}</p>}
       {grupos.length > 0 && (
         <ul className="mt-2">
           {grupos.map(g => {
             const ab = aberto === g.chave;
             return (
               <li key={g.chave} className="border-t border-borda">
-                <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-fundo" onClick={() => setAberto(ab ? null : g.chave)} aria-expanded={ab}>
+                <button className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-fundo" onClick={() => setAberto(ab ? null : g.chave)} aria-expanded={ab}>
                   {ab ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium">{g.tabela} {info.produto === 'FGTS' || g.banco !== info.banco ? <span className="text-xs font-normal text-apagado">· {g.banco}</span> : null}</div>
@@ -95,23 +94,19 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
                   {g.maxComissao > 0 && <span className="num shrink-0 text-sm font-semibold text-marca">{brl(g.maxComissao)}</span>}
                 </button>
                 {ab && (
-                  <div className="overflow-x-auto bg-fundo/50 pb-2">
-                    <table className="tabela">
-                      <thead><tr><th>Prazo</th>{info.produto === 'CLT' && <th className="text-right">Parcela</th>}<th className="text-right">Valor liberado</th>{info.produto === 'CLT' && <th>Seguro</th>}<th className="text-right">Comissão</th><th /></tr></thead>
-                      <tbody>
-                        {g.ofertas.map((o, i) => (
-                          <tr key={i}>
-                            <td className="num">{o.prazo}x</td>
-                            {info.produto === 'CLT' && <td className="num text-right">{brl(o.parcela ?? 0)}</td>}
-                            <td className="num text-right font-medium">{brl(o.valor)}</td>
-                            {info.produto === 'CLT' && <td>{o.seguro === false ? 'Sem' : 'Com'}</td>}
-                            <td className="num text-right">{o.comissao != null ? <>{brl(o.comissao)} <span className="text-xs text-apagado">{o.comissao_pct?.toLocaleString('pt-BR')}%</span></> : <span className="text-xs text-apagado">sem tabela</span>}</td>
-                            <td className="text-right"><button className="bt bt-sm" onClick={() => digitar(id, o)} disabled={id === 'v8_fgts'} title={id === 'v8_fgts' ? 'Digitação do FGTS V8 ainda não disponível' : undefined}>Digitar</button></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <ul className="divide-y divide-borda border-t border-borda bg-fundo/50">
+                    {g.ofertas.map((o, i) => (
+                      <li key={i}>
+                        <button className="flex w-full items-center gap-2 px-4 py-1.5 text-left text-xs hover:bg-marca-claro disabled:opacity-60" onClick={() => digitar(id, o)} disabled={id === 'v8_fgts'} title="Digitar esta oferta">
+                          <span className="num w-8 shrink-0 font-medium">{o.prazo}x</span>
+                          {o.parcela ? <span className="num w-16 shrink-0 text-suave">{brl(o.parcela)}</span> : null}
+                          <span className="num flex-1 font-semibold">{brl(o.valor)}</span>
+                          {info.produto === 'CLT' && <span className="w-7 shrink-0 text-apagado">{o.seguro === false ? 'sem' : 'seg'}</span>}
+                          <span className="num w-16 shrink-0 text-right font-semibold text-marca">{o.comissao != null ? brl(o.comissao) : '—'}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </li>
             );
@@ -151,7 +146,8 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
       )}>
       <div className="mb-4 rounded-lg bg-fundo p-3 text-sm">
         <div className="font-medium">{consulta.cliente.nome ?? 'Cliente'} · <span className="num">{mascaraCpf(consulta.cpf)}</span></div>
-        <div className="text-suave">{o.tabela}{o.banco ? ` · ${o.banco}` : ''} · {o.prazo}x{o.parcela ? ` de ${brl(o.parcela)}` : ''} · libera <b className="num">{brl(o.valor)}</b>{o.comissao != null ? <> · comissão <b className="num">{brl(o.comissao)}</b></> : null}</div>
+        <div className="mt-1 text-base font-semibold text-marca">Tabela: {o.tabela}{o.banco ? ` · ${o.banco}` : ''}</div>
+        <div className="text-suave">{o.prazo}x{o.parcela ? ` de ${brl(o.parcela)}` : ''} · libera <b className="num">{brl(o.valor)}</b>{o.comissao != null ? <> · comissão <b className="num">{brl(o.comissao)}</b></> : null}</div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2"><label className="rotulo" htmlFor="mae">Nome da mãe *</label><input id="mae" className="campo" value={d.mae} onChange={e => muda('mae', e.target.value)} /></div>
