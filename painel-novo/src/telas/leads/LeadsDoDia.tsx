@@ -6,7 +6,7 @@ import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
 import type { LeadDia } from '@/api/tipos';
 import { Etiqueta, Kpi, Titulo, Vazio } from '@/componentes/ui';
-import { brl, fmtCpf, hora, num } from '@/util/formato';
+import { brl, fmtCpf, fmtTel, hora, num } from '@/util/formato';
 
 const MSG_PADRAO = 'Oi {nome}, tudo bem? Aqui é {atendente} da GM Cred. Consta no seu CPF uma margem de até {margem} para empréstimo consignado CLT. Posso fazer uma simulação pra você?';
 const CHAVE_MSG = 'gm_leads_mensagem';
@@ -209,12 +209,13 @@ function ExtraidosLista() {
       </div>
       {!L.length ? <div className="p-4"><Vazio>Nenhum lead extraído ainda.</Vazio></div> : (
         <table className="tabela">
-          <thead><tr><th>Nome</th><th>CPF</th><th className="text-right">Margem</th><th>Colaborador</th><th>Extraído</th><th>Chamado</th></tr></thead>
+          <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th className="text-right">Margem</th><th>Colaborador</th><th>Extraído</th><th>Chamado</th></tr></thead>
           <tbody>
             {L.slice(0, 500).map(l => (
               <tr key={l.id}>
                 <td className="font-medium">{l.nome}</td>
                 <td className="num">{fmtCpf(l.cpf)}</td>
+                <td className="num">{l.telefone ? fmtTel(l.telefone) : '—'}</td>
                 <td className="num text-right">{brl(l.margem)}</td>
                 <td>{nome(l.extraidoPor)}</td>
                 <td className="num text-xs">{l.extraidoEm ? new Date(l.extraidoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}</td>
