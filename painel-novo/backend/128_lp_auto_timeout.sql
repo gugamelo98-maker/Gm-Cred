@@ -1,0 +1,7 @@
+-- 128 · Simulação automática (credito.lp_auto_salvar): classificação do FGTS sem oferta
+--  * timeout / tente novamente / indisponível / erro interno => 'erro' => resultado 'revisar' (não manda mensagem automática)
+--  * "Não existe nenhuma simulação atualmente para o saldo" => 'neutro' (não é falta de saldo)
+--  * "parcelas disponíveis ... maior do que 100" => 'saldo' (sem proposta)
+--  * pedir autorização só se houver 'autorizacao' e o resto for 'autorizacao'/'neutro'
+-- Caso que motivou: Alexandre (lead 2818) — HUB/BMP deu timeout na consulta automática e recebeu "sem proposta";
+-- na consulta seguinte a HUB/BMP voltou com saldo (R$ 37,37).
