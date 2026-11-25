@@ -6,7 +6,7 @@ import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
 import type { LeadDia } from '@/api/tipos';
 import { Etiqueta, Kpi, Titulo, Vazio } from '@/componentes/ui';
-import { brl, fmtCpf, fmtTel, hora, num } from '@/util/formato';
+import { brl, fmtCpf, hora, num } from '@/util/formato';
 
 const MSG_PADRAO = 'Oi {nome}, tudo bem? Aqui é {atendente} da GM Cred. Consta no seu CPF uma margem de até {margem} para empréstimo consignado CLT. Posso fazer uma simulação pra você?';
 const CHAVE_MSG = 'gm_leads_mensagem';
@@ -103,7 +103,7 @@ function MeusLeads() {
             <li key={l.id} className={clsx('cartao flex items-center gap-3 p-3', l.chamadoEm && 'opacity-70')}>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2"><span className="truncate font-medium">{l.nome}</span>{l.chamadoEm && <Etiqueta cor="verde">Chamado {hora(l.chamadoEm)}</Etiqueta>}</div>
-                {eu.papel === 'admin' && <div className="num truncate text-xs text-apagado">{fmtTel(l.telefone)} · CPF {fmtCpf(l.cpf)}</div>}
+                <div className="num truncate text-xs text-apagado">CPF {fmtCpf(l.cpf)}</div>
                 <div className="mt-0.5 text-sm"><span className="num font-semibold">margem {brl(l.margem)}</span> <span className="text-xs text-apagado">· {l.banco}</span></div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
@@ -186,6 +186,43 @@ function LiberarLeads() {
             </tbody>
           </table>
         </div>
+      )}
+      <ExtraidosLista />
+    </div>
+  );
+}
+
+/** Lista dos leads extraídos (últimos 7 dias) para o administrador. */
+function ExtraidosLista() {
+  const { estado } = useDados();
+  const [quem, setQuem] = useState('');
+  const nome = (id: string | null) => estado!.usuarios.find(u => u.id === id)?.nome ?? '—';
+  const L = [...estado!.leadsDia].filter(l => !quem || l.extraidoPor === quem).sort((a, b) => (b.extraidoEm ?? '').localeCompare(a.extraidoEm ?? ''));
+  return (
+    <div className="cartao mt-5 overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-2 border-b border-borda px-4 py-3">
+        <h2 className="font-semibold">Leads extraídos <span className="num text-sm font-normal text-apagado">({num(L.length)} nos últimos 7 dias)</span></h2>
+        <select className="campo ml-auto w-auto" value={quem} onChange={e => setQuem(e.target.value)} aria-label="Colaborador">
+          <option value="">Todos os colaboradores</option>
+          {estado!.usuarios.filter(u => u.papel === 'atendente').map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
+        </select>
+      </div>
+      {!L.length ? <div className="p-4"><Vazio>Nenhum lead extraído ainda.</Vazio></div> : (
+        <table className="tabela">
+          <thead><tr><th>Nome</th><th>CPF</th><th className="text-right">Margem</th><th>Colaborador</th><th>Extraído</th><th>Chamado</th></tr></thead>
+          <tbody>
+            {L.slice(0, 500).map(l => (
+              <tr key={l.id}>
+                <td className="font-medium">{l.nome}</td>
+                <td className="num">{fmtCpf(l.cpf)}</td>
+                <td className="num text-right">{brl(l.margem)}</td>
+                <td>{nome(l.extraidoPor)}</td>
+                <td className="num text-xs">{l.extraidoEm ? new Date(l.extraidoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}</td>
+                <td>{l.chamadoEm ? <Etiqueta cor="verde">Sim</Etiqueta> : <Etiqueta cor="cinza">Não</Etiqueta>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
