@@ -6,7 +6,7 @@
  * A sessão é a do login do painel (validada por credito.validar_chave).
  */
 import type { Api } from './contrato';
-import type { Cliente, Estado, LeadDia, Mensagem } from './tipos';
+import type { Cliente, Estado, LeadDia, Mensagem, Numero } from './tipos';
 import { demoApi } from './demo';
 import { painel, token, SessaoExpirada } from './painel';
 
@@ -82,10 +82,11 @@ export const realApi: Api = {
     if (n.funcao) extra.funcao = n.funcao;
     if (n.maturar !== undefined) extra.maturar = String(n.maturar);
     if (n.aparelho !== undefined) extra.aparelho = n.aparelho;
+    if (n.campanha !== undefined) extra.campanha = String(n.campanha);
     await antigo('/escritorio/numeros', 'salvar', extra);
     if (n.dono !== undefined) await dados('dono_numero', { nome: n.id, dono: n.dono ?? '' });
-    const e = await realApi.estado();
-    return e.numeros.find(x => x.id === n.id)!;
+    const r = await dados<{ numeros: Numero[] }>('numeros');
+    return r.numeros.find(x => x.id === n.id)!;
   },
   async novoNumero(sessao, funcao, dono) {
     const u = eu(); if (!dono && u?.papel === 'atendente') dono = u.id;
@@ -95,6 +96,7 @@ export const realApi: Api = {
     if (n) { await antigo('/escritorio/numeros', 'salvar', { nome: n.id, funcao }); if (dono) await dados('dono_numero', { nome: n.id, dono }); }
     return { ...n, funcao, dono };
   },
+  listarNumeros: async () => (await dados<{ numeros: Numero[] }>('numeros')).numeros,
   excluirNumero: async id => { await antigo('/escritorio/numeros', 'excluir', { nome: id }); },
   async qrCode(id) {
     await donoAuto(id);

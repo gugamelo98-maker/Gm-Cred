@@ -109,6 +109,10 @@ export interface Numero {
   telefone: string;
   nomePerfil: string;
   funcao: 'atendimento' | 'disparo' | 'reserva';
+  /** marcado para a campanha (disparo) */
+  campanha?: boolean;
+  /** quando caiu (desconectou) */
+  caiuEm?: string | null;
   estado: 'conectado' | 'aguardando_qr' | 'caiu' | 'parado';
   aparelho: string;
   enviadasHoje: number;

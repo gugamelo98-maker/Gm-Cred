@@ -45,6 +45,8 @@ export interface Api {
 
   // WhatsApp
   salvarNumero(n: Partial<Numero> & { id: string }): Promise<Numero>;
+  /** lista leve só dos números (a tela atualiza a cada 10 s) */
+  listarNumeros(): Promise<Numero[]>;
   novoNumero(sessao: string, funcao: Numero['funcao'], dono: string | null): Promise<Numero>;
   excluirNumero(id: string): Promise<void>;
   qrCode(id: string): Promise<string>;

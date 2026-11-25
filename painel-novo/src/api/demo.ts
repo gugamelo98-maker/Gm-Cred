@@ -334,6 +334,7 @@ export const demoApi: Api = {
   },
   async simular(cpf, parcela, prazo, bancos) { await espera(700); return motor(cpf, parcela, prazo, bancos); },
 
+  async listarNumeros() { return copia(db.numeros); },
   async salvarNumero(p) { await espera(); const n = achar(db.numeros, p.id); Object.assign(n, p); gravar(); return copia(n); },
   async novoNumero(sessao, funcao, dono) {
     await espera();

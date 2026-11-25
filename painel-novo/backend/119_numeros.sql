@@ -1,0 +1,4 @@
+-- 119 · Números: lista leve credito.painel_numeros() (com caiuEm e campanha), usada no estado e na ação 'numeros'
+-- do painel_dados_api (a tela Números atualiza a cada 10 s). O aparelho ("onde está") e "usar na campanha" são salvos
+-- pelo /escritorio/numeros (acao salvar), igual ao painel antigo.
+-- n8n "[Escritório] 📡 Estado do Painel" › WAHA iniciar: só cria sessão quando acao = 'criar' (o QR não cria mais instância).

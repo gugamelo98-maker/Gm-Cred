@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Plus, QrCode, RefreshCw, Trash2 } from 'lucide-react';
 import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
 import type { Numero } from '@/api/tipos';
 import { Etiqueta, Kpi, Modal, Titulo, Vazio, type Cor } from '@/componentes/ui';
-import { dataHora, fmtTel, num, tempoDesde } from '@/util/formato';
+import { dataHora, fmtTel, num } from '@/util/formato';
 import { numerosVisiveis } from '@/util/permissoes';
 
 export const ESTADO_NUM: Record<Numero['estado'], [string, Cor]> = { conectado: ['Conectado', 'verde'], aguardando_qr: ['Aguardando QR', 'amarelo'], caiu: ['Caiu', 'vermelho'], parado: ['Parado', 'cinza'] };
@@ -34,11 +34,26 @@ function JanelaQr({ n, fechar }: { n: Numero; fechar: () => void }) {
 export default function Numeros() {
   const { estado, usuario, trocar, remover, executar } = useDados();
   const [qr, setQr] = useState<Numero | null>(null);
+  const [criando, setCriando] = useState(false);
+  const criandoRef = useRef(false);
   const colaborador = usuario!.papel === 'atendente';
+  useEffect(() => {
+    let vivo = true;
+    const ler = () => api.listarNumeros().then(ns => { if (vivo) ns.forEach(n => trocar('numeros', n)); }).catch(() => {});
+    const t = setInterval(() => { if (document.visibilityState === 'visible') ler(); }, 10000);
+    return () => { vivo = false; clearInterval(t); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const N = numerosVisiveis(estado!.numeros, usuario!);
 
   async function salvar(n: Numero, p: Partial<Numero>) { trocar('numeros', { ...n, ...p }); const r = await executar(() => api.salvarNumero({ id: n.id, ...p }), 'Número atualizado'); trocar('numeros', r ?? n); }
   async function novo() {
+    if (criandoRef.current) return;
+    if (!confirm(colaborador ? 'Conectar um número novo para você? Vai abrir o QR code para ler com o WhatsApp.' : 'Criar um número novo? Ele aparece na lista e abre o QR code para conectar.')) return;
+    criandoRef.current = true; setCriando(true);
+    try { await criarNumero(); } finally { criandoRef.current = false; setCriando(false); }
+  }
+  async function criarNumero() {
     const prox = Math.max(1, ...estado!.numeros.map(n => Number(n.sessao.replace(/\D/g, '')) || 1)) + 1;
     const r = await executar(() => api.novoNumero(`gmcred-${prox}`, colaborador ? 'atendimento' : 'disparo', colaborador ? usuario!.id : null), 'Número criado: leia o QR para conectar');
     if (r) { trocar('numeros', r); setQr(r); }
@@ -52,7 +67,7 @@ export default function Numeros() {
   return (
     <div>
       <Titulo titulo={colaborador ? 'Meu número' : 'Números'} sub={colaborador ? 'Conecte o seu WhatsApp ao sistema. Você só vê o seu número.' : 'Chips de WhatsApp conectados ao servidor Baileys.'}
-        acoes={<button className="bt bt-pri" onClick={novo}><Plus size={16} /> {colaborador ? 'Conectar meu número' : 'Novo número'}</button>} />
+        acoes={<button className="bt bt-pri" onClick={novo} disabled={criando}><Plus size={16} /> {criando ? 'Criando…' : colaborador ? 'Conectar meu número' : 'Novo número'}</button>} />
       {colaborador && !N.length && <div className="mb-5"><Vazio>Você ainda não tem número conectado. Clique em “Conectar meu número” e leia o QR com o WhatsApp do seu celular.</Vazio></div>}
       {!colaborador && <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi rotulo="Conectados" valor={`${N.filter(n => n.estado === 'conectado').length} de ${N.length}`} />
@@ -60,24 +75,29 @@ export default function Numeros() {
         <Kpi rotulo="Enviadas hoje" valor={num(N.reduce((s, n) => s + n.enviadasHoje, 0))} />
         <Kpi rotulo="Falhas hoje" valor={num(N.reduce((s, n) => s + n.falhasHoje, 0))} />
       </div>}
+      {!colaborador && (() => {
+        const camp = N.filter(n => n.campanha && n.funcao === 'disparo' && n.estado === 'conectado').length;
+        const atend = N.find(n => n.funcao === 'atendimento' && n.estado === 'conectado');
+        return <p className="mb-4 text-sm text-suave">📤 <b>Campanha:</b> {camp} número(s) conectados e marcados.{atend ? <> Número de atendimento: <b className="num">{fmtTel(atend.telefone)}</b>; se outro cair no meio de uma conversa, ele assume.</> : ' Nenhum número de atendimento conectado.'} A lista atualiza sozinha a cada 10 s.</p>;
+      })()}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {N.map(n => {
           const [nome, cor] = ESTADO_NUM[n.estado];
           return (
-            <section key={n.id} className="cartao p-4">
-              <div className="mb-1 flex items-center justify-between gap-2">
-                <h2 className="font-semibold">{n.sessao}</h2><Etiqueta cor={cor}>{nome}</Etiqueta>
+            <section key={n.id} className={`cartao p-4 ${n.estado === 'conectado' ? 'border-green-500/40' : 'border-red-400/40 bg-red-50/40 dark:bg-red-500/5'}`}>
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <h2 className="num text-xl font-bold">{n.telefone ? fmtTel(n.telefone) : 'Sem número ainda'}</h2>
+                <span className="text-xs text-apagado">{n.sessao}{n.nomePerfil ? ` · ${n.nomePerfil}` : ''}</span>
               </div>
-              <p className="num text-sm text-suave">{n.telefone ? fmtTel(n.telefone) : 'Sem número ainda'} · {n.nomePerfil}</p>
-              <p className="text-xs text-apagado">{n.aparelho}{n.conectadoDesde && ` · conectado ${tempoDesde(n.conectadoDesde)}`}</p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2"><Etiqueta cor={cor}>{n.estado === 'conectado' ? '🟢' : '🔴'} {nome}</Etiqueta>
+                {n.estado !== 'conectado' && n.caiuEm && <span className="text-xs text-apagado">caiu {dataHora(n.caiuEm)}</span>}</div>
               {n.travaAte && new Date(n.travaAte) > new Date() && <p className="mt-2 rounded bg-amber-50 px-2 py-1 text-xs text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">⏳ WhatsApp travou iniciar conversas até {dataHora(n.travaAte)}. Fica fora dos disparos até lá.</p>}
-              <dl className="my-3 grid grid-cols-3 gap-2 text-sm">
-                <div><dt className="text-xs text-apagado">Enviadas</dt><dd className="num font-semibold">{num(n.enviadasHoje)}</dd></div>
-                <div><dt className="text-xs text-apagado">Entregues</dt><dd className="num font-semibold">{num(n.entreguesHoje)}</dd></div>
-                <div><dt className="text-xs text-apagado">Falhas</dt><dd className={`num font-semibold ${n.falhasHoje > 5 ? 'text-red-600' : ''}`}>{num(n.falhasHoje)}</dd></div>
-              </dl>
+              <label className="rotulo mt-3" htmlFor={'a' + n.id}>Onde está (celular / slot)</label>
+              <input id={'a' + n.id} key={n.aparelho} className="campo" defaultValue={n.aparelho} placeholder="Ex.: Motorola · slot 2"
+                onBlur={e => { const v = e.target.value.trim(); if (v !== n.aparelho) salvar(n, { aparelho: v }); }} onKeyDown={e => e.key === 'Enter' && (e.target as HTMLInputElement).blur()} />
+              <p className="mt-2 text-xs text-apagado">{num(n.enviadasHoje)} enviadas · {num(n.entreguesHoje)} entregues hoje{n.falhasHoje ? <> · <span className="text-red-600">{num(n.falhasHoje)} falhas</span></> : null}</p>
               {!colaborador && <>
-                <label className="rotulo" htmlFor={'d' + n.id}>Dono</label>
+                <label className="rotulo mt-3" htmlFor={'d' + n.id}>Dono</label>
                 <select id={'d' + n.id} className="campo mb-2" value={n.dono ?? ''} onChange={e => salvar(n, { dono: e.target.value || null })}>
                   <option value="">Empresa (sem dono)</option>
                   {estado!.usuarios.filter(u => u.ativo).map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
@@ -86,7 +106,8 @@ export default function Numeros() {
                 <select id={'f' + n.id} className="campo mb-2" value={n.funcao} onChange={e => salvar(n, { funcao: e.target.value as Numero['funcao'] })}>
                   {(Object.keys(FUNCOES) as Numero['funcao'][]).map(f => <option key={f} value={f}>{FUNCOES[f]}</option>)}
                 </select>
-                <label className="mb-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={n.maturar} onChange={e => salvar(n, { maturar: e.target.checked })} /> Usar no maturador</label>
+                {n.funcao === 'disparo' && <label className="mb-1.5 flex items-center gap-2 text-sm"><input type="checkbox" checked={!!n.campanha} onChange={e => salvar(n, { campanha: e.target.checked })} /> 📤 usar na campanha</label>}
+                <label className="mb-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={n.maturar} onChange={e => salvar(n, { maturar: e.target.checked })} /> usar no maturador</label>
               </>}
               <div className="flex gap-2">
                 {n.estado !== 'conectado' ? <button className="bt bt-sm bt-pri" onClick={() => setQr(n)}><QrCode size={14} /> Conectar</button>
