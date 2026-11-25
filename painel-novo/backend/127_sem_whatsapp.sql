@@ -1,0 +1,6 @@
+-- 127 · Envio: "sem WhatsApp" confirmado pelo Baileys é tratado antes da checagem de motor fora do ar.
+-- A resposta do check-exists traz a url do ngrok, e o teste de 'ngrok' fazia o envio tentar de novo para sempre ("Enviando").
+-- Aplicado em credito.wpp_falhou: antes do teste de ECONN/timeout/ngrok:
+--   if p_resp ~* '("exists"\s*:\s*false|"semwpp"\s*:\s*true)' then
+--     update conversas set erro_wpp = 'sem whatsapp' ...; perform credito.sem_whatsapp(v_tel); return;
+--   end if;
