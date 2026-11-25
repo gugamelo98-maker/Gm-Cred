@@ -1,0 +1,4 @@
+-- 129 · Disparos: entregas e leituras continuam sendo conferidas depois do envio
+-- credito.wpp_acks_a_conferir: confere também DELIVERY_ACK (para virar READ), janela de 24h, 25 por minuto,
+--   entregues reconferidas a cada 10 min.
+-- credito.disparo_resumo: 'lidas' conta também quem respondeu (cv.direcao = 'entrada').
