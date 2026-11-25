@@ -255,7 +255,10 @@ export default function Motor() {
     if (minha === rodada.current) setConsultando(false);
   }
   function consultar(e?: FormEvent) { e?.preventDefault(); if (cpfOk) acompanhar(null, soDigitos(cpf)); }
-  const margemV8 = Number(consulta?.partes.v8_clt?.margem) || 0, margemUnno = Number(consulta?.partes.unno_clt?.margem) || 0;
+  // margem só conta se o banco não recusou o CPF (V8 devolve margem mesmo quando recusa, ex.: empresa inadimplente)
+  const margemValida = (p?: Parte) => (p && !['sem_margem', 'sem_ofertas', 'erro'].includes(p.situacao) ? Number(p.margem) || 0 : 0);
+  const margemV8 = margemValida(consulta?.partes.v8_clt), margemUnno = margemValida(consulta?.partes.unno_clt);
+  const cltRecusado = !!consulta && (['v8_clt', 'unno_clt', 'hub_clt'] as ParteId[]).every(k => ['sem_margem', 'sem_ofertas', 'erro'].includes(consulta.partes[k]?.situacao ?? ''));
   const margemMax = Math.max(margemV8, margemUnno);
   const limitesV8 = [...new Set([...(consulta?.partes.v8_clt?.limites ?? '').matchAll(/(\d+)x/g)].map(m => +m[1]))].sort((a, b) => b - a);
   async function simular(e: FormEvent) {
@@ -327,7 +330,7 @@ export default function Motor() {
             </div>
             <div className="text-right">
               <div className="text-xs text-suave">Margem disponível (parcela máxima por mês)</div>
-              <div className="num text-3xl font-extrabold">{margemMax ? brl(margemMax) : '—'}</div>
+              <div className={`num text-3xl font-extrabold ${cltRecusado ? 'text-red-600' : ''}`}>{cltRecusado ? 'Sem crédito CLT aprovado' : margemMax ? brl(margemMax) : '—'}</div>
               {(margemV8 > 0 || margemUnno > 0) && <div className="text-xs text-apagado">{[margemV8 > 0 && `V8 ${brl(margemV8)}`, margemUnno > 0 && `Unno ${brl(margemUnno)}`].filter(Boolean).join(' · ')}</div>}
             </div>
           </div>
