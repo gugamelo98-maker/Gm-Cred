@@ -28,6 +28,17 @@ async function chamar(acao: string, id: number, extra: Record<string, string> = 
   return r.json();
 }
 
+function cpfValido(d: string) {
+  if (!/^\d{11}$/.test(d) || /^(\d)\1{10}$/.test(d)) return false;
+  const dv = (n: number) => { let t = 0; for (let i = 0; i < n; i++) t += +d[i] * (n + 1 - i); const r = (t * 10) % 11; return r === 10 ? 0 : r; };
+  return dv(9) === +d[9] && dv(10) === +d[10];
+}
+/** telefone BR: 10/11 dígitos (DDD 11–99) ou 12/13 com 55 */
+function ehTelefone(d: string) {
+  const n = d.length >= 12 && d.startsWith('55') ? d.slice(2) : d;
+  return /^[1-9][1-9]\d{8,9}$/.test(n) && (n.length === 10 || n[2] === '9');
+}
+
 /** lê lista colada da planilha ou CSV: nome, telefone, cpf, margem (com ou sem cabeçalho) */
 function lerLista(txt: string) {
   const L = String(txt || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -40,11 +51,15 @@ function lerLista(txt: string) {
   const out: { nome: string; telefone: string; cpf: string; margem: string }[] = [];
   for (const l of temCab ? L.slice(1) : L) {
     const c = l.split(sep).map(x => x.trim().replace(/^"|"$/g, ''));
-    let tel = H.t >= 0 ? c[H.t] : c.find(x => x.replace(/\D/g, '').length >= 10 && x.replace(/\D/g, '').length <= 13 && !/^\d{3}\.\d{3}/.test(x)) || '';
-    tel = (tel || '').replace(/\D/g, '');
-    if (tel.length < 10) continue;
+    const dig = c.map(x => x.replace(/\D/g, ''));
+    // sem cabeçalho: CPF válido (dígito verificador) é CPF; telefone é o número com DDD que não é o CPF
+    const fmtCpf = (i: number) => /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(c[i]);
+    const cpf = H.c >= 0 ? dig[H.c] || ''
+      : dig.find((d, i) => fmtCpf(i) || (cpfValido(d) && dig.some((o, j) => j !== i && ehTelefone(o)))) || '';
+    let tel = H.t >= 0 ? dig[H.t] || '' : dig.find(d => d !== cpf && ehTelefone(d)) || '';
+    if (tel.length < 10 || tel === cpf) continue;
     const nome = H.n >= 0 ? c[H.n] : c.find(x => /[a-zA-ZÀ-ú]{2,}/.test(x)) || '';
-    out.push({ nome, telefone: tel, cpf: H.c >= 0 ? (c[H.c] || '').replace(/\D/g, '') : '', margem: H.m >= 0 ? c[H.m] || '' : '' });
+    out.push({ nome, telefone: tel, cpf, margem: H.m >= 0 ? c[H.m] || '' : '' });
   }
   return out;
 }
