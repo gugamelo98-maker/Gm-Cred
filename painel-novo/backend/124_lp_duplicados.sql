@@ -1,0 +1,6 @@
+-- 124 · LP sem lead duplicado.
+-- lp_lead acha o cliente pelo CPF (prioridade) ou pelo telefone.
+-- Trigger credito.lp_mesclar (BEFORE INSERT em credito.conversas): mensagem recebida com "CPF é ..." vinda de um lead novo
+-- (outro WhatsApp) é juntada ao lead da LP com o mesmo CPF: conversas movidas, telefone/instância do WhatsApp real passam
+-- para o lead da LP e o duplicado fica teste = true, telefone 'dup' || telefone, aguardando = 'humano'.
+-- Casos corrigidos à mão: Regina (2744 -> 2743) e Jessica (2766 -> 2765).
