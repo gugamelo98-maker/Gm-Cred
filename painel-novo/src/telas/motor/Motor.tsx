@@ -292,12 +292,14 @@ export default function Motor() {
                   .filter(x => x.o.comissao != null).sort((a, b) => (b.o.comissao ?? 0) - (a.o.comissao ?? 0))[0];
                 if (!m) return null;
                 return (
-                  <section className="cartao mb-3 flex flex-wrap items-center gap-x-6 gap-y-2 border-marca px-4 py-3">
+                  <section className="cartao mb-3 flex items-center gap-3 border-marca px-4 py-2.5">
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-1">
                     <div className="flex items-center gap-1.5 text-sm font-semibold text-marca"><Trophy size={16} /> Maior comissão {prod}</div>
                     <div className="text-sm"><b>{m.p.banco}</b> · {m.o.tabela}{m.o.banco && m.o.banco !== m.p.banco ? ` · ${m.o.banco}` : ''}</div>
                     <div className="text-sm">Cliente recebe <b className="num">{brl(m.o.valor)}</b> · {m.o.prazo}x{m.o.parcela ? ` ${brl(m.o.parcela)}` : ''}</div>
                     <div className="text-sm text-green-700 dark:text-green-400">Comissão <b className="num">{brl(m.o.comissao)}</b> ({m.o.comissao_pct?.toLocaleString('pt-BR')}%)</div>
-                    <div className="ml-auto flex items-center gap-1"><BotaoCopiar texto={textoCliente(prod, m.o)} />
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1"><BotaoCopiar texto={textoCliente(prod, m.o)} />
                     <button className="bt bt-pri bt-sm" onClick={() => setAlvo({ parte: m.p.id, oferta: m.o })}>Digitar esta</button></div>
                   </section>
                 );
