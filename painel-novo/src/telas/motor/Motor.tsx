@@ -91,7 +91,7 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
                       {Number.isFinite(g.minParcela) ? <>a partir de <span className="num">{brl(g.minParcela)}</span>/mês · </> : null}até <span className="num">{brl(g.maxValor)}</span> · {g.ofertas.length} {g.ofertas.length === 1 ? 'oferta' : 'ofertas'}
                     </div>
                   </div>
-                  {g.maxComissao > 0 && <span className="num shrink-0 text-sm font-semibold text-marca">{brl(g.maxComissao)}</span>}
+                  {g.maxComissao > 0 && <span className="shrink-0 text-right text-xs text-green-700 dark:text-green-400">comissão<br /><b className="num text-sm">{brl(g.maxComissao)}</b></span>}
                 </button>
                 {ab && (
                   <ul className="divide-y divide-borda border-t border-borda bg-fundo/50">
@@ -102,7 +102,7 @@ function CartaoBanco({ id, parte, digitar }: { id: ParteId; parte: Parte | undef
                           {o.parcela ? <span className="num w-16 shrink-0 text-suave">{brl(o.parcela)}</span> : null}
                           <span className="num flex-1 font-semibold">{brl(o.valor)}</span>
                           {info.produto === 'CLT' && <span className="w-7 shrink-0 text-apagado">{o.seguro === false ? 'sem' : 'seg'}</span>}
-                          <span className="num w-16 shrink-0 text-right font-semibold text-marca">{o.comissao != null ? brl(o.comissao) : '—'}</span>
+                          <span className="num w-24 shrink-0 text-right text-green-700 dark:text-green-400">{o.comissao != null ? <>com. {brl(o.comissao)}</> : '—'}</span>
                         </button>
                       </li>
                     ))}
@@ -244,8 +244,6 @@ export default function Motor() {
   useEffect(() => { if (consulta && !soDigitos(cpf)) setCpf(mascaraCpf(consulta.cpf)); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [consulta]);
 
-  const melhor = consulta?.melhor ?? null;
-  const infoMelhor = melhor ? PARTES.find(p => p.id === melhor.parte) : null;
 
   if (!logado) return (<div><Titulo titulo="Motor de Crédito" sub="CLT e FGTS em todos os bancos, ordenado pela maior comissão." /><Entrar pronto={() => setLogado(true)} /></div>);
 
@@ -270,22 +268,24 @@ export default function Motor() {
 
       {consulta && (
         <>
-          {melhor && infoMelhor && (
-            <section className="cartao mb-5 border-marca p-5">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-marca"><Trophy size={18} /> Maior comissão</div>
-              <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
-                <div><div className="text-xs text-apagado">Banco</div><div className="text-xl font-semibold">{infoMelhor.banco} {infoMelhor.produto}</div></div>
-                <div><div className="text-xs text-apagado">Tabela</div><div className="text-xl font-semibold">{melhor.tabela}{melhor.banco && melhor.banco !== infoMelhor.banco ? <span className="text-sm font-normal text-apagado"> · {melhor.banco}</span> : null}</div></div>
-                <div><div className="text-xs text-apagado">Cliente recebe</div><div className="num text-xl font-semibold">{brl(melhor.valor)}</div></div>
-                <div><div className="text-xs text-apagado">Prazo</div><div className="num text-xl font-semibold">{melhor.prazo}x{melhor.parcela ? ` ${brl(melhor.parcela)}` : ''}</div></div>
-                <div><div className="text-xs text-apagado">Comissão</div><div className="num text-xl font-semibold">{brl(melhor.comissao)} <span className="text-sm font-normal text-apagado">({melhor.comissao_pct?.toLocaleString('pt-BR')}%)</span></div></div>
-                <button className="bt bt-pri ml-auto" onClick={() => setAlvo({ parte: melhor.parte, oferta: melhor })}>Digitar esta</button>
-              </div>
-            </section>
-          )}
           {(['CLT', 'FGTS'] as const).map(prod => (
             <div key={prod} className="mb-5">
               <h2 className="mb-2 text-sm font-semibold text-suave">{prod}</h2>
+              {(() => {
+                // maior comissão deste produto (CLT ou FGTS)
+                const m = PARTES.filter(p => p.produto === prod).flatMap(p => (consulta.partes[p.id]?.ofertas ?? []).map(o => ({ o, p })))
+                  .filter(x => x.o.comissao != null).sort((a, b) => (b.o.comissao ?? 0) - (a.o.comissao ?? 0))[0];
+                if (!m) return null;
+                return (
+                  <section className="cartao mb-3 flex flex-wrap items-center gap-x-6 gap-y-2 border-marca px-4 py-3">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-marca"><Trophy size={16} /> Maior comissão {prod}</div>
+                    <div className="text-sm"><b>{m.p.banco}</b> · {m.o.tabela}{m.o.banco && m.o.banco !== m.p.banco ? ` · ${m.o.banco}` : ''}</div>
+                    <div className="text-sm">Cliente recebe <b className="num">{brl(m.o.valor)}</b> · {m.o.prazo}x{m.o.parcela ? ` ${brl(m.o.parcela)}` : ''}</div>
+                    <div className="text-sm text-green-700 dark:text-green-400">Comissão <b className="num">{brl(m.o.comissao)}</b> ({m.o.comissao_pct?.toLocaleString('pt-BR')}%)</div>
+                    <button className="bt bt-pri bt-sm ml-auto" onClick={() => setAlvo({ parte: m.p.id, oferta: m.o })}>Digitar esta</button>
+                  </section>
+                );
+              })()}
               <div className="grid gap-4 lg:grid-cols-3">
                 {PARTES.filter(p => p.produto === prod).map(p => <CartaoBanco key={p.id} id={p.id} parte={consulta.partes[p.id]} digitar={(parte, oferta) => setAlvo({ parte, oferta })} />)}
               </div>
