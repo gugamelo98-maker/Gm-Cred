@@ -58,6 +58,11 @@ export const realApi: Api = {
     await antigo('/escritorio/atendimento', 'enviar', { id: clienteId, texto });
     return { id: 'tmp' + Date.now(), clienteId, de: 'humano', autor, texto, midia: null, em: new Date().toISOString(), status: 'enviando' };
   },
+  async novaConversa(telefone, nome, texto) {
+    const { cliente } = await dados<{ cliente: Cliente }>('nova_conversa', { telefone, nome });
+    await antigo('/escritorio/atendimento', 'enviar', { id: cliente.id, texto });
+    return { ...cliente, ultimaMsgEm: new Date().toISOString() };
+  },
   enviarMidia: async () => semMidia(),
   async adicionarNota(clienteId, texto, autor) {
     await dados('nota', { id: clienteId, texto });

@@ -24,6 +24,8 @@ export interface Api {
   // Conversas
   mensagens(clienteId: string): Promise<Mensagem[]>;
   enviarMensagem(clienteId: string, texto: string, autor: string): Promise<Mensagem>;
+  /** inicia conversa com um número (acha o cliente pelo telefone ou cria) e manda a primeira mensagem */
+  novaConversa(telefone: string, nome: string, texto: string, autor: string): Promise<Cliente>;
   /** envia imagem, PDF, áudio ou vídeo para o cliente pelo WhatsApp; texto vira a legenda */
   enviarMidia(clienteId: string, anexo: Anexo, texto: string, autor: string): Promise<Mensagem>;
   /** nota interna: fica só no painel */

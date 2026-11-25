@@ -282,6 +282,7 @@ export const demoApi: Api = {
     c.ultimaMsgEm = msg.em; gravar();
     return copia(msg);
   },
+  async novaConversa() { throw new Error('Disponível só com o servidor real.'); },
   async enviarMidia(cid, anexo: Anexo, texto, autor) {
     await espera(500);
     if (anexo.tamanho > 16 * 1024 * 1024) throw new Error('Arquivo maior que 16 MB: o WhatsApp não aceita.');

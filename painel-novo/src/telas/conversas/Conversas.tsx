@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Bot, FileUp, Mic, Paperclip, Search, UserRound } from 'lucide-react';
+import { ArrowLeft, Bot, FileUp, MessageSquarePlus, Mic, Paperclip, Search, UserRound } from 'lucide-react';
 import clsx from 'clsx';
 import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
 import type { Cliente, Mensagem } from '@/api/tipos';
-import { Etiqueta, Vazio } from '@/componentes/ui';
+import { Etiqueta, Modal, Vazio } from '@/componentes/ui';
 import { fmtTel, tempoDesde } from '@/util/formato';
 import { nomeEtapa } from '@/util/rotulos';
 import { clientesVisiveis, podeDefinirResponsavel } from '@/util/permissoes';
@@ -34,6 +34,7 @@ export default function Conversas() {
   const [finalizar, setFinalizar] = useState(false);
   const [solto, setSolto] = useState<File | null>(null);
   const [arrastando, setArrastando] = useState(false);
+  const [nova, setNova] = useState(false);
   const fimRef = useRef<HTMLDivElement>(null);
   const eu = usuario!;
   const gestor = podeDefinirResponsavel(eu);
@@ -91,7 +92,7 @@ export default function Conversas() {
     <div className="-mx-4 -my-5 flex h-[calc(100dvh-90px)] sm:-mx-6 lg:h-[calc(100dvh-30px)]">
       <aside className={clsx('flex w-full flex-col border-r border-borda bg-cartao md:w-[340px] md:shrink-0', atual && 'hidden md:flex')}>
         <div className="space-y-2 border-b border-borda p-3">
-          <h1 className="text-lg font-semibold">Conversas</h1>
+          <div className="flex items-center justify-between"><h1 className="text-lg font-semibold">Conversas</h1><button className="bt bt-pri !px-2.5 !py-1.5 text-xs" onClick={() => setNova(true)}><MessageSquarePlus size={15} /> Nova conversa</button></div>
           {eu.escopo === 'proprios' && <p className="text-xs text-apagado">Você vê só as conversas dos clientes sob sua responsabilidade.</p>}
           <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-apagado" />
@@ -176,6 +177,28 @@ export default function Conversas() {
 
       {ficha && <Ficha cliente={atual} fechar={() => setFicha(false)} />}
       <MotivoPerda cliente={finalizar ? atual : null} cancelar={() => setFinalizar(false)} confirmar={m => { setFinalizar(false); if (atual) mover(atual, 'perdido', m); }} />
+    {nova && <NovaConversa fechar={() => setNova(false)} abrir={c => { trocar('clientes', c); if (!estado!.clientes.some(x => x.id === c.id)) definir(e => ({ ...e, clientes: [c, ...e.clientes] })); setNova(false); setParams({ c: c.id }); }} />}
     </div>
+  );
+}
+
+function NovaConversa({ fechar, abrir }: { fechar: () => void; abrir: (c: Cliente) => void }) {
+  const { usuario, executar } = useDados();
+  const [tel, setTel] = useState(''), [nome, setNome] = useState(''), [texto, setTexto] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  async function enviar(e: React.FormEvent) {
+    e.preventDefault(); setEnviando(true);
+    const c = await executar(() => api.novaConversa(tel, nome, texto, usuario!.id), 'Mensagem enviada');
+    setEnviando(false); if (c) abrir(c);
+  }
+  return (
+    <Modal aberto fechar={fechar} titulo="Nova conversa" largura="max-w-sm">
+      <form onSubmit={enviar} className="space-y-3">
+        <label className="block text-sm">Telefone (DDD + número)<input className="campo mt-1" inputMode="tel" placeholder="48 99999-9999" value={tel} onChange={e => setTel(e.target.value)} required autoFocus /></label>
+        <label className="block text-sm">Nome (opcional)<input className="campo mt-1" value={nome} onChange={e => setNome(e.target.value)} /></label>
+        <label className="block text-sm">Mensagem<textarea className="campo mt-1 min-h-[90px]" value={texto} onChange={e => setTexto(e.target.value)} required /></label>
+        <button className="bt bt-pri w-full" disabled={enviando || tel.replace(/\D/g, '').length < 10 || !texto.trim()}>{enviando ? 'Enviando…' : 'Enviar'}</button>
+      </form>
+    </Modal>
   );
 }
