@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GM Cred · Crédito consignado CLT</title>
+<meta name="description" content="Empréstimo consignado para quem tem carteira assinada. Parcelas descontadas direto do salário. Simule grátis pelo WhatsApp.">
+<link rel="icon" href="/icone-gm-v3.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:title" content="GM Cred · Crédito consignado CLT">
+<meta property="og:description" content="Simule grátis seu empréstimo consignado CLT pelo WhatsApp.">
+<meta property="og:image" content="/simbolo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--marca:#1f5fd6;--marca-forte:#174aa8;--marca-claro:#e8f0fd;--texto:#0f1b2d;--suave:#4a5872;--borda:#dfe5ef;--fundo:#f5f7fb;--verde:#1a9e5c}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--texto);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.w{max-width:1100px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--borda)}
+header .w{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;text-decoration:none}
+.logo img{width:38px;height:38px;border-radius:50%}
+.bt{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;transition:.15s}
+.bt-pri{background:var(--marca);color:#fff;padding:14px 22px;font-size:16px}
+.bt-pri:hover{background:var(--marca-forte)}
+.bt-pri:disabled{opacity:.55;cursor:not-allowed}
+.bt-sm{padding:10px 16px;font-size:14px}
+.hero{background:linear-gradient(180deg,var(--marca-claro),#fff);padding:48px 0 56px}
+.hero .w{display:grid;gap:36px;align-items:center}
+@media(min-width:900px){.hero .w{grid-template-columns:1.1fr .9fr}.hero{padding:72px 0}}
+.selo{display:inline-block;background:#fff;border:1px solid var(--borda);color:var(--marca-forte);font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px;margin-bottom:16px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.1;letter-spacing:-.02em;font-weight:800;margin-bottom:16px}
+h1 span{color:var(--marca)}
+.lead{font-size:18px;color:var(--suave);margin-bottom:24px;max-width:520px}
+.checks{list-style:none;display:grid;gap:10px;margin-bottom:8px}
+.checks li{display:flex;gap:10px;align-items:flex-start;font-weight:500}
+.checks li::before{content:"";flex:0 0 22px;height:22px;border-radius:50%;background:var(--verde) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/13px no-repeat}
+.card{background:#fff;border:1px solid var(--borda);border-radius:20px;box-shadow:0 20px 50px -20px rgba(15,27,45,.25);padding:24px}
+@media(min-width:600px){.card{padding:32px}}
+.card h2{font-size:22px;font-weight:800;margin-bottom:4px}
+.card .sub{color:var(--suave);font-size:14px;margin-bottom:20px}
+.passos{display:flex;gap:6px;margin-bottom:22px}
+.passos i{flex:1;height:5px;border-radius:9px;background:var(--borda)}
+.passos i.on{background:var(--marca)}
+.pergunta{font-weight:700;font-size:17px;margin-bottom:14px}
+.opcoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.op{border:2px solid var(--borda);background:#fff;border-radius:14px;padding:16px;font-weight:700;font-size:16px}
+.op:hover{border-color:var(--marca);color:var(--marca)}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:14px}
+input{display:block;width:100%;margin-top:6px;border:1.5px solid var(--borda);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px;color:var(--texto);background:#fff}
+input:focus{outline:none;border-color:var(--marca);box-shadow:0 0 0 3px var(--marca-claro)}
+.err{color:#c62828;font-size:13px;font-weight:500;margin:-6px 0 12px;min-height:0}
+.full{width:100%}
+.priv{font-size:12px;color:var(--suave);margin-top:12px;text-align:center}
+.aviso{background:#fff6e5;border:1px solid #f3d9a4;border-radius:14px;padding:16px;font-size:15px;margin-bottom:16px}
+.voltar{background:none;border:0;color:var(--suave);font:inherit;font-size:14px;cursor:pointer;margin-top:12px;text-decoration:underline}
+section{padding:56px 0}
+.t2{font-size:clamp(24px,3.5vw,32px);font-weight:800;letter-spacing:-.01em;margin-bottom:8px;text-align:center}
+.t2s{color:var(--suave);text-align:center;margin:0 auto 32px;max-width:560px}
+.grid3{display:grid;gap:16px}
+@media(min-width:760px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.item{background:var(--fundo);border-radius:18px;padding:24px}
+.num{width:36px;height:36px;border-radius:10px;background:var(--marca);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:12px}
+.item h3{font-size:17px;margin-bottom:6px}
+.item p{color:var(--suave);font-size:15px}
+.faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+details{border:1px solid var(--borda);border-radius:14px;padding:16px 18px;background:#fff}
+summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";font-size:20px;line-height:1;color:var(--marca)}
+details[open] summary::after{content:"–"}
+details p{color:var(--suave);margin-top:10px;font-size:15px}
+.cta{background:var(--marca);color:#fff;border-radius:24px;padding:36px 24px;text-align:center}
+.cta h2{font-size:clamp(22px,3.5vw,30px);font-weight:800;margin-bottom:8px}
+.cta p{opacity:.9;margin-bottom:20px}
+.cta .bt{background:#fff;color:var(--marca)}
+footer{border-top:1px solid var(--borda);padding:28px 0;color:var(--suave);font-size:13px;text-align:center}
+.ok{text-align:center;padding:8px 0}
+.ok .ic{width:64px;height:64px;border-radius:50%;background:var(--verde);margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="w">
+  <a class="logo" href="#"><img src="/simbolo.png" alt="">GM Cred</a>
+  <a class="bt bt-pri bt-sm" href="#simular">Simular grátis</a>
+</div></header>
+
+<main>
+<div class="hero"><div class="w">
+  <div>
+    <span class="selo">Consignado para quem tem carteira assinada</span>
+    <h1>Crédito <span>CLT</span> com parcelas descontadas direto do salário</h1>
+    <p class="lead">Taxas menores que o empréstimo pessoal. Você simula grátis, sem compromisso, e fala com a gente pelo WhatsApp.</p>
+    <ul class="checks">
+      <li>Simulação gratuita e sem compromisso</li>
+      <li>Dinheiro na conta via Pix após a aprovação</li>
+      <li>Parcelas que cabem no seu salário</li>
+    </ul>
+  </div>
+
+  <div class="card" id="simular">
+    <h2>Simule em 1 minuto</h2>
+    <p class="sub">Responda e fale com um especialista no WhatsApp.</p>
+    <div class="passos"><i class="on"></i><i id="p2"></i><i id="p3"></i></div>
+
+    <div id="etapa1">
+      <p class="pergunta">Você tem mais de 3 meses de carteira assinada no emprego atual?</p>
+      <div class="opcoes">
+        <button class="bt op" type="button" data-resp="sim">Sim</button>
+        <button class="bt op" type="button" data-resp="nao">Não</button>
+      </div>
+    </div>
+
+    <div id="naoApto" hidden>
+      <div class="aviso">O crédito consignado CLT exige pelo menos <b>3 meses</b> de carteira assinada no emprego atual. Assim que completar, volte aqui que a gente simula para você.</div>
+      <button class="voltar" type="button" data-voltar>Voltar</button>
+    </div>
+
+    <form id="etapa2" hidden novalidate>
+      <label>Nome completo<input id="nome" autocomplete="name" placeholder="Como está no documento" required></label>
+      <div class="err" id="eNome" hidden></div>
+      <label>Celular com DDD (WhatsApp)<input id="tel" inputmode="tel" autocomplete="tel" placeholder="(48) 99999-9999" required></label>
+      <div class="err" id="eTel" hidden></div>
+      <label>CPF<input id="cpf" inputmode="numeric" placeholder="000.000.000-00" required></label>
+      <div class="err" id="eCpf" hidden></div>
+      <button class="bt bt-pri full" id="enviar" type="submit">Falar com especialista no WhatsApp</button>
+      <div class="err" id="eGeral" hidden style="margin-top:12px"></div>
+      <p class="priv">Seus dados são usados só para a simulação, conforme a LGPD.</p>
+      <div style="text-align:center"><button class="voltar" type="button" data-voltar>Voltar</button></div>
+    </form>
+
+    <div id="fim" class="ok" hidden>
+      <div class="ic"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+      <h2>Pronto!</h2>
+      <p class="sub" style="margin-top:6px">Estamos abrindo o WhatsApp com a sua mensagem. É só tocar em <b>enviar</b>.</p>
+      <a class="bt bt-pri full" id="abrirWa" href="#">Abrir o WhatsApp</a>
+    </div>
+  </div>
+</div></div>
+
+<section><div class="w">
+  <h2 class="t2">Como funciona</h2>
+  <p class="t2s">Simples, rápido e sem sair de casa.</p>
+  <div class="grid3">
+    <div class="item"><div class="num">1</div><h3>Responda o formulário</h3><p>Nome, celular e CPF. Leva menos de um minuto.</p></div>
+    <div class="item"><div class="num">2</div><h3>Receba a simulação</h3><p>Um especialista consulta sua margem nos bancos parceiros e te mostra as melhores ofertas.</p></div>
+    <div class="item"><div class="num">3</div><h3>Dinheiro na conta</h3><p>Aprovado o contrato, o valor cai na sua conta e as parcelas são descontadas do salário.</p></div>
+  </div>
+</div></section>
+
+<section style="background:var(--fundo)"><div class="w">
+  <h2 class="t2">Perguntas frequentes</h2>
+  <p class="t2s">Tire suas dúvidas antes de simular.</p>
+  <div class="faq">
+    <details><summary>Quem pode contratar o consignado CLT?</summary><p>Trabalhadores com carteira assinada há pelo menos 3 meses no emprego atual, em empresas do setor privado.</p></details>
+    <details><summary>A simulação tem custo?</summary><p>Não. A simulação é gratuita e não obriga você a contratar.</p></details>
+    <details><summary>Como as parcelas são pagas?</summary><p>Elas são descontadas direto do seu salário, na folha de pagamento. Você não precisa se preocupar com boleto.</p></details>
+    <details><summary>Preciso ir a algum lugar?</summary><p>Não. Todo o atendimento é pelo WhatsApp e a assinatura do contrato é digital.</p></details>
+  </div>
+</div></section>
+
+<section><div class="w">
+  <div class="cta">
+    <h2>Descubra quanto você pode pegar</h2>
+    <p>Simule agora, é grátis.</p>
+    <a class="bt bt-pri" href="#simular">Simular grátis</a>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="w">
+  <p>GM Cred · Correspondente bancário · Crédito sujeito a análise e aprovação dos bancos parceiros.</p>
+  <p style="margin-top:6px">© <span id="ano"></span> GM Cred. Todos os direitos reservados.</p>
+</div></footer>
+
+<script>
+(function () {
+  var API = 'https://rarelookingorca-n8n.cloudfy.live/webhook/lp/lead';
+  var $ = function (id) { return document.getElementById(id); };
+  $('ano').textContent = new Date().getFullYear();
+  function mostrar(id) {
+    ['etapa1', 'naoApto', 'etapa2', 'fim'].forEach(function (x) { $(x).hidden = x !== id; });
+    $('p2').className = id === 'etapa2' || id === 'fim' ? 'on' : '';
+    $('p3').className = id === 'fim' ? 'on' : '';
+  }
+  document.querySelectorAll('[data-resp]').forEach(function (b) {
+    b.addEventListener('click', function () { mostrar(b.dataset.resp === 'sim' ? 'etapa2' : 'naoApto'); if (b.dataset.resp === 'sim') $('nome').focus(); });
+  });
+  document.querySelectorAll('[data-voltar]').forEach(function (b) { b.addEventListener('click', function () { mostrar('etapa1'); }); });
+
+  var dig = function (s) { return String(s || '').replace(/\D/g, ''); };
+  $('tel').addEventListener('input', function (e) {
+    var d = dig(e.target.value).slice(0, 11), r = d;
+    if (d.length > 2) r = '(' + d.slice(0, 2) + ') ' + d.slice(2);
+    if (d.length > 7) r = '(' + d.slice(0, 2) + ') ' + d.slice(2, d.length - 4) + '-' + d.slice(-4);
+    e.target.value = r;
+  });
+  $('cpf').addEventListener('input', function (e) {
+    var d = dig(e.target.value).slice(0, 11);
+    e.target.value = d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  });
+  function cpfValido(c) {
+    if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false;
+    for (var t = 9; t < 11; t++) {
+      var s = 0; for (var i = 0; i < t; i++) s += +c[i] * (t + 1 - i);
+      if (((s * 10) % 11) % 10 !== +c[t]) return false;
+    }
+    return true;
+  }
+  function erro(id, msg) { $(id).textContent = msg || ''; $(id).hidden = !msg; }
+
+  $('etapa2').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var nome = $('nome').value.trim(), tel = dig($('tel').value), cpf = dig($('cpf').value), ok = true;
+    erro('eNome', nome.split(/\s+/).length < 2 ? 'Digite nome e sobrenome.' : ''); if (nome.split(/\s+/).length < 2) ok = false;
+    erro('eTel', tel.length < 10 || tel.length > 11 ? 'Digite o celular com DDD.' : ''); if (tel.length < 10 || tel.length > 11) ok = false;
+    erro('eCpf', !cpfValido(cpf) ? 'CPF inválido. Confira os números.' : ''); if (!cpfValido(cpf)) ok = false;
+    erro('eGeral', '');
+    if (!ok) return;
+    var bt = $('enviar'); bt.disabled = true; bt.textContent = 'Enviando…';
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: nome, telefone: tel, cpf: cpf, carteira_3_meses: true }) })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.erro || 'Não foi possível enviar.');
+        var wa = r.wa;
+        if (!wa) throw new Error('Nosso WhatsApp está indisponível agora. Tente de novo em alguns minutos.');
+        $('abrirWa').href = wa;
+        mostrar('fim');
+        if (window.fbq) try { fbq('track', 'Lead'); } catch (x) {}
+        setTimeout(function () { window.location.href = wa; }, 900);
+      })
+      .catch(function (x) { erro('eGeral', x.message || 'Falha de conexão. Tente de novo.'); bt.disabled = false; bt.textContent = 'Falar com especialista no WhatsApp'; });
+  });
+})();
+</script>
+</body>
+</html>
