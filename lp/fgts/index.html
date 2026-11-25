@@ -125,7 +125,7 @@ fbq('init','1332795695611880');fbq('track','PageView');
       <div class="err" id="eCpf" hidden></div>
       <button class="bt bt-pri full" id="enviar" type="submit">Simular meu FGTS no WhatsApp</button>
       <div class="err" id="eGeral" hidden style="margin-top:12px"></div>
-      <p class="priv">Seus dados são usados só para a simulação, conforme a LGPD.</p>
+      <p class="priv">Ao continuar, você concorda com o uso dos seus dados para contato sobre sua simulação. <a href="/privacidade" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Política de privacidade</a></p>
     </form>
 
     <div id="fim" class="ok" hidden>
@@ -175,6 +175,24 @@ fbq('init','1332795695611880');fbq('track','PageView');
 <script>
 (function () {
   var API = 'https://rarelookingorca-n8n.cloudfy.live/webhook/lp/lead';
+  // origem do lead: UTMs/fbclid da URL ficam na sessão (sobrevivem às etapas); sem parâmetros, mantém o que já tinha
+  var ORIG = (function () {
+    var k = 'gm_origem', o = {}, ch = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid'];
+    try { o = JSON.parse(sessionStorage.getItem(k) || '{}') || {}; } catch (x) { o = {}; }
+    var q = {}; try { new URLSearchParams(location.search).forEach(function (v, c) { q[c] = v; }); } catch (x) {}
+    var tem = ch.some(function (c) { return q[c]; });
+    if (tem) ch.forEach(function (c) { o[c] = q[c] || ''; });
+    if (tem || !o.pagina_entrada) { o.pagina_entrada = location.pathname || '/'; o.referrer = document.referrer || ''; }
+    try { sessionStorage.setItem(k, JSON.stringify(o)); } catch (x) {}
+    return o;
+  })();
+  function cookie(n) { var m = document.cookie.match('(?:^|; )' + n + '=([^;]*)'); return m ? decodeURIComponent(m[1]) : ''; }
+  function origem() {
+    var o = {}; for (var c in ORIG) o[c] = ORIG[c];
+    o.fbp = cookie('_fbp'); o.fbc = cookie('_fbc') || (o.fbclid ? 'fb.1.' + Date.now() + '.' + o.fbclid : '');
+    o.user_agent = navigator.userAgent || '';
+    return o;
+  }
   var $ = function (id) { return document.getElementById(id); };
   $('ano').textContent = new Date().getFullYear();
   var produto = 'fgts';
@@ -223,7 +241,7 @@ fbq('init','1332795695611880');fbq('track','PageView');
     erro('eGeral', '');
     if (!ok) return;
     var bt = $('enviar'); bt.disabled = true; bt.textContent = 'Enviando…';
-    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: nome, telefone: tel, cpf: cpf, produto: produto, carteira_3_meses: produto === 'clt' }) })
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: nome, telefone: tel, cpf: cpf, produto: produto, carteira_3_meses: produto === 'clt', origem: origem() }) })
       .then(function (r) { return r.json(); })
       .then(function (r) {
         if (!r.ok) throw new Error(r.erro || 'Não foi possível enviar.');
