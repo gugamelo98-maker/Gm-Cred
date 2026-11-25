@@ -7,8 +7,8 @@ import type {
 import { soDigitos, validaCpf } from '@/util/formato';
 import { resolverMidia } from './demo-midia';
 
-const CHAVE = 'gm_painel_demo_v5';
-const CHAVE_CONVERSAS = 'gm_painel_demo_conversas_v5';
+const CHAVE = 'gm_painel_v6';
+const CHAVE_CONVERSAS = 'gm_painel_conversas_v6';
 const DIA = 86400000;
 
 // gerador pseudoaleatório com semente, para os dados de demonstração serem sempre os mesmos
@@ -143,9 +143,11 @@ function gerar(): Estado {
     );
   }
 
+  // começa vazio para produção: sem clientes, números, disparos, gastos ou leads de teste (fica só o usuário dono)
+  void clientes; void numeros; void disparos; void indicadores; void gastos;
   return {
-    clientes, numeros, disparos, indicadores, gastos, usuarios,
-    leadsDia: Array.from({ length: 8 }, (_, i) => leadFicticio(r, 'u3', agora - (3 - i * 0.3) * 3600e3, null)),
+    clientes: [], numeros: [], disparos: [], indicadores: [], gastos: [], usuarios: usuarios.filter(u => u.id === 'u1'),
+    leadsDia: [],
     respostas: [
       { id: 'r1', atalho: 'cpf', titulo: 'Pedir CPF', texto: 'Oi {nome}! Pra eu ver quanto você consegue liberar, me manda o seu CPF, por favor?' },
       { id: 'r2', atalho: 'documentos', titulo: 'Pedir documentos', texto: '{nome}, pra seguir preciso de uma foto do seu documento com foto (RG ou CNH) e do último contracheque.' },
@@ -153,7 +155,7 @@ function gerar(): Estado {
       { id: 'r4', atalho: 'assinatura', titulo: 'Lembrete de assinatura', texto: '{nome}, falta só assinar o contrato pelo link que te mandei. Leva menos de 2 minutinhos! Qualquer dúvida estou aqui.' },
       { id: 'r5', atalho: 'retorno', titulo: 'Retornar depois', texto: 'Combinado, {nome}! Te chamo mais tarde para finalizarmos.' },
     ],
-    maturador: { ativo: true, intervaloMin: 8, horaInicio: 8, horaFim: 21, ultimas: Array.from({ length: 6 }, (_, i) => ({ em: iso(agora - i * 8 * 60e3), de: 'gmcred-' + (2 + (i % 3)), para: 'gmcred-' + (2 + ((i + 1) % 3)), texto: pick(['Bom dia! Tudo certo por aí?', 'Vou passar aí mais tarde', 'kkkk verdade', 'Me manda aquela foto depois', 'Ok, combinado 👍']) })) },
+    maturador: { ativo: false, intervaloMin: 8, horaInicio: 8, horaFim: 21, ultimas: [] },
   };
 }
 
