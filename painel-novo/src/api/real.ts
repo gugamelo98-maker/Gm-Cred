@@ -31,6 +31,10 @@ async function antigo<T>(caminho: string, acao: string, extra: Record<string, st
 }
 const dados = <T>(acao: string, d: object = {}) => json<T>('/painel/dados', acao, d);
 const leads = <T>(acao: string, d: object = {}) => json<T>('/painel/leads', acao, d);
+/** usuário logado (gravado pelo login) */
+const eu = (): { id: string; papel: string } | null => { try { return JSON.parse(localStorage.getItem('gm_painel_usuario') || 'null'); } catch { return null; } };
+/** colaborador (atendente) que cria ou conecta um número vira o dono dele automaticamente */
+const donoAuto = async (nome: string) => { const u = eu(); if (u && u.papel === 'atendente') await dados('dono_numero', { nome, dono: u.id }); };
 const semMidia = () => { throw new Error('Enviar mídia pelo painel novo ainda não está disponível. Mande pelo WhatsApp do número.'); };
 
 type EstadoServidor = Omit<Estado, 'usuarios' | 'disparos' | 'leadsDia'>;
@@ -79,6 +83,7 @@ export const realApi: Api = {
     return e.numeros.find(x => x.id === n.id)!;
   },
   async novoNumero(sessao, funcao, dono) {
+    const u = eu(); if (!dono && u?.papel === 'atendente') dono = u.id;
     await antigo('/escritorio/numeros', 'criar', { aparelho: sessao });
     const e = await realApi.estado();
     const n = e.numeros[e.numeros.length - 1];
@@ -87,6 +92,7 @@ export const realApi: Api = {
   },
   excluirNumero: async id => { await antigo('/escritorio/numeros', 'excluir', { nome: id }); },
   async qrCode(id) {
+    await donoAuto(id);
     const r = await antigo<{ qr?: string; estado?: string }>('/escritorio/numeros', 'qr', { nome: id, reiniciar: 'false' });
     if (r.estado === 'open') throw new Error('Este número já está conectado.');
     if (!r.qr) throw new Error('O QR ainda está sendo gerado. Tente de novo em alguns segundos.');
