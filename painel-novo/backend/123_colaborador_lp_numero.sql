@@ -4,3 +4,4 @@
 -- LP sempre no número configurado em configuracoes 'lp_numero' (hoje gmcred-17), nunca no "atendimento" do momento.
 -- lp_auto_proximos sem limite; lp_auto_salvar classifica o FGTS pelo texto de cada banco:
 --   'saldo' ou 'andamento' em algum -> sem proposta; todos 'autoriz' -> pede autorizar BMP e Girotech; senão revisar.
+-- FGTS: 'Valor dos custos superior ao valor financiado' (saldo pequeno) conta como sem saldo -> sem proposta.
