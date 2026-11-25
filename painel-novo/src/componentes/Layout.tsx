@@ -9,6 +9,7 @@ import { MODO_DEMO } from '@/api';
 import type { Papel } from '@/api/tipos';
 import { resetarDemo } from '@/api/demo';
 import { clientesVisiveis } from '@/util/permissoes';
+import ChaveIA from './ChaveIA';
 
 export interface ItemMenu { para: string; nome: string; icone: typeof BarChart3; papeis: Papel[] }
 const TODOS: Papel[] = ['admin', 'gestor', 'atendente'];
@@ -79,6 +80,7 @@ export default function Layout() {
 
   const rodape = (
     <div className="border-t border-borda p-3">
+      {usuario.papel === 'admin' && <ChaveIA />}
       <div className="mb-2 px-2">
         <div className="truncate text-sm font-medium">{usuario.nome}</div>
         <div className="truncate text-xs text-apagado">{usuario.email}</div>
