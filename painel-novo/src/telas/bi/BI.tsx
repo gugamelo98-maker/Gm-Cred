@@ -64,6 +64,13 @@ export default function BI() {
     disparo: gastos.filter(g => g.categoria === 'disparos' || g.categoria === 'numeros').reduce((s, g) => s + g.valor, 0),
     indicacao: 0, organico: 0, leads_dia: 0,
   };
+  // por agente: clientes que entraram no período, agrupados pelo responsável (sem responsável = ficou com a IA)
+  const porAgente = useMemo(() => {
+    const grupos = new Map<string, Cliente[]>();
+    for (const c of doPeriodo) { const k = c.responsavel ?? ''; grupos.set(k, [...(grupos.get(k) ?? []), c]); }
+    return [...grupos.entries()].map(([id, cs]) => ({ id, nome: id ? estado!.usuarios.find(u => u.id === id)?.nome ?? 'Usuário removido' : 'Sem responsável (IA)', ...funil(cs) }))
+      .sort((a, b) => (a.id ? 0 : 1) - (b.id ? 0 : 1) || b.pagos - a.pagos || b.entraram - a.entraram);
+  }, [doPeriodo, estado]);
   const porOrigem = (Object.keys(ORIGENS) as Origem[]).map(o => ({ o, ...funil(base.filter(c => dentro(c.entrouEm, faixa) && c.origem === o)) }));
 
   return (
@@ -145,6 +152,29 @@ export default function BI() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section className="cartao mb-5 overflow-x-auto">
+        <h2 className="px-5 pt-4 font-semibold">Por agente</h2>
+        <p className="px-5 pb-3 text-xs text-apagado">Clientes que entraram no período, pelo responsável de cada um. Segue os filtros de período, produto e origem acima.</p>
+        {!porAgente.length ? <p className="px-5 pb-4 text-sm text-apagado">Nenhum cliente no período.</p> : (
+          <table className="tabela">
+            <thead><tr><th>Agente</th><th className="text-right">Clientes</th><th className="text-right">Mandaram CPF</th><th className="text-right">% CPF</th><th className="text-right">Com margem</th><th className="text-right">Propostas</th><th className="text-right">Pagos</th><th className="text-right">% conversão</th><th className="text-right">Liberado</th><th className="text-right">Comissão</th></tr></thead>
+            <tbody>
+              {porAgente.map(x => (
+                <tr key={x.id || 'ia'}>
+                  <td className="font-medium">{x.nome}</td>
+                  <td className="num text-right">{num(x.entraram)}</td><td className="num text-right">{num(x.cpf)}</td>
+                  <td className="num text-right">{pct(x.entraram ? x.cpf / x.entraram : NaN)}</td>
+                  <td className="num text-right">{num(x.margem)}</td><td className="num text-right">{num(x.proposta)}</td>
+                  <td className="num text-right font-semibold">{num(x.pagos)}</td>
+                  <td className="num text-right">{pct(x.entraram ? x.pagos / x.entraram : NaN)}</td>
+                  <td className="num text-right">{brl(x.liberado)}</td><td className="num text-right">{brl(x.comissao)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
 
       <section className="cartao overflow-x-auto">
