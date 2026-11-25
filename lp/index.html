@@ -126,6 +126,7 @@ fbq('init','1332795695611880');fbq('track','PageView');
     </div>
 
     <form id="etapa2" hidden novalidate>
+      <div class="aviso" id="avisoFgts" hidden>O crédito CLT exige pelo menos <b>3 meses</b> de carteira assinada, mas você pode <b>antecipar o seu FGTS</b>. Preencha abaixo para simular.</div>
       <label>Nome completo<input id="nome" autocomplete="name" placeholder="Como está no documento" required></label>
       <div class="err" id="eNome" hidden></div>
       <label>Celular com DDD (WhatsApp)<input id="tel" inputmode="tel" autocomplete="tel" placeholder="(48) 99999-9999" required></label>
@@ -187,13 +188,19 @@ fbq('init','1332795695611880');fbq('track','PageView');
   var API = 'https://rarelookingorca-n8n.cloudfy.live/webhook/lp/lead';
   var $ = function (id) { return document.getElementById(id); };
   $('ano').textContent = new Date().getFullYear();
+  var produto = 'clt';
   function mostrar(id) {
     ['etapa1', 'naoApto', 'etapa2', 'fim'].forEach(function (x) { $(x).hidden = x !== id; });
     $('p2').className = id === 'etapa2' || id === 'fim' ? 'on' : '';
     $('p3').className = id === 'fim' ? 'on' : '';
   }
   document.querySelectorAll('[data-resp]').forEach(function (b) {
-    b.addEventListener('click', function () { mostrar(b.dataset.resp === 'sim' ? 'etapa2' : 'naoApto'); if (b.dataset.resp === 'sim') $('nome').focus(); });
+    b.addEventListener('click', function () {
+      produto = b.dataset.resp === 'sim' ? 'clt' : 'fgts';
+      $('avisoFgts').hidden = produto !== 'fgts';
+      $('enviar').textContent = produto === 'fgts' ? 'Simular meu FGTS no WhatsApp' : 'Falar com especialista no WhatsApp';
+      mostrar('etapa2'); $('nome').focus();
+    });
   });
   document.querySelectorAll('[data-voltar]').forEach(function (b) { b.addEventListener('click', function () { mostrar('etapa1'); }); });
 
@@ -227,7 +234,7 @@ fbq('init','1332795695611880');fbq('track','PageView');
     erro('eGeral', '');
     if (!ok) return;
     var bt = $('enviar'); bt.disabled = true; bt.textContent = 'Enviando…';
-    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: nome, telefone: tel, cpf: cpf, carteira_3_meses: true }) })
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: nome, telefone: tel, cpf: cpf, produto: produto, carteira_3_meses: produto === 'clt' }) })
       .then(function (r) { return r.json(); })
       .then(function (r) {
         if (!r.ok) throw new Error(r.erro || 'Não foi possível enviar.');
@@ -238,7 +245,7 @@ fbq('init','1332795695611880');fbq('track','PageView');
         if (window.fbq) try { fbq('track', 'Lead'); } catch (x) {}
         setTimeout(function () { window.location.href = wa; }, 900);
       })
-      .catch(function (x) { erro('eGeral', x.message || 'Falha de conexão. Tente de novo.'); bt.disabled = false; bt.textContent = 'Falar com especialista no WhatsApp'; });
+      .catch(function (x) { erro('eGeral', x.message || 'Falha de conexão. Tente de novo.'); bt.disabled = false; bt.textContent = produto === 'fgts' ? 'Simular meu FGTS no WhatsApp' : 'Falar com especialista no WhatsApp'; });
   });
 })();
 </script>
