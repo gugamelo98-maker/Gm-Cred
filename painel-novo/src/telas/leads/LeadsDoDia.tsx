@@ -92,7 +92,7 @@ function MeusLeads() {
         {([['chamar', 'Para chamar', doDia.length - chamados], ['chamados', 'Chamados', chamados], ['todos', 'Todos', doDia.length]] as const).map(([f, n, q]) => (
           <button key={f} onClick={() => setFiltro(f)} className={clsx('rounded-full border px-3 py-1 text-sm', filtro === f ? 'border-marca bg-marca text-white' : 'border-borda bg-cartao text-suave')}>{n} <b className="num">{q}</b></button>
         ))}
-        <button className="bt bt-sm ml-auto" onClick={baixar} disabled={!doDia.length}><Download size={14} /> CSV</button>
+        {eu.papel === 'admin' && <button className="bt bt-sm ml-auto" onClick={baixar} disabled={!doDia.length}><Download size={14} /> CSV</button>}
       </div>
 
       {!lista.length ? (
@@ -103,7 +103,7 @@ function MeusLeads() {
             <li key={l.id} className={clsx('cartao flex items-center gap-3 p-3', l.chamadoEm && 'opacity-70')}>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2"><span className="truncate font-medium">{l.nome}</span>{l.chamadoEm && <Etiqueta cor="verde">Chamado {hora(l.chamadoEm)}</Etiqueta>}</div>
-                <div className="num truncate text-xs text-apagado">{fmtTel(l.telefone)} · CPF {fmtCpf(l.cpf)}</div>
+                {eu.papel === 'admin' && <div className="num truncate text-xs text-apagado">{fmtTel(l.telefone)} · CPF {fmtCpf(l.cpf)}</div>}
                 <div className="mt-0.5 text-sm"><span className="num font-semibold">margem {brl(l.margem)}</span> <span className="text-xs text-apagado">· {l.banco}</span></div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
