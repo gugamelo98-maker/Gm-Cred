@@ -43,7 +43,7 @@ begin
   if p_acao = 'estado' then
     return jsonb_build_object('ok', true,
       'clientes', (select coalesce(jsonb_agg(credito.painel_cliente(x) order by coalesce(x.ultima_interacao, x.criado_em) desc), '[]')
-                   from credito.leads x where not coalesce(x.teste, false)
+                   from credito.leads x where not coalesce(x.teste, false) and coalesce(x.setor_id, '') <> 'prospeccao'
                      and (u.papel <> 'atendente' or u.escopo = 'todos' or x.painel_responsavel = u.id)),
       'numeros', (select coalesce(jsonb_agg(jsonb_build_object('id', n->>'nome', 'sessao', n->>'nome', 'telefone', coalesce(n->>'numero', ''), 'nomePerfil', coalesce(n->>'perfil', ''),
                      'funcao', coalesce(n->>'funcao', 'reserva'), 'estado', case n->>'estado' when 'open' then 'conectado' when 'close' then 'caiu' when 'refused' then 'caiu' else 'aguardando_qr' end,

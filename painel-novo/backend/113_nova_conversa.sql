@@ -15,7 +15,7 @@ begin
     returning * into l;
   else
     update credito.leads set nome = coalesce(nullif(trim(coalesce(p->>'nome', '')), ''), nome), aguardando = 'humano', humano_em = now(),
-           painel_responsavel = coalesce(painel_responsavel, u.id), finalizado_em = null,
+           painel_responsavel = coalesce(painel_responsavel, u.id), finalizado_em = null, setor_id = case when setor_id = 'prospeccao' then 'recepcao' else setor_id end,
            instancia = case when exists (select 1 from credito.wpp_chips c where c.nome = credito.leads.instancia and c.estado = 'open') then instancia else coalesce(v_inst, instancia) end,
            painel_etapa = case when painel_etapa = 'perdido' then null else painel_etapa end
      where id = l.id returning * into l;
