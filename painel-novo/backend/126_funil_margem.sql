@@ -2,3 +2,7 @@
 -- credito.motor_oferta_cpf(cpf) -> {em, valor} da última consulta do Motor com oferta.
 -- painel_cliente: margemEm = quando o Motor achou oferta (ou simulação antiga real fora de Leads do dia);
 -- a margem da lista higienizada (Leads do dia) deixa de aparecer como margem.
+-- credito.funil_marcos(lead) -> {entrou, cpf, proposta}, usado em painel_cliente (entrouEm, cpfEm, propostaEm):
+--   entrou: LP = quando preencheu; lead do dia / disparo = só quando o cliente respondeu (null se não respondeu); demais = 1ª mensagem/criação.
+--   cpf: só CPF informado pelo cliente (LP ou mensagem contendo o número), não o da lista.
+--   proposta: digitação feita pelo Motor para o CPF (ou dt_proposta antiga). pagoEm continua = dt_fechou (contrato pago no banco).

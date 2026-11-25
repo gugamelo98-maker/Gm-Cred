@@ -42,7 +42,8 @@ export interface Cliente {
   numeroId: string;
   naoLidas: number;
   // marcos do funil (usados pelo BI)
-  entrouEm: string;
+  /** quando o cliente falou com a gente (LP, mensagem ou resposta); null = chamado por nós e ainda não respondeu */
+  entrouEm: string | null;
   cpfEm: string | null;
   margemEm: string | null;
   propostaEm: string | null;

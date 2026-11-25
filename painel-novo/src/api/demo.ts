@@ -197,7 +197,7 @@ const midiaDemo = (tipo: TipoMidia, url: string, nome: string, mime: string, tam
 function conversaDe(c: Cliente): Mensagem[] {
   const pronta = conversas.get(c.id);
   if (pronta) return pronta;
-  const base = new Date(c.entrouEm).getTime();
+  const base = new Date(c.entrouEm ?? Date.now()).getTime();
   const sorte = Number(c.id.replace(/\D/g, '')) % 5;
   const m = (de: Mensagem['de'], texto: string, min: number, midia: Mensagem['midia'] = null): Mensagem => ({ id: id(), clienteId: c.id, de, autor: null, texto, midia, em: iso(base + min * 60e3), status: de === 'cliente' ? null : 'lida' });
   const L: Mensagem[] = [m('cliente', c.origem === 'disparo' ? 'Quero simular' : 'Olá! Vi o anúncio do empréstimo', 0), m('ia', `Oi ${c.nome.split(' ')[0]}, aqui é a Ana da GM Cred! Pra eu ver quanto você consegue, me manda o seu CPF?`, 1)];
