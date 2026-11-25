@@ -194,7 +194,7 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
 }
 
 export default function Motor() {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const logado = true;
   const setLogado = (_: boolean) => { /* sessão é a do painel */ };
   const { usuario } = useDados();
@@ -249,7 +249,8 @@ export default function Motor() {
   function consultar(e?: FormEvent) { e?.preventDefault(); if (cpfOk) acompanhar(null, soDigitos(cpf)); }
   useEffect(() => {
     if (!logado) return;
-    if (params.get('cpf') && cpfOk) { consultar(); return; }
+    // CPF vindo de outra aba (link): consulta uma vez e tira da URL, para atualizar a página não simular de novo
+    if (params.get('cpf') && cpfOk) { setParams({}, { replace: true }); consultar(); return; }
     let id = 0; try { id = Number(localStorage.getItem(ULTIMA)) || 0; } catch { /* sem storage */ }
     if (id) acompanhar(null, null, id).then(() => setCpf(c => c));
   // eslint-disable-next-line react-hooks/exhaustive-deps
