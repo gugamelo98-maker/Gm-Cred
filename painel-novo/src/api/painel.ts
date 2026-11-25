@@ -37,6 +37,11 @@ export const painel = {
   eu: () => chamar<{ usuario: Usuario; comissao: RegrasComissao }>('eu'),
   async sair() { try { await chamar('sair'); } catch { /* já saiu */ } token.apagar(); },
   listar: async () => (await chamar<{ usuarios: Usuario[] }>('listar')).usuarios,
-  salvar: async (u: Partial<Usuario> & { senha?: string }) => (await chamar<{ usuario: Usuario }>('salvar', u)).usuario,
+  salvar: async (u: Partial<Usuario> & { senha?: string }) => {
+    const { pix, ...resto } = u;
+    let r = (await chamar<{ usuario: Usuario }>('salvar', resto)).usuario;
+    if (pix !== undefined && pix !== r.pix) r = (await chamar<{ usuario: Usuario }>('pix', { id: r.id, pix })).usuario;
+    return r;
+  },
   trocarSenha: (senha: string) => chamar('senha', { senha }),
 };

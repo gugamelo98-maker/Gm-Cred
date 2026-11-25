@@ -192,6 +192,8 @@ export interface Usuario {
   leadsPorDia: number;
   ativo: boolean;
   ultimoAcesso: string | null;
+  /** chave PIX para pagar a comissão */
+  pix?: string;
 }
 
 export interface Oferta {

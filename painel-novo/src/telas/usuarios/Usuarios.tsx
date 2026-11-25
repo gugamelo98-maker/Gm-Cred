@@ -32,10 +32,10 @@ export default function Usuarios() {
       </div>
       <div className="cartao overflow-x-auto">
         <table className="tabela">
-          <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Vê</th><th>Situação</th><th className="text-right">Clientes dele</th><th className="text-right">Atendendo agora</th><th>Último acesso</th></tr></thead>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Chave PIX</th><th>Tipo</th><th>Vê</th><th>Situação</th><th className="text-right">Clientes dele</th><th className="text-right">Atendendo agora</th><th>Último acesso</th></tr></thead>
           <tbody>{U.map(u => (
             <tr key={u.id} className="cursor-pointer" onClick={() => setEditando({ ...u, senha: '' })}>
-              <td className="font-medium">{u.nome}{u.id === eu!.id && <span className="text-apagado"> (você)</span>}</td><td>{u.email}</td>
+              <td className="font-medium">{u.nome}{u.id === eu!.id && <span className="text-apagado"> (você)</span>}</td><td>{u.email}</td><td className="whitespace-nowrap">{u.pix || <span className="text-apagado">—</span>}</td>
               <td>{PAPEIS[u.papel].nome}</td><td className="whitespace-nowrap">{u.escopo === 'proprios' ? 'Só os dele' : 'Tudo'}</td><td><Etiqueta cor={u.ativo ? 'verde' : 'cinza'}>{u.ativo ? 'Ativo' : 'Desativado'}</Etiqueta></td>
               <td className="num text-right">{estado!.clientes.filter(c => c.responsavel === u.id && c.etapa !== 'perdido').length}</td><td className="num text-right">{atendendo(u.id)}</td><td className="text-apagado">{u.ultimoAcesso ? tempoDesde(u.ultimoAcesso) : 'nunca'}</td>
             </tr>
@@ -48,6 +48,7 @@ export default function Usuarios() {
           <div className="space-y-3">
             <div><label className="rotulo" htmlFor="un">Nome</label><input id="un" className="campo" value={editando.nome ?? ''} onChange={e => setEditando({ ...editando, nome: e.target.value })} /></div>
             <div><label className="rotulo" htmlFor="ue">E-mail (é o login)</label><input id="ue" type="email" className="campo" value={editando.email ?? ''} onChange={e => setEditando({ ...editando, email: e.target.value })} /></div>
+            <div><label className="rotulo" htmlFor="upix">Chave PIX (para pagar a comissão)</label><input id="upix" className="campo" placeholder="CPF, celular, e-mail ou chave aleatória" value={editando.pix ?? ''} onChange={e => setEditando({ ...editando, pix: e.target.value })} /></div>
             <fieldset><legend className="rotulo">Tipo de acesso</legend>
               {(Object.keys(PAPEIS) as Papel[]).map(p => (
                 <label key={p} className="flex items-start gap-2 py-1 text-sm"><input type="radio" className="mt-1" checked={editando.papel === p} onChange={() => setEditando({ ...editando, papel: p, escopo: p === 'atendente' ? editando.escopo ?? 'proprios' : 'todos' })} />
