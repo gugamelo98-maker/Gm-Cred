@@ -35,6 +35,7 @@ export default function Conversas() {
   const [solto, setSolto] = useState<File | null>(null);
   const [arrastando, setArrastando] = useState(false);
   const [nova, setNova] = useState(false);
+  const [resp, setResp] = useState(params.get('resp') ?? '');
   const fimRef = useRef<HTMLDivElement>(null);
   const eu = usuario!;
   const gestor = podeDefinirResponsavel(eu);
@@ -45,7 +46,7 @@ export default function Conversas() {
 
   const passa = (c: Cliente, f: Filtro) => f === 'todas' || (f === 'nao_lidas' && c.naoLidas > 0) || (f === 'minhas' && c.responsavel === eu.id)
     || (f === 'sem_resp' && !c.responsavel) || (f === 'humano' && c.atendente !== 'ia') || (f === 'ia' && c.atendente === 'ia');
-  const ativas = useMemo(() => visiveis.filter(c => c.etapa !== 'perdido'), [visiveis]);
+  const ativas = useMemo(() => visiveis.filter(c => c.etapa !== 'perdido' && (!resp || c.responsavel === resp)), [visiveis, resp]);
   const lista = useMemo(() => {
     const q = busca.trim().toLowerCase(), qd = q.replace(/\D/g, '');
     return [...ativas, ...(atual && atual.etapa === 'perdido' ? [atual] : [])]
@@ -98,6 +99,12 @@ export default function Conversas() {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-apagado" />
             <input className="campo pl-9" placeholder="Buscar nome ou telefone" value={busca} onChange={e => setBusca(e.target.value)} aria-label="Buscar conversa" />
           </div>
+          {gestor && eu.escopo === 'todos' && (
+            <select className="campo" value={resp} onChange={e => setResp(e.target.value)} aria-label="Conversas de qual atendente">
+              <option value="">Todos os atendentes</option>
+              {estado!.usuarios.filter(u => u.ativo).map(u => <option key={u.id} value={u.id}>{u.nome}</option>)}
+            </select>
+          )}
           <div className="flex flex-wrap gap-1">
             {FILTROS.map(([f, n]) => (
               <button key={f} onClick={() => setFiltro(f)} className={clsx('rounded-full px-2.5 py-1 text-xs font-medium', filtro === f ? 'bg-marca text-white' : 'bg-fundo text-suave')}>{n} <span className="num">{ativas.filter(c => passa(c, f)).length}</span></button>

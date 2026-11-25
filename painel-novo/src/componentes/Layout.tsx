@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
-  BarChart3, Magnet, Columns3, Users, MessageCircle, Calculator, Send, Smartphone, Flame, Gift, Wallet, UserCog, LogOut, Menu, Moon, Sun, X,
+  Activity, BarChart3, Magnet, Columns3, Users, MessageCircle, Calculator, Send, Smartphone, Flame, Gift, Wallet, UserCog, LogOut, Menu, Moon, Sun, X,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useDados } from '@/estado/Dados';
@@ -10,13 +10,14 @@ import type { Papel } from '@/api/tipos';
 import { resetarDemo } from '@/api/demo';
 import { clientesVisiveis } from '@/util/permissoes';
 import ChaveIA from './ChaveIA';
+import { ping } from '@/api/aoVivo';
 
 export interface ItemMenu { para: string; nome: string; icone: typeof BarChart3; papeis: Papel[] }
 const TODOS: Papel[] = ['admin', 'gestor', 'atendente'];
 const GESTAO: Papel[] = ['admin', 'gestor'];
 
 export const MENU: { grupo: string; itens: ItemMenu[] }[] = [
-  { grupo: 'Visão geral', itens: [{ para: '/bi', nome: 'BI', icone: BarChart3, papeis: GESTAO }] },
+  { grupo: 'Visão geral', itens: [{ para: '/bi', nome: 'BI', icone: BarChart3, papeis: GESTAO }, { para: '/ao-vivo', nome: 'Ao vivo', icone: Activity, papeis: GESTAO }] },
   { grupo: 'Vendas', itens: [
     { para: '/pipeline', nome: 'Pipeline', icone: Columns3, papeis: TODOS },
     { para: '/clientes', nome: 'Clientes', icone: Users, papeis: TODOS },
@@ -52,6 +53,13 @@ export default function Layout() {
   const [aberto, setAberto] = useState(false);
   const [, forcar] = useState(0);
   const loc = useLocation();
+  // presença: avisa o servidor a cada 45s (e ao trocar de aba) enquanto o painel está aberto
+  useEffect(() => {
+    if (!usuario) return;
+    ping(loc.pathname);
+    const t = setInterval(() => { if (document.visibilityState === 'visible') ping(loc.pathname); }, 45000);
+    return () => clearInterval(t);
+  }, [usuario, loc.pathname]);
   if (!usuario) return null;
   const naoLidas = estado ? clientesVisiveis(estado, usuario).reduce((s, c) => s + (c.naoLidas && c.etapa !== 'perdido' ? 1 : 0), 0) : 0;
   const escuro = document.documentElement.dataset.tema === 'escuro';
