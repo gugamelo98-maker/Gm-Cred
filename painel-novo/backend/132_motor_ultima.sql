@@ -1,0 +1,2 @@
+-- 132 · painel_dados_api acao 'motor_ultima' {cpf}: id da última consulta do Motor desse CPF nas últimas 24h (ou null).
+-- O botão "Digitar" da conversa (e o link da ficha) abre o Motor nessa consulta, sem simular de novo.

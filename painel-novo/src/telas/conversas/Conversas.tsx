@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Bot, FileUp, MessageSquarePlus, Mic, Paperclip, Search, UserRound } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Bot, Calculator, FileUp, MessageSquarePlus, Mic, Paperclip, Search, UserRound } from 'lucide-react';
 import clsx from 'clsx';
 import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
@@ -153,6 +153,7 @@ export default function Conversas() {
                 <div className="flex min-w-0 items-baseline gap-2"><span className="truncate font-medium">{atual.nome}</span>{numeroDe(atual) && <span className="num shrink-0 rounded-full bg-marca-claro px-2 py-0.5 text-[11px] font-semibold text-marca" title="Número que está atendendo este cliente">📱 {numeroDe(atual)}</span>}</div>
                 <div className="num truncate text-xs text-apagado">{fmtTel(atual.telefone)} · {atual.produto}</div>
               </button>
+              {atual.cpf && <Link className="bt bt-sm" to={`/motor?cpf=${atual.cpf}`} title="Abre o Motor na última consulta desse CPF para escolher a oferta e digitar"><Calculator size={14} /> Digitar</Link>}
               <Etiqueta cor={COR_ETAPA[atual.etapa]}>{nomeEtapa(atual.etapa)}</Etiqueta>
               {gestor && (
                 <select className="campo w-auto py-1 text-xs" value={atual.responsavel ?? ''} onChange={e => responsavel(e.target.value)} aria-label="Responsável pelo cliente">

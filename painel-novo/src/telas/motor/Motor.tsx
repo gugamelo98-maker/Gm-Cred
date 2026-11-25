@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { dadosPost } from '@/api/aoVivo';
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Loader2, Send, Trophy, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 import { Etiqueta, Modal, Titulo, Vazio, type Cor } from '@/componentes/ui';
@@ -277,7 +278,14 @@ export default function Motor() {
   useEffect(() => {
     if (!logado) return;
     // CPF vindo de outra aba (link): consulta uma vez e tira da URL, para atualizar a página não simular de novo
-    if (params.get('cpf') && cpfOk) { setParams({}, { replace: true }); consultar(); return; }
+    // se já tem consulta desse CPF nas últimas 24h, abre nela (para digitar) em vez de simular de novo
+    if (params.get('cpf') && cpfOk) {
+      setParams({}, { replace: true });
+      dadosPost<{ id: number | null }>('motor_ultima', { cpf: soDigitos(cpf) })
+        .then(r => (r.id ? acompanhar(null, null, r.id) : consultar()))
+        .catch(() => consultar());
+      return;
+    }
     // volta da outra aba: mostra a última consulta da memória (F5 limpa) e só segue acompanhando se ainda faltava banco
     if (memoria) { if (memoria.pendentes > 0) acompanhar(memoria, null); else setConsulta(memoria); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
