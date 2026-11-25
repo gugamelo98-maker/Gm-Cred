@@ -163,8 +163,8 @@ if (parte === 'v8_fgts') {
   const payload = { simulationFeesId: o.fee_id || '', fgtsSimulationId: o.sim_id || '', provider: o.provider || '',
     name: nome.toUpperCase(), individualDocumentNumber: cpf, motherName: mae, nationality: 'Brasileiro(a)', isPEP: false, email, birthDate: nasc,
     personType: 'natural', phone: numFone, phoneCountryCode: '55', phoneRegionCode: ddd,
-    postalCode: end.cep, state: end.uf, neighborhood: end.bairro, addressNumber: end.numero, city: end.cidade, street: end.logradouro,
-    formalizationLink: '', maritalStatus: 'single', gender: mulher ? 'female' : 'male', payment: { type: 'pix', data: { pix: pixChave } } };
+    postalCode: end.cep, state: end.uf, neighborhood: end.bairro, addressNumber: end.numero, city: end.cidade, street: end.logradouro, complement: end.complemento || '',
+    documentIdentificationNumber: so(d.rg) || '000000', formalizationLink: '', maritalStatus: 'single', gender: mulher ? 'female' : 'male', payment: { type: 'pix', data: { pix: pixChave } } };
   if (!enviar) return resposta({ ok: true, previa: true, banco: 'V8', payload });
   if (falta.length) return resposta({ ok: false, erro: 'Falta: ' + falta.join(', '), payload });
   if (!tk.v8_fgts) return resposta({ ok: false, erro: 'Sem acesso à V8 agora (renovando). Tente em 1 minuto.' });

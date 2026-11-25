@@ -1,0 +1,6 @@
+-- 131 · Número pessoal de colaborador (wpp_chips.painel_dono preenchido)
+-- credito.receber_wpp_v2: logo no início, se a instância tem dono e o lead mais recente desse telefone
+--   não está nessa instância (não foi chamado pelo painel / leads do dia nesse número), ignora a mensagem
+--   (entrada e saída digitada no celular). Retorna {"ignorado": "conversa pessoal do colaborador"}.
+-- Limpeza: leads pessoais 2763, 2764, 3130 marcados teste=true (somem do painel);
+--   gmcred-63 e gmcred-64 (da Marina) passam de 'disparo' para 'colaborador'.
