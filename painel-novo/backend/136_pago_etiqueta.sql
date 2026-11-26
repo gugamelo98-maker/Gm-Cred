@@ -1,0 +1,2 @@
+-- 136 · credito.bi_marcar_pagos: contrato pago no banco também troca a etiqueta para 'Pago'
+-- (antes só ia para a etapa Pago e a etiqueta antiga ficava, ex.: 'Tem margem FGTS', 'Sem interesse').
