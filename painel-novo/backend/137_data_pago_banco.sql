@@ -1,0 +1,1 @@
+-- 137 · credito.bi_marcar_pagos: dt_fechou sempre = data em que o banco pagou (a mais recente quando o cliente tem mais de um contrato).
