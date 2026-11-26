@@ -1,15 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, CheckCheck, Download, FileText, Lock, Mic } from 'lucide-react';
 import clsx from 'clsx';
 import type { Mensagem, Midia } from '@/api/tipos';
 import { Modal } from '@/componentes/ui';
 import { hora } from '@/util/formato';
+import { dadosPost } from '@/api/aoVivo';
 
 export const tamanho = (b: number) => (b >= 1048576 ? (b / 1048576).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
 const duracao = (s?: number) => (s ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : '');
 
-function ConteudoMidia({ m, escura }: { m: Midia; escura: boolean }) {
+const cacheMidia = new Map<string, string>();
+/** mídia do banco: busca o arquivo (base64) e devolve uma URL local; cache por sessão */
+function useUrlMidia(m: Midia, clienteId: string) {
+  const chave = m.id ? String(m.id) : '';
+  const [url, setUrl] = useState(m.url || (chave && cacheMidia.get(chave)) || '');
+  useEffect(() => {
+    if (m.url || !chave || cacheMidia.has(chave)) return;
+    let vivo = true;
+    dadosPost<{ mime: string; b64: string }>('midia', { midia: m.id, id: clienteId })
+      .then(r => {
+        const bin = atob(r.b64), arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        const u = URL.createObjectURL(new Blob([arr], { type: r.mime || m.mime }));
+        cacheMidia.set(chave, u);
+        if (vivo) setUrl(u);
+      })
+      .catch(() => {});
+    return () => { vivo = false; };
+  }, [chave, m.url, m.id, m.mime, clienteId]);
+  return url;
+}
+
+function ConteudoMidia({ m: m0, escura, clienteId }: { m: Midia; escura: boolean; clienteId: string }) {
   const [ampliar, setAmpliar] = useState(false);
+  const url = useUrlMidia(m0, clienteId);
+  const m = { ...m0, url };
+  if (!url) return <div className={clsx('text-xs italic', escura ? 'text-white/70' : 'text-apagado')}>Carregando {m.tipo === 'imagem' ? 'foto' : m.tipo === 'audio' ? 'áudio' : m.tipo === 'video' ? 'vídeo' : 'arquivo'}…</div>;
   if (m.tipo === 'imagem') return (
     <>
       <button className="block overflow-hidden rounded-lg" onClick={() => setAmpliar(true)} aria-label={`Ampliar imagem ${m.nome}`}>
@@ -53,7 +79,7 @@ export default function Bolha({ m, autor }: { m: Mensagem; autor: string }) {
     <div className={clsx('flex', minha ? 'justify-end' : 'justify-start')}>
       <div className={clsx('max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm', minha ? (m.de === 'ia' ? 'rounded-br-sm bg-marca-claro' : 'rounded-br-sm bg-marca text-white') : 'rounded-bl-sm bg-cartao')}>
         {minha && <div className={clsx('mb-0.5 text-[11px] font-medium', m.de === 'ia' ? 'text-marca' : 'text-white/80')}>{m.de === 'ia' ? 'Ana (IA)' : autor}</div>}
-        {m.midia && <div className={m.texto ? 'mb-1.5' : ''}><ConteudoMidia m={m.midia} escura={escura} /></div>}
+        {m.midia && <div className={m.texto ? 'mb-1.5' : ''}><ConteudoMidia m={m.midia} escura={escura} clienteId={m.clienteId} /></div>}
         {m.texto && <div className="whitespace-pre-wrap break-words">{m.texto}</div>}
         <div className={clsx('mt-0.5 flex items-center justify-end gap-1 text-[10px]', escura ? 'text-white/70' : 'text-apagado')}>
           {hora(m.em)}

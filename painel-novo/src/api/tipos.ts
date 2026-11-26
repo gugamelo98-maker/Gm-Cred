@@ -65,6 +65,8 @@ export interface Midia {
   duracaoSeg?: number;
   /** áudio gravado no painel ou mensagem de voz do WhatsApp (o servidor converte para ogg/opus ao enviar) */
   voz?: boolean;
+  /** mídia guardada no banco (credito.midias): a url é carregada sob demanda */
+  id?: number;
 }
 
 export interface Mensagem {

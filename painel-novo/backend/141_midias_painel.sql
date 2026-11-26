@@ -1,0 +1,6 @@
+-- 141 · Conversas mostram as mídias de verdade
+-- credito.painel_midia_json(extra): {id, tipo imagem|audio|video|documento, mime, nome, tamanho, voz, url ''} a partir de conversas.extra.midia_id
+-- painel_dados_api 'mensagens': 'midia' preenchida (antes sempre null — a tela só mostrava "📷 Foto") e texto "📷 Foto" some quando há mídia.
+-- painel_dados_api 'midia' {midia, id}: devolve {mime, b64} da credito.midias, só se a mídia é de uma conversa daquele cliente.
+-- Status corrigido: wpp_status READ/PLAYED = lida, DELIVERY_ACK = entregue (antes procurava 'read'/'delivered' e nunca batia).
+-- Front (Bolha.tsx): busca a mídia sob demanda e mostra imagem/áudio/vídeo/documento (cache por sessão).
