@@ -1,3 +1,5 @@
 -- 138 · Recuperação (follow-up "Vi que você não me respondeu...") respeita o botão da IA geral.
 -- credito.fila_acompanhamento() antiga virou fila_acompanhamento_base(); a nova devolve 'recuperar' vazio
 -- quando credito.ia_ligada() é false e, mesmo ligada, tira pagos, finalizados/perdidos e clientes com humano.
+-- Depois: follow-up desligado de vez a pedido — credito.fila_acompanhamento() devolve 'recuperar' sempre vazio
+-- (a regra antiga continua em fila_acompanhamento_base(), para religar se quiser).
