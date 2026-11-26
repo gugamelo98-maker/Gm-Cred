@@ -9,3 +9,7 @@
 -- Mantidos (painel): WhatsApp entrada/envio, Motor, Digitação, Acessos, LP lead + simulação automática, Disparos,
 --   Leads do dia/frios, Painel (dados, usuários, comissões, BI), coleta BI, Números. "GM Cred · Ações" e
 --   "· V8 Ferramentas" ficaram (sem gatilho; só eram chamados pela Ana).
+-- Correção (26/11 15:30): o token da V8 CLT (credito.v8_token) só era renovado quando o Acompanhamento chamava
+-- "GM Cred · V8 Ferramentas". Com o Acompanhamento arquivado ele venceu às 14:01. Adicionado no próprio
+-- "V8 Ferramentas" um gatilho "A cada 10 minutos" que renova o token quando falta menos de 60 min para vencer
+-- (Login V8 (renovar) -> Salvar token (renovar)). O Motor, a digitação e a coleta BI usam esse token.
