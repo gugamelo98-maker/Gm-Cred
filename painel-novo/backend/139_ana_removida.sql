@@ -1,0 +1,11 @@
+-- 139 · Ana (IA de atendimento) removida para refazer do zero (26/11)
+-- Cópia de segurança no banco: credito.backup_ana_agentes (19 agentes com prompts), credito.backup_ana_funcoes
+--   (contexto_agente, acao_agente, registrar_resposta, fila_acompanhamento_base, ...), credito.backup_ana_config.
+-- credito.agentes: prompt/abordagem/versao apagados, todos inativos (linhas mantidas por causa do histórico — FKs).
+-- ia_geral = desligada.
+-- n8n arquivados (recuperáveis em "Archived"): GM Cred · Acompanhamento, · Agente, · Roteador, · Unno Ana,
+--   · CLT Dois Bancos, · Teste simulação, · Teste de modelos IA, · Teste V8; Vitoria (2), Agente IA — Atendimento CLT/FGTS,
+--   Recepção de Leads → Agente IA, TESTE (3).
+-- Mantidos (painel): WhatsApp entrada/envio, Motor, Digitação, Acessos, LP lead + simulação automática, Disparos,
+--   Leads do dia/frios, Painel (dados, usuários, comissões, BI), coleta BI, Números. "GM Cred · Ações" e
+--   "· V8 Ferramentas" ficaram (sem gatilho; só eram chamados pela Ana).
