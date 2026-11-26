@@ -1,0 +1,6 @@
+-- 140 · n8n "GM Cred · WhatsApp (envio)": nós que falam com o Baileys (ngrok) com onError = continueRegularOutput
+-- (Perguntar ao WAHA, Sessões WAHA, Achar contato, Enviar WhatsApp, Enviar campanha, Conferir WhatsApp, Foto/Nome do perfil).
+-- Antes, um "socket hang up" do ngrok parava a volta inteira do minuto. Agora a mensagem que falhar cai em wpp_falhou
+-- (erro de conexão = tenta de novo na próxima volta).
+-- Motor: "Task request timed out" = fila de Code nodes do n8n cheia; arquivar o Acompanhamento da Ana (que rodava
+-- Code nodes a cada minuto) alivia. O painel repete a atualização sozinho.
