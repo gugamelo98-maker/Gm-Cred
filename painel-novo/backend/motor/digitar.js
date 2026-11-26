@@ -98,7 +98,7 @@ if (parte === 'unno_clt' || parte === 'unno_fgts') {
     civil_status: 'SINGLE', politically_exposed_person: false, nationality: 'BRASIL', mothers_name: mae, gender: mulher ? 'FEMALE' : 'MALE',
     address: { zip_code: end.cep, uf: end.uf, city: end.cidade, district: end.bairro, street: end.logradouro, number: end.numero, complement: end.complemento },
     bank: porConta
-      ? { disbursement_method: 'BANK_ACCOUNT', bank_code: conta.banco, agency: conta.agencia, agency_digit: conta.agencia_dig || undefined, account_number: conta.numero, account_digit: conta.digito, account_type: conta.poupanca ? 'SAVINGS' : 'CHECKING' }
+      ? { disbursement_method: 'BANK_ACCOUNT', bank_code: conta.banco, agency: conta.agencia, agency_digit: conta.agencia_dig || undefined, account_number: conta.numero, account_digit: conta.digito, account_type: conta.poupanca ? 'SAVINGS_ACCOUNT' : 'CHECKING_ACCOUNT' }
       : { disbursement_method: 'PIX', pix_key: pixChave, pix_type: PIX_U[pixTipo] || 'CPF' } };
   // empregador / RH: preenche só os campos que a Unno trouxer no rascunho
   if (draft.employer && typeof draft.employer === 'object') {
