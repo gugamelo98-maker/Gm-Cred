@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { dadosPost } from '@/api/aoVivo';
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight, Copy, ExternalLink, Loader2, Send, Trophy, XCircle } from 'lucide-react';
 import clsx from 'clsx';
+import { BANCOS, nomeBanco, rotuloBanco } from '@/util/bancos';
 import { Etiqueta, Modal, Titulo, Vazio, type Cor } from '@/componentes/ui';
 import { useDados } from '@/estado/Dados';
 import { painel, type RegrasComissao } from '@/api/painel';
@@ -128,6 +129,7 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
   const [erro, setErro] = useState('');
   const [confirmar, setConfirmar] = useState(false);
   const muda = (k: keyof DadosDigitacao, v: string) => setD(x => ({ ...x, [k]: v }));
+  const [bancoTxt, setBancoTxt] = useState('');
   const o = alvo.oferta;
   async function vai(enviar: boolean) {
     setIndo(enviar ? 'envio' : 'previa'); setErro(''); setConfirmar(false);
@@ -168,7 +170,16 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
           {soConta && <p className="mt-1 text-xs text-apagado">A HUB FGTS só paga em conta bancária.</p>}
         </div>
         {porConta ? (<>
-          <div><label className="rotulo" htmlFor="bco">Banco (código) *</label><input id="bco" className="campo num" inputMode="numeric" placeholder="ex.: 260" value={d.banco ?? ''} onChange={e => muda('banco', e.target.value.replace(/\D/g, ''))} /></div>
+          <div><label className="rotulo" htmlFor="bco">Banco *</label>
+            <input id="bco" className="campo" list="lista-bancos" placeholder="Digite o nome ou o código (ex.: Nubank)" value={bancoTxt}
+              onChange={e => {
+                const t = e.target.value; setBancoTxt(t);
+                const m = t.match(/^\s*(\d{1,3})\b/);
+                muda('banco', m ? m[1].padStart(3, '0') : (BANCOS.find(b => rotuloBanco(b).toLowerCase() === t.trim().toLowerCase() || b[1].toLowerCase() === t.trim().toLowerCase())?.[0] ?? ''));
+              }} />
+            <datalist id="lista-bancos">{BANCOS.map(b => <option key={b[0]} value={rotuloBanco(b)} />)}</datalist>
+            <p className="mt-1 text-xs text-apagado">{d.banco ? <>Código <b className="num">{d.banco}</b>{nomeBanco(d.banco) ? ` · ${nomeBanco(d.banco)}` : ''}</> : 'Escolha o banco na lista.'}</p>
+          </div>
           <div><label className="rotulo" htmlFor="tpc">Tipo de conta *</label>
             <select id="tpc" className="campo" value={d.conta_tipo ?? 'corrente'} onChange={e => muda('conta_tipo', e.target.value)}><option value="corrente">Corrente</option><option value="poupanca">Poupança</option></select></div>
           <div className="grid grid-cols-[1fr_70px] gap-2"><div><label className="rotulo" htmlFor="ag">Agência *</label><input id="ag" className="campo num" inputMode="numeric" value={d.agencia ?? ''} onChange={e => muda('agencia', e.target.value.replace(/\D/g, ''))} /></div>
