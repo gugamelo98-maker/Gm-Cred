@@ -1,0 +1,7 @@
+-- 135 · Pré-atendimento (simulação automática) tabula o cliente — credito.lp_auto_tabular(lead, resultado),
+-- chamada no fim de credito.lp_auto_salvar:
+--   clt_aprovado*  -> etiqueta 'Tem margem CLT',  etapa recepção -> simulação
+--   fgts_saldo*    -> etiqueta 'Tem margem FGTS', etapa recepção -> simulação
+--   sem_proposta   -> etiqueta 'Sem margem', finaliza (perdido); se o cliente mandar mensagem volta a aparecer
+--   sem_proposta_ja_atendido -> só a etiqueta 'Sem margem' (humano já está atendendo)
+-- Aplicado também nos atendimentos automáticos anteriores (quem respondeu depois só recebeu a etiqueta).
