@@ -126,6 +126,17 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
   const [d, setD] = useState<DadosDigitacao>({ mae: '', pix_tipo: 'cpf', pix_chave: consulta.cpf, email: consulta.cliente.email ?? '', pagamento: alvo.parte === 'hub_fgts' || alvo.parte === 'unno_fgts' ? 'conta' : 'pix' });
   const [indo, setIndo] = useState<'previa' | 'envio' | null>(null);
   const [res, setRes] = useState<ResultadoDigitacao | null>(null);
+  const [buscandoLink, setBuscandoLink] = useState(false);
+  const [avisoLink, setAvisoLink] = useState('');
+  const buscarLink = async () => {
+    if (!res?.proposta) return;
+    setBuscandoLink(true); setAvisoLink('');
+    try {
+      const r = await motor.linkUnno(consulta.id, alvo.parte, res.proposta);
+      if (r.link) setRes({ ...res, link: r.link }); else setAvisoLink(r.erro || 'Ainda sem link. Tente de novo em 1 minuto.');
+    } catch (x) { setAvisoLink((x as Error).message); }
+    setBuscandoLink(false);
+  };
   const [erro, setErro] = useState('');
   const [confirmar, setConfirmar] = useState(false);
   const muda = (k: keyof DadosDigitacao, v: string) => setD(x => ({ ...x, [k]: v }));
@@ -203,6 +214,13 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
           {res.previa && res.ok && <div className="font-medium">Prévia montada — nada foi enviado ao banco.{res.faltando?.length ? ` Falta: ${res.faltando.join(', ')}.` : ''}</div>}
           {res.enviado && res.ok && <div className="font-medium">Proposta criada{res.proposta ? ` (${res.proposta})` : ''}.</div>}
           {!res.ok && <div className="font-medium">{res.erro}</div>}
+          {res.enviado && res.ok && !res.link && res.banco === 'Unno' && res.proposta && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span>O banco ainda está montando o contrato; o link de assinatura sai em alguns minutos.</span>
+              <button className="bt bt-sm" disabled={buscandoLink} onClick={buscarLink}>{buscandoLink ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} />} Buscar link</button>
+              {avisoLink && <span className="w-full text-xs">{avisoLink}</span>}
+            </div>
+          )}
           {res.link && (
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <a className="inline-flex items-center gap-1 underline" href={res.link} target="_blank" rel="noreferrer">Link de assinatura <ExternalLink size={12} /></a>

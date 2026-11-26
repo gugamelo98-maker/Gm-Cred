@@ -75,6 +75,9 @@ export const motor = {
   atualizar: (id: number) => post<ConsultaMotor>('/motor/credito', { k: sessao.ler(), acao: 'atualizar', id }),
   digitar: (id: number, parte: ParteId, oferta: OfertaMotor, dados: DadosDigitacao, enviar: boolean) =>
     post<ResultadoDigitacao>('/motor/digitar', { k: sessao.ler(), id, parte, oferta, dados, enviar }),
+  /** Unno: busca o link de assinatura da proposta (o banco demora a emitir o contrato) */
+  linkUnno: (id: number, parte: ParteId, proposta: string) =>
+    post<ResultadoDigitacao>('/motor/digitar', { k: sessao.ler(), id, parte, acao: 'link', proposta }),
 };
 
 export const PARTES: { id: ParteId; banco: 'V8' | 'Unno' | 'HUB'; produto: 'CLT' | 'FGTS' }[] = [

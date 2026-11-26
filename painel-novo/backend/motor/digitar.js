@@ -60,6 +60,19 @@ else if (!pixChave) falta.push('chave PIX');
 else if (parte === 'unno_clt' && (pixTipo !== 'cpf' || so(pixChave) !== cpf)) falta.push('na Unno CLT o PIX tem que ser o CPF do cliente');
 
 const resposta = (x) => [{ json: Object.assign({ id: c.id, parte, enviado: false, faltando: falta }, x) }];
+// link de assinatura da Unno (CCB): GET /proposals/{uuid} → signature_link (nulo enquanto o banco monta o contrato)
+const linkUnno = async (uuid) => {
+  const r = await http('GET', cfg.unno_base + '/api/v1/proposals/' + encodeURIComponent(uuid), { Authorization: 'Bearer ' + tk.unno });
+  const b = (r.b && typeof r.b === 'object') ? (r.b.data && typeof r.b.data === 'object' ? r.b.data : r.b) : {};
+  return { link: b.signature_link || achaLink(b), status: b.status || '', erro: r.s >= 400 || r.s === 0 ? erroDe(r) : '' };
+};
+if (w.acao === 'link' && (parte === 'unno_clt' || parte === 'unno_fgts')) {
+  if (!w.proposta) return resposta({ ok: false, erro: 'Sem número da proposta.' });
+  if (!tk.unno) return resposta({ ok: false, erro: 'Sem acesso à Unno agora (renovando). Tente em 1 minuto.' });
+  const x = await linkUnno(w.proposta);
+  return resposta({ ok: !!x.link, acao: 'link', banco: 'Unno', proposta: w.proposta, link: x.link, status_banco: x.status,
+    erro: x.link ? '' : (x.erro ? 'Unno: ' + x.erro : 'O banco ainda está montando o contrato' + (x.status ? ' (' + x.status + ')' : '') + '. Tente de novo em 1 minuto.') });
+}
 if (!parte || !Object.keys(o).length) return resposta({ ok: false, erro: 'Escolha uma oferta para digitar' });
 
 // ===================== V8 CLT =====================
@@ -122,7 +135,9 @@ if (parte === 'unno_clt' || parte === 'unno_fgts') {
   const ac = await http('POST', base + '/offers/' + encodeURIComponent(offerId) + '/accept', Object.assign({ 'Idempotency-Key': 'motor-acc-' + offerId }, HU));
   if (ac.s >= 400 || ac.s === 0) return resposta({ ok: false, enviado: true, banco: 'Unno', etapa: 'aceite', erro: 'Unno (aceite): ' + erroDe(ac), resposta_banco: curto(ac.b), payload: kyc });
   let link = achaLink(ac.b);
-  if (!link) { await new Promise(r => setTimeout(r, 4000)); const st = await http('GET', base, HU); link = achaLink(st.b); }
+  const uuid = (ac.b && ac.b.proposal_uuid) || '';
+  // o link só existe depois que o banco emite a CCB: tenta por até ~30 s
+  for (let i = 0; !link && uuid && i < 6; i++) { await new Promise(r => setTimeout(r, 5000)); link = (await linkUnno(uuid)).link; }
   return resposta({ ok: true, enviado: true, banco: 'Unno', proposta: (ac.b && ac.b.proposal_uuid) || '', link, resposta_banco: curto(ac.b) });
 }
 
