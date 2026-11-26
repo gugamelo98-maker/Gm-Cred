@@ -122,7 +122,7 @@ function CartaoBanco({ id, parte, digitar, ocupado }: { id: ParteId; parte: Part
 
 function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: { parte: ParteId; oferta: OfertaMotor }; fechar: () => void }) {
   const info = PARTES.find(x => x.id === alvo.parte)!;
-  const [d, setD] = useState<DadosDigitacao>({ mae: '', pix_tipo: 'cpf', pix_chave: consulta.cpf, email: consulta.cliente.email ?? '' });
+  const [d, setD] = useState<DadosDigitacao>({ mae: '', pix_tipo: 'cpf', pix_chave: consulta.cpf, email: consulta.cliente.email ?? '', pagamento: alvo.parte === 'hub_fgts' || alvo.parte === 'unno_fgts' ? 'conta' : 'pix' });
   const [indo, setIndo] = useState<'previa' | 'envio' | null>(null);
   const [res, setRes] = useState<ResultadoDigitacao | null>(null);
   const [erro, setErro] = useState('');
@@ -134,7 +134,10 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
     try { setRes(await motor.digitar(consulta.id, alvo.parte, o, d, enviar)); } catch (x) { setErro((x as Error).message); }
     setIndo(null);
   }
-  const porConta = alvo.parte === 'hub_fgts' || alvo.parte === 'unno_fgts';
+  // HUB FGTS só paga em conta; nos outros bancos escolhe PIX ou dados bancários
+  const soConta = alvo.parte === 'hub_fgts';
+  const pixSoCpf = alvo.parte === 'unno_clt';
+  const porConta = soConta || d.pagamento === 'conta';
   const prontoEnviar = d.mae.trim().length > 3 && (porConta ? !!(d.banco && d.agencia && d.conta && d.conta_digito) : d.pix_chave.trim().length > 3);
   return (
     <Modal aberto fechar={fechar} titulo={`Digitar · ${info.banco} ${info.produto}`} largura="max-w-2xl"
@@ -153,6 +156,17 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2"><label className="rotulo" htmlFor="mae">Nome da mãe *</label><input id="mae" className="campo" value={d.mae} onChange={e => muda('mae', e.target.value)} /></div>
+        <div className="sm:col-span-2">
+          <span className="rotulo">Como o cliente recebe *</span>
+          <div className="flex gap-2">
+            {(['pix', 'conta'] as const).map(t => (
+              <button key={t} type="button" disabled={soConta && t === 'pix'} onClick={() => muda('pagamento', t)}
+                className={clsx('rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-40', (porConta ? 'conta' : 'pix') === t ? 'border-marca bg-marca text-white' : 'border-borda bg-cartao text-suave')}>
+                {t === 'pix' ? 'PIX' : 'Dados bancários'}</button>
+            ))}
+          </div>
+          {soConta && <p className="mt-1 text-xs text-apagado">A HUB FGTS só paga em conta bancária.</p>}
+        </div>
         {porConta ? (<>
           <div><label className="rotulo" htmlFor="bco">Banco (código) *</label><input id="bco" className="campo num" inputMode="numeric" placeholder="ex.: 260" value={d.banco ?? ''} onChange={e => muda('banco', e.target.value.replace(/\D/g, ''))} /></div>
           <div><label className="rotulo" htmlFor="tpc">Tipo de conta *</label>
@@ -163,10 +177,11 @@ function Digitacao({ consulta, alvo, fechar }: { consulta: ConsultaMotor; alvo: 
             <div><label className="rotulo" htmlFor="ccd">Dígito *</label><input id="ccd" className="campo num" value={d.conta_digito ?? ''} onChange={e => muda('conta_digito', e.target.value)} /></div></div>
         </>) : (<>
         <div><label className="rotulo" htmlFor="pixt">Tipo da chave PIX *</label>
-          <select id="pixt" className="campo" value={d.pix_tipo} onChange={e => muda('pix_tipo', e.target.value)}>
+          <select id="pixt" className="campo" value={pixSoCpf ? 'cpf' : d.pix_tipo} disabled={pixSoCpf} onChange={e => muda('pix_tipo', e.target.value)}>
             <option value="cpf">CPF</option><option value="phone">Celular</option><option value="email">E-mail</option><option value="random">Aleatória</option>
           </select></div>
-        <div><label className="rotulo" htmlFor="pixc">Chave PIX *</label><input id="pixc" className="campo" value={d.pix_chave} onChange={e => muda('pix_chave', e.target.value)} /></div>
+        <div><label className="rotulo" htmlFor="pixc">Chave PIX *</label><input id="pixc" className="campo" value={d.pix_chave} onChange={e => muda('pix_chave', e.target.value)} />
+          {pixSoCpf && <p className="mt-1 text-xs text-apagado">Na Unno CLT o PIX só pode ser o CPF do cliente.</p>}</div>
         </>)}
         <div className="sm:col-span-2"><label className="rotulo" htmlFor="em">E-mail do cliente</label><input id="em" className="campo" value={d.email} onChange={e => muda('email', e.target.value)} /></div>
       </div>

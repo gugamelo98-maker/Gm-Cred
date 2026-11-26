@@ -51,12 +51,13 @@ const end = { cep: so(val('cep')), cidade: val('cidade'), uf: val('uf'), bairro:
 const rhTel = ddd + val('rh_telefone_fim');
 const falta = [];
 if (!nome) falta.push('nome'); if (!/^\d{4}-\d{2}-\d{2}$/.test(nasc)) falta.push('nascimento'); if (fone.length < 10) falta.push('celular');
-// HUB e Unno FGTS só pagam em conta bancária
-const porConta = parte === 'hub_fgts' || parte === 'unno_fgts';
+// forma de pagamento escolhida na tela (PIX ou dados bancários); HUB FGTS só paga em conta
+const porConta = parte === 'hub_fgts' || (d.pagamento ? d.pagamento === 'conta' : parte === 'unno_fgts');
 const conta = { banco: so(d.banco), agencia: so(d.agencia), agencia_dig: String(d.agencia_digito || '').trim(), numero: so(d.conta), digito: String(d.conta_digito || '').trim(), poupanca: d.conta_tipo === 'poupanca' };
 if (!mae) falta.push('nome da mãe');
 if (porConta) { if (!conta.banco || !conta.agencia || !conta.numero || !conta.digito) falta.push('conta bancária (banco, agência, conta e dígito)'); }
 else if (!pixChave) falta.push('chave PIX');
+else if (parte === 'unno_clt' && (pixTipo !== 'cpf' || so(pixChave) !== cpf)) falta.push('na Unno CLT o PIX tem que ser o CPF do cliente');
 
 const resposta = (x) => [{ json: Object.assign({ id: c.id, parte, enviado: false, faltando: falta }, x) }];
 if (!parte || !Object.keys(o).length) return resposta({ ok: false, erro: 'Escolha uma oferta para digitar' });
@@ -70,7 +71,9 @@ if (parte === 'v8_clt') {
     address: { city: end.cidade, state: end.uf, number: end.numero, street: end.logradouro, complement: end.complemento, postal_code: end.cep, neighborhood: end.bairro },
     birth_date: nasc, mother_name: mae, nationality: 'brasileira', document_issuer: val('rg_orgao'), gender: mulher ? 'female' : 'male', person_type: 'natural',
     marital_status: 'single', individual_document_number: cpf, document_identification_date: val('rg_emissao'), document_identification_type: 'rg',
-    document_identification_number: val('rg'), bank: { transfer_method: 'pix', pix_key: pixChave, pix_key_type: PIX_V8[pixTipo] || pixTipo } } };
+    document_identification_number: val('rg'), bank: porConta
+      ? { transfer_method: 'transfer', bank_code: conta.banco, branch_number: conta.agencia, account_number: conta.numero, account_digit: conta.digito }
+      : { transfer_method: 'pix', pix_key: pixChave, pix_key_type: PIX_V8[pixTipo] || pixTipo } } };
   if (!o.sim_id) return resposta({ ok: false, erro: 'Essa oferta da V8 não tem o número da simulação. Consulte de novo.' , payload });
   if (!enviar) return resposta({ ok: true, previa: true, banco: 'V8', payload });
   if (falta.length) return resposta({ ok: false, erro: 'Falta: ' + falta.join(', '), payload });
@@ -164,10 +167,20 @@ if (parte === 'v8_fgts') {
     name: nome.toUpperCase(), individualDocumentNumber: cpf, motherName: mae, nationality: 'Brasileiro(a)', isPEP: false, email, birthDate: nasc,
     personType: 'natural', phone: numFone, phoneCountryCode: '55', phoneRegionCode: ddd,
     postalCode: end.cep, state: end.uf, neighborhood: end.bairro, addressNumber: end.numero, city: end.cidade, street: end.logradouro, complement: end.complemento || '',
-    documentIdentificationNumber: so(d.rg) || '000000', formalizationLink: '', maritalStatus: 'single', gender: mulher ? 'female' : 'male', payment: { type: 'pix', data: { pix: pixChave } } };
+    documentIdentificationNumber: so(d.rg) || '000000', formalizationLink: '', maritalStatus: 'single', gender: mulher ? 'female' : 'male',
+    payment: porConta ? { type: 'transfer', data: { bankId: '', accountType: conta.poupanca ? 'savings_account' : 'checking_account', agency: conta.agencia, account: conta.numero, digit: conta.digito } }
+                      : { type: 'pix', data: { pix: pixChave } } };
   if (!enviar) return resposta({ ok: true, previa: true, banco: 'V8', payload });
   if (falta.length) return resposta({ ok: false, erro: 'Falta: ' + falta.join(', '), payload });
   if (!tk.v8_fgts) return resposta({ ok: false, erro: 'Sem acesso à V8 agora (renovando). Tente em 1 minuto.' });
+  // conta bancária: a V8 pede o id interno do banco (lista /banks), não o código
+  if (porConta) {
+    const rb = await http('GET', 'https://bff.v8sistema.com/banks?search=' + encodeURIComponent(conta.banco) + '&limit=50', { Authorization: 'Bearer ' + tk.v8_fgts, Origin: 'https://app.v8sistema.com' });
+    const lb = Array.isArray(rb.b) ? rb.b : ((rb.b && (rb.b.data || rb.b.items)) || []);
+    const bk = lb.find(x => so(x.code || x.compe || x.bankCode) === conta.banco || Number(so(x.code || x.compe || x.bankCode)) === Number(conta.banco));
+    if (!bk) return resposta({ ok: false, erro: 'Banco ' + conta.banco + ' não encontrado na lista da V8 (' + erroDe(rb) + ')', payload });
+    payload.payment.data.bankId = bk.id;
+  }
   // a oferta do Motor não guarda o id da simulação: refaz a simulação da tabela escolhida (igual ao app da V8)
   if (!payload.fgtsSimulationId) {
     const HV = { Authorization: 'Bearer ' + tk.v8_fgts, Origin: 'https://app.v8sistema.com' };
