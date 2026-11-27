@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { dadosBi } from '@/api/aoVivo';
+import { token } from '@/api/painel';
 import { Plus, Trash2 } from 'lucide-react';
 import { useDados } from '@/estado/Dados';
 import { api } from '@/api';
@@ -38,10 +39,20 @@ export default function Financeiro() {
     dadosBi(new Date(faixa[0]).toISOString(), new Date(faixa[1]).toISOString()).then(r => vivo && setPagos(r)).catch(() => vivo && setPagos([]));
     return () => { vivo = false; };
   }, [faixa]);
+  // parte da equipe (30–40% da comissão dos contratos pagos dos vendedores) sai da receita
+  const [equipe, setEquipe] = useState(0);
+  useEffect(() => {
+    let vivo = true;
+    const BASE = (import.meta.env.VITE_N8N_WEBHOOK as string | undefined) || 'https://rarelookingorca-n8n.cloudfy.live/webhook';
+    fetch(BASE + '/painel/comissoes', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ acao: 'equipe_periodo', k: token.ler(), dados: { ini: new Date(faixa[0]).toISOString(), fim: new Date(faixa[1]).toISOString() } }) })
+      .then(r => r.json()).then(b => vivo && setEquipe(Number(b?.equipe) || 0)).catch(() => vivo && setEquipe(0));
+    return () => { vivo = false; };
+  }, [faixa]);
   const receita = pagos.reduce((s, c) => s + Number(c.comissao || 0), 0);
   const gastos = estado!.gastos.filter(g => dentro(g.data + 'T12:00:00', faixa)).sort((a, b) => b.data.localeCompare(a.data));
   const totalGastos = gastos.reduce((s, g) => s + g.valor, 0);
-  const lucro = receita - totalGastos;
+  const lucro = receita - equipe - totalGastos;
   const porCategoria = (Object.keys(CATEGORIAS) as CategoriaGasto[]).map(c => ({ nome: CATEGORIAS[c], valor: gastos.filter(g => g.categoria === c).reduce((s, g) => s + g.valor, 0) })).filter(x => x.valor > 0).sort((a, b) => b.valor - a.valor);
   const porBanco = (['V8', 'Unno', 'HUB'] as Banco[]).map(b => ({ nome: b, valor: pagos.filter(c => c.banco === b).reduce((s, c) => s + Number(c.comissao || 0), 0) })).filter(x => x.valor > 0);
   const entraram = estado!.clientes.filter(c => dentro(c.entrouEm, faixa)).length;
@@ -59,12 +70,13 @@ export default function Financeiro() {
 
   return (
     <div>
-      <Titulo titulo="Financeiro" sub="Receita = comissão das vendas pagas no período. Gastos lançados à mão."
+      <Titulo titulo="Financeiro" sub="Receita = comissão das vendas pagas no período. Lucro = receita − comissão da equipe − gastos."
         acoes={<button className="bt bt-pri" onClick={() => setEditando({ data: new Date().toISOString().slice(0, 10), categoria: 'outros' })}><Plus size={16} /> Lançar gasto</button>} />
       <div className="mb-5"><Abas valor={periodo} mudar={setPeriodo} opcoes={[{ id: 'mes', nome: 'Este mês' }, { id: 'mes_passado', nome: 'Mês passado' }, { id: '30d', nome: '30 dias' }, { id: '7d', nome: '7 dias' }]} /></div>
-      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7">
         <Kpi rotulo="Receita (comissão)" valor={brl(receita)} detalhe={`${num(pagos.length)} contratos pagos nos bancos`} destaque />
         <Kpi rotulo="Gastos" valor={brl(totalGastos)} detalhe={`${gastos.length} lançamentos`} />
+        <Kpi rotulo="Comissão da equipe" valor={brl(equipe)} detalhe="parte dos vendedores nos pagos" />
         <Kpi rotulo="Lucro" valor={<span className={lucro < 0 ? 'text-red-600' : ''}>{brl(lucro)}</span>} destaque />
         <Kpi rotulo="Retorno" valor={totalGastos ? pct(lucro / totalGastos) : '—'} detalhe="lucro ÷ gastos" />
         <Kpi rotulo="Custo por lead" valor={entraram ? brl(totalGastos / entraram) : '—'} detalhe={`${num(entraram)} entraram`} />

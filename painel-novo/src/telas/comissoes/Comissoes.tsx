@@ -88,13 +88,13 @@ function Contratos({ lista, admin, mudar }: { lista: Contrato[]; admin?: boolean
       <h2 className="px-5 pb-2 pt-4 font-semibold">Contratos</h2>
       {!lista.length ? <p className="px-5 pb-4 text-sm text-apagado">Nenhum contrato. Contratos digitados pelo Motor aparecem aqui sozinhos.</p> : (
         <table className="tabela">
-          <thead><tr>{admin && <th>Vendedor</th>}<th>Cliente</th><th>Produto</th><th>Banco / tabela</th><th className="text-right">Liberado</th><th className="text-right">{admin ? 'Comissão GM' : 'Sua comissão'}</th><th>Situação</th><th>Data</th></tr></thead>
+          <thead><tr>{admin && <th>Vendedor</th>}<th>Cliente</th><th>Produto</th><th>Banco / tabela</th><th className="text-right">Liberado</th>{admin ? <><th className="text-right">Comissão total</th><th className="text-right">Vendedor</th><th className="text-right">GM (líquido)</th></> : <th className="text-right">Sua comissão</th>}<th>Situação</th><th>Data</th></tr></thead>
           <tbody>{lista.map(c => (
             <tr key={c.id}>
               {admin && <td className="font-medium">{c.usuario}</td>}
               <td>{c.cliente_nome || '—'}<div className="num text-xs text-apagado">{c.cpf ? mascaraCpf(c.cpf) : ''}</div></td>
               <td>{c.produto}</td><td className="text-xs">{c.banco}<br />{c.tabela}</td>
-              <td className="num text-right">{brl(c.valor)}</td><td className="num text-right">{brl((admin ? c.comissao_empresa : c.comissao) ?? 0)}</td>
+              <td className="num text-right">{brl(c.valor)}</td>{admin ? <><td className="num text-right">{brl(c.comissao_empresa ?? 0)}</td><td className="num text-right">{brl(c.comissao ?? 0)}</td><td className="num text-right font-medium">{brl((c.comissao_empresa ?? 0) - (c.comissao ?? 0))}</td></> : <td className="num text-right">{brl(c.comissao ?? 0)}</td>}
               <td>{admin && mudar ? (
                 <select className="campo w-auto py-1 text-xs" value={c.status} onChange={e => mudar(c, e.target.value as Contrato['status'])}>
                   <option value="digitado">Digitado</option><option value="pago">Pago</option><option value="cancelado">Cancelado</option>
@@ -117,14 +117,15 @@ function Equipe({ mes }: { mes: string }) {
   useEffect(() => { carregar(); }, [carregar]);
   if (!d) return <Vazio>Carregando…</Vazio>;
   const faz = (acao: string, dados: object, ok: string) => api(acao, dados).then(() => { avisar(ok); carregar(); }).catch(e => avisar(e.message, 'erro'));
-  const tot = d.pessoas.reduce((a, p) => ({ clt: a.clt + p.mes.clt.producao, fgts: a.fgts + p.mes.fgts.producao, com: a.com + p.mes.total, emp: a.emp + p.mes.clt.comissao_empresa + p.mes.fgts.comissao_empresa }), { clt: 0, fgts: 0, com: 0, emp: 0 });
+  // contratos do admin ficam 100% com a GM; a equipe recebe a faixa dela
+  const tot = d.pessoas.reduce((a, p) => ({ clt: a.clt + p.mes.clt.producao, fgts: a.fgts + p.mes.fgts.producao, com: a.com + (p.papel === 'admin' ? 0 : p.mes.total), emp: a.emp + p.mes.clt.comissao_empresa + p.mes.fgts.comissao_empresa }), { clt: 0, fgts: 0, com: 0, emp: 0 });
   const pendentes = d.saques.filter(s => s.status === 'solicitado');
   return (
     <>
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi rotulo="Produção CLT paga" valor={brl(tot.clt)} />
         <Kpi rotulo="Produção FGTS paga" valor={brl(tot.fgts)} />
-        <Kpi rotulo="Comissão GM no mês" valor={brl(tot.emp)} destaque />
+        <Kpi rotulo="Comissão GM no mês (líquida)" valor={brl(tot.emp - tot.com)} detalhe={`total ${brl(tot.emp)} − equipe ${brl(tot.com)}`} destaque />
         <Kpi rotulo="A pagar à equipe (mês)" valor={brl(tot.com)} detalhe={pendentes.length ? `${pendentes.length} saque(s) aguardando` : 'nenhum saque aguardando'} destaque />
       </div>
       <section className="cartao mb-5 overflow-x-auto">
