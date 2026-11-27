@@ -1,0 +1,6 @@
+-- 142 · BI: contratos da Unno sem prazo informado passam a usar 48x (antes 24x) no cálculo da comissão.
+-- Aplicado em 27/11/2026 trocando, na view credito.bi_contratos (parte 'unno'),
+--   COALESCE(... ->> 'installments_count')::integer, 24)  →  ..., 48)
+-- Ajuste manual na mesma data: painel_contratos (Cristiane, CPF 06288798908):
+--   ids 1 e 2 (digitados pelo Gustavo) → cancelado; id 3 = contrato A00DJIQC da Marina, 48x, comissão GM R$ 450,53;
+--   lead 3214 → painel_responsavel = Marina (3).
