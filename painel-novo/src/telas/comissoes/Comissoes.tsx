@@ -20,7 +20,7 @@ interface Mes {
   fgts: { producao: number; comissao_empresa: number; pct: number; comissao: number; bonus: number; proximo_bonus_faltam: number };
 }
 interface Saldo { ganho: number; sacado: number; em_analise: number; disponivel: number }
-interface Contrato { id: number; usuario?: string; usuario_id?: number; produto: 'CLT' | 'FGTS'; banco: string; tabela: string; cliente_nome: string; cpf: string; valor: number; comissao_empresa: number; proposta: string; status: 'digitado' | 'pago' | 'cancelado'; criado_em: string; pago_em: string | null }
+interface Contrato { id: number; usuario?: string; usuario_id?: number; produto: 'CLT' | 'FGTS'; banco: string; tabela: string; cliente_nome: string; cpf: string; valor: number; comissao_empresa?: number; comissao?: number; proposta: string; status: 'digitado' | 'pago' | 'cancelado'; criado_em: string; pago_em: string | null }
 interface Saque { id: number; usuario?: string; valor: number; pix: string; status: 'solicitado' | 'pago' | 'recusado'; obs: string | null; criado_em: string }
 interface Pessoa { id: string; nome: string; papel: string; ativo: boolean; mes: Mes; saldo: Saldo }
 
@@ -88,13 +88,13 @@ function Contratos({ lista, admin, mudar }: { lista: Contrato[]; admin?: boolean
       <h2 className="px-5 pb-2 pt-4 font-semibold">Contratos</h2>
       {!lista.length ? <p className="px-5 pb-4 text-sm text-apagado">Nenhum contrato. Contratos digitados pelo Motor aparecem aqui sozinhos.</p> : (
         <table className="tabela">
-          <thead><tr>{admin && <th>Vendedor</th>}<th>Cliente</th><th>Produto</th><th>Banco / tabela</th><th className="text-right">Liberado</th><th className="text-right">Comissão GM</th><th>Situação</th><th>Data</th></tr></thead>
+          <thead><tr>{admin && <th>Vendedor</th>}<th>Cliente</th><th>Produto</th><th>Banco / tabela</th><th className="text-right">Liberado</th><th className="text-right">{admin ? 'Comissão GM' : 'Sua comissão'}</th><th>Situação</th><th>Data</th></tr></thead>
           <tbody>{lista.map(c => (
             <tr key={c.id}>
               {admin && <td className="font-medium">{c.usuario}</td>}
               <td>{c.cliente_nome || '—'}<div className="num text-xs text-apagado">{c.cpf ? mascaraCpf(c.cpf) : ''}</div></td>
               <td>{c.produto}</td><td className="text-xs">{c.banco}<br />{c.tabela}</td>
-              <td className="num text-right">{brl(c.valor)}</td><td className="num text-right">{brl(c.comissao_empresa)}</td>
+              <td className="num text-right">{brl(c.valor)}</td><td className="num text-right">{brl((admin ? c.comissao_empresa : c.comissao) ?? 0)}</td>
               <td>{admin && mudar ? (
                 <select className="campo w-auto py-1 text-xs" value={c.status} onChange={e => mudar(c, e.target.value as Contrato['status'])}>
                   <option value="digitado">Digitado</option><option value="pago">Pago</option><option value="cancelado">Cancelado</option>

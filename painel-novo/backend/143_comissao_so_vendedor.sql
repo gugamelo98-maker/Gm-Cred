@@ -1,0 +1,4 @@
+-- 143 · Comissões ('meu'): o vendedor vê só a comissão dele, nunca a da empresa.
+-- credito.comissoes_api, ação 'meu': tira comissao_empresa do mês e dos contratos e manda
+-- 'comissao' = comissao_empresa × % da faixa (CLT) ou % FGTS. Removidas também as 'regras'.
+-- A tela mostra a coluna "Sua comissão" para atendentes e "Comissão GM" só para admin.
